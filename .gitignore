@@ -1,0 +1,19 @@
+node_modules
+.next
+out
+.vercel
+.env*
+!.env.example
+.DS_Store
+*.log
+# Build / runtime
+.next/
+out/
+.vercel/
+# Env (committed templates only)
+.env*
+!.env.example
+# Editor
+.DS_Store
+*.log
+.tsbuildinfo
