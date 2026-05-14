@@ -3,8 +3,6 @@ import { z } from "zod";
 import { Resend } from "resend";
 import { createSupabaseAdmin } from "@/lib/supabase/server";
 
-export const runtime = "edge";
-
 const Schema = z.object({
   name: z.string().min(1).max(200),
   email: z.string().email().max(200),
