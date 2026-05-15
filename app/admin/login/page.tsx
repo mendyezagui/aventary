@@ -1,4 +1,4 @@
-"use client";
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/admin` }
 
 import { useState } from "react";
 import { createSupabaseBrowser } from "@/lib/supabase/client";
