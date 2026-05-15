@@ -1,4 +1,5 @@
-import Link from "next/link";
+
+import { marked } from "marked";import Link from "next/link";
 import type { Block } from "@/lib/cms";
 import ContactForm from "./ContactForm";
 
@@ -252,12 +253,13 @@ function WhyAventary({ heading, items, image }: any) {
 
 /* ---------------------------- RICH TEXT ---------------------------- */
 function RichText({ md }: { md: string }) {
-  const paragraphs = (md ?? "").split(/\n{2,}/).filter(Boolean);
+  const html = marked.parse(md ?? "", { async: false }) as string;
   return (
     <section className="px-8 py-12">
-      <div className="max-w-3xl mx-auto space-y-6 text-lg leading-relaxed text-on-surface-variant">
-        {paragraphs.map((p, i) => <p key={i}>{p}</p>)}
-      </div>
+      <div
+        className="max-w-3xl mx-auto text-lg leading-relaxed text-on-surface-variant [&_h2]:font-headline [&_h2]:text-2xl [&_h2]:md:text-3xl [&_h2]:font-bold [&_h2]:text-on-surface [&_h2]:pt-8 [&_h2]:mb-3 [&_h3]:font-headline [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-on-surface [&_h3]:pt-6 [&_h3]:mb-3 [&_p]:my-5 [&_a]:text-primary [&_a]:underline [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-5 [&_ul>li]:my-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-5 [&_ol>li]:my-2 [&_strong]:font-bold [&_strong]:text-on-surface [&_em]:italic"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
     </section>
   );
 }
