@@ -1,4 +1,4 @@
-    sb.auth.getSession().then(({ data, error }: { data: { session: unknown }, error: { message: string } | null }) => {
+"use client";
 import { useEffect, useState } from "react";
 import { createSupabaseBrowser } from "@/lib/supabase/client";
 
