@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = await loadPost(slug);
   if (!post) return { title: "Not found — Aventary" };
   return {
-    title: post.title + " — Aventary",
+        title: post.title,
     description: post.excerpt ?? undefined,
     openGraph: {
       title: post.title,
