@@ -18,7 +18,7 @@ export default function LoginPage() {
     if (!window.location.hash.includes("access_token=")) return;
     setBootstrapping(true);
     const sb = createSupabaseBrowser();
-    sb.auth.getSession().then(({ data, error }) => {
+sb.auth.getSession().then(({ data, error }: { data: { session: unknown }, error: { message: string } | null }) => {
       if (error) {
         setErr(error.message);
         setBootstrapping(false);
