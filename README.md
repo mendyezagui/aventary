@@ -102,3 +102,6 @@ git push -u origin main
 - Multi-user accounts — only the email allowlist is gated.
 - Redirects from Squarespace-specific URLs — your sitemap is already /home,
   /about, /contact, /appointments, /insights, /insights/:slug, which match.
+
+
+<!-- Note: NEXT_PUBLIC_* env vars are inlined at build time. After changing them in Cloudflare, trigger a rebuild. -->
