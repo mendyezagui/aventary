@@ -60,11 +60,39 @@ You should see JSON with `top5` array.
 
 ---
 
-## Step 6 — Embed on aventary.com
-1. Open `embed-widget.html`
-2. Update `API_URL` at the top of the `<script>` block with your actual Worker URL
-3. Copy the entire file contents into your Cloudflare Pages site
-   - OR copy just the `<div id="morning-brief">` and `<script>` block into an existing page
+## Step 6 — Mount on aventary.com/intelligence (recommended)
+
+The Next.js page lives at `app/(site)/intelligence/page.tsx` and renders
+`components/MorningBrief.tsx`, which fetches `/api/morning-brief` same-origin.
+For that fetch to work, the Worker has to be mounted under `aventary.com`
+via a Workers Route (already declared in `wrangler.toml`).
+
+Prereqs:
+- `aventary.com` is on a Cloudflare zone you control (Pages requires this too)
+- The main aventary Pages site is already deployed
+
+Steps:
+1. Confirm DNS: `dig aventary.com NS` should return Cloudflare nameservers
+2. Deploy the Worker — `wrangler deploy` reads `wrangler.toml` and creates
+   the routes `aventary.com/api/morning-brief` and `aventary.com/api/trigger`
+3. Verify the routes registered: Cloudflare dashboard → Workers & Pages →
+   morning-brief → Triggers → Routes
+4. Hit `https://aventary.com/api/morning-brief` directly — should return JSON
+   (or `{status: "pending"}` if no brief has been generated yet)
+5. Visit `https://aventary.com/intelligence` — page renders, fetches the brief
+
+Routing precedence: a Workers Route on a zone takes priority over a Pages
+project on the same hostname. So adding `/api/morning-brief` and `/api/trigger`
+as Worker routes hijacks those two specific paths only. Everything else
+(including `/api/contact` and `/intelligence`) keeps serving from Pages.
+
+## Legacy: embed-widget.html (one-page embed, no routing)
+
+If you'd rather not mount the Worker under your domain (or you want to
+embed the brief on a non-aventary page), use `embed-widget.html`:
+1. Open the file
+2. Replace `API_URL` with your `*.workers.dev` URL
+3. Paste the file into any page
 
 ---
 
