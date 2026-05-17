@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Morning Intelligence Brief</title>
+<style>
+  :root {
+    --brief-bg: #080808;
+    --brief-surface: #0E0E0E;
+    --brief-border: #1A1A1A;
+    --brief-text: #D0D0C8;
+    --brief-muted: #555;
+    --brief-accent: #F0EFE8;
+    --c-ai: #00E5FF;
+    --c-sf: #FF6B35;
+    --c-rv: #A8FF3E;
+  }
+
+  #morning-brief {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: var(--brief-bg);
+    color: var(--brief-text);
+    padding: 40px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .brief-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #1C1C1C;
+    padding-bottom: 20px;
+    margin-bottom: 32px;
+  }
+
+  .brief-eyebrow {
+    font-family: monospace;
+    font-size: 9px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #333;
+    margin-bottom: 5px;
+  }
+
+  .brief-date {
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--brief-accent);
+  }
+
+  .brief-meta {
+    font-family: monospace;
+    font-size: 9px;
+    color: #282828;
+    margin-top: 4px;
+  }
+
+  .brief-tag {
+    font-family: monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border: 1px solid #1E1E1E;
+    color: #333;
+  }
+
+  .brief-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  .brief-card {
+    background: var(--brief-surface);
+    border: 1px solid var(--brief-border);
+    padding: 22px;
+    transition: border-color 0.15s;
+    cursor: default;
+    position: relative;
+  }
+
+  .brief-card:hover {
+    border-color: #2E2E2E;
+  }
+
+  .brief-rank {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    font-family: monospace;
+    font-size: 9px;
+    color: #252525;
+    letter-spacing: 1px;
+  }
+
+  .brief-card-name {
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--brief-accent);
+    margin-bottom: 3px;
+  }
+
+  .brief-card-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .brief-card-date {
+    font-family: monospace;
+    font-size: 9px;
+  }
+
+  .brief-badge {
+    font-family: monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    background: #141414;
+    color: #444;
+  }
+
+  .brief-card-title {
+    font-size: 12px;
+    font-style: italic;
+    color: #888;
+    margin-bottom: 12px;
+    line-height: 1.45;
+  }
+
+  .brief-bullets {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .brief-bullets li {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: #606060;
+    line-height: 1.65;
+  }
+
+  .brief-bullet-mark {
+    font-size: 10px;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+
+  .brief-why {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #141414;
+    font-family: monospace;
+    font-size: 9px;
+    color: #2A2A2A;
+    line-height: 1.5;
+  }
+
+  .brief-card-link {
+    display: block;
+    margin-top: 8px;
+    font-family: monospace;
+    font-size: 9px;
+    color: #222;
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .brief-card-link:hover { color: #444; }
+
+  .brief-footer {
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid #141414;
+    font-family: monospace;
+    font-size: 8px;
+    color: #1E1E1E;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .brief-loading {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  .brief-skeleton {
+    background: #0C0C0C;
+    border: 1px solid #141414;
+    padding: 22px;
+  }
+
+  .brief-skel-line {
+    background: #161616;
+    border-radius: 2px;
+    margin-bottom: 8px;
+    animation: blink 1.6s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .brief-error {
+    background: #120000;
+    border: 1px solid #3A0000;
+    padding: 16px 20px;
+    font-family: monospace;
+    font-size: 11px;
+    color: #FF5555;
+  }
+</style>
+</head>
+<body style="background:#080808; margin:0; padding:0;">
+
+<div id="morning-brief">
+  <div class="brief-header">
+    <div>
+      <div class="brief-eyebrow">Morning Intelligence Brief</div>
+      <div class="brief-date" id="brief-date">Loading…</div>
+      <div class="brief-meta">30 voices scanned · Top 5 surfaced · Updated 6 AM PST</div>
+    </div>
+    <div class="brief-tag" id="brief-status">LIVE</div>
+  </div>
+  <div id="brief-content">
+    <!-- Loading skeletons -->
+    <div class="brief-loading">
+      ${[1,2,3,4,5].map(() => `
+      <div class="brief-skeleton">
+        <div class="brief-skel-line" style="height:8px;width:45%;"></div>
+        <div class="brief-skel-line" style="height:6px;width:25%;margin-bottom:12px;"></div>
+        <div class="brief-skel-line" style="height:7px;"></div>
+        <div class="brief-skel-line" style="height:7px;width:85%;"></div>
+        <div class="brief-skel-line" style="height:7px;width:70%;"></div>
+      </div>`).join("")}
+    </div>
+  </div>
+  <div class="brief-footer">
+    <span id="brief-generated">—</span>
+    <span>aventary.com · AI Intelligence</span>
+  </div>
+</div>
+
+<script>
+(function () {
+  // ── CONFIG: update this URL after deploying your Worker ──────────────────
+  const API_URL = "https://morning-brief.YOUR_SUBDOMAIN.workers.dev/api/morning-brief";
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const CAT_COLOR = {
+    "AI Practitioners": "#00E5FF",
+    "Salesforce / Agentforce": "#FF6B35",
+    "Revenue Operations": "#A8FF3E",
+  };
+
+  function formatDate(iso) {
+    try {
+      return new Date(iso).toLocaleDateString("en-US", {
+        weekday: "long", month: "long", day: "numeric", year: "numeric",
+      });
+    } catch { return iso; }
+  }
+
+  function card(item) {
+    const color = CAT_COLOR[item.category] || "#888";
+    const bullets = (item.bullets || []).map(b =>
+      `<li><span class="brief-bullet-mark" style="color:${color}">▸</span>${b}</li>`
+    ).join("");
+    const link = item.url
+      ? `<a class="brief-card-link" href="${item.url}" target="_blank" rel="noopener">${item.url}</a>`
+      : "";
+    return `
+      <div class="brief-card" style="border-color:#1A1A1A"
+        onmouseenter="this.style.borderColor='${color}30'"
+        onmouseleave="this.style.borderColor='#1A1A1A'">
+        <div class="brief-rank">#${item.rank}</div>
+        <div class="brief-card-name">${item.name}</div>
+        <div class="brief-card-meta">
+          <span class="brief-card-date" style="color:${color};opacity:.8">${item.pub_date || ""}</span>
+          <span class="brief-badge">${item.platform || ""}</span>
+          <span class="brief-badge" style="color:${color};background:${color}12">${item.category}</span>
+        </div>
+        ${item.title ? `<div class="brief-card-title">${item.title}</div>` : ""}
+        <ul class="brief-bullets">${bullets}</ul>
+        ${item.why_top5 ? `<div class="brief-why">↑ ${item.why_top5}</div>` : ""}
+        ${link}
+      </div>`;
+  }
+
+  async function load() {
+    const dateEl = document.getElementById("brief-date");
+    const contentEl = document.getElementById("brief-content");
+    const statusEl = document.getElementById("brief-status");
+    const generatedEl = document.getElementById("brief-generated");
+
+    try {
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      if (data.status === "pending") {
+        dateEl.textContent = new Date().toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric", year:"numeric" });
+        statusEl.textContent = "PENDING";
+        contentEl.innerHTML = `<div class="brief-error">Brief not yet generated for today. Runs at 6 AM PST.</div>`;
+        return;
+      }
+
+      dateEl.textContent = formatDate(data.date);
+      statusEl.textContent = `${data.voices_scanned || 30} SCANNED`;
+      generatedEl.textContent = `Generated ${new Date(data.generated_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZoneName: "short" })}`;
+
+      contentEl.innerHTML = `<div class="brief-grid">${(data.top5 || []).map(card).join("")}</div>`;
+
+    } catch (err) {
+      dateEl.textContent = new Date().toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric", year:"numeric" });
+      statusEl.textContent = "ERROR";
+      contentEl.innerHTML = `<div class="brief-error">Failed to load brief: ${err.message}</div>`;
+    }
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>
