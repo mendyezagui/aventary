@@ -43,12 +43,12 @@ const VOICES = [
 // ─── Anthropic agentic loop ────────────────────────────────────────────────
 
 async function runAgentLoop(apiKey, prompt) {
+  // web_search is a server-side tool — Anthropic runs the searches inline and
+  // returns results in the same response. We only loop on `pause_turn`, which
+  // Anthropic emits when a long agentic run needs to be continued.
   const messages = [{ role: "user", content: prompt }];
-  let turns = 0;
 
-  while (turns < 15) {
-    turns++;
-
+  for (let turns = 0; turns < 5; turns++) {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -57,7 +57,7 @@ async function runAgentLoop(apiKey, prompt) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-6",
         max_tokens: 4000,
         tools: [{ type: "web_search_20250305", name: "web_search" }],
         messages,
@@ -74,33 +74,15 @@ async function runAgentLoop(apiKey, prompt) {
 
     messages.push({ role: "assistant", content: data.content });
 
-    if (data.stop_reason === "end_turn") {
-      return (data.content || [])
-        .filter(b => b.type === "text")
-        .map(b => b.text)
-        .join("");
-    }
+    if (data.stop_reason === "pause_turn") continue;
 
-    if (data.stop_reason === "tool_use") {
-      const toolResults = (data.content || [])
-        .filter(b => b.type === "tool_use")
-        .map(b => ({
-          type: "tool_result",
-          tool_use_id: b.id,
-          content: "Search complete.",
-        }));
-      if (!toolResults.length) break;
-      messages.push({ role: "user", content: toolResults });
-      continue;
-    }
-
-    // Fallback: extract any text and return
-    const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
-    if (text) return text;
-    break;
+    return (data.content || [])
+      .filter(b => b.type === "text")
+      .map(b => b.text)
+      .join("");
   }
 
-  throw new Error("Agent loop ended without a final response.");
+  throw new Error("Agent loop exceeded max turns.");
 }
 
 // ─── Brief generation ──────────────────────────────────────────────────────
