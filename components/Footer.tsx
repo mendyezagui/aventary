@@ -14,6 +14,7 @@ export default function Footer() {
           <h5 className="font-bold text-zinc-800">Company</h5>
           <ul className="flex flex-col gap-3">
             <li><Link className="text-zinc-500 hover:text-primary transition-colors" href="/insights">Insights</Link></li>
+            <li><Link className="text-zinc-500 hover:text-primary transition-colors" href="/intelligence">Intelligence</Link></li>
             <li><Link className="text-zinc-500 hover:text-primary transition-colors" href="/about">About</Link></li>
             <li><Link className="text-zinc-500 hover:text-primary transition-colors" href="/appointments">Book a call</Link></li>
           </ul>
