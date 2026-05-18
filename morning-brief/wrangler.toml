@@ -24,12 +24,15 @@ id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
 # Mounts the Worker same-origin under aventary.com so the /intelligence page
 # can fetch /api/morning-brief without CORS. Requires aventary.com to be on
 # Cloudflare DNS (it is — Pages requires it too).
+#
+# Trailing `*` is important: exact-match patterns dropped requests that
+# included query strings (e.g. ?force=1) and let them fall through to Pages.
 [[routes]]
-pattern = "aventary.com/api/morning-brief"
+pattern = "aventary.com/api/morning-brief*"
 zone_name = "aventary.com"
 
 [[routes]]
-pattern = "aventary.com/api/trigger"
+pattern = "aventary.com/api/trigger*"
 zone_name = "aventary.com"
 
 # Uncomment if you also want the apex-less variant www.aventary.com to work:
