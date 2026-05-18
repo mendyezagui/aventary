@@ -18,10 +18,10 @@ export function AuthorBio() {
             Mendy Ezagui
           </h3>
           <p className="text-on-surface-variant text-base leading-relaxed mb-2">
-            Founder of <strong>Aventary</strong>, helping B2B sales teams scale with Salesforce RevOps tech and AI strategy. MBA from Baruch College. <strong>12 Salesforce certifications</strong>, including Certified AI Specialist and Data Cloud Consultant.
+            Founder of <strong>Aventary</strong>, helping B2B sales teams scale with Salesforce RevOps tech and AI strategy. <strong>MBA in Finance</strong> from Baruch&rsquo;s Zicklin School of Business. <strong>Salesforce Certified 14x</strong> &mdash; including all three Generative AI credentials.
           </p>
           <p className="text-on-surface-variant text-base leading-relaxed mb-5">
-            Spent 5 years at <strong>PwC</strong> leading enterprise software transformation programs — 20+ engagements, $1B+ in transformation value, and PwC's first client-facing AI Sales Agent.
+            5 years at <strong>PwC</strong> Technology &amp; Transformation Advisory: drove <strong>$1B+ in transformation value</strong> across 20+ programs, led 100+ executive workshops, and built PwC&rsquo;s first client-facing AI Sales Agent.
           </p>
           <div className="flex flex-wrap gap-3">
             <a
