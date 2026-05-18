@@ -22,9 +22,12 @@ wrangler login
 
 ## Step 2 — Create KV Namespace
 ```bash
-wrangler kv:namespace create BRIEF_KV
+wrangler kv namespace create BRIEF_KV
 ```
 Copy the `id` it returns. Paste it into `wrangler.toml` replacing `REPLACE_WITH_YOUR_KV_NAMESPACE_ID`.
+
+> Note: Wrangler v2 used `wrangler kv:namespace create BRIEF_KV` (with a colon).
+> v3+ dropped the colon — use a space.
 
 ---
 
