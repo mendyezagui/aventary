@@ -1,6 +1,19 @@
 import Link from "next/link";
 import { listPosts } from "@/lib/cms";
 
+function formatDate(iso: string | null | undefined): string {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric"
+    });
+  } catch {
+    return "";
+  }
+}
+
 export const revalidate = 60;
 export const metadata = { title: "Insights" };
 
@@ -53,8 +66,14 @@ export default async function InsightsPage() {
                   />
                 </div>
               ) : null}
-              <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
-                Insights · 4 min read
+              <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3 flex items-center gap-2">
+                <span>Insights</span>
+                {p.published_at ? (
+                  <>
+                    <span aria-hidden="true">·</span>
+                    <time dateTime={p.published_at}>{formatDate(p.published_at)}</time>
+                  </>
+                ) : null}
               </div>
               <h2 className="font-headline text-2xl font-bold mb-3">{p.title}</h2>
               {p.excerpt ? <p className="text-on-surface-variant">{p.excerpt}</p> : null}

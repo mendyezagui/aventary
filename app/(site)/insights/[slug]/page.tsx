@@ -2,6 +2,20 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { marked } from "marked";
 import { getPost } from "@/lib/cms";
+import { AuthorBio } from "@/components/AuthorBio";
+
+function formatDate(iso: string | null | undefined): string {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+  } catch {
+    return "";
+  }
+}
 
 export const revalidate = 60;
 
@@ -12,6 +26,7 @@ const FALLBACK_POST = {
     "A short diagnosis of the gap between marketing spend and pipeline — and how AI-driven routing closes it.",
   cover_url:
     "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1200&q=80&auto=format&fit=crop",
+  published_at: "2026-05-07T19:51:43.533Z",
   body_md:
     "## The gap between spend and pipeline\n\nMost teams don't have a lead problem. They have a routing problem.\n\nWhen we audit inbound pipelines we find the same pattern: 20–40% of inbound leads are never called, emailed, or assigned — usually because of slow round-robin logic, territory rules that don't match the data, or lead scoring that's silently filtering real buyers out.\n\n## What to fix first\n\n1. Measure first-touch time on every lead.\n2. Add a safety net: any lead untouched after 2 hours goes to a pooled queue.\n3. Let AI classify intent and enrich before routing.\n\nContact us if you want a free pipeline review."
 };
@@ -64,9 +79,14 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           >
             ← Insights
           </Link>
-          <h1 className="font-headline text-4xl md:text-6xl font-bold editorial-gap leading-[1.05] mt-6 mb-6">
+          <h1 className="font-headline text-4xl md:text-6xl font-bold editorial-gap leading-[1.05] mt-6 mb-4">
             {post.title}
           </h1>
+          {post.published_at ? (
+            <div className="text-sm text-on-surface-variant mb-6">
+              <time dateTime={post.published_at}>{formatDate(post.published_at)}</time>
+            </div>
+          ) : null}
           {post.excerpt ? (
             <p className="text-lg text-on-surface-variant">{post.excerpt}</p>
           ) : null}
@@ -91,6 +111,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           className="max-w-3xl mx-auto text-lg leading-relaxed text-on-surface [&_h2]:font-headline [&_h2]:text-2xl [&_h2]:md:text-3xl [&_h2]:font-bold [&_h2]:pt-8 [&_h2]:mb-3 [&_h3]:font-headline [&_h3]:text-xl [&_h3]:md:text-2xl [&_h3]:font-bold [&_h3]:pt-6 [&_h3]:mb-3 [&_p]:my-5 [&_a]:text-primary [&_a]:underline [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-5 [&_ul>li]:my-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-5 [&_ol>li]:my-2 [&_blockquote]:border-l-4 [&_blockquote]:border-primary [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:my-6 [&_code]:bg-black/5 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_pre]:bg-black/90 [&_pre]:text-white [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-6 [&_pre>code]:bg-transparent [&_pre>code]:p-0 [&_img]:rounded-2xl [&_img]:my-6 [&_img]:w-full [&_strong]:font-bold [&_em]:italic"
           dangerouslySetInnerHTML={{ __html: html }}
         />
+
+        <div className="max-w-3xl mx-auto">
+          <AuthorBio />
+        </div>
 
         <div className="max-w-3xl mx-auto pt-8">
           <Link
