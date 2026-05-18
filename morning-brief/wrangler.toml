@@ -3,6 +3,11 @@ main = "worker.js"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
+# Keep the Worker private — reachable only through the aventary.com routes
+# below, not via a public workers.dev subdomain.
+workers_dev = false
+preview_urls = false
+
 # ─── Cron Trigger ────────────────────────────────────────────────────────────
 # 6 AM PDT (Apr–Oct) = 13:00 UTC
 # Change to "0 14 * * *" Nov–Mar (PST = UTC-8)
@@ -14,7 +19,7 @@ crons = ["0 13 * * *"]
 # Then paste the returned id below
 [[kv_namespaces]]
 binding = "BRIEF_KV"
-id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+id = "916e2964d8ad49db93b8d663869c0a9f"
 
 # ─── Secrets (set via CLI, never commit these) ───────────────────────────────
 # wrangler secret put ANTHROPIC_API_KEY

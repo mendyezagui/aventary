@@ -264,6 +264,7 @@ RANKING CRITERIA:
 2. Actionability — a business exec or operator can act on this today
 3. Freshness — last 48h strongly preferred; 7 days absolute max
 4. Specificity — numbers, real examples, concrete findings
+5. Coverage — top5 MUST include at least 1 item with category "Revenue Operations". This is a hard constraint, not a preference. If no fresh RevOps post exists in PART A or PART B for this window, surface the strongest available RevOps voice (any platform, lookback up to 7 days) and write bullets that frame why their current posture matters — never omit RevOps to make room for a 5th AI/Salesforce item.
 
 Write each card for a business executive who has 10 seconds to decide if it's worth reading:
 - 3 bullets max, tight, no fluff
@@ -297,6 +298,19 @@ Return ONLY valid JSON. No markdown. No preamble:
   const match = stripped.match(/\{[\s\S]*\}/);
   if (!match) throw new Error("No JSON found in response");
   const result = JSON.parse(match[0]);
+
+  // Coverage safety check — flag (but don't block) briefs missing RevOps.
+  // The prompt enforces a hard constraint that top5 must include a Revenue
+  // Operations item; this log surfaces any time the model violates it so we
+  // can tighten the prompt if it ever drifts.
+  const hasRevOps = Array.isArray(result.top5) && result.top5.some(
+    (i) => i && i.category === "Revenue Operations"
+  );
+  if (!hasRevOps) {
+    console.warn(
+      "[Morning Brief] WARNING: top5 missing Revenue Operations category — prompt coverage rule violated."
+    );
+  }
 
   // Persist brief
   await env.BRIEF_KV.put(KV_LATEST, JSON.stringify(result), { expirationTtl: BRIEF_TTL_S });
