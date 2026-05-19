@@ -34,12 +34,20 @@ const API_URL = "/api/morning-brief";
 
 function formatDate(iso: string) {
   try {
-    return new Date(iso).toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
+    // The Worker stores `date` as a bare YYYY-MM-DD string. `new Date(iso)`
+    // would parse that as UTC midnight, which displays as the previous day
+    // in PT. Append a midday time so the displayed day matches the brief's
+    // intended day regardless of viewer timezone.
+    const hasTime = /T\d/.test(iso);
+    return new Date(hasTime ? iso : `${iso}T12:00:00`).toLocaleDateString(
+      "en-US",
+      {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      }
+    );
   } catch {
     return iso;
   }
