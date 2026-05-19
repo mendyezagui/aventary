@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 type Item = {
   rank: number;
@@ -137,6 +137,9 @@ export default function MorningBrief() {
             <span className="mb-eyebrow-text">
               {voicesScanned} voices scanned · Top 5 surfaced
             </span>
+            <a className="mb-subscribe-pill" href="#mb-subscribe">
+              Get this in your inbox →
+            </a>
           </div>
           <h1 className="mb-title">Morning Intelligence Brief</h1>
           <p className="mb-subtitle">Updated 6 AM PST · {date}</p>
@@ -161,12 +164,91 @@ export default function MorningBrief() {
           </>
         )}
 
+        <SubscribeSection />
+
         <footer className="mb-footer">
           <span>aventary.com · AI Intelligence</span>
           {state.kind === "ok" && <span>Generated {timeFormatted(state.data.generated_at)}</span>}
         </footer>
       </div>
     </>
+  );
+}
+
+function SubscribeSection() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
+  const [message, setMessage] = useState<string | null>(null);
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    const trimmed = email.trim();
+    if (!trimmed.includes("@")) {
+      setStatus("error");
+      setMessage("That doesn't look like an email.");
+      return;
+    }
+    setStatus("loading");
+    setMessage(null);
+    try {
+      const res = await fetch("/api/intelligence/subscribe", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: trimmed, source: "intelligence_page" }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || `HTTP ${res.status}`);
+      }
+      setStatus("ok");
+      setMessage("You're subscribed. The next brief lands at 6 AM PT.");
+      setEmail("");
+    } catch (err) {
+      setStatus("error");
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      setMessage(msg);
+    }
+  }
+
+  return (
+    <section className="mb-subscribe" id="mb-subscribe">
+      <div className="mb-subscribe-copy">
+        <div className="mb-subscribe-eyebrow">Subscribe</div>
+        <h2 className="mb-subscribe-title">Get the brief in your inbox</h2>
+        <p className="mb-subscribe-sub">
+          One email each weekday at 6 AM PT. Top 5 signals across AI, Salesforce, and Revenue Operations.
+          Unsubscribe with one click — no questions asked.
+        </p>
+      </div>
+      <form className="mb-subscribe-form" onSubmit={onSubmit} noValidate>
+        <input
+          type="email"
+          required
+          placeholder="you@company.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="mb-subscribe-input"
+          disabled={status === "loading"}
+        />
+        <button
+          type="submit"
+          className="mb-subscribe-btn"
+          disabled={status === "loading"}
+        >
+          {status === "loading" ? "Subscribing…" : "Subscribe"}
+        </button>
+      </form>
+      {message && (
+        <p
+          className={
+            status === "error" ? "mb-subscribe-msg mb-subscribe-msg-error" : "mb-subscribe-msg mb-subscribe-msg-ok"
+          }
+          role={status === "error" ? "alert" : "status"}
+        >
+          {message}
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -840,6 +922,153 @@ const STYLES = `
 @keyframes mb-blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
+}
+
+/* Subscribe — top pill */
+.mb-subscribe-pill {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #5300b7;
+  background: #ebddff;
+  padding: 4px 10px;
+  border-radius: 2px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.mb-subscribe-pill:hover {
+  background: #d3bbff;
+}
+
+/* Subscribe — bottom section */
+.mb-subscribe {
+  background: #ffffff;
+  border: 1px solid #ccc3d7;
+  border-radius: 4px;
+  padding: 28px 32px;
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .mb-subscribe {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 24px;
+  }
+}
+
+.mb-subscribe-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5300b7;
+  margin-bottom: 6px;
+}
+
+.mb-subscribe-title {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: -0.01em;
+  color: #0b1c30;
+  margin: 0 0 8px;
+}
+
+.mb-subscribe-sub {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 13px;
+  line-height: 18px;
+  color: #4a4455;
+  margin: 0;
+}
+
+.mb-subscribe-form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.mb-subscribe-input {
+  flex: 1 1 240px;
+  min-width: 0;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 14px;
+  padding: 0 14px;
+  height: 40px;
+  background: #f8f9ff;
+  color: #0b1c30;
+  border: 1px solid #ccc3d7;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.mb-subscribe-input::placeholder {
+  color: #7b7486;
+}
+
+.mb-subscribe-input:focus {
+  border-color: #5300b7;
+  box-shadow: 0 0 0 2px rgba(83, 0, 183, 0.15);
+}
+
+.mb-subscribe-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mb-subscribe-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  height: 40px;
+  padding: 0 20px;
+  background: #5300b7;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.mb-subscribe-btn:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.mb-subscribe-btn:disabled {
+  background: #7b7486;
+  cursor: not-allowed;
+}
+
+.mb-subscribe-msg {
+  grid-column: 1 / -1;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.mb-subscribe-msg-ok {
+  color: #5300b7;
+}
+
+.mb-subscribe-msg-error {
+  color: #93000a;
 }
 
 /* Footer */
