@@ -58,14 +58,23 @@ const VOICES = [
   { name: "Kyle Lacy",           x: "@kyleplacy",      li: "kyleplacy",         category: "Revenue Operations",     substack: null, youtube_channel_id: null },
   { name: "Udi Ledergor",        x: "@udiledergor",    li: "udiledergor",       category: "Revenue Operations",     substack: null, youtube_channel_id: null },
   { name: "Cliff Simon",         x: "@cliffsimon_gtm", li: "cliff-simon",       category: "Revenue Operations",     substack: null, youtube_channel_id: null },
+  // AI × RevOps tilt — added for Aventary's non-tech-ICP focus (Aug 2026)
+  { name: "Adam Robinson",       x: "@adamrobinson",   li: "adamlrobinson",     category: "Revenue Operations",     substack: null, youtube_channel_id: null },
+  { name: "Jordan Crawford",     x: "@jcraw",          li: "jordancrawford",    category: "Revenue Operations",     substack: null, youtube_channel_id: null },
+  { name: "Kareem Amin",         x: "@kareemamin",     li: "kareemamin",        category: "Revenue Operations",     substack: null, youtube_channel_id: null },
+  { name: "Megan Bowen",         x: "@meganbowen",     li: "meganbowen",        category: "Revenue Operations",     substack: null, youtube_channel_id: null },
 ];
 
 // ─── KV schema ─────────────────────────────────────────────────────────────
 const KV_LATEST      = "latest";
 const KV_LAST_RUN    = "last_run_at";
 const KV_SHOWN_PFX   = "shown:";
+const KV_RECENT_ITEMS = "recent_items_v1";
 const SHOWN_TTL_S    = 60 * 60 * 24 * 14; // 14 days
-const BRIEF_TTL_S    = 60 * 60 * 48;      // 48 hours
+const BRIEF_TTL_S    = 60 * 60 * 24 * 14; // keep last brief readable for 14 days (was 48h)
+const RECENT_TTL_S   = 60 * 60 * 24 * 30; // 30 days — safety net for KV expiry
+const RECENT_WINDOW_MS = 14 * 24 * 60 * 60 * 1000; // exclude items surfaced in the last 14 days
+const RECENT_CAP     = 200;                // hard cap on how many items we track
 const RUN_OVERLAP_MS = 6  * 60 * 60 * 1000;
 const MAX_LOOKBACK_MS = 7 * 24 * 60 * 60 * 1000;
 const WEB_SEARCH_MAX_USES = 30;
@@ -179,6 +188,51 @@ async function markShown(env, urls) {
   }));
 }
 
+// Rolling history of items the LLM has surfaced in the last RECENT_WINDOW_MS.
+// Stored as a JSON array of { name, title, url, surfaced_at } in KV. Read at
+// prompt-build time so the LLM is told "don't re-pick these"; pruned on every
+// successful brief.
+async function getRecentItems(env) {
+  try {
+    const raw = await env.BRIEF_KV.get(KV_RECENT_ITEMS);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    const cutoff = Date.now() - RECENT_WINDOW_MS;
+    return parsed.filter((it) => it && typeof it.surfaced_at === "number" && it.surfaced_at >= cutoff);
+  } catch {
+    return [];
+  }
+}
+
+async function appendRecentItems(env, top5) {
+  const now = Date.now();
+  const cutoff = now - RECENT_WINDOW_MS;
+  const existing = await getRecentItems(env);
+  const additions = (top5 || [])
+    .filter((it) => it && (it.title || it.url || it.name))
+    .map((it) => ({
+      name: it.name || "",
+      title: it.title || "",
+      url: it.url || "",
+      surfaced_at: now,
+    }));
+  // Newest first, dedup by url||title, prune by age, cap by length
+  const seen = new Set();
+  const merged = [];
+  for (const item of [...additions, ...existing]) {
+    if (item.surfaced_at < cutoff) continue;
+    const sig = (item.url || item.title || item.name).trim().toLowerCase();
+    if (!sig || seen.has(sig)) continue;
+    seen.add(sig);
+    merged.push(item);
+    if (merged.length >= RECENT_CAP) break;
+  }
+  await env.BRIEF_KV.put(KV_RECENT_ITEMS, JSON.stringify(merged), {
+    expirationTtl: RECENT_TTL_S,
+  });
+}
+
 // ─── Anthropic call ────────────────────────────────────────────────────────
 
 async function runAgentLoop(apiKey, prompt) {
@@ -239,6 +293,11 @@ async function generateBrief(env) {
   // Layer 2: drop items already surfaced in a prior brief
   const freshRss = await filterUnseen(env, rssCandidates);
 
+  // Layer 3: pull the rolling 14-day list of items the LLM has already
+  // surfaced so we can pass them into the prompt as a hard exclude list.
+  // This catches web_search hits that bypass the RSS URL-hash dedup.
+  const recentItems = await getRecentItems(env);
+
   const rssBlock = freshRss.length
     ? freshRss.map((c, i) =>
         `${i + 1}. [${c.platform}] ${c.name} (${c.category}) — "${c.title}" — ${c.published_at}\n   ${c.url}`
@@ -249,6 +308,16 @@ async function generateBrief(env) {
     `${i + 1}. ${v.name} | X: ${v.x} | LinkedIn: /in/${v.li} | [${v.category}]`
   ).join("\n");
 
+  const excludeBlock = recentItems.length
+    ? recentItems
+        .map((it, i) => {
+          const dayAgo = Math.max(0, Math.round((Date.now() - it.surfaced_at) / 86400000));
+          const when = dayAgo === 0 ? "today" : `${dayAgo}d ago`;
+          return `${i + 1}. ${it.name || "?"} — "${(it.title || "").slice(0, 140)}" — ${it.url || "(no url)"} (surfaced ${when})`;
+        })
+        .join("\n")
+    : "(none yet — fresh start)";
+
   const prompt = `You are an elite morning intelligence analyst. Today is ${today}.
 
 PART A — Pre-fetched RSS candidates (Substack + YouTube, published since the last brief, already deduped against prior briefs):
@@ -256,6 +325,9 @@ ${rssBlock}
 
 PART B — Voices to search on X and LinkedIn (use web_search for items from the last 48 hours):
 ${voiceList}
+
+PART C — DO NOT RE-SURFACE (these items appeared in a brief in the last 14 days; pick different content even if the same voice has fresh content — match by title, URL, OR substantively the same announcement/argument):
+${excludeBlock}
 
 AFTER collecting candidates from A and B, select the TOP 5 most materially valuable pieces overall.
 
@@ -265,6 +337,7 @@ RANKING CRITERIA:
 3. Freshness — last 48h strongly preferred; 7 days absolute max
 4. Specificity — numbers, real examples, concrete findings
 5. Coverage — top5 MUST include at least 1 item with category "Revenue Operations". This is a hard constraint, not a preference. If no fresh RevOps post exists in PART A or PART B for this window, surface the strongest available RevOps voice (any platform, lookback up to 7 days) and write bullets that frame why their current posture matters — never omit RevOps to make room for a 5th AI/Salesforce item.
+6. ICP fit — Aventary's audience is non-tech companies deploying AI + RevOps systems. When two items have comparable merit on criteria 1–4, prefer the one where AI is being APPLIED to revenue operations (lead routing, sales agent deployment, outbound at scale, pipeline data alignment, marketing automation, RevOps tooling at non-tech operators) over pure AI research, model release coverage, or AI-tech-news. A practical AI×RevOps signal an operator can deploy this quarter ranks above a more headline-grabbing pure-AI story when both are otherwise equivalent.
 
 Write each card for a business executive who has 10 seconds to decide if it's worth reading:
 - 3 bullets max, tight, no fluff
@@ -318,6 +391,14 @@ Return ONLY valid JSON. No markdown. No preamble:
   // Mark surfaced URLs as shown so future runs skip them
   const urls = (result.top5 || []).map(i => i.url).filter(Boolean);
   if (urls.length) await markShown(env, urls);
+
+  // Append to the rolling 14-day exclude list (catches web_search items the
+  // URL-hash dedup misses because they bypass the RSS pre-filter)
+  try {
+    await appendRecentItems(env, result.top5 || []);
+  } catch (e) {
+    console.error("[Morning Brief] appendRecentItems failed:", e?.message || e);
+  }
 
   // Only advance last_run_at after a successful brief — a failed run is safe to retry
   await env.BRIEF_KV.put(KV_LAST_RUN, new Date(now).toISOString());
