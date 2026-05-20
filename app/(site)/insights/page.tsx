@@ -15,7 +15,40 @@ function formatDate(iso: string | null | undefined): string {
 }
 
 export const revalidate = 60;
-export const metadata = { title: "Insights" };
+
+const OG_IMAGE = "https://aventary.com/og-insights.png";
+const PAGE_URL = "https://aventary.com/insights";
+const TITLE = "Insights — Aventary";
+const DESCRIPTION =
+  "The Aventary Journal — notes from the team on AI, Salesforce, Revenue Operations, and product leadership. Long-form analysis from builders, not theory.";
+
+export const metadata = {
+  title: "Insights",
+  description: DESCRIPTION,
+  alternates: { canonical: PAGE_URL },
+  openGraph: {
+    type: "website" as const,
+    url: PAGE_URL,
+    siteName: "Aventary",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [
+      {
+        url: OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: "Aventary Insights — notes on AI, Salesforce, and RevOps"
+      }
+    ],
+    locale: "en_US"
+  },
+  twitter: {
+    card: "summary_large_image" as const,
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [OG_IMAGE]
+  }
+};
 
 const FALLBACK = [
   {
