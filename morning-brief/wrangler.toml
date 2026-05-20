@@ -40,10 +40,12 @@ zone_name = "aventary.com"
 pattern = "aventary.com/api/trigger*"
 zone_name = "aventary.com"
 
-# Uncomment if you also want the apex-less variant www.aventary.com to work:
-# [[routes]]
-# pattern = "www.aventary.com/api/morning-brief"
-# zone_name = "aventary.com"
-# [[routes]]
-# pattern = "www.aventary.com/api/trigger"
-# zone_name = "aventary.com"
+# Also catch the www.aventary.com variant so mobile users (who often land
+# on www) get the Worker, not a 404 from Pages.
+[[routes]]
+pattern = "www.aventary.com/api/morning-brief*"
+zone_name = "aventary.com"
+
+[[routes]]
+pattern = "www.aventary.com/api/trigger*"
+zone_name = "aventary.com"
