@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { marked } from "marked";
 import { getPost } from "@/lib/cms";
 import { AuthorBio } from "@/components/AuthorBio";
+import { RichArticleReveals } from "@/components/RichArticleReveals";
 
 function formatDate(iso: string | null | undefined): string {
   if (!iso) return "";
@@ -28,13 +29,24 @@ const FALLBACK_POST = {
     "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1200&q=80&auto=format&fit=crop",
   published_at: "2026-05-07T19:51:43.533Z",
   body_md:
-    "## The gap between spend and pipeline\n\nMost teams don't have a lead problem. They have a routing problem.\n\nWhen we audit inbound pipelines we find the same pattern: 20–40% of inbound leads are never called, emailed, or assigned — usually because of slow round-robin logic, territory rules that don't match the data, or lead scoring that's silently filtering real buyers out.\n\n## What to fix first\n\n1. Measure first-touch time on every lead.\n2. Add a safety net: any lead untouched after 2 hours goes to a pooled queue.\n3. Let AI classify intent and enrich before routing.\n\nContact us if you want a free pipeline review."
+    "## The gap between spend and pipeline\n\nMost teams don't have a lead problem. They have a routing problem.\n\nWhen we audit inbound pipelines we find the same pattern: 20–40% of inbound leads are never called, emailed, or assigned — usually because of slow round-robin logic, territory rules that don't match the data, or lead scoring that's silently filtering real buyers out.\n\n## What to fix first\n\n1. Measure first-touch time on every lead.\n2. Add a safety net: any lead untouched after 2 hours goes to a pooled queue.\n3. Let AI classify intent and enrich before routing.\n\nContact us if you want a free pipeline review.",
+  body_html: null as string | null
 };
 
-async function loadPost(slug: string) {
+type PostLike = {
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  cover_url: string | null;
+  published_at: string | null;
+  body_md: string | null;
+  body_html?: string | null;
+};
+
+async function loadPost(slug: string): Promise<PostLike | null> {
   const fromDb = await getPost(slug);
-  if (fromDb) return fromDb;
-  if (slug === FALLBACK_POST.slug) return FALLBACK_POST;
+  if (fromDb) return fromDb as PostLike;
+  if (slug === FALLBACK_POST.slug) return FALLBACK_POST as PostLike;
   return null;
 }
 
@@ -43,7 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = await loadPost(slug);
   if (!post) return { title: "Not found — Aventary" };
   return {
-        title: post.title,
+    title: post.title,
     description: post.excerpt ?? undefined,
     openGraph: {
       title: post.title,
@@ -65,8 +77,36 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const post = await loadPost(slug);
   if (!post) notFound();
 
-  // Posts are written by allowlisted admins (lib/admin.ts). If you ever open
-  // authoring to untrusted users, sanitize via DOMPurify or marked’s sanitizer.
+  // If the post ships rich HTML (designed page), render it full-bleed and skip
+  // the standard light hero/cover/markdown layout. The rich HTML brings its own
+  // hero, byline, sections, and CTA.
+  if (post.body_html && post.body_html.trim().length > 0) {
+    return (
+      <>
+        <div
+          // Posts are written by allowlisted admins (lib/admin.ts). If you ever
+          // open authoring to untrusted users, sanitize this with DOMPurify.
+          dangerouslySetInnerHTML={{ __html: post.body_html }}
+        />
+        <RichArticleReveals />
+        <section className="px-8 py-16 bg-surface">
+          <div className="max-w-3xl mx-auto">
+            <AuthorBio />
+            <div className="pt-8">
+              <Link
+                href="/insights"
+                className="text-primary font-label font-bold text-xs tracking-widest uppercase"
+              >
+                ← More Insights
+              </Link>
+            </div>
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // Standard markdown render path (unchanged from before).
   const html = (await marked.parse(post.body_md ?? "")) as string;
 
   return (

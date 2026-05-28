@@ -58,7 +58,7 @@ export async function getPost(slug: string) {
     const supabase = await createSupabaseServer();
     const { data } = await supabase
       .from("posts")
-      .select("slug,title,excerpt,body_md,cover_url,published_at")
+      .select("slug,title,excerpt,body_md,body_html,cover_url,published_at")
       .eq("slug", slug)
       .maybeSingle();
     return data;
