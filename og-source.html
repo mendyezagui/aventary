@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OG · Aventary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FCF9F8;
+    --surface-lowest: #FFFFFF;
+    --on-surface: #1C1B1B;
+    --on-surface-variant: #474553;
+    --outline-variant: #C8C4D5;
+    --primary: #584CC4;
+    --primary-fixed: #E4DFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    background: var(--bg);
+    font-family: 'Inter', sans-serif;
+    color: var(--on-surface);
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+    padding: 64px 72px;
+  }
+  body::before {
+    content: ""; position: absolute;
+    top: -220px; right: -200px;
+    width: 720px; height: 720px;
+    background: radial-gradient(circle, rgba(143,133,255,0.36) 0%, rgba(143,133,255,0.10) 45%, rgba(143,133,255,0) 70%);
+  }
+  body::after {
+    content: ""; position: absolute;
+    bottom: -180px; left: -160px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(228,223,255,0.55) 0%, rgba(228,223,255,0.18) 50%, rgba(228,223,255,0) 75%);
+  }
+  .layer { position: relative; z-index: 1; }
+  .brand { display: flex; align-items: center; gap: 16px; }
+  .brand-mark {
+    width: 60px; height: 60px;
+    border-radius: 14px;
+    background: var(--primary);
+    color: #FFFFFF;
+    display: grid; place-items: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    font-size: 34px;
+    letter-spacing: -0.02em;
+    box-shadow: 0 8px 22px -10px rgba(88,76,196,0.55);
+  }
+  .brand-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--on-surface);
+    letter-spacing: -0.01em;
+  }
+  .brand-sub {
+    font-size: 12px;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .eyebrow {
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    margin-top: 50px;
+  }
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 68px;
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--on-surface);
+    margin-top: 16px;
+    max-width: 1040px;
+  }
+  h1 .accent { color: var(--primary); }
+  .sub {
+    margin-top: 22px;
+    font-size: 22px;
+    line-height: 1.5;
+    color: var(--on-surface-variant);
+    font-weight: 400;
+    max-width: 940px;
+  }
+  .tag-row {
+    margin-top: 40px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 16px;
+    background: var(--surface-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--on-surface);
+    box-shadow: 0 4px 14px -8px rgba(28,27,27,0.10);
+  }
+</style>
+</head>
+<body>
+  <div class="layer brand">
+    <div class="brand-mark">A</div>
+    <div>
+      <div class="brand-name">Aventary</div>
+      <div class="brand-sub">aventary.com</div>
+    </div>
+  </div>
+  <div class="layer eyebrow">AI-driven leadership &amp; strategy</div>
+  <h1 class="layer">Every lead contacted.<br><span class="accent">Every time.</span></h1>
+  <p class="layer sub">Fractional CPO/CTO leadership, AI-first product strategy, and RevOps systems for non-tech companies that need to ship the AI bet without rebuilding the team.</p>
+  <div class="layer tag-row">
+    <div class="tag">Fractional CPO/CTO</div>
+    <div class="tag">AI product strategy</div>
+    <div class="tag">RevOps systems</div>
+  </div>
+</body>
+</html>
