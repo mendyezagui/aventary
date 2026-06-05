@@ -12,6 +12,7 @@ export type Page = {
   slug: string;
   title: string;
   description: string | null;
+  body_html: string | null;
   blocks: Block[];
 };
 
@@ -21,7 +22,7 @@ export async function getPage(slug: string): Promise<Page | null> {
     const supabase = await createSupabaseServer();
     const { data: page } = await supabase
       .from("pages")
-      .select("id,slug,title,description")
+      .select("id,slug,title,description,body_html")
       .eq("slug", slug)
       .eq("published", true)
       .maybeSingle();
