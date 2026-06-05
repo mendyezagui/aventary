@@ -12,7 +12,7 @@ export type Page = {
   slug: string;
   title: string;
   description: string | null;
-  body_html: string | null;
+  body_html?: string | null;
   blocks: Block[];
 };
 
