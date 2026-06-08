@@ -804,9 +804,21 @@ export default {
         }
       }
 
-      ctx.waitUntil(generateBrief(env));
-      return new Response(JSON.stringify({ status: "triggered", message: "Brief generation started." }), {
-        status: 202,
+      // Await generation so it completes within the request lifetime.
+      // ctx.waitUntil() was getting cancelled when generation ran longer than
+      // the post-response budget (generation takes ~100s), so briefs silently
+      // never persisted.
+      try {
+        await generateBrief(env);
+      } catch (e) {
+        console.error("[Morning Brief] trigger generateBrief failed:", e?.message || e);
+        return new Response(
+          JSON.stringify({ status: "error", message: String(e?.message || e) }),
+          { status: 500, headers: CORS }
+        );
+      }
+      return new Response(JSON.stringify({ status: "completed", message: "Brief generation finished." }), {
+        status: 200,
         headers: CORS,
       });
     }
@@ -816,6 +828,13 @@ export default {
 
   async scheduled(event, env, ctx) {
     console.log(`[Morning Brief] Cron fired: ${new Date().toISOString()}`);
-    ctx.waitUntil(generateBrief(env));
+    // Await (not waitUntil) so the scheduled invocation stays alive for the
+    // full ~100s web_search generation; rethrow so failures surface in Cron events.
+    try {
+      await generateBrief(env);
+    } catch (e) {
+      console.error("[Morning Brief] cron generateBrief failed:", e?.message || e);
+      throw e;
+    }
   },
 };
