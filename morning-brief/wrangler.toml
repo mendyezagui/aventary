@@ -8,6 +8,12 @@ compatibility_flags = ["nodejs_compat"]
 workers_dev = false
 preview_urls = false
 
+# ─── Observability ───────────────────────────────────────────────────────────
+# Persist invocation logs so silent cron failures are diagnosable after the fact.
+[observability]
+enabled = true
+head_sampling_rate = 1
+
 # ─── Cron Trigger ────────────────────────────────────────────────────────────
 # 6 AM PDT (Apr–Oct) = 13:00 UTC
 # Change to "0 14 * * *" Nov–Mar (PST = UTC-8)
