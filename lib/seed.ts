@@ -1,6 +1,7 @@
 import type { Page } from "./cms";
 
 const HERO_IMG = "https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=80&auto=format&fit=crop";
+const BENTO_BG = "https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?w=900&q=80&auto=format&fit=crop";
 const ABOUT_SQ = "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=900&q=80&auto=format&fit=crop";
 const TEAM_IMG = "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&q=80&auto=format&fit=crop";
 
@@ -28,8 +29,23 @@ export const SEED: Record<string, Page> = {
                 body: "AI-driven lead routing keeps every inbound contacted within minutes." }
       }},
       { id: "s", type: "services", position: 1, data: {
-        heading: "What We Do",
-        sub: "The systems, tools, and intelligence we've built for revenue teams — proof of how we work, not just what we say.",
+        heading: "Expert Guidance & Products",
+        sub: "Senior product, AI, and revenue leadership — plus the tools and intelligence we've built to back it up.",
+        leadership: {
+          eyebrow: "Leadership",
+          title: "Fractional CPO & Product Leadership",
+          body: "We deliver technology leadership, so your team never has to figure out the tech stack alone.",
+          bullets: ["Product roadmap acceleration", "GTM strategy & execution"],
+          bgImage: BENTO_BG,
+          ctaLabel: "Explore CPO services", ctaHref: "/contact"
+        },
+        ai: {
+          eyebrow: "Innovation",
+          title: "AI Strategy & RevOps",
+          body: "AI-driven revenue operations and lead routing systems. Every lead contacted. Every time.",
+          icon: "neurology",
+          ctaLabel: "Build Your Pipeline", ctaHref: "/appointments"
+        },
         tiles: [
           { eyebrow: "Salesforce + Agentforce", title: "Lead-to-Opportunity Framework",
             body: "Lead assignment from days to one minute. The operational framework from a Fortune 500 transformation, translated for Series A–C SaaS.",

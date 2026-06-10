@@ -21,8 +21,20 @@ insert into public.blocks(page_id, position, type, data) values
     'chip',  jsonb_build_object('icon','monitoring','title','RevOps Insight','body','AI-driven lead routing keeps every inbound contacted within minutes.')
   )),
   ((select id from p), 1, 'services', jsonb_build_object(
-    'heading','What We Do',
-    'sub','The systems, tools, and intelligence we''ve built for revenue teams — proof of how we work, not just what we say.',
+    'heading','Expert Guidance & Products',
+    'sub','Senior product, AI, and revenue leadership — plus the tools and intelligence we''ve built to back it up.',
+    'leadership', jsonb_build_object(
+      'eyebrow','Leadership','title','Fractional CPO & Product Leadership',
+      'body','We deliver technology leadership, so your team never has to figure out the tech stack alone.',
+      'bullets', jsonb_build_array('Product roadmap acceleration','GTM strategy & execution'),
+      'bgImage','https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?w=900&q=80&auto=format&fit=crop',
+      'ctaLabel','Explore CPO services','ctaHref','/contact'
+    ),
+    'ai', jsonb_build_object(
+      'eyebrow','Innovation','title','AI Strategy & RevOps',
+      'body','AI-driven revenue operations and lead routing systems. Every lead contacted. Every time.',
+      'icon','neurology','ctaLabel','Build Your Pipeline','ctaHref','/appointments'
+    ),
     'tiles', jsonb_build_array(
       jsonb_build_object(
         'eyebrow','Salesforce + Agentforce','title','Lead-to-Opportunity Framework',
