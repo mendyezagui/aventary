@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export const revalidate = 3600;
 
-const OG_IMAGE = "https://aventary.com/og-insights.png";
+const OG_IMAGE = "https://aventary.com/og-lead-to-opp.png";
 const PAGE_URL = "https://aventary.com/lead-to-opp";
 const TITLE = "The 6-Point Lead-to-Opportunity Framework | Aventary";
 const DESCRIPTION =
