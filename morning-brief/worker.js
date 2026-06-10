@@ -24,45 +24,52 @@
  *   Dave Kellogg    substack: "https://kellblog.com/feed"
  */
 
+// Roster overhaul (Jun 2026): all feeds below were fetched and verified 2026-06-09.
+// Cut (no active machine-readable output): Joanna Stern, Clara Shih, Vanessa Grant,
+// Josh Birk, Jennifer Lee, Ketan Karkhanis, David Liu, Rosalyn Santa Elena,
+// Camela Thompson, Jeff Davis, Kyle Lacy.
+// Fallback-only keeps (no feed exists; web_search only): Adam Evans, Jared Robin,
+// Udi Ledergor, Cliff Simon.
 const VOICES = [
   // AI Practitioners
-  { name: "Ethan Mollick",       x: "@emollick",       li: "ethan-mollick",     category: "AI Practitioners",       substack: null, youtube_channel_id: null },
-  { name: "Allie K. Miller",     x: "@alliekmiller",   li: "alliekmiller",      category: "AI Practitioners",       substack: null, youtube_channel_id: null },
-  { name: "Paul Roetzer",        x: "@paulroetzer",    li: "paulroetzer",       category: "AI Practitioners",       substack: null, youtube_channel_id: null },
-  { name: "Matt Wolfe",          x: "@mreflow",        li: "mattwolfe",         category: "AI Practitioners",       substack: null, youtube_channel_id: null },
-  { name: "Kieran Flanagan",     x: "@searchbrat",     li: "kieranjflanagan",   category: "AI Practitioners",       substack: null, youtube_channel_id: null },
-  { name: "Nate Jones",          x: "@natebjones",     li: "natebjones",        category: "AI Practitioners",       substack: null, youtube_channel_id: null },
-  { name: "Lenny Rachitsky",     x: "@lennysan",       li: "lennyrachitsky",    category: "AI Practitioners",       substack: null, youtube_channel_id: null },
-  { name: "Andrew Ng",           x: "@AndrewYNg",      li: "andrewyng",         category: "AI Practitioners",       substack: null, youtube_channel_id: null },
-  { name: "Dave Kellogg",        x: "@kellblog",       li: "davekellogg",       category: "AI Practitioners",       substack: null, youtube_channel_id: null },
-  { name: "Joanna Stern",        x: "@JoannaStern",    li: "joannastern",       category: "AI Practitioners",       substack: null, youtube_channel_id: null },
+  { name: "Ethan Mollick",       x: "@emollick",       li: "ethan-mollick",     category: "AI Practitioners",       substack: "https://www.oneusefulthing.org/feed", youtube_channel_id: null },
+  { name: "Allie K. Miller",     x: "@alliekmiller",   li: "alliekmiller",      category: "AI Practitioners",       substack: null, youtube_channel_id: "UCTVXt1spq1Vm4K-SyhS5KAQ" }, // beehiiv newsletter has no RSS
+  { name: "Paul Roetzer",        x: "@paulroetzer",    li: "paulroetzer",       category: "AI Practitioners",       substack: "https://www.marketingaiinstitute.com/blog/rss.xml", youtube_channel_id: null }, // podcast alt: feeds.megaphone.fm/marketingai
+  { name: "Matt Wolfe",          x: "@mreflow",        li: "mattwolfe",         category: "AI Practitioners",       substack: null, youtube_channel_id: "UChpleBmo18P08aKCIgti38g" }, // blog stale since Dec 2025
+  { name: "Kieran Flanagan",     x: "@searchbrat",     li: "kieranjflanagan",   category: "AI Practitioners",       substack: "https://kieranflanagan.substack.com/feed", youtube_channel_id: null },
+  { name: "Nate Jones",          x: "@natebjones",     li: "natebjones",        category: "AI Practitioners",       substack: "https://natesnewsletter.substack.com/feed", youtube_channel_id: "UC0C-17n9iuUQPylguM1d-lQ" },
+  { name: "Lenny Rachitsky",     x: "@lennysan",       li: "lennyrachitsky",    category: "AI Practitioners",       substack: "https://www.lennysnewsletter.com/feed", youtube_channel_id: "UC6t1O76G0jYXOAoYCm153dA" },
+  { name: "Andrew Ng",           x: "@AndrewYNg",      li: "andrewyng",         category: "AI Practitioners",       substack: null, youtube_channel_id: "UCcIXc5mJsHVYTZR1maL5l9w" }, // The Batch RSS returns 500s
+  { name: "Dave Kellogg",        x: "@kellblog",       li: "davekellogg",       category: "AI Practitioners",       substack: "https://kellblog.com/feed/", youtube_channel_id: null },
+  { name: "Ben Tossell",         x: "@bentossell",     li: "bentossell",        category: "AI Practitioners",       substack: "https://www.bensbites.com/feed", youtube_channel_id: null }, // replaces Joanna Stern — AI-at-work for real businesses
   // Salesforce / Agentforce
-  { name: "Salesforce Ben",      x: "@salesforceben",  li: "benmccarthy90",     category: "Salesforce / Agentforce", substack: null, youtube_channel_id: null },
-  { name: "Rakesh Gupta",        x: "@iamrakeshgupta", li: "iamrakeshgupta",    category: "Salesforce / Agentforce", substack: null, youtube_channel_id: null },
-  { name: "Clara Shih",          x: "@claraoshin",     li: "claraoshin",        category: "Salesforce / Agentforce", substack: null, youtube_channel_id: null },
-  { name: "Adam Evans",          x: "@adamevans_sf",   li: "adamevans",         category: "Salesforce / Agentforce", substack: null, youtube_channel_id: null },
-  { name: "Vanessa Grant",       x: "@vgrant411",      li: "vanessagrant411",   category: "Salesforce / Agentforce", substack: null, youtube_channel_id: null },
-  { name: "Mike Gerholdt",       x: "@MikeGerholdt",   li: "mikegerholdt",      category: "Salesforce / Agentforce", substack: null, youtube_channel_id: null },
-  { name: "Josh Birk",           x: "@joshbirk",       li: "joshbirk",          category: "Salesforce / Agentforce", substack: null, youtube_channel_id: null },
-  { name: "Jennifer Lee",        x: "@jenwlee",        li: "jenwlee",           category: "Salesforce / Agentforce", substack: null, youtube_channel_id: null },
-  { name: "Ketan Karkhanis",     x: "@ketankarkh",     li: "ketankarkhanis",    category: "Salesforce / Agentforce", substack: null, youtube_channel_id: null },
-  { name: "David Liu",           x: "@davidiholiu",    li: "davidliu",          category: "Salesforce / Agentforce", substack: null, youtube_channel_id: null },
+  { name: "Salesforce Ben",      x: "@salesforceben",  li: "benmccarthy90",     category: "Salesforce / Agentforce", substack: "https://www.salesforceben.com/feed/", youtube_channel_id: "UCdPGwyD0FfM55pJIPgx1mkw" },
+  { name: "Rakesh Gupta",        x: "@iamrakeshgupta", li: "iamrakeshgupta",    category: "Salesforce / Agentforce", substack: "https://automationchampion.com/feed/", youtube_channel_id: null },
+  { name: "Adam Evans",          x: "@adamevans_sf",   li: "adamevans",         category: "Salesforce / Agentforce", substack: null, youtube_channel_id: null }, // no feed — web_search fallback only
+  { name: "Mike Gerholdt",       x: "@MikeGerholdt",   li: "mikegerholdt",      category: "Salesforce / Agentforce", substack: "https://buttonclickadmin2.libsyn.com/rss", youtube_channel_id: "UCJZ40ShB_oLStzaYT4m9WWQ" }, // admin.salesforce.com/feed 403s scripts — use Libsyn
+  { name: "Salesforce Developers", x: "@SalesforceDevs", li: "salesforce-developers", category: "Salesforce / Agentforce", substack: null, youtube_channel_id: "UCKORm8sxh3cheBpqs0akkhg" }, // first-party Agentforce/MCP/Data 360 signal
+  { name: "UnofficialSF",        x: "@UnofficialSF",   li: "alexedelstein",     category: "Salesforce / Agentforce", substack: "https://unofficialsf.com/feed/", youtube_channel_id: null }, // Flow + AI automation craft
+  { name: "SalesforceDevops.net", x: "@salesforcedevop", li: "vernonkeenan",    category: "Salesforce / Agentforce", substack: "https://salesforcedevops.net/index.php/feed/", youtube_channel_id: null }, // independent Salesforce AI strategy analysis
+  { name: "Apex Hours",          x: "@ApexHours",      li: "apexhours",         category: "Salesforce / Agentforce", substack: null, youtube_channel_id: "UChTdRj6YfwqhR_WEFepkcJw" }, // blog RSS broken — YT only
+  { name: "Salesforce Blogger",  x: "n/a",             li: "n/a",               category: "Salesforce / Agentforce", substack: "https://www.salesforceblogger.com/feed/", youtube_channel_id: null }, // hands-on Agentforce/Data 360 walkthroughs
+  { name: "Gradient Works",      x: "@gradientworks",  li: "gradient-works",    category: "Salesforce / Agentforce", substack: "https://www.gradient.works/blog/rss.xml", youtube_channel_id: null }, // routing/territory — RevOps lens on Salesforce
   // Revenue Operations
-  { name: "Rosalyn Santa Elena", x: "@rosalynsantael", li: "rosalynse",         category: "Revenue Operations",     substack: null, youtube_channel_id: null },
-  { name: "Camela Thompson",     x: "@camelathompson", li: "camelathompson",    category: "Revenue Operations",     substack: null, youtube_channel_id: null },
-  { name: "Sangram Vajre",       x: "@sangramvajre",   li: "sangramvajre",      category: "Revenue Operations",     substack: null, youtube_channel_id: null },
-  { name: "Matt Heinz",          x: "@HeinzMarketing", li: "mattheinz",         category: "Revenue Operations",     substack: null, youtube_channel_id: null },
-  { name: "Chris Walker",        x: "@chriswalker171", li: "chriswalker171",    category: "Revenue Operations",     substack: null, youtube_channel_id: null },
-  { name: "Jared Robin",         x: "@jaredrobin",     li: "jaredrobin",        category: "Revenue Operations",     substack: null, youtube_channel_id: null },
-  { name: "Jeff Davis",          x: "@jefftdavis",     li: "jeffdavisrevenue",  category: "Revenue Operations",     substack: null, youtube_channel_id: null },
-  { name: "Kyle Lacy",           x: "@kyleplacy",      li: "kyleplacy",         category: "Revenue Operations",     substack: null, youtube_channel_id: null },
-  { name: "Udi Ledergor",        x: "@udiledergor",    li: "udiledergor",       category: "Revenue Operations",     substack: null, youtube_channel_id: null },
-  { name: "Cliff Simon",         x: "@cliffsimon_gtm", li: "cliff-simon",       category: "Revenue Operations",     substack: null, youtube_channel_id: null },
+  { name: "Sangram Vajre",       x: "@sangramvajre",   li: "sangramvajre",      category: "Revenue Operations",     substack: "https://becomingintentional.substack.com/feed", youtube_channel_id: null }, // GTMonday paused since Jan 2026
+  { name: "Matt Heinz",          x: "@HeinzMarketing", li: "mattheinz",         category: "Revenue Operations",     substack: "https://www.heinzmarketing.com/feed/", youtube_channel_id: "UCe2q5H-cL9UxvxmbvzKKVeA" },
+  { name: "Chris Walker",        x: "@chriswalker171", li: "chriswalker171",    category: "Revenue Operations",     substack: "https://anchor.fm/s/1caa9814/podcast/rss", youtube_channel_id: null }, // GTM Live podcast (ex-Revenue Vitals, now Passetto-hosted)
+  { name: "Jared Robin",         x: "@jaredrobin",     li: "jaredrobin",        category: "Revenue Operations",     substack: null, youtube_channel_id: null }, // beehiiv, RSS off — fallback only
+  { name: "Udi Ledergor",        x: "@udiledergor",    li: "udiledergor",       category: "Revenue Operations",     substack: null, youtube_channel_id: null }, // no feed — fallback only
+  { name: "Cliff Simon",         x: "@cliffsimon_gtm", li: "cliff-simon",       category: "Revenue Operations",     substack: null, youtube_channel_id: null }, // no feed — fallback only
   // AI × RevOps tilt — added for Aventary's non-tech-ICP focus (Aug 2026)
-  { name: "Adam Robinson",       x: "@adamrobinson",   li: "adamlrobinson",     category: "Revenue Operations",     substack: null, youtube_channel_id: null },
-  { name: "Jordan Crawford",     x: "@jcraw",          li: "jordancrawford",    category: "Revenue Operations",     substack: null, youtube_channel_id: null },
-  { name: "Kareem Amin",         x: "@kareemamin",     li: "kareemamin",        category: "Revenue Operations",     substack: null, youtube_channel_id: null },
-  { name: "Megan Bowen",         x: "@meganbowen",     li: "meganbowen",        category: "Revenue Operations",     substack: null, youtube_channel_id: null },
+  { name: "Adam Robinson",       x: "@adamrobinson",   li: "adamlrobinson",     category: "Revenue Operations",     substack: null, youtube_channel_id: "UCSHn0Px37BjzMqnZBmVWwcQ" }, // RB2B newsletter blocks RSS
+  { name: "Jordan Crawford",     x: "@jcraw",          li: "jordancrawford",    category: "Revenue Operations",     substack: "https://edge.blueprintgtm.com/feed", youtube_channel_id: "UC9E-b8Fz7JyPKjlKQlSQZdA" },
+  { name: "Kareem Amin",         x: "@kareemamin",     li: "kareemamin",        category: "Revenue Operations",     substack: "https://www.clay.com/blog/rss.xml", youtube_channel_id: null }, // company-wide Clay blog
+  { name: "Megan Bowen",         x: "@meganbowen",     li: "meganbowen",        category: "Revenue Operations",     substack: "https://anchor.fm/s/79a37aa4/podcast/rss", youtube_channel_id: null }, // Stacking Growth podcast
+  // Roster adds (Jun 2026) — replacing cut feed-less voices
+  { name: "Eric Nowoslawski",    x: "n/a",             li: "outboundphd",       category: "Revenue Operations",     substack: null, youtube_channel_id: "UC6ef5yDFz7gm8rARwX3HaDw" }, // Clay/outbound GTM engineering
+  { name: "Elena Verna",         x: "@elenaverna",     li: "elenaverna",        category: "Revenue Operations",     substack: "https://www.elenaverna.com/feed", youtube_channel_id: null }, // AI-native GTM org design
+  { name: "Emily Kramer",        x: "@emilykramer",    li: "emilykramer",       category: "Revenue Operations",     substack: "https://newsletter.mkt1.co/feed", youtube_channel_id: null }, // MKT1 — AI-native marketing ops
+  { name: "RevOps Lab",          x: "n/a",             li: "janiszech",         category: "Revenue Operations",     substack: "https://anchor.fm/s/ec172b58/podcast/rss", youtube_channel_id: null }, // Weflow podcast — pipeline/forecast craft
 ];
 
 // ─── KV schema ─────────────────────────────────────────────────────────────
