@@ -8,7 +8,7 @@ import { useEffect } from "react";
  * page's JS lives here:
  *   - staggered scroll-in reveals
  *   - the hero Pipeline Integrity gauge animation
- *   - the email gate -> /api/contact (source='diagnostics')
+ *   - the result-anchored lead capture -> /api/diagnostic-lead (score + email)
  *   - the in-browser Pipeline X-Ray: after the gate succeeds we reveal an
  *     upload zone; the prospect drops their CSV and it is scored entirely in
  *     their browser. The file is never uploaded or stored — that's what lets
@@ -173,6 +173,18 @@ function renderResults(r: Result): string {
     ${body ? `<table class="rd-table"><thead><tr><th>Leak</th><th class="r">Deals</th><th class="r">Exposure</th><th class="r">% of pipeline</th></tr></thead><tbody>${body}</tbody></table>` : `<div class="rd-note">No integrity flags found — that's rare and genuinely good. Your reported pipeline is your defensible pipeline.</div>`}
     ${note}
     <div class="rd-caveat">This scores pipeline <i>hygiene</i>, not win-probability. A stalled deal can still close; a clean deal can still lose. The score tells you how much of your reported number you can defend — not how much you'll book. Nothing here was uploaded or stored; it ran in your browser.</div>
+    <div class="rd-capture" id="rd-capture">
+      <h4 class="rd-cap-h">Your score is ${r.score}/100. Want the full teardown?</h4>
+      <p class="rd-cap-p">The PDF report quantifies every leak in dollars, shows where ${r.score} sits against other teams, and gets you first access to the next three diagnostics.</p>
+      <div class="rd-cap-grid">
+        <input id="dl-name" placeholder="Name" />
+        <input id="dl-company" placeholder="Company" />
+        <input id="dl-email" type="email" placeholder="Work email" />
+      </div>
+      <input id="dl-heard" class="rd-cap-wide" placeholder="How did you hear about this? (optional)" />
+      <div class="rd-cap-actions"><button type="button" class="rd-cap-btn" id="dl-send">Send my report</button><span class="rd-cap-status" id="dl-status" style="display:none"></span></div>
+      <div class="rd-cap-fine">Your pipeline file never left your device. We only store your email and your score.</div>
+    </div>
     <button type="button" class="rd-again" id="rd-again">Run another file →</button>
   `;
 }
@@ -215,7 +227,6 @@ export function RichDiagnostics() {
     }
 
     // --- X-Ray upload + scoring (revealed after gate) ---
-    const xray = root.querySelector<HTMLElement>("#rd-xray");
     const drop = root.querySelector<HTMLElement>("#rd-drop");
     const fileInput = root.querySelector<HTMLInputElement>("#rd-file");
     const results = root.querySelector<HTMLElement>("#rd-results");
@@ -250,6 +261,41 @@ export function RichDiagnostics() {
             if (fileInput) fileInput.value = "";
             drop?.scrollIntoView({ behavior: "smooth", block: "center" });
           });
+          const capEmail = root.querySelector<HTMLInputElement>("#dl-email");
+          const capName = root.querySelector<HTMLInputElement>("#dl-name");
+          const capCompany = root.querySelector<HTMLInputElement>("#dl-company");
+          const capHeard = root.querySelector<HTMLInputElement>("#dl-heard");
+          const capSend = root.querySelector<HTMLButtonElement>("#dl-send");
+          const capStatus = root.querySelector<HTMLElement>("#dl-status");
+          const capBox = root.querySelector<HTMLElement>("#rd-capture");
+          const setCap = (m: string, ok: boolean) => { if (capStatus) { capStatus.style.display = "inline"; capStatus.style.color = ok ? "var(--good)" : "var(--signal)"; capStatus.textContent = m; } };
+          capSend?.addEventListener("click", async () => {
+            const capEmailVal = capEmail?.value.trim() ?? "";
+            if (!capEmailVal || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(capEmailVal)) { setCap("Add a valid work email.", false); capEmail?.focus(); return; }
+            capSend.disabled = true; capSend.textContent = "Sending…";
+            try {
+              const res = await fetch("/api/diagnostic-lead", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  email: capEmailVal,
+                  name: capName?.value.trim() || null,
+                  company: capCompany?.value.trim() || null,
+                  heard_via: capHeard?.value.trim() || null,
+                  score: r.score,
+                  diagnostic: "pipeline_xray",
+                  wants_pdf: true,
+                  wants_future_tools: true,
+                  source: typeof window !== "undefined" ? window.location.search : ""
+                })
+              });
+              if (!res.ok) throw new Error(String(res.status));
+              if (capBox) capBox.innerHTML = `<p class="rd-cap-done">On its way. Check your inbox for the full ${r.score}/100 teardown.</p>`;
+            } catch {
+              capSend.disabled = false; capSend.textContent = "Send my report";
+              setCap("Something broke. Try again or email mendy@aventary.com.", false);
+            }
+          });
         } catch {
           showXStatus("Couldn't parse that file. Make sure it's a standard CSV export.", false);
         }
@@ -270,59 +316,9 @@ export function RichDiagnostics() {
     drop?.addEventListener("dragleave", onDragLeave);
     drop?.addEventListener("drop", onDrop);
 
-    // --- email gate -> /api/contact, then reveal the X-Ray ---
-    const nameInput = root.querySelector<HTMLInputElement>("#rd-name");
-    const emailInput = root.querySelector<HTMLInputElement>("#rd-email");
-    const btn = root.querySelector<HTMLButtonElement>("#rd-btn");
-    const status = root.querySelector<HTMLElement>("#rd-status");
-
-    const setStatus = (msg: string, ok: boolean) => {
-      if (!status) return;
-      status.style.display = "block";
-      status.style.color = ok ? "var(--good)" : "var(--signal)";
-      status.textContent = msg;
-    };
-
-    const submit = async () => {
-      const name = nameInput?.value.trim() ?? "";
-      const email = emailInput?.value.trim() ?? "";
-      if (!name) { setStatus("Add your first name so the kit email isn't rude.", false); nameInput?.focus(); return; }
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setStatus("That email doesn't look right.", false); emailInput?.focus(); return; }
-      if (!btn) return;
-      btn.disabled = true;
-      btn.textContent = "Sending…";
-      try {
-        const res = await fetch("/api/contact", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, message: "Requested the Revenue Leak Detection Kit", source: "diagnostics" })
-        });
-        if (!res.ok) throw new Error(String(res.status));
-        btn.textContent = "Sent ✓";
-        setStatus("You're in — the kit's on its way. Run your X-Ray right now below.", true);
-        if (xray) {
-          xray.style.display = "block";
-          xray.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      } catch {
-        btn.disabled = false;
-        btn.textContent = "Send the kit →";
-        setStatus("Something broke on our end. Try again or email us directly.", false);
-      }
-    };
-
-    const onClick = () => void submit();
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Enter") void submit(); };
-    btn?.addEventListener("click", onClick);
-    emailInput?.addEventListener("keydown", onKey);
-    nameInput?.addEventListener("keydown", onKey);
-
     return () => {
       io.disconnect();
       if (gaugeTimer) clearInterval(gaugeTimer);
-      btn?.removeEventListener("click", onClick);
-      emailInput?.removeEventListener("keydown", onKey);
-      nameInput?.removeEventListener("keydown", onKey);
       fileInput?.removeEventListener("change", onFileChange);
       drop?.removeEventListener("dragover", onDragOver);
       drop?.removeEventListener("dragleave", onDragLeave);
