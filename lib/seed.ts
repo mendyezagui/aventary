@@ -1,7 +1,6 @@
 import type { Page } from "./cms";
 
 const HERO_IMG = "https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=80&auto=format&fit=crop";
-const BENTO_BG = "https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?w=900&q=80&auto=format&fit=crop";
 const ABOUT_SQ = "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=900&q=80&auto=format&fit=crop";
 const TEAM_IMG = "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&q=80&auto=format&fit=crop";
 
@@ -30,31 +29,27 @@ export const SEED: Record<string, Page> = {
       }},
       { id: "s", type: "services", position: 1, data: {
         heading: "What We Do",
-        sub: "Executive-level product, technology, and revenue leadership — without the full-time overhead.",
-        leadership: {
-          eyebrow: "Leadership",
-          title: "Fractional CPO & Product Leadership",
-          body: "We deliver technology leadership, so your team never has to figure out the tech stack alone.",
-          bullets: ["Product roadmap acceleration", "GTM strategy & execution"],
-          bgImage: BENTO_BG,
-          ctaLabel: "Explore CPO services", ctaHref: "/contact"
-        },
-        ai: {
-          eyebrow: "Innovation",
-          title: "AI Strategy & RevOps",
-          body: "AI-driven revenue operations and lead routing systems. Every lead contacted. Every time.",
-          icon: "neurology",
-          ctaLabel: "Build Your Pipeline", ctaHref: "/appointments"
-        },
-        technology: {
-          eyebrow: "Technology",
-          title: "Fractional CTO for Non-Tech Companies",
-          body: "Executive-level clarity and execution — without the full-time overhead.",
-          tiles: [
-            { label: "Cloud infra", icon: "cloud" },
-            { label: "Tech audit", icon: "fact_check" }
-          ]
-        }
+        sub: "The systems, tools, and intelligence we've built for revenue teams — proof of how we work, not just what we say.",
+        tiles: [
+          { eyebrow: "Salesforce + Agentforce", title: "Lead-to-Opportunity Framework",
+            body: "Lead assignment from days to one minute. The operational framework from a Fortune 500 transformation, translated for Series A–C SaaS.",
+            icon: "conversion_path", ctaLabel: "See the framework", href: "/lead-to-opp" },
+          { eyebrow: "Daily Brief", title: "Morning Intelligence Brief",
+            body: "Top 5 signals across AI, Salesforce, and RevOps from 30+ voices — updated daily at 6 AM PT.",
+            icon: "insights", ctaLabel: "Read today's brief", href: "/intelligence" },
+          { eyebrow: "Platform", title: "RevOps Command Center",
+            body: "The coordination layer for the AI tools your revenue team already uses.",
+            icon: "hub", ctaLabel: "Explore Command", href: "/command" },
+          { eyebrow: "Free Tool", title: "Revenue Leak Detection Kit",
+            body: "X-ray your pipeline and forecast from one CSV and see how much of your reported revenue you can actually trust.",
+            icon: "troubleshoot", ctaLabel: "Run the diagnostic", href: "/diagnostics" },
+          { eyebrow: "Writing", title: "Insights",
+            body: "Field notes on AI, RevOps, and building revenue systems that actually ship.",
+            icon: "article", ctaLabel: "Read insights", href: "/insights" },
+          { eyebrow: "Subscribe", title: "Get the brief in your inbox",
+            body: "One email each weekday at 6 AM PT. Unsubscribe in one click — no questions asked.",
+            icon: "mark_email_unread", ctaLabel: "Subscribe free", href: "/intelligence#mb-subscribe" }
+        ]
       }},
       { id: "st", type: "stats", position: 2, data: {
         left:  { metric: "30%", label: "of inbound leads are never contacted at most companies. We close that gap.",

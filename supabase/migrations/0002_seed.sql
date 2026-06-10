@@ -22,26 +22,32 @@ insert into public.blocks(page_id, position, type, data) values
   )),
   ((select id from p), 1, 'services', jsonb_build_object(
     'heading','What We Do',
-    'sub','Executive-level product, technology, and revenue leadership — without the full-time overhead.',
-    'leadership', jsonb_build_object(
-      'eyebrow','Leadership','title','Fractional CPO & Product Leadership',
-      'body','We deliver technology leadership, so your team never has to figure out the tech stack alone.',
-      'bullets', jsonb_build_array('Product roadmap acceleration','GTM strategy & execution'),
-      'bgImage','https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?w=900&q=80&auto=format&fit=crop',
-      'ctaLabel','Explore CPO services','ctaHref','/contact'
-    ),
-    'ai', jsonb_build_object(
-      'eyebrow','Innovation','title','AI Strategy & RevOps',
-      'body','AI-driven revenue operations and lead routing systems. Every lead contacted. Every time.',
-      'icon','neurology','ctaLabel','Build Your Pipeline','ctaHref','/appointments'
-    ),
-    'technology', jsonb_build_object(
-      'eyebrow','Technology','title','Fractional CTO for Non-Tech Companies',
-      'body','Executive-level clarity and execution — without the full-time overhead.',
-      'tiles', jsonb_build_array(
-        jsonb_build_object('label','Cloud infra','icon','cloud'),
-        jsonb_build_object('label','Tech audit','icon','fact_check')
-      )
+    'sub','The systems, tools, and intelligence we''ve built for revenue teams — proof of how we work, not just what we say.',
+    'tiles', jsonb_build_array(
+      jsonb_build_object(
+        'eyebrow','Salesforce + Agentforce','title','Lead-to-Opportunity Framework',
+        'body','Lead assignment from days to one minute. The operational framework from a Fortune 500 transformation, translated for Series A–C SaaS.',
+        'icon','conversion_path','ctaLabel','See the framework','href','/lead-to-opp'),
+      jsonb_build_object(
+        'eyebrow','Daily Brief','title','Morning Intelligence Brief',
+        'body','Top 5 signals across AI, Salesforce, and RevOps from 30+ voices — updated daily at 6 AM PT.',
+        'icon','insights','ctaLabel','Read today''s brief','href','/intelligence'),
+      jsonb_build_object(
+        'eyebrow','Platform','title','RevOps Command Center',
+        'body','The coordination layer for the AI tools your revenue team already uses.',
+        'icon','hub','ctaLabel','Explore Command','href','/command'),
+      jsonb_build_object(
+        'eyebrow','Free Tool','title','Revenue Leak Detection Kit',
+        'body','X-ray your pipeline and forecast from one CSV and see how much of your reported revenue you can actually trust.',
+        'icon','troubleshoot','ctaLabel','Run the diagnostic','href','/diagnostics'),
+      jsonb_build_object(
+        'eyebrow','Writing','title','Insights',
+        'body','Field notes on AI, RevOps, and building revenue systems that actually ship.',
+        'icon','article','ctaLabel','Read insights','href','/insights'),
+      jsonb_build_object(
+        'eyebrow','Subscribe','title','Get the brief in your inbox',
+        'body','One email each weekday at 6 AM PT. Unsubscribe in one click — no questions asked.',
+        'icon','mark_email_unread','ctaLabel','Subscribe free','href','/intelligence#mb-subscribe')
     )
   )),
   ((select id from p), 2, 'stats', jsonb_build_object(
