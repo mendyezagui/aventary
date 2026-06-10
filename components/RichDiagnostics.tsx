@@ -17,9 +17,14 @@ import { useEffect } from "react";
  */
 
 type Leak = { n: number; amt: number };
+type FlaggedDeal = {
+  name: string; account: string; owner: string; stage: string;
+  amount: number | null; close: Date | null; activity: Date | null; flags: string[];
+};
 type Result = {
   N: number; rep: number; defensible: number; flaggedAmt: number; flaggedCnt: number;
   score: number; band: string; missingCols: string[]; leaks: Record<string, Leak>;
+  flaggedDeals: FlaggedDeal[];
   error?: string;
 };
 
@@ -70,7 +75,7 @@ const parseAmt = (s: string) => { if (s == null) return null; const n = parseFlo
 function scoreCSV(text: string, refDate?: Date): Result {
   const TODAY = refDate || new Date();
   const rows = parseCSV(text);
-  if (rows.length < 2) return { error: "That file has no data rows.", N: 0, rep: 0, defensible: 0, flaggedAmt: 0, flaggedCnt: 0, score: 0, band: "", missingCols: [], leaks: {} };
+  if (rows.length < 2) return { error: "That file has no data rows.", N: 0, rep: 0, defensible: 0, flaggedAmt: 0, flaggedCnt: 0, score: 0, band: "", missingCols: [], leaks: {}, flaggedDeals: [] };
   const col = mapColumns(rows[0]);
   const missingCols: string[] = [];
   if (col.stage == null) missingCols.push("Stage");
@@ -79,7 +84,9 @@ function scoreCSV(text: string, refDate?: Date): Result {
   if (col.activity == null) missingCols.push("Last activity date");
 
   const data = rows.slice(1).map((r) => ({
+    name: col.name != null ? r[col.name] : "",
     account: col.account != null ? r[col.account] : "",
+    owner: col.owner != null ? r[col.owner] : "",
     stage: col.stage != null ? (r[col.stage] || "") : "",
     amount: col.amount != null ? parseAmt(r[col.amount]) : null,
     close: col.close != null ? parseDate(r[col.close]) : null,
@@ -89,7 +96,7 @@ function scoreCSV(text: string, refDate?: Date): Result {
   const open = data.filter((d) => !/closed/i.test(d.stage));
   const rep = open.reduce((s, d) => s + (d.amount || 0), 0);
   const N = open.length;
-  if (N === 0) return { error: "No open deals found — every row reads as Closed.", N: 0, rep: 0, defensible: 0, flaggedAmt: 0, flaggedCnt: 0, score: 0, band: "", missingCols, leaks: {} };
+  if (N === 0) return { error: "No open deals found — every row reads as Closed.", N: 0, rep: 0, defensible: 0, flaggedAmt: 0, flaggedCnt: 0, score: 0, band: "", missingCols, leaks: {}, flaggedDeals: [] };
 
   const DAY = 86400000;
   const flag = open.map((d) => {
@@ -133,7 +140,20 @@ function scoreCSV(text: string, refDate?: Date): Result {
   const score = Math.max(0, Math.round(100 - penalty));
   const band = score >= 80 ? "Tight" : score >= 60 ? "Leaking" : score >= 40 ? "Unreliable" : "Fiction";
 
-  return { N, rep, defensible: rep - flaggedAmt, flaggedAmt, flaggedCnt, score, band, missingCols, leaks };
+  const flaggedDeals: FlaggedDeal[] = flag.filter(anyFlag).map((f) => {
+    const labels: string[] = [];
+    if (f.overdue) labels.push("Overdue");
+    if (f.zombie) labels.push("Zombie (60d+ idle)");
+    else if (f.stalled) labels.push("Stalled (30d+ idle)");
+    if (f.noAmount) labels.push("Missing amount");
+    if (f.noClose) labels.push("Missing close date");
+    if (f.noActivity) labels.push("Missing last activity");
+    if (f.qtrEnd) labels.push("Quarter-end cluster");
+    if (f.duplicate) labels.push("Possible duplicate");
+    return { name: f.d.name, account: f.d.account, owner: f.d.owner, stage: f.d.stage, amount: f.d.amount, close: f.d.close, activity: f.d.activity, flags: labels };
+  });
+
+  return { N, rep, defensible: rep - flaggedAmt, flaggedAmt, flaggedCnt, score, band, missingCols, leaks, flaggedDeals };
 }
 
 const usd = (n: number) => "$" + Math.round(n).toLocaleString();
@@ -170,6 +190,7 @@ function renderResults(r: Result): string {
         <div class="rd-sub2">${usd(r.rep)} reported across ${r.N} open deals · ${usd(r.defensible)} carries no integrity flag · ${r.flaggedCnt} of ${r.N} deals (${usd(r.flaggedAmt)}) show at least one.</div>
       </div>
     </div>
+    <div class="rd-dlrow"><button type="button" class="rd-xlsx" id="dl-xlsx">Download full teardown (.xlsx)</button><span class="rd-xlsx-note">Built in your browser \u2014 nothing uploaded</span></div>
     ${body ? `<table class="rd-table"><thead><tr><th>Leak</th><th class="r">Deals</th><th class="r">Exposure</th><th class="r">% of pipeline</th></tr></thead><tbody>${body}</tbody></table>` : `<div class="rd-note">No integrity flags found — that's rare and genuinely good. Your reported pipeline is your defensible pipeline.</div>`}
     ${note}
     <div class="rd-caveat">This scores pipeline <i>hygiene</i>, not win-probability. A stalled deal can still close; a clean deal can still lose. The score tells you how much of your reported number you can defend — not how much you'll book. Nothing here was uploaded or stored; it ran in your browser.</div>
@@ -254,6 +275,51 @@ export function RichDiagnostics() {
             results.style.display = "block";
             results.scrollIntoView({ behavior: "smooth", block: "start" });
           }
+          const dlBtn = root.querySelector<HTMLButtonElement>("#dl-xlsx");
+          dlBtn?.addEventListener("click", async () => {
+            const orig = dlBtn.textContent || "Download full teardown (.xlsx)";
+            dlBtn.disabled = true; dlBtn.textContent = "Building\u2026";
+            try {
+              const XLSX = await import("xlsx");
+              const fmtD = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : "");
+              const L = r.leaks;
+              const summary: (string | number)[][] = [
+                ["Aventary \u2014 Pipeline X-Ray teardown"],
+                ["Generated locally in your browser. Your pipeline file was never uploaded."],
+                [],
+                ["Pipeline Integrity Score", r.score + "/100", r.band],
+                ["Reported open pipeline", r.rep, r.N + " open deals"],
+                ["Defensible (no flags)", r.defensible, pct(r.defensible, r.rep)],
+                ["Carrying integrity flags", r.flaggedAmt, r.flaggedCnt + " of " + r.N + " deals"],
+                [],
+                ["Leak", "Deals", "Exposure ($)", "% of pipeline"],
+                ["Overdue (close date passed)", L.overdue.n, L.overdue.amt, pct(L.overdue.amt, r.rep)],
+                ["Stalled (30+ days no activity)", L.stalled.n, L.stalled.amt, pct(L.stalled.amt, r.rep)],
+                ["  of those, zombie (60+ days)", L.zombie.n, L.zombie.amt, pct(L.zombie.amt, r.rep)],
+                ["Missing / zero amount", L.noAmount.n, L.noAmount.amt, pct(L.noAmount.amt, r.rep)],
+                ["Missing close date", L.noClose.n, L.noClose.amt, pct(L.noClose.amt, r.rep)],
+                ["Missing last activity", L.noActivity.n, L.noActivity.amt, pct(L.noActivity.amt, r.rep)],
+                ["Quarter-end clustered", L.qtrEnd.n, L.qtrEnd.amt, pct(L.qtrEnd.amt, r.rep)],
+                ["Possible duplicates", L.duplicate.n, L.duplicate.amt, pct(L.duplicate.amt, r.rep)],
+                [],
+                ["This scores pipeline hygiene, not win-probability. The file ran entirely in your browser."],
+              ];
+              const detail: (string | number)[][] = [
+                ["Opportunity", "Account", "Owner", "Stage", "Amount", "Close Date", "Last Activity", "Flags"],
+              ];
+              r.flaggedDeals.forEach((d) =>
+                detail.push([d.name, d.account, d.owner, d.stage, d.amount ?? "", fmtD(d.close), fmtD(d.activity), d.flags.join(", ")])
+              );
+              const wb = XLSX.utils.book_new();
+              XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summary), "Summary");
+              XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(detail), "Flagged Deals");
+              XLSX.writeFile(wb, "pipeline-xray-teardown.xlsx");
+            } catch {
+              /* swallow */
+            } finally {
+              dlBtn.disabled = false; dlBtn.textContent = orig;
+            }
+          });
           if (xstatus) xstatus.style.display = "none";
           const again = root.querySelector<HTMLButtonElement>("#rd-again");
           again?.addEventListener("click", () => {
