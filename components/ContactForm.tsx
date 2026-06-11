@@ -32,11 +32,11 @@ export default function ContactForm({ source = "contact" }: { source?: string })
   if (status === "ok") {
     return (
       <div>
-        <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-2">Thanks</div>
+        <div className="text-accent font-label font-semibold text-xs tracking-[0.22em] uppercase mb-2">Thanks</div>
         <h3 className="font-headline text-2xl font-bold mb-2">We'll be in touch.</h3>
         <p className="text-on-surface-variant">
           We reply within 24 hours. In the meantime, feel free to{" "}
-          <a className="text-primary underline" href="/appointments">book a call</a>.
+          <a className="text-accent underline" href="/appointments">book a call</a>.
         </p>
       </div>
     );
@@ -62,7 +62,7 @@ export default function ContactForm({ source = "contact" }: { source?: string })
         />
       </label>
       <button
-        className="bg-primary text-on-primary px-8 py-4 rounded-full font-label font-bold w-fit hover:opacity-90 transition flex items-center gap-2"
+        className="bg-primary text-on-primary px-8 py-4 rounded-[2px] font-label font-semibold text-xs tracking-[0.16em] uppercase w-fit hover:opacity-90 transition flex items-center gap-2"
         disabled={status === "submitting"}
       >
         {status === "submitting" ? "Sending…" : "Send message"}
