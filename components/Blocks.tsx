@@ -83,7 +83,7 @@ function Hero({
 }
 
 /* ---------------------------- SERVICES BENTO ---------------------------- */
-function ServicesBento({ heading, sub, leadership, ai, technology }: any) {
+function ServicesBento({ heading, sub, tiles, leadership, ai, technology }: any) {
   return (
     <section className="py-32 px-8 bg-surface-container-low">
       <div className="max-w-7xl mx-auto">
@@ -91,7 +91,9 @@ function ServicesBento({ heading, sub, leadership, ai, technology }: any) {
           <h2 className="font-headline text-4xl md:text-5xl font-bold mb-6">{heading}</h2>
           {sub ? <p className="text-lg text-on-surface-variant max-w-2xl">{sub}</p> : null}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        {(leadership || ai || technology) ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
 
           {leadership ? (
             <div className="md:col-span-2 group relative bg-surface-container-lowest p-10 rounded-3xl soft-lift flex flex-col justify-between overflow-hidden">
@@ -178,6 +180,36 @@ function ServicesBento({ heading, sub, leadership, ai, technology }: any) {
           ) : null}
 
         </div>
+        ) : null}
+
+        {tiles?.length ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {tiles.map((t: any, i: number) => (
+              <Link
+                key={i}
+                href={t.href ?? "#"}
+                className="group relative bg-surface-container-lowest p-8 rounded-3xl soft-lift flex flex-col hover:-translate-y-1 transition-transform"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-primary-fixed flex items-center justify-center mb-6">
+                  <span className="material-symbols-outlined text-primary">{t.icon ?? "bolt"}</span>
+                </div>
+                {t.eyebrow ? (
+                  <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
+                    {t.eyebrow}
+                  </div>
+                ) : null}
+                <h3 className="font-headline text-2xl font-bold mb-3">{t.title}</h3>
+                {t.body ? <p className="text-on-surface-variant mb-8 flex-1">{t.body}</p> : null}
+                <span className="mt-auto text-primary font-bold flex items-center gap-2">
+                  {t.ctaLabel ?? "Explore"}
+                  <span className="material-symbols-outlined transition-transform group-hover:translate-x-1">
+                    arrow_right_alt
+                  </span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
   );

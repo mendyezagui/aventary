@@ -29,8 +29,8 @@ export const SEED: Record<string, Page> = {
                 body: "AI-driven lead routing keeps every inbound contacted within minutes." }
       }},
       { id: "s", type: "services", position: 1, data: {
-        heading: "What We Do",
-        sub: "Executive-level product, technology, and revenue leadership — without the full-time overhead.",
+        heading: "Expert Guidance & Products",
+        sub: "Senior product, AI, and revenue leadership — plus the tools and intelligence we've built to back it up.",
         leadership: {
           eyebrow: "Leadership",
           title: "Fractional CPO & Product Leadership",
@@ -46,15 +46,26 @@ export const SEED: Record<string, Page> = {
           icon: "neurology",
           ctaLabel: "Build Your Pipeline", ctaHref: "/appointments"
         },
-        technology: {
-          eyebrow: "Technology",
-          title: "Fractional CTO for Non-Tech Companies",
-          body: "Executive-level clarity and execution — without the full-time overhead.",
-          tiles: [
-            { label: "Cloud infra", icon: "cloud" },
-            { label: "Tech audit", icon: "fact_check" }
-          ]
-        }
+        tiles: [
+          { eyebrow: "Salesforce + Agentforce", title: "Lead-to-Opportunity Framework",
+            body: "Lead assignment from days to one minute. The operational framework from a Fortune 500 transformation, translated for Series A–C SaaS.",
+            icon: "conversion_path", ctaLabel: "See the framework", href: "/lead-to-opp" },
+          { eyebrow: "Daily Brief", title: "Morning Intelligence Brief",
+            body: "Top 5 signals across AI, Salesforce, and RevOps from 30+ voices — updated daily at 6 AM PT.",
+            icon: "insights", ctaLabel: "Read today's brief", href: "/intelligence" },
+          { eyebrow: "Platform", title: "RevOps Command Center",
+            body: "The coordination layer for the AI tools your revenue team already uses.",
+            icon: "hub", ctaLabel: "Explore Command", href: "/command" },
+          { eyebrow: "Free Tool", title: "Revenue Leak Detection Kit",
+            body: "X-ray your pipeline and forecast from one CSV and see how much of your reported revenue you can actually trust.",
+            icon: "troubleshoot", ctaLabel: "Run the diagnostic", href: "/diagnostics" },
+          { eyebrow: "Writing", title: "Insights",
+            body: "Field notes on AI, RevOps, and building revenue systems that actually ship.",
+            icon: "article", ctaLabel: "Read insights", href: "/insights" },
+          { eyebrow: "Subscribe", title: "Get the brief in your inbox",
+            body: "One email each weekday at 6 AM PT. Unsubscribe in one click — no questions asked.",
+            icon: "mark_email_unread", ctaLabel: "Subscribe free", href: "/intelligence#mb-subscribe" }
+        ]
       }},
       { id: "st", type: "stats", position: 2, data: {
         left:  { metric: "30%", label: "of inbound leads are never contacted at most companies. We close that gap.",
