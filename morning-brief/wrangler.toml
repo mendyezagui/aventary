@@ -46,10 +46,14 @@ zone_name = "aventary.com"
 pattern = "aventary.com/api/trigger*"
 zone_name = "aventary.com"
 
-# Uncomment if you also want the apex-less variant www.aventary.com to work:
-# [[routes]]
-# pattern = "www.aventary.com/api/morning-brief"
-# zone_name = "aventary.com"
-# [[routes]]
-# pattern = "www.aventary.com/api/trigger"
-# zone_name = "aventary.com"
+# Also claim the www host. The site is served on both aventary.com and
+# www.aventary.com; without these routes, a brief fetch from www falls through
+# to the Next app and 404s. (The app also 301s www → apex, so this is belt-and
+# -suspenders for any direct www API hit.) Trailing `*` as above.
+[[routes]]
+pattern = "www.aventary.com/api/morning-brief*"
+zone_name = "aventary.com"
+
+[[routes]]
+pattern = "www.aventary.com/api/trigger*"
+zone_name = "aventary.com"
