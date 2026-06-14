@@ -3,6 +3,17 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 // Keeps Supabase session cookies fresh on every request.
 export async function middleware(req: NextRequest) {
+  // Canonicalize the host: 301 www.aventary.com → aventary.com. The site is
+  // served on both hosts, but the morning-brief Worker is only routed on the
+  // apex, so /intelligence's fetch("/api/morning-brief") 404s on www. Sending
+  // everyone to the apex keeps a single canonical host and fixes the brief.
+  const host = req.headers.get("host") ?? "";
+  if (host.startsWith("www.")) {
+    const url = req.nextUrl.clone();
+    url.host = host.slice(4);
+    return NextResponse.redirect(url, 301);
+  }
+
   const res = NextResponse.next();
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return res;
 
