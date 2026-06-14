@@ -16,4 +16,4 @@ out/
 # Editor
 .DS_Store
 *.log
-.tsbuildinfo
+*.tsbuildinfo
