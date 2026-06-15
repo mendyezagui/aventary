@@ -1,4 +1,9 @@
-import { createSupabaseServer } from "./supabase/server";
+import { createSupabasePublic } from "./supabase/server";
+
+// True only when Supabase is fully configured. Public reads use the anon key;
+// if it's absent, callers fall back to seed content instead of erroring.
+const supabaseConfigured = () =>
+  !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export type Block = {
   id: string;
@@ -17,9 +22,9 @@ export type Page = {
 };
 
 export async function getPage(slug: string): Promise<Page | null> {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
+  if (!supabaseConfigured()) return null;
   try {
-    const supabase = await createSupabaseServer();
+    const supabase = createSupabasePublic();
     const { data: page } = await supabase
       .from("pages")
       .select("id,slug,title,description,body_html")
@@ -39,9 +44,9 @@ export async function getPage(slug: string): Promise<Page | null> {
 }
 
 export async function listPosts() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
+  if (!supabaseConfigured()) return [];
   try {
-    const supabase = await createSupabaseServer();
+    const supabase = createSupabasePublic();
     const { data } = await supabase
       .from("posts")
       .select("slug,title,excerpt,cover_url,published_at")
@@ -54,9 +59,9 @@ export async function listPosts() {
 }
 
 export async function getPost(slug: string) {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
+  if (!supabaseConfigured()) return null;
   try {
-    const supabase = await createSupabaseServer();
+    const supabase = createSupabasePublic();
     const { data } = await supabase
       .from("posts")
       .select("slug,title,excerpt,body_md,body_html,cover_url,published_at")

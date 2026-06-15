@@ -35,6 +35,26 @@ export async function createSupabaseServer() {
 }
 
 /**
+ * Cookie-less anon client for PUBLIC reads (published pages/posts).
+ *
+ * Public content does not depend on the visitor's session, so this client
+ * deliberately does NOT call cookies(). Reading cookies would opt the page out
+ * of static rendering and, on a page declared with `revalidate`, throw
+ * "Page changed from static to dynamic at runtime" in production. Use this for
+ * anything rendered on a static/ISR route; use createSupabaseServer() only when
+ * the request's auth session actually matters (admin, auth callbacks).
+ */
+export function createSupabasePublic() {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { createClient } = require("@supabase/supabase-js") as typeof import("@supabase/supabase-js");
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } }
+  );
+}
+
+/**
  * Service-role client. Bypasses RLS. Never expose to the browser.
  */
 export function createSupabaseAdmin() {
