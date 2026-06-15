@@ -15,11 +15,17 @@ export async function middleware(req: NextRequest) {
   }
 
   const res = NextResponse.next();
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return res;
+  // Fail safe: only attempt the session refresh when Supabase is fully
+  // configured. If either var is missing at build time, createServerClient
+  // would be called with an undefined key and throw on EVERY request — and
+  // since this middleware runs on all routes, that 500s the entire site.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseKey) return res;
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseKey,
     {
       cookies: {
         get(name: string) { return req.cookies.get(name)?.value; },
@@ -32,7 +38,12 @@ export async function middleware(req: NextRequest) {
       }
     }
   );
-  await supabase.auth.getUser();
+  // Never let an auth/network hiccup take down every route.
+  try {
+    await supabase.auth.getUser();
+  } catch {
+    // Session couldn't be refreshed this request; serve the page anyway.
+  }
   return res;
 }
 

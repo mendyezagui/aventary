@@ -20,3 +20,4 @@ out/
 
 # OpenNext build output
 .open-next/
+.wrangler/
