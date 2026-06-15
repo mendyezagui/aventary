@@ -2,6 +2,7 @@
 import { marked } from "marked";import Link from "next/link";
 import type { Block } from "@/lib/cms";
 import ContactForm from "./ContactForm";
+import CalendlyEmbed from "./Calendly";
 
 export function BlockRenderer({ block }: { block: Block }) {
   switch (block.type) {
@@ -12,6 +13,7 @@ export function BlockRenderer({ block }: { block: Block }) {
     case "rich_text":    return <RichText md={block.data.md} />;
     case "cta":          return <BigCta {...(block.data as any)} />;
     case "form_anchor":  return <FormAnchor source={block.data?.source} />;
+    case "calendly":     return <CalendlyEmbed url={block.data?.url} />;
     default:             return null;
   }
 }
