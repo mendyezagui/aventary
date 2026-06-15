@@ -21,36 +21,36 @@ function Hero({
   eyebrow, headline, accent, sub, ctaLabel, ctaHref, secondaryLabel, secondaryHref, image, chip
 }: any) {
   return (
-    <section className="relative min-h-[800px] flex items-center px-8 overflow-hidden">
-      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+    <section className="relative min-h-[760px] flex items-center px-8 overflow-hidden bg-ink text-inverse-on-surface">
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center py-24">
         <div className="lg:col-span-7 z-10">
           {eyebrow ? (
-            <div className="inline-flex items-center px-4 py-1 rounded-full bg-primary-fixed text-on-primary-fixed font-label text-sm mb-8">
-              <span className="mr-2 flex h-2 w-2 rounded-full bg-primary animate-pulse"></span>
+            <div className="inline-flex items-center px-4 py-1.5 rounded-[2px] border border-primary/25 bg-primary/5 font-label text-xs tracking-[0.22em] uppercase text-primary mb-8">
+              <span className="mr-2.5 flex h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
               {eyebrow}
             </div>
           ) : null}
-          <h1 className="font-headline text-5xl md:text-7xl font-bold text-on-background editorial-gap leading-[1.05] mb-8">
+          <h1 className="font-headline text-5xl md:text-7xl font-medium text-inverse-on-surface editorial-gap leading-[1.08] mb-8">
             {headline}
-            {accent ? <> <span className="text-primary italic">{accent}</span></> : null}
+            {accent ? <> <span className="text-primary italic font-normal">{accent}</span></> : null}
           </h1>
           {sub ? (
-            <p className="text-xl text-on-surface-variant max-w-xl mb-12 leading-relaxed">{sub}</p>
+            <p className="text-lg text-white/55 max-w-xl mb-12 leading-relaxed">{sub}</p>
           ) : null}
           <div className="flex flex-wrap gap-4">
             {ctaLabel && ctaHref ? (
               <Link
                 href={ctaHref}
-                className="bg-primary text-on-primary px-10 py-4 rounded-full font-label font-bold text-lg hover:opacity-90 transition-all inline-flex items-center gap-2"
+                className="bg-primary text-on-primary px-9 py-4 rounded-[2px] font-label font-semibold text-xs tracking-[0.16em] uppercase hover:opacity-90 transition-all inline-flex items-center gap-2"
               >
                 {ctaLabel}
-                <span className="material-symbols-outlined">arrow_forward</span>
+                <span className="material-symbols-outlined text-base">arrow_forward</span>
               </Link>
             ) : null}
             {secondaryLabel && secondaryHref ? (
               <Link
                 href={secondaryHref}
-                className="border border-outline-variant/40 text-on-surface px-10 py-4 rounded-full font-label font-bold text-lg hover:bg-surface-container transition-all"
+                className="border border-white/25 text-inverse-on-surface px-9 py-4 rounded-[2px] font-label font-semibold text-xs tracking-[0.16em] uppercase hover:bg-white/5 transition-all"
               >
                 {secondaryLabel}
               </Link>
@@ -59,20 +59,20 @@ function Hero({
         </div>
         {image ? (
           <div className="lg:col-span-5 relative">
-            <div className="aspect-[4/5] rounded-3xl overflow-hidden soft-lift relative lg:translate-x-12">
+            <div className="aspect-[4/5] rounded-xl overflow-hidden relative lg:translate-x-12 ring-1 ring-white/10">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img alt={image.alt ?? ""} src={image.src} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink/70 to-transparent" />
             </div>
             {chip ? (
-              <div className="absolute -bottom-6 -left-12 bg-surface-container-lowest p-6 rounded-2xl soft-lift max-w-xs hidden md:block">
+              <div className="absolute -bottom-6 -left-12 bg-ink/90 backdrop-blur border border-white/10 p-6 rounded-lg max-w-xs hidden md:block">
                 <div className="flex items-center gap-4 mb-3">
-                  <div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-[2px] bg-primary/15 flex items-center justify-center">
                     <span className="material-symbols-outlined text-primary">{chip.icon ?? "monitoring"}</span>
                   </div>
-                  <span className="font-headline font-bold text-lg">{chip.title}</span>
+                  <span className="font-headline font-medium text-lg text-inverse-on-surface">{chip.title}</span>
                 </div>
-                <p className="text-sm text-on-surface-variant">{chip.body}</p>
+                <p className="text-sm text-white/55">{chip.body}</p>
               </div>
             ) : null}
           </div>
@@ -96,9 +96,9 @@ function ServicesBento({ heading, sub, tiles, leadership, ai, technology }: any)
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
 
           {leadership ? (
-            <div className="md:col-span-2 group relative bg-surface-container-lowest p-10 rounded-3xl soft-lift flex flex-col justify-between overflow-hidden">
+            <div className="md:col-span-2 group relative bg-surface-container-lowest p-10 rounded-xl soft-lift border border-outline-variant/40 flex flex-col justify-between overflow-hidden">
               <div className="z-10 relative">
-                <div className="text-primary font-label font-bold text-sm tracking-widest uppercase mb-4">
+                <div className="text-accent font-label font-semibold text-xs tracking-[0.22em] uppercase mb-4">
                   {leadership.eyebrow ?? "Leadership"}
                 </div>
                 <h3 className="font-headline text-3xl font-bold mb-6">{leadership.title}</h3>
@@ -107,7 +107,7 @@ function ServicesBento({ heading, sub, tiles, leadership, ai, technology }: any)
                   <ul className="space-y-3 mb-12">
                     {leadership.bullets.map((b: string, i: number) => (
                       <li key={i} className="flex items-center gap-3 text-on-surface font-medium">
-                        <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                        <span className="material-symbols-outlined text-accent text-base">check_circle</span>
                         {b}
                       </li>
                     ))}
@@ -123,10 +123,10 @@ function ServicesBento({ heading, sub, tiles, leadership, ai, technology }: any)
               {leadership.ctaHref ? (
                 <Link
                   href={leadership.ctaHref}
-                  className="w-fit text-primary font-bold flex items-center gap-2 group/btn relative z-10"
+                  className="w-fit text-on-surface font-semibold text-sm flex items-center gap-2 group/btn relative z-10"
                 >
                   {leadership.ctaLabel ?? "Learn more"}
-                  <span className="material-symbols-outlined transition-transform group-hover/btn:translate-x-1">
+                  <span className="material-symbols-outlined text-accent text-lg transition-transform group-hover/btn:translate-x-1">
                     arrow_right_alt
                   </span>
                 </Link>
@@ -135,21 +135,21 @@ function ServicesBento({ heading, sub, tiles, leadership, ai, technology }: any)
           ) : null}
 
           {ai ? (
-            <div className="bg-primary text-on-primary p-10 rounded-3xl flex flex-col justify-between relative overflow-hidden">
+            <div className="bg-ink text-inverse-on-surface p-10 rounded-xl flex flex-col justify-between relative overflow-hidden">
               <div className="z-10 relative">
-                <div className="text-primary-fixed font-label font-bold text-sm tracking-widest uppercase mb-4">
+                <div className="text-primary font-label font-semibold text-xs tracking-[0.22em] uppercase mb-4">
                   {ai.eyebrow ?? "Innovation"}
                 </div>
-                <h3 className="font-headline text-3xl font-bold mb-6">{ai.title}</h3>
-                <p className="text-on-primary/80 mb-8">{ai.body}</p>
+                <h3 className="font-headline text-3xl font-medium mb-6">{ai.title}</h3>
+                <p className="text-white/65 mb-8">{ai.body}</p>
               </div>
-              <div className="absolute -right-10 -bottom-10 opacity-20">
+              <div className="absolute -right-10 -bottom-10 text-primary/10">
                 <span className="material-symbols-outlined text-[12rem]">{ai.icon ?? "neurology"}</span>
               </div>
               {ai.ctaHref ? (
                 <Link
                   href={ai.ctaHref}
-                  className="bg-surface-container-lowest text-primary px-6 py-3 rounded-full font-bold w-full text-center hover:bg-white transition-colors relative z-10"
+                  className="bg-primary text-on-primary px-6 py-3 rounded-[2px] font-label font-semibold text-xs tracking-[0.16em] uppercase w-full text-center hover:opacity-90 transition-opacity relative z-10"
                 >
                   {ai.ctaLabel ?? "Get started"}
                 </Link>
@@ -158,7 +158,7 @@ function ServicesBento({ heading, sub, tiles, leadership, ai, technology }: any)
           ) : null}
 
           {technology ? (
-            <div className="bg-surface-container-highest p-10 rounded-3xl soft-lift flex flex-col justify-between">
+            <div className="bg-surface-container-highest p-10 rounded-xl soft-lift flex flex-col justify-between">
               <div>
                 <div className="text-on-surface-variant font-label font-bold text-sm tracking-widest uppercase mb-4">
                   {technology.eyebrow ?? "Technology"}
@@ -188,21 +188,21 @@ function ServicesBento({ heading, sub, tiles, leadership, ai, technology }: any)
               <Link
                 key={i}
                 href={t.href ?? "#"}
-                className="group relative bg-surface-container-lowest p-8 rounded-3xl soft-lift flex flex-col hover:-translate-y-1 transition-transform"
+                className="group relative bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/40 flex flex-col hover:-translate-y-1 hover:border-primary/40 transition-all"
               >
-                <div className="w-12 h-12 rounded-2xl bg-primary-fixed flex items-center justify-center mb-6">
-                  <span className="material-symbols-outlined text-primary">{t.icon ?? "bolt"}</span>
+                <div className="w-11 h-11 rounded-[2px] bg-primary-fixed flex items-center justify-center mb-6">
+                  <span className="material-symbols-outlined text-accent">{t.icon ?? "bolt"}</span>
                 </div>
                 {t.eyebrow ? (
-                  <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
+                  <div className="text-accent font-label font-semibold text-[11px] tracking-[0.22em] uppercase mb-3">
                     {t.eyebrow}
                   </div>
                 ) : null}
-                <h3 className="font-headline text-2xl font-bold mb-3">{t.title}</h3>
-                {t.body ? <p className="text-on-surface-variant mb-8 flex-1">{t.body}</p> : null}
-                <span className="mt-auto text-primary font-bold flex items-center gap-2">
+                <h3 className="font-headline text-xl font-semibold mb-3">{t.title}</h3>
+                {t.body ? <p className="text-on-surface-variant text-sm mb-8 flex-1 leading-relaxed">{t.body}</p> : null}
+                <span className="mt-auto text-on-surface font-semibold text-sm flex items-center gap-2">
                   {t.ctaLabel ?? "Explore"}
-                  <span className="material-symbols-outlined transition-transform group-hover:translate-x-1">
+                  <span className="material-symbols-outlined text-accent text-lg transition-transform group-hover:translate-x-1">
                     arrow_right_alt
                   </span>
                 </span>
@@ -221,7 +221,7 @@ function StatsStrip({ left, right }: any) {
   return (
     <section className="px-8 pb-32 bg-surface-container-low -mt-24">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-inverse-surface text-inverse-on-surface p-12 rounded-3xl flex flex-col md:flex-row items-center gap-12 overflow-hidden">
+        <div className="bg-inverse-surface text-inverse-on-surface p-12 rounded-xl flex flex-col md:flex-row items-center gap-12 overflow-hidden">
           {left ? (
             <div className="flex-1">
               <div className="text-5xl font-headline font-bold mb-2">{left.metric}</div>
@@ -235,7 +235,7 @@ function StatsStrip({ left, right }: any) {
               <div className="text-5xl font-headline font-bold mb-2">{right.metric}</div>
               <div className="text-lg font-medium text-surface-variant mb-6">{right.label}</div>
               {right.ctaHref ? (
-                <Link href={right.ctaHref} className="text-primary-fixed font-bold border-b border-primary-fixed">
+                <Link href={right.ctaHref} className="text-primary font-semibold border-b border-primary/60 pb-0.5 hover:border-primary transition-colors">
                   {right.ctaLabel ?? "Learn more"}
                 </Link>
               ) : null}
@@ -254,7 +254,7 @@ function WhyAventary({ heading, items, image }: any) {
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
         {image ? (
           <div className="relative">
-            <div className="relative z-10 rounded-3xl overflow-hidden soft-lift">
+            <div className="relative z-10 rounded-xl overflow-hidden soft-lift">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="w-full aspect-square object-cover" src={image.src} alt={image.alt ?? ""} />
             </div>
@@ -267,8 +267,8 @@ function WhyAventary({ heading, items, image }: any) {
           <div className="space-y-12">
             {(items ?? []).map((it: any, i: number) => (
               <div key={i} className="flex gap-6">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary">{it.icon ?? "psychology"}</span>
+                <div className="flex-shrink-0 w-12 h-12 rounded-[2px] bg-primary-fixed flex items-center justify-center">
+                  <span className="material-symbols-outlined text-accent">{it.icon ?? "psychology"}</span>
                 </div>
                 <div>
                   <h4 className="font-headline text-xl font-bold mb-2">{it.title}</h4>
@@ -289,7 +289,7 @@ function RichText({ md }: { md: string }) {
   return (
     <section className="px-8 py-12">
       <div
-        className="max-w-3xl mx-auto text-lg leading-relaxed text-on-surface-variant [&_h2]:font-headline [&_h2]:text-2xl [&_h2]:md:text-3xl [&_h2]:font-bold [&_h2]:text-on-surface [&_h2]:pt-8 [&_h2]:mb-3 [&_h3]:font-headline [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-on-surface [&_h3]:pt-6 [&_h3]:mb-3 [&_p]:my-5 [&_a]:text-primary [&_a]:underline [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-5 [&_ul>li]:my-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-5 [&_ol>li]:my-2 [&_strong]:font-bold [&_strong]:text-on-surface [&_em]:italic"
+        className="max-w-3xl mx-auto text-lg leading-relaxed text-on-surface-variant [&_h2]:font-headline [&_h2]:text-2xl [&_h2]:md:text-3xl [&_h2]:font-bold [&_h2]:text-on-surface [&_h2]:pt-8 [&_h2]:mb-3 [&_h3]:font-headline [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-on-surface [&_h3]:pt-6 [&_h3]:mb-3 [&_p]:my-5 [&_a]:text-accent [&_a]:underline [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-5 [&_ul>li]:my-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-5 [&_ol>li]:my-2 [&_strong]:font-bold [&_strong]:text-on-surface [&_em]:italic"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </section>
@@ -300,19 +300,19 @@ function RichText({ md }: { md: string }) {
 function BigCta({ headline, accent, sub, ctaLabel, ctaHref }: any) {
   return (
     <section className="py-24 px-8">
-      <div className="max-w-5xl mx-auto bg-surface-container-highest rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden">
+      <div className="max-w-5xl mx-auto bg-ink text-inverse-on-surface rounded-2xl p-12 md:p-20 text-center relative overflow-hidden">
         <div className="relative z-10">
-          <h2 className="font-headline text-4xl md:text-6xl font-bold mb-8 editorial-gap">
+          <h2 className="font-headline text-4xl md:text-6xl font-medium mb-8 editorial-gap">
             {headline}
-            {accent ? <> <span className="text-primary">{accent}</span></> : null}
+            {accent ? <> <span className="text-primary italic font-normal">{accent}</span></> : null}
           </h2>
           {sub ? (
-            <p className="text-xl text-on-surface-variant mb-12 max-w-2xl mx-auto">{sub}</p>
+            <p className="text-lg text-white/60 mb-12 max-w-2xl mx-auto">{sub}</p>
           ) : null}
           {ctaLabel && ctaHref ? (
             <Link
               href={ctaHref}
-              className="bg-primary text-on-primary px-12 py-5 rounded-full font-label font-bold text-xl hover:scale-105 transition-transform soft-lift inline-block"
+              className="bg-primary text-on-primary px-10 py-4 rounded-[2px] font-label font-semibold text-sm tracking-[0.16em] uppercase hover:opacity-90 transition-opacity inline-block"
             >
               {ctaLabel}
             </Link>
@@ -332,16 +332,16 @@ function FormAnchor({ source }: { source?: string }) {
   return (
     <section id="contact-form" className="px-8 pb-24">
       <div className="max-w-5xl mx-auto grid lg:grid-cols-12 gap-12">
-        <div className="lg:col-span-7 bg-surface-container-lowest p-10 rounded-3xl soft-lift">
+        <div className="lg:col-span-7 bg-surface-container-lowest p-10 rounded-xl soft-lift">
           <ContactForm source={source ?? "contact"} />
         </div>
         <aside className="lg:col-span-5 space-y-6">
-          <div className="bg-primary text-on-primary p-8 rounded-3xl">
+          <div className="bg-primary text-on-primary p-8 rounded-xl">
             <div className="font-label text-xs tracking-widest uppercase opacity-80 mb-4">Direct</div>
             <p className="font-headline text-2xl font-bold mb-2">hello@aventary.com</p>
             <p className="opacity-80 text-sm">We reply to every inquiry within one business day.</p>
           </div>
-          <div className="bg-surface-container-high p-8 rounded-3xl">
+          <div className="bg-surface-container-high p-8 rounded-xl">
             <div className="font-label text-xs tracking-widest uppercase text-on-surface-variant mb-4">
               Prefer a call?
             </div>
@@ -350,7 +350,7 @@ function FormAnchor({ source }: { source?: string }) {
             </p>
             <Link
               href="/appointments"
-              className="bg-on-surface text-surface-container-lowest px-6 py-3 rounded-full font-bold inline-block hover:opacity-90 transition"
+              className="bg-ink text-inverse-on-surface px-6 py-3 rounded-[2px] font-label font-semibold text-xs tracking-[0.16em] uppercase inline-block hover:opacity-90 transition"
             >
               Book now
             </Link>

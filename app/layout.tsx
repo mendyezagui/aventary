@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Fraunces, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 
-const headline = Space_Grotesk({
+const headline = Fraunces({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
   variable: "--font-headline",
   display: "swap"
 });
-const body = Inter({
+const body = Hanken_Grotesk({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-body",

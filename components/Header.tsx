@@ -10,22 +10,27 @@ const nav = [
 
 export default function Header() {
   return (
-    <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl">
+    <nav className="fixed top-0 w-full z-50 bg-ink/85 backdrop-blur-xl border-b border-white/10">
       <div className="flex justify-between items-center max-w-7xl mx-auto px-6 md:px-8 h-20 gap-3">
         <Link
           href="/"
-          className="text-2xl font-bold tracking-tighter font-headline shrink-0"
+          className="flex items-center gap-2.5 shrink-0 text-inverse-on-surface"
+          aria-label="Aventary home"
         >
-          Aventary
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 3.5 L19.5 20.5 L4.5 20.5 Z" />
+            <path d="M12 3.5 L12 13.5" />
+          </svg>
+          <span className="font-label text-base font-semibold tracking-[0.3em] uppercase">Aventary</span>
         </Link>
 
         {/* Desktop nav (md and up) */}
-        <div className="hidden md:flex items-center space-x-10 font-headline tracking-tight">
+        <div className="hidden md:flex items-center gap-9 font-label text-xs tracking-[0.18em] uppercase">
           {nav.map((n) => (
             <Link
               key={n.href}
               href={n.href}
-              className="text-zinc-600 hover:text-zinc-900 transition-colors"
+              className="text-white/60 hover:text-white transition-colors"
             >
               {n.label}
             </Link>
@@ -38,7 +43,7 @@ export default function Header() {
           <details className="md:hidden relative group">
             <summary
               aria-label="Open navigation menu"
-              className="list-none cursor-pointer p-2 -mr-2 text-zinc-700 hover:text-zinc-900 [&::-webkit-details-marker]:hidden"
+              className="list-none cursor-pointer p-2 -mr-2 text-white/70 hover:text-white [&::-webkit-details-marker]:hidden"
             >
               {/* Hamburger icon when closed */}
               <svg
@@ -78,14 +83,14 @@ export default function Header() {
 
             <div
               role="menu"
-              className="absolute right-0 top-full mt-3 w-56 bg-surface border border-black/10 rounded-2xl shadow-xl overflow-hidden"
+              className="absolute right-0 top-full mt-3 w-56 bg-ink border border-white/10 rounded-lg shadow-xl overflow-hidden"
             >
               {nav.map((n) => (
                 <Link
                   key={n.href}
                   href={n.href}
                   role="menuitem"
-                  className="block px-5 py-3 font-headline tracking-tight text-zinc-700 hover:bg-zinc-100 transition-colors border-b border-black/5 last:border-b-0"
+                  className="block px-5 py-3 font-label text-xs tracking-[0.16em] uppercase text-white/70 hover:bg-white/5 transition-colors border-b border-white/5 last:border-b-0"
                 >
                   {n.label}
                 </Link>
@@ -95,7 +100,7 @@ export default function Header() {
 
           <Link
             href="/appointments"
-            className="bg-primary text-on-primary px-5 md:px-8 py-3 rounded-full font-label font-medium hover:opacity-80 transition-opacity duration-300 text-sm md:text-base whitespace-nowrap"
+            className="bg-primary text-on-primary px-5 md:px-7 py-3 rounded-[2px] font-label font-semibold text-xs tracking-[0.16em] uppercase hover:opacity-90 transition-opacity duration-300 whitespace-nowrap"
           >
             Book a Call
           </Link>
