@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Aventary">
+  <rect width="100" height="100" rx="20" fill="#0B0B0B"/>
+  <g fill="none" stroke="#C9A66B" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M50 23 L75 79"/>
+    <path d="M50 23 L25 79"/>
+    <path d="M33 63 L67 63"/>
+  </g>
+</svg>
