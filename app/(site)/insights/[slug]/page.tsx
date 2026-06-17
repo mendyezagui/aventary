@@ -4,6 +4,9 @@ import { marked } from "marked";
 import { getPost } from "@/lib/cms";
 import { AuthorBio } from "@/components/AuthorBio";
 import { RichArticleReveals } from "@/components/RichArticleReveals";
+import { SharePost } from "@/components/SharePost";
+
+const SITE_URL = "https://aventary.com";
 
 function formatDate(iso: string | null | undefined): string {
   if (!iso) return "";
@@ -91,6 +94,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <RichArticleReveals />
         <section className="px-8 py-16 bg-surface">
           <div className="max-w-3xl mx-auto">
+            <div className="pb-10 mb-10 border-b border-outline-variant">
+              <SharePost title={post.title} url={`${SITE_URL}/insights/${post.slug}`} />
+            </div>
             <AuthorBio />
             <div className="pt-8">
               <Link
@@ -151,6 +157,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           className="max-w-3xl mx-auto text-lg leading-relaxed text-on-surface [&_h2]:font-headline [&_h2]:text-2xl [&_h2]:md:text-3xl [&_h2]:font-bold [&_h2]:pt-8 [&_h2]:mb-3 [&_h3]:font-headline [&_h3]:text-xl [&_h3]:md:text-2xl [&_h3]:font-bold [&_h3]:pt-6 [&_h3]:mb-3 [&_p]:my-5 [&_a]:text-primary [&_a]:underline [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-5 [&_ul>li]:my-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-5 [&_ol>li]:my-2 [&_blockquote]:border-l-4 [&_blockquote]:border-primary [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:my-6 [&_code]:bg-black/5 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_pre]:bg-black/90 [&_pre]:text-white [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-6 [&_pre>code]:bg-transparent [&_pre>code]:p-0 [&_img]:rounded-2xl [&_img]:my-6 [&_img]:w-full [&_strong]:font-bold [&_em]:italic"
           dangerouslySetInnerHTML={{ __html: html }}
         />
+
+        <div className="max-w-3xl mx-auto pt-10 mt-4 border-t border-outline-variant">
+          <SharePost title={post.title} url={`${SITE_URL}/insights/${post.slug}`} />
+        </div>
 
         <div className="max-w-3xl mx-auto">
           <AuthorBio />
