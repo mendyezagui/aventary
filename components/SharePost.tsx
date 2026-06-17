@@ -80,19 +80,24 @@ export function SharePost({ title, url }: { title: string; url: string }) {
         Share
       </span>
 
-      {links.map((l) => (
-        <a
-          key={l.label}
-          href={l.href}
-          target="_blank"
-          rel="noreferrer noopener"
-          aria-label={l.label}
-          title={l.label}
-          className={btn}
-        >
-          {l.icon}
-        </a>
-      ))}
+      {links.map((l) => {
+        // mailto: must open in the same context — target="_blank" makes the
+        // browser pop a blank tab and the mail handler often never fires.
+        const external = l.href.startsWith("http");
+        return (
+          <a
+            key={l.label}
+            href={l.href}
+            target={external ? "_blank" : undefined}
+            rel={external ? "noreferrer noopener" : undefined}
+            aria-label={l.label}
+            title={l.label}
+            className={btn}
+          >
+            {l.icon}
+          </a>
+        );
+      })}
 
       <button type="button" onClick={copy} aria-label="Copy link" title="Copy link" className={btn}>
         {copied ? (
