@@ -82,6 +82,11 @@ const BRIEF_TTL_S    = 60 * 60 * 24 * 14; // keep last brief readable for 14 day
 const RECENT_TTL_S   = 60 * 60 * 24 * 30; // 30 days — safety net for KV expiry
 const RECENT_WINDOW_MS = 14 * 24 * 60 * 60 * 1000; // exclude items surfaced in the last 14 days
 const RECENT_CAP     = 200;                // hard cap on how many items we track
+// Voice-level cooldown: don't re-feature the same PERSON within this window, so
+// the brief doesn't keep surfacing the same prolific voices day after day.
+// 5 days × 5 picks = 25 slots vs ~34 voices, so this stays satisfiable while
+// still leaving room for the mandatory RevOps slot. Tune to taste.
+const VOICE_COOLDOWN_MS = 5 * 24 * 60 * 60 * 1000;
 const RUN_OVERLAP_MS = 6  * 60 * 60 * 1000;
 const MAX_LOOKBACK_MS = 7 * 24 * 60 * 60 * 1000;
 const WEB_SEARCH_MAX_USES = 30;
@@ -325,6 +330,28 @@ async function generateBrief(env) {
         .join("\n")
     : "(none yet — fresh start)";
 
+  // Voice cooldown: collapse recent items to the unique people featured within
+  // VOICE_COOLDOWN_MS (keeping each one's most recent appearance) so we can tell
+  // the model which voices to skip this run.
+  const cooledVoices = (() => {
+    const cutoff = Date.now() - VOICE_COOLDOWN_MS;
+    const lastSeen = new Map();
+    for (const it of recentItems) {
+      const name = (it.name || "").trim();
+      if (!name || typeof it.surfaced_at !== "number" || it.surfaced_at < cutoff) continue;
+      if (!lastSeen.has(name) || it.surfaced_at > lastSeen.get(name)) lastSeen.set(name, it.surfaced_at);
+    }
+    return [...lastSeen.entries()].sort((a, b) => b[1] - a[1]);
+  })();
+  const cooledBlock = cooledVoices.length
+    ? cooledVoices
+        .map(([name, ts], i) => {
+          const d = Math.max(0, Math.round((Date.now() - ts) / 86400000));
+          return `${i + 1}. ${name} (featured ${d === 0 ? "today" : `${d}d ago`})`;
+        })
+        .join("\n")
+    : "(none — every voice is available)";
+
   const prompt = `You are an elite morning intelligence analyst. Today is ${today}.
 
 PART A — Pre-fetched RSS candidates (Substack + YouTube, published since the last brief, already deduped against prior briefs):
@@ -336,6 +363,9 @@ ${voiceList}
 PART C — DO NOT RE-SURFACE (these items appeared in a brief in the last 14 days; pick different content even if the same voice has fresh content — match by title, URL, OR substantively the same announcement/argument):
 ${excludeBlock}
 
+PART D — VOICE COOLDOWN (avoid repeating the same people day-to-day): the voices below were already featured in a brief within the last ${Math.round(VOICE_COOLDOWN_MS / 86400000)} days. Do NOT feature them again in this brief — choose different people so the brief feels fresh each morning, even if a cooled voice published something strong. The ONLY exception: if the Revenue Operations coverage rule (criterion 5) genuinely cannot be met because every available RevOps voice is on this list, you may reuse the single strongest RevOps voice — never reuse a cooled voice for an AI or Salesforce slot.
+${cooledBlock}
+
 AFTER collecting candidates from A and B, select the TOP 5 most materially valuable pieces overall.
 
 RANKING CRITERIA:
@@ -346,6 +376,7 @@ RANKING CRITERIA:
 5. Coverage — top5 MUST include at least 1 item with category "Revenue Operations". This is a hard constraint, not a preference. If no fresh RevOps post exists in PART A or PART B for this window, surface the strongest available RevOps voice (any platform, lookback up to 7 days) and write bullets that frame why their current posture matters — never omit RevOps to make room for a 5th AI/Salesforce item.
 6. ICP fit — Aventary's audience is non-tech companies deploying AI + RevOps systems. When two items have comparable merit on criteria 1–4, prefer the one where AI is being APPLIED to revenue operations (lead routing, sales agent deployment, outbound at scale, pipeline data alignment, marketing automation, RevOps tooling at non-tech operators) over pure AI research, model release coverage, or AI-tech-news. A practical AI×RevOps signal an operator can deploy this quarter ranks above a more headline-grabbing pure-AI story when both are otherwise equivalent.
 7. One voice per brief — each of the 5 slots MUST be a different voice/source. Never select more than one item from the same person or publication in a single brief, even if they published several strong pieces; choose their single best and give the remaining slots to other voices.
+8. Voice freshness across days — strongly prefer voices NOT featured in the last few days (see PART D). A fresh voice with a strong item beats a recently-featured voice with a comparable item; only fall back to a cooled voice when nothing else in that category comes close (and for RevOps only, per the PART D exception).
 
 Write each card for a business executive who has 10 seconds to decide if it's worth reading:
 - 3 bullets max, tight, no fluff
@@ -409,6 +440,18 @@ Return ONLY valid JSON. No markdown. No preamble:
   if (!hasRevOps) {
     console.warn(
       "[Morning Brief] WARNING: top5 missing Revenue Operations category — prompt coverage rule violated."
+    );
+  }
+
+  // Monitor (don't block): surface any cooled voice that slipped through PART D
+  // so we can tighten the prompt or extend the cooldown if it keeps happening.
+  const cooledSet = new Set(cooledVoices.map(([n]) => n.trim().toLowerCase()));
+  const reused = (result.top5 || []).filter(
+    (it) => it && cooledSet.has(String(it.name || "").trim().toLowerCase())
+  );
+  if (reused.length) {
+    console.warn(
+      `[Morning Brief] voice cooldown: ${reused.length} recently-featured voice(s) reused despite PART D: ${reused.map((r) => r.name).join(", ")}`
     );
   }
 
