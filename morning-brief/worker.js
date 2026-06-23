@@ -75,6 +75,7 @@ const VOICES = [
 // ─── KV schema ─────────────────────────────────────────────────────────────
 const KV_LATEST      = "latest";
 const KV_LAST_RUN    = "last_run_at";
+const KV_LAST_RUN_META = "last_run_meta"; // diagnostics: publish/email outcome of the last run
 const KV_SHOWN_PFX   = "shown:";
 const KV_RECENT_ITEMS = "recent_items_v1";
 const SHOWN_TTL_S    = 60 * 60 * 24 * 14; // 14 days
@@ -89,7 +90,10 @@ const RECENT_CAP     = 200;                // hard cap on how many items we trac
 const VOICE_COOLDOWN_MS = 5 * 24 * 60 * 60 * 1000;
 const RUN_OVERLAP_MS = 6  * 60 * 60 * 1000;
 const MAX_LOOKBACK_MS = 7 * 24 * 60 * 60 * 1000;
-const WEB_SEARCH_MAX_USES = 30;
+// Was 30 — that many server-side searches routinely pushed the agent call past
+// the gateway timeout (HTTP 524), silently killing the daily brief. 8 is plenty
+// to scan the roster and keeps the call comfortably under the limit.
+const WEB_SEARCH_MAX_USES = 8;
 
 // ─── URL normalization & hashing ───────────────────────────────────────────
 
@@ -254,22 +258,32 @@ async function runAgentLoop(apiKey, prompt) {
   const messages = [{ role: "user", content: prompt }];
 
   for (let turns = 0; turns < 5; turns++) {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 4000,
-        tools: [{ type: "web_search_20250305", name: "web_search", max_uses: WEB_SEARCH_MAX_USES }],
-        messages,
-      }),
+    const body = JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 4000,
+      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: WEB_SEARCH_MAX_USES }],
+      messages,
     });
 
-    if (!res.ok) {
+    // Retry transient gateway/overload responses (524 timeout, 529 overloaded,
+    // 5xx, 429) with backoff — these were silently killing the daily run.
+    let res;
+    for (let attempt = 1; ; attempt++) {
+      res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body,
+      });
+      if (res.ok) break;
+      const transient = [408, 429, 500, 502, 503, 504, 520, 522, 524, 529].includes(res.status);
+      if (transient && attempt < 4) {
+        await new Promise((r) => setTimeout(r, 1500 * attempt));
+        continue;
+      }
       const err = await res.json().catch(() => ({}));
       throw new Error(err?.error?.message || `HTTP ${res.status}`);
     }
@@ -476,21 +490,38 @@ Return ONLY valid JSON. No markdown. No preamble:
   console.log(`[Morning Brief] top5=${result.top5?.length} rss=${freshRss.length} since=${new Date(sinceMs).toISOString()}`);
 
   // Post the brief as an Insights post + email the subscriber list. Both run
-  // best-effort: failures are logged but never kill the cron run, because the
-  // brief itself is already safely in KV at this point.
+  // best-effort (a failure never kills the run — the brief is already in KV),
+  // but we now CAPTURE each outcome instead of swallowing it, and persist a
+  // meta record so the result is visible via the trigger response and
+  // GET /api/status. This is what makes silent publish failures debuggable.
+  const meta = {
+    date: result.date,
+    generated_at: result.generated_at,
+    top5: result.top5?.length ?? 0,
+    publish: { ok: false },
+    email: { ok: false },
+    ran_at: new Date().toISOString(),
+  };
+
   try {
     await publishToInsights(env, result);
+    meta.publish = { ok: true };
   } catch (e) {
+    meta.publish = { ok: false, error: String(e?.message || e) };
     console.error("[Morning Brief] publishToInsights failed:", e?.message || e);
   }
 
   try {
     await emailSubscribers(env, result);
+    meta.email = { ok: true };
   } catch (e) {
+    meta.email = { ok: false, error: String(e?.message || e) };
     console.error("[Morning Brief] emailSubscribers failed:", e?.message || e);
   }
 
-  return result;
+  try { await env.BRIEF_KV.put(KV_LAST_RUN_META, JSON.stringify(meta)); } catch { /* non-fatal */ }
+
+  return meta;
 }
 
 // ─── Insights post ─────────────────────────────────────────────────────────
@@ -840,6 +871,14 @@ export default {
       return new Response(null, { headers: CORS });
     }
 
+    // GET /api/morning-brief?meta=1 → diagnostics from the last run
+    // (publish/email outcome). Served on the same route so no extra Cloudflare
+    // route is needed; lets us see WHY a run failed without tailing the Worker.
+    if (url.pathname === "/api/morning-brief" && request.method === "GET" && url.searchParams.get("meta") === "1") {
+      const meta = await env.BRIEF_KV.get(KV_LAST_RUN_META, "json");
+      return new Response(JSON.stringify(meta ?? { status: "no runs recorded yet" }), { status: 200, headers: CORS });
+    }
+
     // GET /api/morning-brief → latest stored brief
     if (url.pathname === "/api/morning-brief" && request.method === "GET") {
       const data = await env.BRIEF_KV.get(KV_LATEST, "json");
@@ -878,8 +917,9 @@ export default {
       // ctx.waitUntil() was getting cancelled when generation ran longer than
       // the post-response budget (generation takes ~100s), so briefs silently
       // never persisted.
+      let meta;
       try {
-        await generateBrief(env);
+        meta = await generateBrief(env);
       } catch (e) {
         console.error("[Morning Brief] trigger generateBrief failed:", e?.message || e);
         return new Response(
@@ -887,7 +927,9 @@ export default {
           { status: 500, headers: CORS }
         );
       }
-      return new Response(JSON.stringify({ status: "completed", message: "Brief generation finished." }), {
+      // Surface publish/email outcomes so a silent failure is visible right here
+      // in the response instead of being swallowed.
+      return new Response(JSON.stringify({ status: "completed", ...meta }), {
         status: 200,
         headers: CORS,
       });
