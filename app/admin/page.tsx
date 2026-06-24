@@ -20,6 +20,10 @@ export default async function AdminHome() {
           <h2 className="text-xl font-bold">Submissions</h2>
           <p className="mt-2 text-sm opacity-80">Inbound leads from the contact form.</p>
         </Link>
+        <Link href="/admin/loops" className="block border border-black/20 p-6 hover:bg-black hover:text-white">
+          <h2 className="text-xl font-bold">Loops</h2>
+          <p className="mt-2 text-sm opacity-80">Scheduled AI jobs — review &amp; approve drafts before they send.</p>
+        </Link>
       </div>
     </div>
   );

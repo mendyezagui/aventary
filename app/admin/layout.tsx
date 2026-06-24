@@ -11,6 +11,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin" className="font-heading font-bold">Aventary · Admin</Link>
           <nav className="flex items-center gap-6 text-sm">
             <Link href="/admin/pages" className="link-underline">Pages</Link>
+            <Link href="/admin/loops" className="link-underline">Loops</Link>
             <Link href="/admin/submissions" className="link-underline">Submissions</Link>
             <Link href="/" className="link-underline">View site</Link>
             <form action="/admin/signout" method="post"><button className="link-underline">Sign out</button></form>
