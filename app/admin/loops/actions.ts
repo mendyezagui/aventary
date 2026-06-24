@@ -69,6 +69,41 @@ ${run.newsletter_body ?? "(none)"}`,
   revalidatePath("/admin/loops");
 }
 
+/**
+ * Unpublish an auto-published content run: take the live /insights post down
+ * (clear published_at) and mark the run 'rejected'. This is the reversal valve
+ * for the per-loop auto-publish policy — content goes live without a click, but
+ * any post can be pulled back here.
+ */
+export async function unpublish(formData: FormData) {
+  const { email } = await requireAdmin();
+  const runId = String(formData.get("runId") ?? "");
+  if (!runId) return;
+
+  const sb = createSupabaseAdmin();
+
+  const { data: run } = await sb
+    .from("loop_runs")
+    .select("id, status, post_slug")
+    .eq("id", runId)
+    .single();
+
+  if (!run || run.status !== "published") return;
+
+  if (run.post_slug) {
+    // Unpublish (keep the row so it can be re-published from /admin/posts).
+    await sb.from("posts").update({ published_at: null }).eq("slug", run.post_slug);
+  }
+
+  await sb
+    .from("loop_runs")
+    .update({ status: "rejected", decided_at: new Date().toISOString(), decided_by: email })
+    .eq("id", runId);
+
+  revalidatePath("/admin/loops");
+  revalidatePath("/insights");
+}
+
 /** Reject a drafted run — it stays for the record but is never sent. */
 export async function reject(formData: FormData) {
   const { email } = await requireAdmin();

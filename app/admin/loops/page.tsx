@@ -1,12 +1,13 @@
 import { requireAdmin } from "@/lib/admin";
 import { createSupabaseAdmin } from "@/lib/supabase/server";
-import { approveAndSend, reject } from "./actions";
+import { approveAndSend, reject, unpublish } from "./actions";
 
 export const dynamic = "force-dynamic";
 
 const STATUS_STYLES: Record<string, string> = {
   drafted: "bg-amber-100 text-amber-900",
   approved: "bg-blue-100 text-blue-900",
+  published: "bg-green-100 text-green-900",
   sent: "bg-green-100 text-green-900",
   rejected: "bg-black/10 text-black/60",
   failed: "bg-red-100 text-red-900",
@@ -26,7 +27,7 @@ export default async function LoopsPage() {
   const { data: runs } = await sb
     .from("loop_runs")
     .select(
-      "id, loop_id, run_date, status, title, linkedin_post, newsletter_subject, newsletter_body, model, error, created_at, decided_by, sent_to",
+      "id, loop_id, run_date, status, title, linkedin_post, newsletter_subject, newsletter_body, post_slug, output, model, error, created_at, decided_by, sent_to",
     )
     .order("created_at", { ascending: false })
     .limit(60);
@@ -37,7 +38,9 @@ export default async function LoopsPage() {
     <div>
       <h1 className="text-3xl font-bold">Loops</h1>
       <p className="mt-2 text-sm text-[color:var(--muted)]">
-        Scheduled AI jobs. Each run drafts content for review — nothing is sent until you approve it.
+        Scheduled AI jobs. Publish policy is per-loop: the signal brief and content
+        auto-publish to the site; outreach and internal loops stay gated for approval.
+        Anything auto-published can be pulled back with Unpublish.
       </p>
 
       {/* Loop definitions */}
@@ -87,6 +90,43 @@ export default async function LoopsPage() {
               <p className="mt-3 rounded bg-red-50 p-3 font-mono text-xs text-red-900">{r.error}</p>
             )}
 
+            {/* Signal-brief tracking runs have no content, just an output summary. */}
+            {r.output && (
+              <p className="mt-3 text-sm text-black/70">
+                {typeof r.output.signal_count === "number"
+                  ? `${r.output.signal_count} signals`
+                  : null}
+                {r.output.public_url && (
+                  <>
+                    {" — "}
+                    <a
+                      href={r.output.public_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-700 underline"
+                    >
+                      view live brief →
+                    </a>
+                  </>
+                )}
+              </p>
+            )}
+
+            {/* Auto-published content: link to the live post. */}
+            {r.post_slug && (
+              <p className="mt-3 text-sm">
+                Published to{" "}
+                <a
+                  href={`/insights/${r.post_slug}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-medium text-green-800 underline"
+                >
+                  /insights/{r.post_slug} →
+                </a>
+              </p>
+            )}
+
             {(r.linkedin_post || r.newsletter_body) && (
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div>
@@ -115,6 +155,17 @@ export default async function LoopsPage() {
                   <input type="hidden" name="runId" value={r.id} />
                   <button className="border border-black/30 px-4 py-2 text-sm hover:bg-black/5">
                     Reject
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {r.status === "published" && r.post_slug && (
+              <div className="mt-4">
+                <form action={unpublish}>
+                  <input type="hidden" name="runId" value={r.id} />
+                  <button className="border border-red-300 px-4 py-2 text-sm text-red-800 hover:bg-red-50">
+                    Unpublish
                   </button>
                 </form>
               </div>
