@@ -22,7 +22,7 @@ export default function ChartPage() {
                             My AI Learning Curve
                     </h1>
                     <p className="text-gray-500 mb-8">
-                            40 months &middot; six AI ecosystems &middot; tousands of
+                            40 months &middot; six AI ecosystems &middot; thousands of
                             conversations &middot; March&nbsp;2023 to June&nbsp;2026
                     </p>
               
