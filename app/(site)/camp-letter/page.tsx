@@ -160,11 +160,11 @@ export default function CampLetterPage() {
               />
               <LetterSection
                 icon="edit_note"
-                label="From Abba"
+                label="From Dad"
                 body="Thinking of you all day. How's your bunk — is your counselor cool? Counting down to our call!"
               />
               <div className="font-headline italic text-on-surface mt-4">
-                Love, Abba
+                Love, Dad
               </div>
             </div>
           </div>
