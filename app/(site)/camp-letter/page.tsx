@@ -262,6 +262,86 @@ export default function CampLetterPage() {
         </div>
       </section>
 
+      {/* FULL EXAMPLE */}
+      <section className="px-8 py-24">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3 text-center">
+            A real letter, start to finish
+          </div>
+          <h2 className="font-headline text-4xl md:text-5xl font-bold leading-[1.1] mb-12 text-center">
+            This is what lands in the draft
+            <span className="text-primary italic">.</span>
+          </h2>
+
+          <div className="bg-surface soft-lift rounded-3xl p-8 md:p-12">
+            <div className="font-label text-xs text-on-surface-variant border-b border-outline-variant pb-4 mb-6 leading-relaxed">
+              <span className="text-on-surface font-bold">To:</span> camper@yourcamp.com
+              <br />
+              <span className="text-on-surface font-bold">Subject:</span> Eli Klein
+            </div>
+
+            <div className="space-y-5 text-on-surface leading-relaxed">
+              <p className="font-headline text-2xl font-bold">Hey Eli!! ☀️</p>
+              <p>
+                Day 9 already — you&apos;re officially a camp veteran now. You know the
+                shortcut to the lake, you know which night is pizza night, and your bunk
+                knows you&apos;re the one to beat at gaga. So proud of you, buddy.
+              </p>
+              <div>
+                <span className="font-label font-bold text-sm text-primary block mb-1">
+                  ⚾ Sports Corner
+                </span>
+                <p>
+                  The Yankees walked it off 5–4 in the 10th last night — bases loaded, two
+                  outs, and Judge just <em>parked</em> it. The kind of game where you forget
+                  to breathe. Tell your bunk the good guys don&apos;t quit. 😎
+                </p>
+              </div>
+              <div>
+                <span className="font-label font-bold text-sm text-primary block mb-1">
+                  😂 Joke of the Day
+                </span>
+                <p>Why did the baseball player bring string to the game? So he could tie the score!</p>
+              </div>
+              <div>
+                <span className="font-label font-bold text-sm text-primary block mb-1">
+                  💌 From Goldie
+                </span>
+                <p>
+                  ELI!!! I lost my front tooth and the tooth fairy left me TWO whole dollars
+                  so now I&apos;m basically rich. I&apos;m saving you a gummy worm. Come home
+                  soon I miss you the most. — Goldie 💛
+                </p>
+              </div>
+              <div>
+                <span className="font-label font-bold text-sm text-primary block mb-1">
+                  ✍️ From Dad
+                </span>
+                <p>
+                  Camp&apos;s flying by, huh? I keep catching myself about to text you stuff
+                  and then remembering you&apos;re off being a legend in the woods. Quick one:
+                  who&apos;s your favorite counselor so far, and did you ever try the climbing
+                  wall? Counting down to our call on Sunday. Love you, bud.
+                </p>
+              </div>
+              <p className="font-headline italic text-xl pt-2">Love, Dad</p>
+            </div>
+
+            <div className="mt-8 pt-5 border-t border-outline-variant">
+              <p className="text-xs text-on-surface-variant font-mono leading-relaxed">
+                LOG: joke=&quot;…brought string… tie the score&quot;; question=&quot;favorite
+                counselor / climbing wall&quot;
+              </p>
+              <p className="text-xs text-on-surface-variant mt-2 flex items-start gap-1.5">
+                <span className="material-symbols-outlined text-primary text-sm">history_edu</span>
+                That last line is the memory at work — tomorrow it won&apos;t reach for the
+                same joke or ask the same question.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* HOW IT WORKS */}
       <section id="how" className="px-8 py-24">
         <div className="max-w-7xl mx-auto">
