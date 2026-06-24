@@ -102,6 +102,13 @@ export function CampLetterBuilder() {
 
   const prompt = useMemo(() => buildPrompt(f, log), [f, log]);
 
+  // Deep-links that open a new chat with the prompt prefilled. Long prompts can
+  // exceed practical URL limits, so fall back to Copy past a safe threshold.
+  const encoded = useMemo(() => encodeURIComponent(prompt), [prompt]);
+  const tooLong = encoded.length > 7000;
+  const claudeUrl = `https://claude.ai/new?q=${encoded}`;
+  const chatgptUrl = `https://chatgpt.com/?q=${encoded}`;
+
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(prompt);
@@ -313,6 +320,43 @@ export function CampLetterBuilder() {
             onFocus={(e) => e.target.select()}
             className="w-full h-[24rem] bg-surface text-on-surface text-xs leading-relaxed font-mono p-4 rounded-2xl border border-outline-variant resize-none"
           />
+
+          <div className="mt-4">
+            <div className="font-label text-xs tracking-widest uppercase text-on-surface-variant mb-2">
+              Or open it prefilled
+            </div>
+            {tooLong ? (
+              <p className="text-sm text-on-surface-variant">
+                Your prompt&apos;s a bit long for a one-click link — hit{" "}
+                <strong className="text-on-surface">Copy</strong> above and paste it into a
+                new chat instead.
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-3">
+                <a
+                  href={claudeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-primary text-on-primary px-5 py-2.5 rounded-full font-label font-bold text-sm"
+                >
+                  <span className="material-symbols-outlined text-base">open_in_new</span>
+                  Open in Claude
+                </a>
+                <a
+                  href={chatgptUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-surface text-on-surface px-5 py-2.5 rounded-full font-label font-bold text-sm soft-lift"
+                >
+                  <span className="material-symbols-outlined text-base">open_in_new</span>
+                  Open in ChatGPT
+                </a>
+              </div>
+            )}
+            <p className="text-xs text-on-surface-variant mt-2">
+              Opens a new chat with everything filled in. Sign in if asked, then send.
+            </p>
+          </div>
         </div>
 
         {/* MEMORY — the private "already sent" repository */}
