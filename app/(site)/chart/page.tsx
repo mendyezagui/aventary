@@ -10,7 +10,7 @@ export const metadata: Metadata = {
                         "Interactive chart: 40 months of AI adoption across six platforms. By Mendy Ezagui.",
               images: [
                         "https://cdn.prod.website-files.com/5ebcc45eccf7ae99a53f0374/6a19daa76f1e8f4218d9d041_og-hype-cycle.png",
-                      ],
+                      ]
       },
       twitter: { card: "summary_large_image" },
 };
@@ -30,7 +30,7 @@ export default function ChartPage() {
                             <iframe
                                           src="/chart-embed.html"
                                           className="w-full border-0"
-                                          style={{ height: "620px" }}
+                                          style={{ height: "1050px" }}
                                           title="AI Hype Cycle Interactive Chart"
                                         />
                     </div>
