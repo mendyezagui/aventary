@@ -3,7 +3,7 @@ import { listPosts } from "@/lib/cms";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = "https://www.aventary.com";
-  const statics = ["", "/about", "/contact", "/appointments", "/insights"].map((p) => ({
+  const statics = ["", "/about", "/contact", "/appointments", "/insights", "/camp-letter"].map((p) => ({
     url: base + p,
     changeFrequency: "weekly" as const,
     priority: p === "" ? 1 : 0.7

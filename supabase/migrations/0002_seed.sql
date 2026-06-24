@@ -53,6 +53,10 @@ insert into public.blocks(page_id, position, type, data) values
         'body','X-ray your pipeline and forecast from one CSV and see how much of your reported revenue you can actually trust.',
         'icon','troubleshoot','ctaLabel','Run the diagnostic','href','/diagnostics'),
       jsonb_build_object(
+        'eyebrow','Aventary Lab','title','Camp Letter',
+        'body','A free Claude skill that writes a warm, personalized letter to your kid at sleepaway camp every day — proof we ship AI tools that do real work.',
+        'icon','mail','ctaLabel','Get the free skill','href','/camp-letter'),
+      jsonb_build_object(
         'eyebrow','Writing','title','Insights',
         'body','Field notes on AI, RevOps, and building revenue systems that actually ship.',
         'icon','article','ctaLabel','Read insights','href','/insights'),
