@@ -86,6 +86,31 @@ const STEPS = [
   }
 ];
 
+const STICK = [
+  {
+    icon: "auto_awesome",
+    tool: "In Claude",
+    how: "Save it as a Project",
+    steps: [
+      "Open Claude → Projects → new project, name it “Camp Letters — [child].”",
+      "Paste your prompt into the project's instructions.",
+      "Each morning, open the project, start a chat, and say “write today's letter.”"
+    ],
+    note: "Turn on the Google/Gmail connector and it can drop the letter straight into your drafts."
+  },
+  {
+    icon: "smart_toy",
+    tool: "In ChatGPT",
+    how: "Save it as a Custom GPT",
+    steps: [
+      "ChatGPT → Explore GPTs → Create (or use a Project).",
+      "Paste your prompt into the Instructions, keep it private.",
+      "Open it each morning and say “write today's letter.”"
+    ],
+    note: "ChatGPT's Tasks can even nudge you at the same time each day to run it."
+  }
+];
+
 const RUN_MODES = [
   {
     icon: "chat",
@@ -316,6 +341,58 @@ export default function CampLetterPage() {
               Download the skill
             </a>
           </div>
+        </div>
+      </section>
+
+      {/* MAKE IT STICK */}
+      <section className="px-8 py-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
+            Make it stick
+          </div>
+          <h2 className="font-headline text-4xl md:text-5xl font-bold leading-[1.1] mb-6 max-w-2xl">
+            Save it once so it&apos;s ready every morning
+            <span className="text-primary italic">.</span>
+          </h2>
+          <p className="text-lg text-on-surface-variant max-w-3xl mb-12">
+            Don&apos;t paste the prompt fresh each day — park it somewhere it&apos;ll wait for
+            you. Then your whole morning is one sentence.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {STICK.map((s) => (
+              <div key={s.tool} className="bg-surface p-8 rounded-3xl soft-lift">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary-container">
+                    <span className="material-symbols-outlined text-on-primary-container">{s.icon}</span>
+                  </div>
+                  <div>
+                    <div className="font-label text-xs tracking-widest uppercase text-primary">{s.tool}</div>
+                    <h3 className="font-headline text-xl font-bold">{s.how}</h3>
+                  </div>
+                </div>
+                <ol className="space-y-3 mb-5">
+                  {s.steps.map((step, i) => (
+                    <li key={i} className="flex gap-3 text-on-surface-variant text-sm leading-relaxed">
+                      <span className="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-fixed text-on-primary-fixed font-label font-bold text-xs">
+                        {i + 1}
+                      </span>
+                      {step}
+                    </li>
+                  ))}
+                </ol>
+                <p className="text-sm text-on-surface-variant border-t border-outline-variant pt-4 flex items-start gap-2">
+                  <span className="material-symbols-outlined text-primary text-base shrink-0">tips_and_updates</span>
+                  {s.note}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-sm text-on-surface-variant mt-8 max-w-3xl">
+            A saved Project or Custom GPT also remembers your past letters in its own thread —
+            a nice backstop to the no-repeat memory in the builder above.
+          </p>
         </div>
       </section>
 
