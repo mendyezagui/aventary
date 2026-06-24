@@ -86,6 +86,31 @@ const STEPS = [
   }
 ];
 
+const RUN_MODES = [
+  {
+    icon: "chat",
+    title: "Chat mode",
+    where: "Claude or ChatGPT · any phone, free",
+    points: [
+      "Paste your prompt into a new chat — save it as a Project (Claude) or Custom GPT (ChatGPT) so it sticks all summer.",
+      "Each morning, say “write today's letter,” then copy it into your email.",
+      "Log each letter back into the builder above so it never repeats a joke or question.",
+      "Nothing to install. Works on the bus, in the carpool line, anywhere."
+    ]
+  },
+  {
+    icon: "smart_toy",
+    title: "Auto mode",
+    where: "Cowork or Claude Code · hands-off",
+    points: [
+      "Install the skill and connect your email — it drafts the letter straight into your inbox.",
+      "It pulls last night's real score and keeps its own log file, so no-repeats are automatic.",
+      "You just open your drafts, glance, and hit send.",
+      "Best if you want it to mostly run itself each day."
+    ]
+  }
+];
+
 export default function CampLetterPage() {
   return (
     <>
@@ -201,11 +226,12 @@ export default function CampLetterPage() {
 
           <div className="mt-10 bg-surface p-6 md:p-7 rounded-3xl soft-lift border-l-4 border-primary max-w-3xl">
             <p className="text-on-surface-variant leading-relaxed">
-              The part that makes it feel alive: before writing, it reads the{" "}
-              <strong className="text-on-surface">letters you already sent</strong> — so
+              The part that makes it feel alive: it keeps a{" "}
+              <strong className="text-on-surface">private log of every letter</strong> — so
               it never recycles a joke or asks the same question twice, and the themes
               shift as camp goes on, from &ldquo;settling in&rdquo; to &ldquo;what trip
-              is next?&rdquo; to &ldquo;almost home.&rdquo;
+              is next?&rdquo; to &ldquo;almost home.&rdquo; That memory lives on your
+              device (or in the skill&apos;s own log file) — never on our servers.
             </p>
           </div>
         </div>
@@ -290,6 +316,50 @@ export default function CampLetterPage() {
               Download the skill
             </a>
           </div>
+        </div>
+      </section>
+
+      {/* WHERE TO RUN IT */}
+      <section className="px-8 py-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
+            Where to run it
+          </div>
+          <h2 className="font-headline text-4xl md:text-5xl font-bold leading-[1.1] mb-6 max-w-2xl">
+            Two ways to run it — pick how hands-off you want to be
+            <span className="text-primary italic">.</span>
+          </h2>
+          <p className="text-lg text-on-surface-variant max-w-3xl mb-12">
+            The prompt above works in any AI chat. If you want it fully automated —
+            drafting straight into your inbox — run it in an AI agent that can connect to
+            your email. Either way, you only ever press send.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {RUN_MODES.map((m) => (
+              <div key={m.title} className="bg-surface-container-lowest p-8 rounded-3xl soft-lift">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary-container mb-5">
+                  <span className="material-symbols-outlined text-on-primary-container">{m.icon}</span>
+                </div>
+                <h3 className="font-headline text-2xl font-bold mb-1">{m.title}</h3>
+                <div className="font-label text-sm text-primary mb-4">{m.where}</div>
+                <ul className="space-y-2.5">
+                  {m.points.map((p) => (
+                    <li key={p} className="flex gap-2.5 text-on-surface-variant text-sm leading-relaxed">
+                      <span className="material-symbols-outlined text-primary text-lg shrink-0">check</span>
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-sm text-on-surface-variant mt-8 max-w-3xl">
+            <strong className="text-on-surface">You don&apos;t need a coding tool</strong> for any of
+            this — Camp Letter is for a parent, not a programmer. A normal AI chat (Claude or ChatGPT)
+            covers the everyday case; an AI assistant with email access does the rest.
+          </p>
         </div>
       </section>
 
