@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CampLetterBuilder } from "@/components/CampLetterBuilder";
 
 export const revalidate = 3600;
 
@@ -57,30 +58,81 @@ const INGREDIENTS = [
 const STEPS = [
   {
     num: "01",
-    icon: "download",
-    title: "Install the skill",
-    body: "Download the file and add it to your Claude. One time."
+    icon: "edit_note",
+    title: "Describe your family",
+    body:
+      "Fill in the quick form below — your child, the camp email, their team, who's writing, any siblings. It all stays in your browser."
   },
   {
     num: "02",
-    icon: "checklist",
-    title: "Answer a few questions",
+    icon: "content_copy",
+    title: "Copy your prompt",
     body:
-      "Your child, the camp email, the dates, their team, who's writing, any siblings. Saved to a profile you own."
+      "One tap copies a personalized setup prompt, built from your answers. No account, no install."
   },
   {
     num: "03",
-    icon: "bolt",
-    title: "Say the magic words",
+    icon: "forum",
+    title: "Paste into Claude or ChatGPT",
     body:
-      "“Write today's letter to Eli.” It pulls the score and writes the whole thing."
+      "Start a new chat and paste it in. Tip: save it as a Project or Custom GPT so it remembers between days."
   },
   {
     num: "04",
-    icon: "drafts",
-    title: "Review & send",
+    icon: "bolt",
+    title: "Say “write today's letter”",
     body:
-      "It lands in your drafts. Read it, tweak it, send it. Nothing goes out without you."
+      "Each morning, one line. Review the draft, tweak it, send it. Nothing goes out without you."
+  }
+];
+
+const STICK = [
+  {
+    icon: "auto_awesome",
+    tool: "In Claude",
+    how: "Save it as a Project",
+    steps: [
+      "Open Claude → Projects → new project, name it “Camp Letters — [child].”",
+      "Paste your prompt into the project's instructions.",
+      "Each morning, open the project, start a chat, and say “write today's letter.”"
+    ],
+    note: "Turn on the Google/Gmail connector and it can drop the letter straight into your drafts."
+  },
+  {
+    icon: "smart_toy",
+    tool: "In ChatGPT",
+    how: "Save it as a Custom GPT",
+    steps: [
+      "ChatGPT → Explore GPTs → Create (or use a Project).",
+      "Paste your prompt into the Instructions, keep it private.",
+      "Open it each morning and say “write today's letter.”"
+    ],
+    note: "ChatGPT's Tasks can even nudge you at the same time each day to run it."
+  }
+];
+
+const RUN_MODES = [
+  {
+    icon: "chat",
+    title: "Chat mode",
+    where: "Claude or ChatGPT · any phone, free",
+    points: [
+      "Paste your prompt into a new chat — save it as a Project (Claude) or Custom GPT (ChatGPT) so it sticks all summer.",
+      "Each morning, say “write today's letter,” then copy it into your email.",
+      "Log each letter back into the builder above so it never repeats a joke or question.",
+      "Nothing to install. Works on the bus, in the carpool line, anywhere."
+    ]
+  },
+  {
+    icon: "smart_toy",
+    title: "Auto mode",
+    where: "Cowork or Claude Code · hands-off",
+    points: [
+      "Install the skill and connect your email — it drafts the letter straight into your inbox.",
+      "It pulls last night's real score and keeps its own log file, so no-repeats are automatic.",
+      "You just open your drafts, glance, and hit send.",
+      "Best if you want it to mostly run itself each day."
+    ]
   }
 ];
 
@@ -109,14 +161,13 @@ export default function CampLetterPage() {
               the same twice.
             </p>
             <div className="flex flex-wrap gap-3 items-center">
-              <a
-                href={SKILL_HREF}
-                download
+              <Link
+                href="#build"
                 className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-full font-bold"
               >
-                Download the skill
-                <span className="material-symbols-outlined">download</span>
-              </a>
+                Build my setup
+                <span className="material-symbols-outlined">arrow_forward</span>
+              </Link>
               <Link
                 href="#how"
                 className="inline-flex items-center gap-2 bg-surface-container-lowest text-on-surface px-6 py-3 rounded-full font-bold soft-lift"
@@ -124,7 +175,7 @@ export default function CampLetterPage() {
                 How it works
               </Link>
               <span className="text-sm text-on-surface-variant">
-                Free · runs in your own Claude
+                Free · works in Claude or ChatGPT
               </span>
             </div>
           </div>
@@ -200,11 +251,12 @@ export default function CampLetterPage() {
 
           <div className="mt-10 bg-surface p-6 md:p-7 rounded-3xl soft-lift border-l-4 border-primary max-w-3xl">
             <p className="text-on-surface-variant leading-relaxed">
-              The part that makes it feel alive: before writing, it reads the{" "}
-              <strong className="text-on-surface">letters you already sent</strong> — so
+              The part that makes it feel alive: it keeps a{" "}
+              <strong className="text-on-surface">private log of every letter</strong> — so
               it never recycles a joke or asks the same question twice, and the themes
               shift as camp goes on, from &ldquo;settling in&rdquo; to &ldquo;what trip
-              is next?&rdquo; to &ldquo;almost home.&rdquo;
+              is next?&rdquo; to &ldquo;almost home.&rdquo; That memory lives on your
+              device (or in the skill&apos;s own log file) — never on our servers.
             </p>
           </div>
         </div>
@@ -244,10 +296,146 @@ export default function CampLetterPage() {
           </div>
 
           <p className="text-on-surface-variant mt-12 pt-6 border-t border-outline-variant max-w-3xl">
-            <strong className="text-on-surface">You&apos;ll need:</strong> Claude with
-            skills enabled, and Gmail connected so it can draft for you. No Gmail? It
-            still writes the letter to paste into your own mail app. Your family profile
-            stays with you — nothing is uploaded.
+            <strong className="text-on-surface">You&apos;ll need:</strong> a free Claude or
+            ChatGPT account. In Claude with Gmail connected it can drop the letter straight
+            into your drafts; anywhere else it writes the letter for you to copy into your
+            own email. Your family details never leave your device.
+          </p>
+        </div>
+      </section>
+
+      {/* BUILDER */}
+      <section id="build" className="px-8 py-24 bg-surface-container-lowest">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
+            Build your setup
+          </div>
+          <h2 className="font-headline text-4xl md:text-5xl font-bold leading-[1.1] mb-6 max-w-2xl">
+            Tell it about your family. Get a prompt you can paste anywhere
+            <span className="text-primary italic">.</span>
+          </h2>
+          <p className="text-lg text-on-surface-variant max-w-3xl mb-12">
+            Fill in as much as you like below — it builds a personalized prompt on the
+            right. Copy it into Claude or ChatGPT and you&apos;re running. No skill to
+            install, no account with us, nothing saved on our end.
+          </p>
+
+          <CampLetterBuilder />
+
+          <div className="mt-10 bg-surface p-6 md:p-7 rounded-3xl soft-lift max-w-3xl flex flex-col sm:flex-row sm:items-center gap-5 justify-between">
+            <div>
+              <h3 className="font-headline text-lg font-bold mb-1">
+                Prefer Claude on a computer?
+              </h3>
+              <p className="text-on-surface-variant text-sm leading-relaxed">
+                Install the packaged skill instead — it saves your profile to a file and
+                runs every day with one sentence.
+              </p>
+            </div>
+            <a
+              href={SKILL_HREF}
+              download
+              className="shrink-0 inline-flex items-center gap-2 bg-surface-container-highest text-on-surface px-5 py-3 rounded-full font-bold soft-lift"
+            >
+              <span className="material-symbols-outlined">download</span>
+              Download the skill
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* MAKE IT STICK */}
+      <section className="px-8 py-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
+            Make it stick
+          </div>
+          <h2 className="font-headline text-4xl md:text-5xl font-bold leading-[1.1] mb-6 max-w-2xl">
+            Save it once so it&apos;s ready every morning
+            <span className="text-primary italic">.</span>
+          </h2>
+          <p className="text-lg text-on-surface-variant max-w-3xl mb-12">
+            Don&apos;t paste the prompt fresh each day — park it somewhere it&apos;ll wait for
+            you. Then your whole morning is one sentence.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {STICK.map((s) => (
+              <div key={s.tool} className="bg-surface p-8 rounded-3xl soft-lift">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary-container">
+                    <span className="material-symbols-outlined text-on-primary-container">{s.icon}</span>
+                  </div>
+                  <div>
+                    <div className="font-label text-xs tracking-widest uppercase text-primary">{s.tool}</div>
+                    <h3 className="font-headline text-xl font-bold">{s.how}</h3>
+                  </div>
+                </div>
+                <ol className="space-y-3 mb-5">
+                  {s.steps.map((step, i) => (
+                    <li key={i} className="flex gap-3 text-on-surface-variant text-sm leading-relaxed">
+                      <span className="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-fixed text-on-primary-fixed font-label font-bold text-xs">
+                        {i + 1}
+                      </span>
+                      {step}
+                    </li>
+                  ))}
+                </ol>
+                <p className="text-sm text-on-surface-variant border-t border-outline-variant pt-4 flex items-start gap-2">
+                  <span className="material-symbols-outlined text-primary text-base shrink-0">tips_and_updates</span>
+                  {s.note}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-sm text-on-surface-variant mt-8 max-w-3xl">
+            A saved Project or Custom GPT also remembers your past letters in its own thread —
+            a nice backstop to the no-repeat memory in the builder above.
+          </p>
+        </div>
+      </section>
+
+      {/* WHERE TO RUN IT */}
+      <section className="px-8 py-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
+            Where to run it
+          </div>
+          <h2 className="font-headline text-4xl md:text-5xl font-bold leading-[1.1] mb-6 max-w-2xl">
+            Two ways to run it — pick how hands-off you want to be
+            <span className="text-primary italic">.</span>
+          </h2>
+          <p className="text-lg text-on-surface-variant max-w-3xl mb-12">
+            The prompt above works in any AI chat. If you want it fully automated —
+            drafting straight into your inbox — run it in an AI agent that can connect to
+            your email. Either way, you only ever press send.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {RUN_MODES.map((m) => (
+              <div key={m.title} className="bg-surface-container-lowest p-8 rounded-3xl soft-lift">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary-container mb-5">
+                  <span className="material-symbols-outlined text-on-primary-container">{m.icon}</span>
+                </div>
+                <h3 className="font-headline text-2xl font-bold mb-1">{m.title}</h3>
+                <div className="font-label text-sm text-primary mb-4">{m.where}</div>
+                <ul className="space-y-2.5">
+                  {m.points.map((p) => (
+                    <li key={p} className="flex gap-2.5 text-on-surface-variant text-sm leading-relaxed">
+                      <span className="material-symbols-outlined text-primary text-lg shrink-0">check</span>
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-sm text-on-surface-variant mt-8 max-w-3xl">
+            <strong className="text-on-surface">You don&apos;t need a coding tool</strong> for any of
+            this — Camp Letter is for a parent, not a programmer. A normal AI chat (Claude or ChatGPT)
+            covers the everyday case; an AI assistant with email access does the rest.
           </p>
         </div>
       </section>
