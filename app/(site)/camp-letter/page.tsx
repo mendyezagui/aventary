@@ -4,12 +4,12 @@ import { CampLetterBuilder } from "@/components/CampLetterBuilder";
 export const revalidate = 3600;
 
 const PAGE_URL = "https://www.aventary.com/camp-letter";
-const TITLE = "Camp Letter — a daily note to your kid, written for you | Aventary";
+const TITLE = "Camp Letter — AI drafts it, you make it yours | Aventary";
 const DESCRIPTION =
-  "A free Claude skill that writes a warm, personalized letter to your child at sleepaway camp every day — yesterday's ballgame, a dad joke, a note from a sibling, and a real message from you. A free build from Aventary Lab.";
+  "A free Claude build that drafts your child's daily camp letter — ballgame, dad joke, sibling note, and a message from you — in seconds. You edit and send. Human in the loop, every day.";
 
 export const metadata = {
-  title: "Camp Letter",
+  title: { absolute: "Camp Letter — AI drafts it, you make it yours | Aventary" },
   description: DESCRIPTION,
   alternates: { canonical: PAGE_URL },
   openGraph: {
@@ -45,13 +45,13 @@ const INGREDIENTS = [
     icon: "favorite",
     title: "The sibling",
     body:
-      "A few sweet lines in your little one's voice. You set their name and personality."
+      "A few sweet lines in your little one's voice — drafted from what you tell it they did, ready for you to tweak."
   },
   {
     icon: "edit_note",
     title: "You",
     body:
-      "A real note, with one or two questions that fit where they are in the summer."
+      "Your note to them. AI hands you a first line and a question that fits the week — you make it yours before it sends."
   }
 ];
 
@@ -148,12 +148,13 @@ export default function CampLetterPage() {
               A free build from Aventary Lab
             </div>
             <h1 className="font-headline text-5xl md:text-7xl font-bold editorial-gap leading-[1.05] mb-8">
-              A daily letter to your kid at camp,{" "}
-              <span className="text-primary italic">written for you</span>.
+              A daily letter to your kid at camp. AI builds it.{" "}
+              <span className="text-primary italic">You make it yours.</span>
             </h1>
             <p className="text-xl text-on-surface-variant max-w-xl mb-4">
-              Set it up once. Then every morning, one sentence turns into a real
-              letter your child can&apos;t wait to read at lunch.
+              Set it up once. Every morning, one sentence builds the whole letter —
+              last night&apos;s ballgame, the joke, the logistics — then hands it to
+              you to edit, sign, and send. You&apos;re always the last word.
             </p>
             <p className="text-lg text-on-surface-variant max-w-xl mb-10">
               Yesterday&apos;s ballgame with bunk-worthy banter, a dad joke, a note
@@ -339,6 +340,11 @@ export default function CampLetterPage() {
               </p>
             </div>
           </div>
+
+          <p className="text-sm text-on-surface-variant text-center mt-6 max-w-xl mx-auto">
+            Drafted in seconds. Then a parent edited the Goldie and Dad lines into
+            their own words before sending — same as you will.
+          </p>
         </div>
       </section>
 
