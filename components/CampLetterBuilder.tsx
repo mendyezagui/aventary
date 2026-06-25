@@ -503,6 +503,7 @@ Camp phase steers my note: Week 1 = settling in (bunk, counselor, first friends,
 - Plain text only. Short paragraphs, one page, no attachments — camps print these and hand them out at a meal.
 - 100% clean and age-appropriate${f.age ? `; match the vocabulary to a ${f.age}-year-old` : ""}.
 - Acknowledge missing them, but keep it upbeat and forward-looking — don't amplify homesickness.
+- For the sibling note and my note, give me a short FIRST DRAFT as a starting point I can edit — not a finished final.
 - NEVER repeat a joke, riddle, or question you've used before (see the list below, and anything earlier in this chat).${
     f.skipDay ? `\n- If today is ${f.skipDay}, there's no letter — just tell me.` : ""
   }
