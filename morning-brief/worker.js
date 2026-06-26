@@ -70,6 +70,23 @@ const VOICES = [
   { name: "Elena Verna",         x: "@elenaverna",     li: "elenaverna",        category: "Revenue Operations",     substack: "https://www.elenaverna.com/feed", youtube_channel_id: null }, // AI-native GTM org design
   { name: "Emily Kramer",        x: "@emilykramer",    li: "emilykramer",       category: "Revenue Operations",     substack: "https://newsletter.mkt1.co/feed", youtube_channel_id: null }, // MKT1 — AI-native marketing ops
   { name: "RevOps Lab",          x: "n/a",             li: "janiszech",         category: "Revenue Operations",     substack: "https://anchor.fm/s/ec172b58/podcast/rss", youtube_channel_id: null }, // Weflow podcast — pipeline/forecast craft
+  // ── Roster expansion (Jun 2026): more Salesforce AI voices + more voices overall.
+  //    Every feed below was fetched and confirmed live + recent + parseable before adding.
+  // Salesforce / Agentforce
+  { name: "Jitendra Zaa",        x: "@jitendrazaa",    li: "jitendrazaa",       category: "Salesforce / Agentforce", substack: "https://jitendrazaa.com/blog/feed/", youtube_channel_id: null }, // Agentforce/Data 360/MCP/Claude — strongest SF AI voice
+  { name: "Sudipta Deb",         x: "@sudipta_deb",    li: "sudiptadeb",        category: "Salesforce / Agentforce", substack: null, youtube_channel_id: "UC3xFLBRl5JwqqTXbCd5p4YQ" }, // Technical Potpourri — Salesforce↔Claude via MCP; blog feed unresolved, use YT
+  { name: "Salesforce Time",     x: "@YumiIbrahimzade", li: "yumiibrahimzade",  category: "Salesforce / Agentforce", substack: "https://salesforcetime.com/feed/", youtube_channel_id: null }, // Flow/automation incl. AI-in-Flow
+  { name: "SalesforceCodex",     x: "@imShreySharma",  li: "n/a",               category: "Salesforce / Agentforce", substack: "https://www.salesforcecodex.com/feed/", youtube_channel_id: null }, // dev-heavy, some agentic
+  { name: "Salesforce Break",    x: "@salesforcebreak", li: "n/a",              category: "Salesforce / Agentforce", substack: "https://www.salesforcebreak.com/feed/", youtube_channel_id: null }, // independent SF ecosystem commentary
+  { name: "Salesforce Agentforce Blog", x: "@salesforce", li: "n/a",           category: "Salesforce / Agentforce", substack: "https://www.salesforce.com/blog/category/agentforce/feed/", youtube_channel_id: null }, // first-party Agentforce signal — 302→valid RSS, worker follows redirects
+  // AI Practitioners
+  { name: "Simon Willison",      x: "@simonw",         li: "simonwillison",     category: "AI Practitioners",       substack: "https://simonwillison.net/atom/everything/", youtube_channel_id: null }, // daily LLM practitioner notes
+  { name: "Nathan Lambert",      x: "@natolambert",    li: "natolambert",       category: "AI Practitioners",       substack: "https://www.interconnects.ai/feed", youtube_channel_id: null }, // Interconnects — frontier models
+  { name: "Latent Space",        x: "@swyx",           li: "shawnswyxwang",     category: "AI Practitioners",       substack: "https://www.latent.space/feed", youtube_channel_id: null }, // AI engineering — high volume (daily)
+  // Revenue Operations
+  { name: "GTMnow",              x: "@gtmfund",        li: "n/a",               category: "Revenue Operations",     substack: "https://www.gtmnow.com/feed/", youtube_channel_id: null }, // GTMfund — GTM/sales/AI
+  { name: "Koen Stam",           x: "@koenstam",       li: "koenstam",          category: "Revenue Operations",     substack: "https://koenstam.substack.com/feed", youtube_channel_id: null }, // The Future GTM Operator — AI-native GTM
+  { name: "GTM Engineer School", x: "@matteotittarelli", li: "matteo-tittarelli", category: "Revenue Operations",   substack: "https://gtmengineerschool.substack.com/feed", youtube_channel_id: null }, // GTM engineering + Clay/MCP
 ];
 
 // ─── KV schema ─────────────────────────────────────────────────────────────
