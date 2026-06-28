@@ -1,0 +1,84 @@
+import { NextRequest, NextResponse } from "next/server";
+import { parseICS, type CalendarEvent } from "@/lib/ical";
+import { computeStatus } from "@/lib/meeting-status";
+
+// Recompute on every request — the whole point is live status.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+/**
+ * Demo events used when MEETING_ICAL_URL isn't configured, so the traffic
+ * light is visibly working out of the box. Builds a meeting starting ~4 min
+ * from now (so you can watch green → yellow → red) plus one later today.
+ */
+function demoEvents(now: Date): CalendarEvent[] {
+  const soon = new Date(now.getTime() + 4 * 60 * 1000);
+  const soonEnd = new Date(soon.getTime() + 30 * 60 * 1000);
+  const later = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+  const laterEnd = new Date(later.getTime() + 60 * 60 * 1000);
+  return [
+    { uid: "demo-1", summary: "Demo standup", start: soon, end: soonEnd, allDay: false },
+    { uid: "demo-2", summary: "Demo client call", start: later, end: laterEnd, allDay: false }
+  ];
+}
+
+export async function GET(req: NextRequest) {
+  // Optional access token. When MEETING_STATUS_TOKEN is set, the endpoint
+  // exposes meeting titles only to the device (which sends ?token= or a Bearer
+  // header) and to same-origin browser requests (the /status test page).
+  const token = process.env.MEETING_STATUS_TOKEN;
+  if (token) {
+    const provided =
+      req.nextUrl.searchParams.get("token") ??
+      req.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
+      null;
+    const sameOrigin = req.headers.get("sec-fetch-site") === "same-origin";
+    if (provided !== token && !sameOrigin) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
+  }
+
+  const now = new Date();
+  const url = process.env.MEETING_ICAL_URL;
+  const warnMinutes = parseInt(process.env.MEETING_WARN_MINUTES || "5", 10);
+
+  let events: CalendarEvent[];
+  let source: "calendar" | "demo" = "calendar";
+  let error: string | null = null;
+
+  if (url) {
+    try {
+      const res = await fetch(url, {
+        // Don't let a stale CDN copy mask a freshly-added meeting.
+        cache: "no-store",
+        headers: { "User-Agent": "aventary-meeting-light/1.0" }
+      });
+      if (!res.ok) throw new Error(`feed responded ${res.status}`);
+      const text = await res.text();
+      events = parseICS(text);
+    } catch (e) {
+      error = e instanceof Error ? e.message : "failed to load calendar";
+      console.error("meeting feed failed", e);
+      events = demoEvents(now);
+      source = "demo";
+    }
+  } else {
+    events = demoEvents(now);
+    source = "demo";
+  }
+
+  const status = computeStatus(events, now, {
+    warnMinutes: Number.isFinite(warnMinutes) ? warnMinutes : 5
+  });
+
+  return NextResponse.json(
+    {
+      ...status,
+      source,
+      error,
+      warnMinutes: Number.isFinite(warnMinutes) ? warnMinutes : 5,
+      now: now.toISOString()
+    },
+    { headers: { "Cache-Control": "no-store" } }
+  );
+}

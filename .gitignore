@@ -17,3 +17,5 @@ out/
 .DS_Store
 *.log
 *.tsbuildinfo
+# Device firmware secrets (WiFi creds, token)
+device/**/config.h
