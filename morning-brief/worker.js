@@ -246,7 +246,20 @@ async function runAgentLoop(apiKey, prompt) {
   // web_search is server-side: Anthropic runs searches inline and returns
   // results in the same response. We only loop on `pause_turn`, which marks
   // a long agentic run that needs to be continued.
-  const messages = [{ role: "user", content: prompt }];
+  //
+  // Cost control: the initial prompt (instructions + 35-voice list + up to 200
+  // exclude items) is large and re-sent verbatim on every pause_turn
+  // continuation. We pin a prompt-cache breakpoint on it so turns 2+ read that
+  // prefix at ~0.1x input price instead of full price. The breakpoint lives on
+  // a text block, so the initial user content is an array rather than a string.
+  const messages = [
+    {
+      role: "user",
+      content: [
+        { type: "text", text: prompt, cache_control: { type: "ephemeral" } },
+      ],
+    },
+  ];
 
   for (let turns = 0; turns < 5; turns++) {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -259,7 +272,10 @@ async function runAgentLoop(apiKey, prompt) {
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
         max_tokens: 4000,
-        tools: [{ type: "web_search_20250305", name: "web_search", max_uses: WEB_SEARCH_MAX_USES }],
+        // web_search_20260209 adds dynamic filtering (results are filtered
+        // before they hit the context window): fewer input tokens and better
+        // picks than the basic web_search_20250305. Supported on Sonnet 4.6.
+        tools: [{ type: "web_search_20260209", name: "web_search", max_uses: WEB_SEARCH_MAX_USES }],
         messages,
       }),
     });
