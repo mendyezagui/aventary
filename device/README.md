@@ -1,20 +1,70 @@
-# Meeting traffic-light — physical device
+# Meeting light — physical device
 
-A desk traffic light that mirrors your calendar:
+A desk light driven by your Google Calendar. The Next.js app exposes
+**`/api/status`**, which reads your calendar (via its secret iCal URL), works
+out where you stand, and returns it as JSON. An ESP32 polls that endpoint over
+WiFi every ~20 seconds and lights up. All the calendar logic lives on the
+server, so the firmware stays tiny and you rarely reflash it.
+
+```
+Google Calendar  ──iCal──▶  /api/status (server)  ──WiFi/JSON──▶  ESP32  ──▶  light
+```
+
+There are two firmware builds — pick one:
+
+| Build | Behaviour | Folder |
+|-------|-----------|--------|
+| **Single light + button** (recommended) | One LED. Turns **red 5 min before a meeting**; press the button to dismiss it; it re-arms for the next meeting (so back-to-back meetings still alert you). | `single-light/` |
+| **Traffic light** | Three LEDs: 🟢 clear · 🟡 within 5 min · 🔴 in a meeting now. No button. | `meeting-light/` |
+
+---
+
+## Build A — single light + dismiss button (recommended)
+
+One LED turns red 5 minutes before each meeting. Press the button to turn it off
+when you head in; it automatically re-arms and lights up again 5 minutes before
+the *next* meeting. Dismissals are tracked per-meeting (by calendar UID), so
+silencing one meeting never silences the next.
+
+### Parts (~$8)
+
+| Part | Qty | Notes |
+|------|-----|-------|
+| ESP32 dev board | 1 | Any ESP32 with WiFi |
+| 5mm LED (red) | 1 | |
+| 220–330 Ω resistor | 1 | In series with the LED |
+| Momentary push button | 1 | The dismiss button |
+| Breadboard + jumper wires | 1 | |
+| USB cable | 1 | Power + flashing |
+
+### Wiring
+
+| Part   | Connection |
+|--------|------------|
+| LED    | `GPIO 25 → resistor → LED(+)`, LED(−) → `GND` |
+| Button | `GPIO 4 → button → GND` (uses the chip's internal pull-up) |
+
+Change pins in `config.h` if needed. Set `BLINK_ALERT 0` for a steady (non-blinking) light.
+
+### Flash it
+
+1. Install the **Arduino IDE** and ESP32 board support (see "Flashing" below).
+2. Open `device/single-light/single-light.ino`.
+3. Copy `config.example.h` → `config.h`; fill in WiFi, `STATUS_URL`
+   (add `?token=YOUR_TOKEN` if you set `MEETING_STATUS_TOKEN`), and pins.
+4. Select your board + port, click **Upload**.
+
+On boot the LED blinks twice (wiring self-test). Then: **dark** = nothing
+imminent, **red/blinking** = a meeting starts within the warning window,
+**press button** = dismiss until the next meeting.
+
+---
+
+## Build B — three-LED traffic light
 
 - 🟢 **green** — you're clear, no meeting imminent
 - 🟡 **yellow** — a meeting starts within 5 minutes (configurable)
 - 🔴 **red** — a meeting is happening right now
-
-How it works: the Next.js app exposes **`/api/status`**, which reads your Google
-Calendar (via its secret iCal URL), works out the colour, and returns it as
-JSON. The ESP32 polls that endpoint over WiFi every ~20 seconds and lights the
-matching LED. All the calendar logic lives on the server, so the device firmware
-stays tiny and you never have to reflash it to change behaviour.
-
-```
-Google Calendar  ──iCal──▶  /api/status (server)  ──WiFi/JSON──▶  ESP32  ──▶  LEDs
-```
 
 ## Parts (~$10)
 

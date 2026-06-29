@@ -67,16 +67,25 @@ export async function GET(req: NextRequest) {
     source = "demo";
   }
 
-  const status = computeStatus(events, now, {
-    warnMinutes: Number.isFinite(warnMinutes) ? warnMinutes : 5
-  });
+  const warn = Number.isFinite(warnMinutes) ? warnMinutes : 5;
+  const status = computeStatus(events, now, { warnMinutes: warn });
+
+  // Flat convenience fields for the single-light device firmware, which can't
+  // easily parse ISO timestamps: seconds until the next meeting starts and its
+  // UID (so the device can remember which alert you already dismissed).
+  const nextStartsInSeconds = status.next
+    ? Math.round((new Date(status.next.start).getTime() - now.getTime()) / 1000)
+    : null;
+  const nextUid = status.next?.uid ?? null;
 
   return NextResponse.json(
     {
       ...status,
+      nextStartsInSeconds,
+      nextUid,
       source,
       error,
-      warnMinutes: Number.isFinite(warnMinutes) ? warnMinutes : 5,
+      warnMinutes: warn,
       now: now.toISOString()
     },
     { headers: { "Cache-Control": "no-store" } }
