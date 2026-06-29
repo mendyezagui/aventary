@@ -42,6 +42,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${headline.variable} ${body.variable}`}>
       <body className="bg-background text-on-background font-body selection:bg-primary-fixed selection:text-on-primary-fixed">
+        <script
+          defer
+          data-domain="aventary.com"
+          src="https://plausible.io/js/script.outbound-links.file-downloads.js"
+        />
         {children}
       </body>
     </html>
