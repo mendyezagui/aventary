@@ -189,7 +189,7 @@ curl -X POST 'https://morning-brief.YOUR_ACCOUNT.workers.dev/api/trigger?force=1
 |---|---|---|---|
 | `WEB_SEARCH_MAX_USES` | `worker.js` const | `10` | Hard cap on billable searches per run (~$0.10/run at $10/1k). Sized for the ~4 feedless voices now in PART B; raise it only if you re-broaden the search scope. |
 | Prompt caching | `runAgentLoop()` | on | The large initial prompt is pinned with a `cache_control` breakpoint, so each `pause_turn` continuation re-reads it at ~0.1x input price instead of full price. Pure win across the multi-turn agentic loop. |
-| Web search tool | `runAgentLoop()` | `web_search_20260209` | Dynamic filtering — search results are filtered before entering context, cutting input tokens and improving picks vs. the basic `web_search_20250305`. |
+| Web search tool | `runAgentLoop()` | `web_search_20250305` | Basic web search. The `web_search_20260209` dynamic-filtering variant cut tokens but its per-search code execution pushed this non-streaming request past Cloudflare's ~100s gateway timeout (HTTP 524), so it's reverted. Re-enable it only alongside streaming the Anthropic call. |
 | Idempotency check | `/api/trigger` | on | Refuses re-runs once today's brief exists |
 | `compatibility_date` cache | `fetchFeed()` | 30 min | Edge-caches feed XML — repeat runs same day are free |
 | Model | `runAgentLoop()` | `claude-sonnet-4-6` | Drop to `claude-haiku-4-5` for ~67% lower token cost (noisier picks) |
