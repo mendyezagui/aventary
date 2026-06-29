@@ -84,7 +84,7 @@ const RECENT_WINDOW_MS = 14 * 24 * 60 * 60 * 1000; // exclude items surfaced in 
 const RECENT_CAP     = 200;                // hard cap on how many items we track
 const RUN_OVERLAP_MS = 6  * 60 * 60 * 1000;
 const MAX_LOOKBACK_MS = 7 * 24 * 60 * 60 * 1000;
-const WEB_SEARCH_MAX_USES = 30;
+const WEB_SEARCH_MAX_USES = 10; // only the handful of feedless voices are searched (see PART B); 30 was sized for searching all voices
 
 // ─── URL normalization & hashing ───────────────────────────────────────────
 
@@ -327,9 +327,17 @@ async function generateBrief(env) {
       ).join("\n")
     : "(no fresh RSS items)";
 
-  const voiceList = VOICES.map((v, i) =>
-    `${i + 1}. ${v.name} | X: ${v.x} | LinkedIn: /in/${v.li} | [${v.category}]`
-  ).join("\n");
+  // Only voices with no RSS feed need a billable web_search to be covered —
+  // every voice with a Substack or YouTube feed is already represented in PART A
+  // (their RSS items). Searching feed-covered voices duplicates spend, so PART B
+  // is restricted to the feedless voices. Computed from VOICES so it stays
+  // correct as the roster changes.
+  const feedlessVoices = VOICES.filter((v) => !v.substack && !v.youtube_channel_id);
+  const searchList = feedlessVoices.length
+    ? feedlessVoices.map((v, i) =>
+        `${i + 1}. ${v.name} | X: ${v.x} | LinkedIn: /in/${v.li} | [${v.category}]`
+      ).join("\n")
+    : "(none — every roster voice has an RSS feed; rely entirely on PART A)";
 
   const excludeBlock = recentItems.length
     ? recentItems
@@ -346,8 +354,8 @@ async function generateBrief(env) {
 PART A — Pre-fetched RSS candidates (Substack + YouTube, published since the last brief, already deduped against prior briefs):
 ${rssBlock}
 
-PART B — Voices to search on X and LinkedIn (use web_search for items from the last 48 hours):
-${voiceList}
+PART B — Feed-less voices to scan on X and LinkedIn via web_search (last 48 hours). These have NO RSS feed, so web_search is the only way to surface them. Every other roster voice is already covered in PART A — do NOT spend searches on them:
+${searchList}
 
 PART C — DO NOT RE-SURFACE (these items appeared in a brief in the last 14 days; pick different content even if the same voice has fresh content — match by title, URL, OR substantively the same announcement/argument):
 ${excludeBlock}

@@ -187,10 +187,10 @@ curl -X POST 'https://morning-brief.YOUR_ACCOUNT.workers.dev/api/trigger?force=1
 
 | Knob | Where | Default | Effect |
 |---|---|---|---|
-| `WEB_SEARCH_MAX_USES` | `worker.js` const | `30` | Hard cap on billable searches per run (~$0.30/run at $10/1k). Lower it (e.g. `10`) to cap spend harder; the model may then cover fewer voices on busy days. |
+| `WEB_SEARCH_MAX_USES` | `worker.js` const | `10` | Hard cap on billable searches per run (~$0.10/run at $10/1k). Sized for the ~4 feedless voices now in PART B; raise it only if you re-broaden the search scope. |
 | Prompt caching | `runAgentLoop()` | on | The large initial prompt is pinned with a `cache_control` breakpoint, so each `pause_turn` continuation re-reads it at ~0.1x input price instead of full price. Pure win across the multi-turn agentic loop. |
 | Web search tool | `runAgentLoop()` | `web_search_20260209` | Dynamic filtering — search results are filtered before entering context, cutting input tokens and improving picks vs. the basic `web_search_20250305`. |
 | Idempotency check | `/api/trigger` | on | Refuses re-runs once today's brief exists |
 | `compatibility_date` cache | `fetchFeed()` | 30 min | Edge-caches feed XML — repeat runs same day are free |
 | Model | `runAgentLoop()` | `claude-sonnet-4-6` | Drop to `claude-haiku-4-5` for ~67% lower token cost (noisier picks) |
-| Search scope | `generateBrief()` prompt PART B | all 35 voices | Restrict to feedless voices only to cut billable searches sharply — see note below. |
+| Search scope | `generateBrief()` prompt PART B | feedless voices only | PART B only lists voices with no RSS feed (computed from `VOICES`); feed-covered voices are already in PART A, so they aren't re-searched. This is the single biggest search-cost cut. Trade-off: X/LinkedIn-only posts from feed-covered voices are no longer surfaced. To re-broaden, list all of `VOICES` in PART B and raise `WEB_SEARCH_MAX_USES`. |
