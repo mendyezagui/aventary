@@ -272,10 +272,14 @@ async function runAgentLoop(apiKey, prompt) {
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
         max_tokens: 4000,
-        // web_search_20260209 adds dynamic filtering (results are filtered
-        // before they hit the context window): fewer input tokens and better
-        // picks than the basic web_search_20250305. Supported on Sonnet 4.6.
-        tools: [{ type: "web_search_20260209", name: "web_search", max_uses: WEB_SEARCH_MAX_USES }],
+        // Basic web search. We briefly used web_search_20260209 (dynamic
+        // filtering), but its per-search server-side result-filtering (code
+        // execution) added enough latency to push this non-streaming request
+        // past Cloudflare's ~100s gateway timeout — Anthropic's edge returned
+        // HTTP 524 and the brief failed to generate. The basic tool is fast and
+        // proven; prompt caching + the feedless-voice restriction remain the
+        // real cost wins, so reverting this costs little.
+        tools: [{ type: "web_search_20250305", name: "web_search", max_uses: WEB_SEARCH_MAX_USES }],
         messages,
       }),
     });
