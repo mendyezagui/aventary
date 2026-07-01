@@ -159,6 +159,22 @@ function scoreCSV(text: string, refDate?: Date): Result {
 const usd = (n: number) => "$" + Math.round(n).toLocaleString();
 const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0) + "%";
 
+// SheetJS is loaded lazily from a static asset on our own domain (not bundled
+// into the Worker, and not a third-party CDN). It only loads when a user clicks
+// the download — their pipeline data still never leaves the browser.
+function loadXLSX(): Promise<any> {
+  const w = window as unknown as { XLSX?: any };
+  if (w.XLSX) return Promise.resolve(w.XLSX);
+  return new Promise((resolve, reject) => {
+    const sc = document.createElement("script");
+    sc.src = "/vendor/xlsx.full.min.js";
+    sc.async = true;
+    sc.onload = () => (w.XLSX ? resolve(w.XLSX) : reject(new Error("xlsx unavailable")));
+    sc.onerror = () => reject(new Error("xlsx failed to load"));
+    document.head.appendChild(sc);
+  });
+}
+
 function renderResults(r: Result): string {
   if (r.error) return `<div class="rd-note">${r.error} Make sure it's a CSV export of your open opportunities with a Stage and Amount column.</div>`;
   const L = r.leaks;
@@ -280,7 +296,7 @@ export function RichDiagnostics() {
             const orig = dlBtn.textContent || "Download full teardown (.xlsx)";
             dlBtn.disabled = true; dlBtn.textContent = "Building\u2026";
             try {
-              const XLSX = await import("xlsx");
+              const XLSX = await loadXLSX();
               const fmtD = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : "");
               const L = r.leaks;
               const summary: (string | number)[][] = [
