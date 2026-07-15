@@ -44,7 +44,7 @@ export async function listPosts() {
     const supabase = await createSupabaseServer();
     const { data } = await supabase
       .from("posts")
-      .select("slug,title,excerpt,cover_url,published_at")
+      .select("slug,title,excerpt,cover_url,published_at,track,pinned")
       .not("published_at", "is", null)
       .order("published_at", { ascending: false });
     return data ?? [];
