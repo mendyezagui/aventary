@@ -21,11 +21,21 @@ function formatDate(iso: string | null | undefined): string {
   }
 }
 
-function PostCard({ p, featured = false }: { p: any; featured?: boolean }) {
+function PostCard({
+  p,
+  featured = false,
+  hidden = false
+}: {
+  p: any;
+  featured?: boolean;
+  hidden?: boolean;
+}) {
   return (
     <Link
       href={`/insights/${p.slug}`}
-      className="group bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/40 hover:border-primary/40 hover:-translate-y-1 transition-all block"
+      className={`group bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/40 hover:border-primary/40 hover:-translate-y-1 transition-all ${
+        hidden ? "hidden" : "block"
+      }`}
     >
       {p.cover_url ? (
         <div className="aspect-[16/9] rounded-lg overflow-hidden mb-6">
@@ -65,12 +75,13 @@ const TABS: { key: Filter; label: string }[] = [
 ];
 
 /**
- * Client-side track filter. Renders every post on first paint (filter
- * defaults to "all") so crawlers and AI engines still see the full list;
- * the toggle only narrows it for humans.
+ * Client-side track filter, defaulting to Aventary Exclusive so our own work
+ * leads. Every post is still rendered into the DOM and merely hidden with CSS
+ * when filtered out, so crawlers and AI engines keep seeing (and following)
+ * the full list rather than only the default track.
  */
 export default function InsightsFilter({ posts }: { posts: any[] }) {
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter>("exclusive");
 
   const featured = posts.filter((p) => p.pinned);
   const rest = posts.filter((p) => !p.pinned);
@@ -81,10 +92,8 @@ export default function InsightsFilter({ posts }: { posts: any[] }) {
     external: rest.filter((p) => p.track === "external").length
   };
 
-  const visible =
-    filter === "all"
-      ? rest
-      : rest.filter((p) => (filter === "external" ? p.track === "external" : p.track !== "external"));
+  const matches = (p: any) =>
+    filter === "all" || (filter === "external" ? p.track === "external" : p.track !== "external");
 
   return (
     <>
@@ -135,8 +144,8 @@ export default function InsightsFilter({ posts }: { posts: any[] }) {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {visible.map((p) => (
-              <PostCard key={p.slug} p={p} />
+            {rest.map((p) => (
+              <PostCard key={p.slug} p={p} hidden={!matches(p)} />
             ))}
           </div>
         </div>
