@@ -38,6 +38,46 @@ export const metadata: Metadata = {
   }
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  name: "Aventary",
+  url: "https://aventary.com",
+  logo: "https://aventary.com/icon.svg",
+  image: "https://aventary.com/opengraph-image.png",
+  slogan: "Strategy. AI. Impact.",
+  description:
+    "Aventary is an AI-first advisory firm providing fractional CPO/CTO leadership, AI product strategy, and revenue operations (RevOps) systems for non-tech and growth-stage companies.",
+  email: "hello@aventary.com",
+  founder: {
+    "@type": "Person",
+    name: "Mendy Ezagui",
+    jobTitle: "Founder & Principal",
+    sameAs: "https://www.toptal.com/product-managers/resume/mendy-ezagui"
+  },
+  areaServed: "US",
+  knowsAbout: [
+    "Revenue Operations",
+    "Salesforce",
+    "Agentforce",
+    "AI strategy",
+    "Fractional CPO",
+    "Fractional CTO",
+    "Lead routing",
+    "Pipeline diagnostics",
+    "Generative AI"
+  ],
+  hasOfferCatalog: {
+    "@type": "OfferCatalog",
+    name: "Aventary offerings",
+    itemListElement: [
+      { "@type": "Offer", url: "https://aventary.com/lead-to-opp", itemOffered: { "@type": "Service", name: "Lead-to-Opportunity Framework" } },
+      { "@type": "Offer", url: "https://aventary.com/command", itemOffered: { "@type": "Service", name: "RevOps Command Center" } },
+      { "@type": "Offer", url: "https://aventary.com/diagnostics", itemOffered: { "@type": "Service", name: "Revenue Leak Detection Kit" } }
+    ]
+  }
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${headline.variable} ${body.variable}`}>
@@ -46,6 +86,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           defer
           data-domain="aventary.com"
           src="https://plausible.io/js/script.outbound-links.file-downloads.js"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         {children}
       </body>

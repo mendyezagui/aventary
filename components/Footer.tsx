@@ -16,6 +16,18 @@ export default function Footer() {
           <p className="text-white/50 max-w-xs leading-relaxed">
             AI-first product strategy, fractional CPO/CTO leadership, and RevOps for non-tech companies.
           </p>
+          <a
+            href="https://www.toptal.com/product-managers/resume/mendy-ezagui#NYlE8k"
+            target="_blank"
+            rel="noopener"
+            className="inline-flex items-center gap-2.5 w-fit rounded-[2px] border border-primary/30 bg-primary/5 px-3.5 py-2 hover:border-primary/60 transition-colors"
+          >
+            <span className="material-symbols-outlined text-primary text-[20px]">verified</span>
+            <span className="leading-tight">
+              <span className="block text-white/90 font-label text-[11px] font-semibold tracking-[0.14em] uppercase">Top 3% of Talent</span>
+              <span className="block text-white/45 text-[11px]">Vetted by Toptal</span>
+            </span>
+          </a>
         </div>
         <div className="flex flex-col gap-6">
           <h5 className="font-label text-xs font-semibold tracking-[0.18em] uppercase text-white/90">Company</h5>

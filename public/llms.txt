@@ -1,0 +1,29 @@
+# Aventary
+
+> Aventary is an AI-first advisory firm providing fractional CPO/CTO leadership, AI product strategy, and revenue operations (RevOps) systems for non-tech and growth-stage companies. The throughline: every inbound lead contacted, and the AI bet shipped without rebuilding the team.
+
+Founded by Mendy Ezagui (roots at PwC; vetted in the top 3% of product talent by Toptal). Aventary works primarily inside the Salesforce ecosystem (Salesforce, Agentforce) and with revenue leaders at Series A–C SaaS and non-technical companies. Tagline: Strategy. AI. Impact.
+
+## Core offerings
+- [Lead-to-Opportunity Framework](https://aventary.com/lead-to-opp): The operational framework that took lead assignment from days to under a minute, built on a Fortune 500 Salesforce + Agentforce transformation and translated for Series A–C SaaS.
+- [RevOps Command Center](https://aventary.com/command): The coordination layer for the AI tools a revenue team already uses — unifying routing, data, and workflow.
+- [Revenue Leak Detection Kit](https://aventary.com/diagnostics): A free diagnostic. Upload one CSV to X-ray your pipeline and forecast and see how much of your reported revenue you can actually trust.
+- [Morning Intelligence Brief](https://aventary.com/intelligence): A daily brief of the top 5 most material signals across AI, Salesforce, and Revenue Operations, drawn from 30+ voices. Updated every weekday at 6 AM PT.
+
+## Company
+- [Home](https://aventary.com/): Overview of Aventary's expert guidance and products.
+- [About](https://aventary.com/about): Who Aventary is and how it works — AI-first by design.
+- [Insights](https://aventary.com/insights): Articles and field notes on AI, RevOps, and building revenue systems that actually ship.
+- [Contact](https://aventary.com/contact): Get in touch; Aventary replies within one business day.
+- [Book a call](https://aventary.com/appointments): Schedule a 30-minute strategy call.
+
+## Services
+- Fractional CPO and product leadership
+- Fractional CTO for non-technical companies
+- AI strategy and implementation
+- Revenue operations (RevOps) and lead-routing systems
+- Salesforce and Agentforce architecture
+
+## Contact
+- Email: hello@aventary.com
+- Full content index: https://aventary.com/llms-full.txt
