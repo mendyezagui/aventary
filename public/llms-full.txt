@@ -1,0 +1,41 @@
+# Aventary — Full Reference
+
+> Aventary is an AI-first advisory firm. It provides fractional CPO/CTO leadership, AI product strategy, and revenue operations (RevOps) systems for non-tech and growth-stage companies. The operating promise: every inbound lead gets contacted, and the company's AI bet ships without rebuilding the team. Tagline: Strategy. AI. Impact.
+
+## About Aventary
+Aventary helps non-tech companies compete like tech companies. It was founded by Mendy Ezagui, who has roots at PwC and deep experience leading product and technology initiatives across industries, and who is vetted in the top 3% of product talent by Toptal. Aventary serves as a Fractional CPO and Fractional CTO for founders and operators who need real leadership rather than another vendor. Every engagement starts with one question: where is the business losing leverage? Most of the time, the answer involves AI. Aventary works primarily inside the Salesforce ecosystem (Salesforce and Agentforce) with revenue leaders at Series A–C SaaS and non-technical companies. It brings structure, speed, and strategy, and leaves systems the client's team can run after the engagement ends.
+
+## Offerings
+
+### Lead-to-Opportunity Framework (https://aventary.com/lead-to-opp)
+An operational framework for lead assignment and routing inside Salesforce. It took lead assignment from days to under a minute. It was built on a Fortune 500 Salesforce + Agentforce transformation and translated for Series A–C SaaS teams. It addresses the common problem that roughly 30% of inbound leads are never contacted at most companies.
+
+### RevOps Command Center (https://aventary.com/command)
+A coordination layer for the AI tools a revenue team already uses. It unifies lead routing, data, and workflow so the revenue stack operates as one system rather than disconnected point tools.
+
+### Revenue Leak Detection Kit (https://aventary.com/diagnostics)
+A free RevOps diagnostic. A user uploads a single CSV export of their pipeline or forecast, and the tool x-rays it to surface how much of the reported revenue can actually be trusted — quantifying revenue leakage in the pipeline and forecast.
+
+### Morning Intelligence Brief (https://aventary.com/intelligence)
+A daily intelligence brief covering the top 5 most materially valuable signals across AI, Salesforce, and Revenue Operations, curated from 30+ voices. It is updated every weekday at 6 AM PT and offers email subscription.
+
+## Services
+- Fractional CPO and product leadership: product roadmap acceleration, go-to-market strategy and execution.
+- Fractional CTO for non-technical companies: executive-level technology clarity and execution without the full-time overhead.
+- AI strategy and implementation: identifying where AI creates leverage and shipping it.
+- Revenue operations (RevOps): lead-routing systems so every lead is contacted, every time.
+- Salesforce and Agentforce architecture.
+
+## Who it is for
+Revenue leaders, founders, and operators at non-technical and growth-stage (Series A–C) companies, especially those operating in the Salesforce ecosystem who want to adopt AI without rebuilding their team.
+
+## Key pages
+- Home: https://aventary.com/
+- About: https://aventary.com/about
+- Insights (articles): https://aventary.com/insights
+- Contact: https://aventary.com/contact
+- Book a 30-minute strategy call: https://aventary.com/appointments
+
+## Contact
+- Email: hello@aventary.com
+- Response time: within one business day.
