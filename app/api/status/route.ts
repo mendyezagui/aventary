@@ -39,28 +39,56 @@ export async function GET(req: NextRequest) {
   }
 
   const now = new Date();
-  const url = process.env.MEETING_ICAL_URL;
   const warnMinutes = parseInt(process.env.MEETING_WARN_MINUTES || "5", 10);
+
+  // Support watching several calendars at once. URLs may be listed in
+  // MEETING_ICAL_URL (separated by commas, whitespace, or newlines) and/or in
+  // the numbered vars MEETING_ICAL_URL_2 … _6. Events from all feeds are merged.
+  const urls = [
+    process.env.MEETING_ICAL_URL,
+    process.env.MEETING_ICAL_URL_2,
+    process.env.MEETING_ICAL_URL_3,
+    process.env.MEETING_ICAL_URL_4,
+    process.env.MEETING_ICAL_URL_5,
+    process.env.MEETING_ICAL_URL_6
+  ]
+    .filter((v): v is string => !!v)
+    .flatMap((v) => v.split(/[\s,]+/))
+    .map((v) => v.trim())
+    .filter(Boolean);
 
   let events: CalendarEvent[];
   let source: "calendar" | "demo" = "calendar";
   let error: string | null = null;
 
-  if (url) {
-    try {
-      const res = await fetch(url, {
-        // Don't let a stale CDN copy mask a freshly-added meeting.
-        cache: "no-store",
-        headers: { "User-Agent": "aventary-meeting-light/1.0" }
-      });
-      if (!res.ok) throw new Error(`feed responded ${res.status}`);
-      const text = await res.text();
-      events = parseICS(text);
-    } catch (e) {
-      error = e instanceof Error ? e.message : "failed to load calendar";
-      console.error("meeting feed failed", e);
+  if (urls.length) {
+    const results = await Promise.all(
+      urls.map(async (u) => {
+        try {
+          const res = await fetch(u, {
+            // Don't let a stale CDN copy mask a freshly-added meeting.
+            cache: "no-store",
+            headers: { "User-Agent": "aventary-meeting-light/1.0" }
+          });
+          if (!res.ok) throw new Error(`feed responded ${res.status}`);
+          return parseICS(await res.text());
+        } catch (e) {
+          console.error("meeting feed failed", u, e);
+          return e instanceof Error ? e : new Error("failed to load calendar");
+        }
+      })
+    );
+
+    events = results.filter((r): r is CalendarEvent[] => Array.isArray(r)).flat();
+    const failures = results.filter((r): r is Error => r instanceof Error);
+    if (failures.length) error = `${failures.length} of ${urls.length} feeds failed`;
+
+    // Every feed failed → fall back to demo so the light still does something.
+    if (events.length === 0 && failures.length === urls.length) {
       events = demoEvents(now);
       source = "demo";
+    } else {
+      events.sort((a, b) => a.start.getTime() - b.start.getTime());
     }
   } else {
     events = demoEvents(now);
