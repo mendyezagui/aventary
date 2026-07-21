@@ -15,7 +15,16 @@ export async function middleware(req: NextRequest) {
   }
 
   const res = NextResponse.next();
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return res;
+
+  // Refreshing the Supabase session costs a network round-trip to the Auth
+  // server. Doing it on every request — the previous behavior — billed Fluid
+  // Active CPU on every anonymous page view, prefetch, and crawler hit for no
+  // benefit: the public pages read no session (anon client), and the admin
+  // pages re-validate via requireAdmin(). So spend the round-trip only on the
+  // routes that actually carry a session.
+  const path = req.nextUrl.pathname;
+  const needsSession = path.startsWith("/admin") || path.startsWith("/auth");
+  if (!needsSession || !process.env.NEXT_PUBLIC_SUPABASE_URL) return res;
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
