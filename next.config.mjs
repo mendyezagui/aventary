@@ -9,6 +9,22 @@ const nextConfig = {
                                 ]
         },
         experimental: {},
+        async redirects() {
+                return [
+                    {
+                        // Canonical host: www.* → apex. Handled at the routing layer
+                        // (runs before middleware, no function invocation), so it covers
+                        // every path without billing serverless CPU. Replaces the old
+                        // middleware redirect. The morning-brief Worker is only routed on
+                        // the apex, so this keeps /intelligence's fetch("/api/morning-brief")
+                        // on the canonical host.
+                        source: "/:path*",
+                        has: [{ type: "host", value: "www.(?<host>.*)" }],
+                        destination: "https://:host/:path*",
+                        permanent: true
+                    }
+                ];
+        },
         // Cloudflare Workers Builds runs 'next build' (not 'next build --no-lint'),
         // so disable ESLint at build time. Keep dev/'npm run lint' working as usual.
         eslint: { ignoreDuringBuilds: true },

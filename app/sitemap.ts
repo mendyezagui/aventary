@@ -1,8 +1,15 @@
 import type { MetadataRoute } from "next";
 import { listPosts } from "@/lib/cms";
 
+// Regenerate at most once a day rather than per crawler hit, so the Supabase
+// query behind listPosts() isn't re-run on every /sitemap.xml fetch.
+export const revalidate = 86400;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = "https://www.aventary.com";
+  // Apex is the canonical host (middleware 301s www → apex). Emitting apex URLs
+  // here means crawlers hit the real page directly instead of eating an extra
+  // redirect invocation on every indexed URL.
+  const base = "https://aventary.com";
   const statics = ["", "/about", "/contact", "/appointments", "/insights", "/camp-letter"].map((p) => ({
     url: base + p,
     changeFrequency: "weekly" as const,
