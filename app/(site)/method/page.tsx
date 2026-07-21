@@ -219,17 +219,17 @@ export default function MethodPage() {
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/appointments"
+              href="/diagnostic"
               className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-full font-bold"
             >
-              Book a working session
+              Run the diagnostic
               <span className="material-symbols-outlined">arrow_forward</span>
             </Link>
             <Link
-              href="/insights"
+              href="/appointments"
               className="inline-flex items-center gap-2 bg-surface-container-lowest text-on-surface px-6 py-3 rounded-full font-bold soft-lift"
             >
-              Read a field story
+              Book a working session
             </Link>
           </div>
         </div>
