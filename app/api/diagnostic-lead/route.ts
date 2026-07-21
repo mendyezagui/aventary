@@ -43,18 +43,28 @@ export async function POST(req: Request) {
     process.env.SECOND_BRAIN_SERVICE_ROLE_KEY,
     { auth: { persistSession: false, autoRefreshToken: false } }
   );
+  // The OS diagnostic supplies its own maturity band (Fragile…Adaptive); the
+  // pipeline tools fall back to the integrity band (Tight…Fiction).
+  const band =
+    typeof b.band === "string" && b.band.trim() ? b.band.trim() : bandFor(score);
+
   const { error } = await supabase.from("diagnostic_leads").insert({
     email,
     name,
     company,
     diagnostic,
     integrity_score: score,
-    reported_band: bandFor(score),
+    reported_band: band,
     wants_pdf: b.wants_pdf !== false,
     wants_future_tools: b.wants_future_tools !== false,
     source: typeof b.source === "string" ? b.source : null,
     status: "new",
-    notes: heardVia ? `heard_via: ${heardVia}` : null,
+    notes:
+      typeof b.notes === "string" && b.notes.trim()
+        ? b.notes.trim()
+        : heardVia
+          ? `heard_via: ${heardVia}`
+          : null,
   });
   if (error) {
     console.error("diagnostic_leads insert failed", error);
@@ -67,15 +77,39 @@ export async function POST(req: Request) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const first = (name || "").split(/\s+/)[0] || "there";
     const scoreLabel = score != null ? `${score}/100` : "your";
+    const isOS = diagnostic === "operating_system";
 
-    // 2a. Instant acknowledgment to the lead (PDF itself is sent manually).
-    try {
-      await resend.emails.send({
-        from: process.env.CONTACT_FROM_EMAIL,
-        to: email,
-        replyTo: process.env.CONTACT_TO_EMAIL ?? undefined,
-        subject: `Your Pipeline X-Ray teardown (${scoreLabel}) is on its way`,
-        text:
+    // 2a. Instant acknowledgment to the lead (report itself is sent manually).
+    const ack = isOS
+      ? {
+          subject: `Your Operating Systems Diagnostic (${scoreLabel}${band ? `, ${band}` : ""}) is on its way`,
+          text:
+`Hey ${first},
+
+Got it — your Operating Systems Diagnostic report is on its way. I put the breakdown together by hand, so give it a few hours (sooner in business hours).
+
+You scored ${scoreLabel}${band ? ` (${band})` : ""}. The full report walks the weakest domain, what's driving the leak, and the exact next build to close it — plus where you'd start with Aventary.
+
+A reminder: your answers are used only to generate this report. Nothing was stored without your consent.
+
+Reply here if you want me to walk your team through the score.
+
+Ciao,
+Mendy
+Aventary`,
+          html:
+`<div style="font-family:system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;color:#1a1a1a">
+<p>Hey ${first},</p>
+<p>Got it — your <strong>Operating Systems Diagnostic</strong> report is on its way. I put the breakdown together by hand, so give it a few hours (sooner in business hours).</p>
+<p>You scored <strong>${scoreLabel}${band ? ` (${band})` : ""}</strong>. The full report walks the weakest domain, what's driving the leak, and the exact next build to close it — plus where you'd start with Aventary.</p>
+<p style="color:#555">A reminder: your answers are used only to generate this report. Nothing was stored without your consent.</p>
+<p>Reply here if you want me to walk your team through the score.</p>
+<p style="margin-top:18px">Ciao,<br>Mendy<br><span style="color:#777">Aventary</span></p>
+</div>`,
+        }
+      : {
+          subject: `Your Pipeline X-Ray teardown (${scoreLabel}) is on its way`,
+          text:
 `Hey ${first},
 
 Got it — your ${scoreLabel} Pipeline X-Ray teardown is on its way. I put it together by hand, so give it a few hours (sooner in business hours).
@@ -89,7 +123,7 @@ Reply here if you want me to walk your team through the number once it lands.
 Ciao,
 Mendy
 Aventary`,
-        html:
+          html:
 `<div style="font-family:system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;color:#1a1a1a">
 <p>Hey ${first},</p>
 <p>Got it — your <strong>${scoreLabel}</strong> Pipeline X-Ray teardown is on its way. I put it together by hand, so give it a few hours (sooner in business hours).</p>
@@ -98,6 +132,15 @@ Aventary`,
 <p>Reply here if you want me to walk your team through the number once it lands.</p>
 <p style="margin-top:18px">Ciao,<br>Mendy<br><span style="color:#777">Aventary</span></p>
 </div>`,
+        };
+    try {
+      await resend.emails.send({
+        from: process.env.CONTACT_FROM_EMAIL,
+        to: email,
+        replyTo: process.env.CONTACT_TO_EMAIL ?? undefined,
+        subject: ack.subject,
+        text: ack.text,
+        html: ack.html,
       });
     } catch (e) {
       console.error("lead ack email failed", e);
@@ -112,13 +155,13 @@ Aventary`,
           replyTo: email,
           subject: `New diagnostic lead — ${name ?? email}${score != null ? ` (${score}/100)` : ""}`,
           text:
-`New ${diagnostic} lead — send the PDF teardown.
+`New ${diagnostic} lead — send the report.
 
 Name:    ${name ?? "—"}
 Email:   ${email}
 Company: ${company ?? "—"}
-Score:   ${score != null ? `${score}/100 (${bandFor(score)})` : "—"}
-Heard via: ${heardVia ?? "—"}
+Score:   ${score != null ? `${score}/100${band ? ` (${band})` : ""}` : "—"}
+Detail:  ${typeof b.notes === "string" && b.notes.trim() ? b.notes.trim() : heardVia ? `heard_via: ${heardVia}` : "—"}
 Source:  ${typeof b.source === "string" && b.source ? b.source : "—"}`,
         });
       } catch (e) {
