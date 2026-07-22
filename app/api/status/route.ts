@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { unstable_cache } from "next/cache";
 import { parseICS, type CalendarEvent } from "@/lib/ical";
 import { computeStatus } from "@/lib/meeting-status";
 
-// Recompute on every request — the whole point is live status.
+// The live countdown is still computed per request, but the expensive part --
+// fetching and parsing the ICAL feed(s) over the network -- is cached for 60s
+// via unstable_cache, so a device polling every ~1.4s no longer re-downloads
+// the calendar tens of thousands of times a day.
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-/**
- * Demo events used when MEETING_ICAL_URL isn't configured, so the traffic
- * light is visibly working out of the box. Builds a meeting starting ~4 min
- * from now (so you can watch green → yellow → red) plus one later today.
- */
+type FeedResult = { events: CalendarEvent[]; failures: number; urlCount: number };
+
 function demoEvents(now: Date): CalendarEvent[] {
   const soon = new Date(now.getTime() + 4 * 60 * 1000);
   const soonEnd = new Date(soon.getTime() + 30 * 60 * 1000);
@@ -19,13 +20,36 @@ function demoEvents(now: Date): CalendarEvent[] {
   return [
     { uid: "demo-1", summary: "Demo standup", start: soon, end: soonEnd, allDay: false },
     { uid: "demo-2", summary: "Demo client call", start: later, end: laterEnd, allDay: false }
-  ];
+    ];
 }
 
+const loadFeeds = unstable_cache(
+  async (urls: string[]): Promise<FeedResult> => {
+    const results = await Promise.all(
+      urls.map(async (u) => {
+        try {
+          const res = await fetch(u, {
+            cache: "no-store",
+            headers: { "User-Agent": "aventary-meeting-light/1.0" }
+          });
+          if (!res.ok) throw new Error("feed responded " + res.status);
+          return parseICS(await res.text());
+        } catch (e) {
+          console.error("meeting feed failed", u, e);
+          return e instanceof Error ? e : new Error("failed to load calendar");
+        }
+      })
+      );
+    const events = results.filter((r): r is CalendarEvent[] => Array.isArray(r)).flat();
+    const failures = results.filter((r): r is Error => r instanceof Error).length;
+    events.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+    return { events, failures, urlCount: urls.length };
+  },
+  ["meeting-ical-feeds"],
+  { revalidate: 60 }
+  );
+
 export async function GET(req: NextRequest) {
-  // Optional access token. When MEETING_STATUS_TOKEN is set, the endpoint
-  // exposes meeting titles only to the device (which sends ?token= or a Bearer
-  // header) and to same-origin browser requests (the /status test page).
   const token = process.env.MEETING_STATUS_TOKEN;
   if (token) {
     const provided =
@@ -38,84 +62,61 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const now = new Date();
-  const warnMinutes = parseInt(process.env.MEETING_WARN_MINUTES || "5", 10);
+const now = new Date();
+  const warnRaw = parseInt(process.env.MEETING_WARN_MINUTES || "5", 10);
+  const warn = Number.isFinite(warnRaw) ? warnRaw : 5;
 
-  // Support watching several calendars at once. URLs may be listed in
-  // MEETING_ICAL_URL (separated by commas, whitespace, or newlines) and/or in
-  // the numbered vars MEETING_ICAL_URL_2 … _6. Events from all feeds are merged.
-  const urls = [
-    process.env.MEETING_ICAL_URL,
-    process.env.MEETING_ICAL_URL_2,
-    process.env.MEETING_ICAL_URL_3,
-    process.env.MEETING_ICAL_URL_4,
-    process.env.MEETING_ICAL_URL_5,
-    process.env.MEETING_ICAL_URL_6
+const urls = [
+  process.env.MEETING_ICAL_URL,
+  process.env.MEETING_ICAL_URL_2,
+  process.env.MEETING_ICAL_URL_3,
+  process.env.MEETING_ICAL_URL_4,
+  process.env.MEETING_ICAL_URL_5,
+  process.env.MEETING_ICAL_URL_6
   ]
-    .filter((v): v is string => !!v)
-    .flatMap((v) => v.split(/[\s,]+/))
-    .map((v) => v.trim())
-    .filter(Boolean);
+  .filter((v): v is string => !!v)
+  .flatMap((v) => v.split(/[\s,]+/))
+  .map((v) => v.trim())
+  .filter(Boolean);
 
-  let events: CalendarEvent[];
+let events: CalendarEvent[];
   let source: "calendar" | "demo" = "calendar";
   let error: string | null = null;
 
-  if (urls.length) {
-    const results = await Promise.all(
-      urls.map(async (u) => {
-        try {
-          const res = await fetch(u, {
-            // Don't let a stale CDN copy mask a freshly-added meeting.
-            cache: "no-store",
-            headers: { "User-Agent": "aventary-meeting-light/1.0" }
-          });
-          if (!res.ok) throw new Error(`feed responded ${res.status}`);
-          return parseICS(await res.text());
-        } catch (e) {
-          console.error("meeting feed failed", u, e);
-          return e instanceof Error ? e : new Error("failed to load calendar");
-        }
-      })
-    );
-
-    events = results.filter((r): r is CalendarEvent[] => Array.isArray(r)).flat();
-    const failures = results.filter((r): r is Error => r instanceof Error);
-    if (failures.length) error = `${failures.length} of ${urls.length} feeds failed`;
-
-    // Every feed failed → fall back to demo so the light still does something.
-    if (events.length === 0 && failures.length === urls.length) {
-      events = demoEvents(now);
-      source = "demo";
-    } else {
-      events.sort((a, b) => a.start.getTime() - b.start.getTime());
-    }
-  } else {
+if (urls.length) {
+  const feed = await loadFeeds(urls);
+  events = feed.events.map((e) => ({
+    ...e,
+    start: new Date(e.start),
+    end: new Date(e.end)
+  }));
+  if (feed.failures) error = feed.failures + " of " + feed.urlCount + " feeds failed";
+  if (events.length === 0 && feed.failures === feed.urlCount) {
     events = demoEvents(now);
     source = "demo";
   }
+} else {
+  events = demoEvents(now);
+  source = "demo";
+}
 
-  const warn = Number.isFinite(warnMinutes) ? warnMinutes : 5;
-  const status = computeStatus(events, now, { warnMinutes: warn });
+const status = computeStatus(events, now, { warnMinutes: warn });
 
-  // Flat convenience fields for the single-light device firmware, which can't
-  // easily parse ISO timestamps: seconds until the next meeting starts and its
-  // UID (so the device can remember which alert you already dismissed).
-  const nextStartsInSeconds = status.next
-    ? Math.round((new Date(status.next.start).getTime() - now.getTime()) / 1000)
-    : null;
+const nextStartsInSeconds = status.next
+  ? Math.round((new Date(status.next.start).getTime() - now.getTime()) / 1000)
+  : null;
   const nextUid = status.next?.uid ?? null;
 
-  return NextResponse.json(
-    {
-      ...status,
-      nextStartsInSeconds,
-      nextUid,
-      source,
-      error,
-      warnMinutes: warn,
-      now: now.toISOString()
-    },
-    { headers: { "Cache-Control": "no-store" } }
+return NextResponse.json(
+  {
+    ...status,
+    nextStartsInSeconds,
+    nextUid,
+    source,
+    error,
+    warnMinutes: warn,
+    now: now.toISOString()
+  },
+  { headers: { "Cache-Control": "no-store" } }
   );
 }
