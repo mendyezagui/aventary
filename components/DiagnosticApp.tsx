@@ -237,7 +237,17 @@ function Bar({ d, weakestKey }: { d: DomainResult; weakestKey: string }) {
 function Results({ result, onRestart }: { result: DiagnosticResult; onRestart: () => void }) {
   const rec = RECOMMENDATIONS[result.weakest.key];
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="diag-report max-w-6xl mx-auto">
+      {/* Print-only header banner */}
+      <div className="hidden print:flex items-center gap-2.5 mb-8 pb-5 border-b border-outline-variant">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0B0B0B" strokeWidth="1.3" strokeLinejoin="round" aria-hidden="true">
+          <path d="M12 3.5 L19.5 20.5 L4.5 20.5 Z" />
+          <path d="M12 3.5 L12 13.5" />
+        </svg>
+        <span className="font-label text-sm font-semibold tracking-[0.3em] uppercase">Aventary</span>
+        <span className="text-on-surface-variant text-sm">· Operating Systems Diagnostic</span>
+      </div>
+
       {/* Headline */}
       <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10 items-center mb-14">
         <div>
@@ -254,10 +264,17 @@ function Results({ result, onRestart }: { result: DiagnosticResult; onRestart: (
             Maturity: <span className="text-primary italic">{result.band.label}</span>
           </div>
           <p className="text-on-surface-variant leading-relaxed max-w-lg mb-6">{result.band.blurb}</p>
-          <p className="text-lg text-on-surface leading-relaxed max-w-lg">
+          <p className="text-lg text-on-surface leading-relaxed max-w-lg mb-6">
             Your weakest domain is <strong>{result.weakest.title.toLowerCase()}</strong>.{" "}
             {rec.diagnosis}
           </p>
+          <button
+            onClick={() => window.print()}
+            className="print:hidden inline-flex items-center gap-2 border border-outline-variant rounded-full px-5 py-2.5 font-label font-semibold text-xs tracking-[0.16em] uppercase text-on-surface hover:border-primary/60 transition-colors"
+          >
+            <span className="material-symbols-outlined text-base">download</span>
+            Download report (PDF)
+          </button>
         </div>
         <div className="bg-surface-container-lowest rounded-3xl soft-lift p-6">
           <Radar domains={result.domains} weakestKey={result.weakest.key} />
@@ -318,9 +335,11 @@ function Results({ result, onRestart }: { result: DiagnosticResult; onRestart: (
       </div>
 
       {/* Email capture */}
-      <EmailCapture result={result} />
+      <div className="print:hidden">
+        <EmailCapture result={result} />
+      </div>
 
-      <div className="text-center mt-10">
+      <div className="text-center mt-10 print:hidden">
         <button
           onClick={onRestart}
           className="font-label text-xs font-semibold tracking-[0.16em] uppercase text-on-surface-variant hover:text-on-surface transition"

@@ -30,3 +30,25 @@ h1, h2, h3, h4, h5 {
 
 .editorial-gap { letter-spacing: -0.02em; }
 .soft-lift { box-shadow: 0px 20px 40px rgba(28, 27, 27, 0.06); }
+
+/* Print / "Download report (PDF)" — isolate the diagnostic report, drop the
+   site chrome, and force backgrounds so the gold bars + dark cards survive
+   the print pipeline. Scoped to .diag-report so other pages print normally. */
+@media print {
+  @page { margin: 12mm; }
+  html, body { background: #fff !important; }
+  body * { visibility: hidden !important; }
+  .diag-report, .diag-report * { visibility: visible !important; }
+  .diag-report {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0 !important;
+  }
+  .diag-report * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .diag-report .soft-lift { box-shadow: none !important; }
+}

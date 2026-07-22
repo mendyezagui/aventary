@@ -3,6 +3,7 @@ import Link from "next/link";
 export const revalidate = 3600;
 
 const PAGE_URL = "https://aventary.com/method";
+const OG_IMAGE = "https://aventary.com/og-method.png";
 const TITLE = "The Aventary Method | Aventary";
 const DESCRIPTION =
   "A practical operating method for finding where work, context, ownership, and revenue leak, then building the next capability that closes the gap.";
@@ -17,12 +18,14 @@ export const metadata = {
     siteName: "Aventary",
     title: TITLE,
     description: DESCRIPTION,
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "The Aventary Method" }],
     locale: "en_US"
   },
   twitter: {
     card: "summary_large_image" as const,
     title: TITLE,
-    description: DESCRIPTION
+    description: DESCRIPTION,
+    images: [OG_IMAGE]
   }
 };
 

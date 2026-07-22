@@ -4,6 +4,7 @@ import DiagnosticApp from "@/components/DiagnosticApp";
 export const revalidate = 3600;
 
 const PAGE_URL = "https://aventary.com/diagnostic";
+const OG_IMAGE = "https://aventary.com/og-diagnostic.png";
 const TITLE = "Aventary Operating Systems Diagnostic | Aventary";
 const DESCRIPTION =
   "Score the operating system behind your revenue, service, Salesforce, and AI workflows in 5 minutes. Find the weakest link and what to build next.";
@@ -18,12 +19,14 @@ export const metadata = {
     siteName: "Aventary",
     title: TITLE,
     description: DESCRIPTION,
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Aventary Operating Systems Diagnostic" }],
     locale: "en_US"
   },
   twitter: {
     card: "summary_large_image" as const,
     title: TITLE,
-    description: DESCRIPTION
+    description: DESCRIPTION,
+    images: [OG_IMAGE]
   }
 };
 

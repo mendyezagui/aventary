@@ -32,6 +32,9 @@ export default function Footer() {
         <div className="flex flex-col gap-6">
           <h5 className="font-label text-xs font-semibold tracking-[0.18em] uppercase text-white/90">Company</h5>
           <ul className="flex flex-col gap-3">
+            <li><Link className="text-white/55 hover:text-primary transition-colors" href="/method">Method</Link></li>
+            <li><Link className="text-white/55 hover:text-primary transition-colors" href="/diagnostic">Diagnostic</Link></li>
+            <li><Link className="text-white/55 hover:text-primary transition-colors" href="/diagnostics">Revenue Leak Kit</Link></li>
             <li><Link className="text-white/55 hover:text-primary transition-colors" href="/insights">Insights</Link></li>
             <li><Link className="text-white/55 hover:text-primary transition-colors" href="/intelligence">Intelligence</Link></li>
             <li><Link className="text-white/55 hover:text-primary transition-colors" href="/about">About</Link></li>
