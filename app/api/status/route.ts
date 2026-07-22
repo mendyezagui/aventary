@@ -4,7 +4,7 @@ import { parseICS, type CalendarEvent } from "@/lib/ical";
 import { computeStatus } from "@/lib/meeting-status";
 
 // The live countdown is still computed per request, but the expensive part --
-// fetching and parsing the ICAL feed(s) over the network -- is cached for 60s
+// fetching and parsing the ICAL feed(s) over the network -- is cached for 600
 // via unstable_cache, so a device polling every ~1.4s no longer re-downloads
 // the calendar tens of thousands of times a day.
 export const dynamic = "force-dynamic";
@@ -46,8 +46,7 @@ const loadFeeds = unstable_cache(
     return { events, failures, urlCount: urls.length };
   },
   ["meeting-ical-feeds"],
-  { revalidate: 60 }
-  );
+  { revalidate: 600 }  );
 
 export async function GET(req: NextRequest) {
   const token = process.env.MEETING_STATUS_TOKEN;
