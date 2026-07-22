@@ -41,19 +41,19 @@ export default function DiagnosticPage() {
             Operating Systems Diagnostic
           </div>
           <h1 className="font-headline text-4xl md:text-6xl font-bold editorial-gap leading-[1.08] mb-6">
-            Find where your operating system is{" "}
-            <span className="text-primary italic">leaking value</span>.
+            Find where revenue is leaking{" "}
+            <span className="text-primary italic">before it hits your forecast</span>.
           </h1>
           <p className="text-xl text-on-surface-variant mb-4">
-            Most dashboards tell you what happened. This diagnostic examines the machinery
-            underneath: outcomes, workflow visibility, ownership, handoffs, system truth, exceptions,
-            AI controls, and whether your metrics actually create decisions.
+            Your dashboard tells you what already happened. This 5-minute check finds the gaps
+            upstream — the leads nobody worked, the handoffs that dropped, the AI that isn&apos;t
+            paying off — and names the one thing to fix first.
           </p>
           <p className="text-sm text-on-surface-variant">
-            <strong className="text-on-surface">5 minutes</strong> · 24 questions · scored across 8
-            domains. See your{" "}
+            <strong className="text-on-surface">5 minutes</strong> · 24 questions · 8 areas. You&apos;ll
+            see your{" "}
             <span className="text-on-surface">
-              operating score, maturity level, weakest domain, and recommended next action
+              score, where you stand, your biggest gap, and what to do about it
             </span>
             .
           </p>

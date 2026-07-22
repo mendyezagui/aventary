@@ -144,8 +144,8 @@ function EmailCapture({ result }: { result: DiagnosticResult }) {
       </div>
       <h3 className="font-headline text-2xl md:text-3xl font-bold mb-2">Your score is ready.</h3>
       <p className="text-on-surface-variant leading-relaxed mb-6 max-w-lg">
-        Enter your work email to receive the full report, the domain-by-domain breakdown, and your
-        recommended next action.
+        Enter your work email to get the full report, your area-by-area breakdown, and what to fix
+        first.
       </p>
       <form onSubmit={submit} className="grid sm:grid-cols-2 gap-4">
         <input
@@ -219,7 +219,7 @@ function Bar({ d, weakestKey }: { d: DomainResult; weakestKey: string }) {
         {d.title}
         {weak ? (
           <span className="font-label text-[10px] font-bold tracking-widest uppercase text-accent bg-primary-fixed px-2 py-0.5 rounded-full">
-            Weakest
+            Focus here
           </span>
         ) : null}
       </div>
@@ -252,7 +252,7 @@ function Results({ result, onRestart }: { result: DiagnosticResult; onRestart: (
       <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10 items-center mb-14">
         <div>
           <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-4">
-            Your Operating Score
+            Your Score
           </div>
           <div className="flex items-end gap-4 mb-4">
             <div className="font-headline text-7xl md:text-8xl font-bold leading-none text-primary">
@@ -261,12 +261,11 @@ function Results({ result, onRestart }: { result: DiagnosticResult; onRestart: (
             <div className="font-headline text-2xl font-bold text-on-surface-variant mb-2">/ 100</div>
           </div>
           <div className="font-headline text-3xl font-bold mb-2">
-            Maturity: <span className="text-primary italic">{result.band.label}</span>
+            Where you stand: <span className="text-primary italic">{result.band.label}</span>
           </div>
           <p className="text-on-surface-variant leading-relaxed max-w-lg mb-6">{result.band.blurb}</p>
           <p className="text-lg text-on-surface leading-relaxed max-w-lg mb-6">
-            Your weakest domain is <strong>{result.weakest.title.toLowerCase()}</strong>.{" "}
-            {rec.diagnosis}
+            Your biggest gap right now: <strong>{result.weakest.title}</strong>. {rec.diagnosis}
           </p>
           <button
             onClick={() => window.print()}
@@ -284,7 +283,7 @@ function Results({ result, onRestart }: { result: DiagnosticResult; onRestart: (
       {/* Domain bars */}
       <div className="bg-surface-container-lowest rounded-3xl soft-lift p-8 md:p-10 mb-8">
         <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-6">
-          Domain Breakdown
+          The Breakdown
         </div>
         <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
           {result.domains.map((d) => (
@@ -297,14 +296,14 @@ function Results({ result, onRestart }: { result: DiagnosticResult; onRestart: (
       <div className="grid md:grid-cols-[1.4fr_1fr] gap-8 mb-8">
         <div className="bg-ink text-inverse-on-surface rounded-3xl p-8 md:p-10">
           <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-4">
-            Recommended Next Step · {result.weakest.title}
+            What to fix first · {result.weakest.title}
           </div>
           <p className="font-headline text-xl md:text-2xl font-bold leading-snug mb-5">
             {rec.nextStep}
           </p>
           <p className="text-white/60 text-sm leading-relaxed mb-6">
-            Second weakest: <span className="text-white/80">{result.secondWeakest.title}</span> (
-            {result.secondWeakest.score}). Fixing the weakest domain first usually unlocks the second.
+            Next after that: <span className="text-white/80">{result.secondWeakest.title}</span> (
+            {result.secondWeakest.score}). Fix the biggest gap first — it usually unblocks the next one.
           </p>
           {rec.link ? (
             <Link
@@ -322,7 +321,7 @@ function Results({ result, onRestart }: { result: DiagnosticResult; onRestart: (
           </div>
           <div className="font-headline text-2xl font-bold mb-3">{result.engagement}</div>
           <p className="text-on-surface-variant text-sm leading-relaxed mb-6">
-            The engagement shape that matches an operating score of {result.overall}.
+            The best place to start, given a score of {result.overall}.
           </p>
           <Link
             href="/appointments"
@@ -408,7 +407,7 @@ export default function DiagnosticApp() {
             {[
               { k: "Time", v: "5 minutes" },
               { k: "Questions", v: `${TOTAL_QUESTIONS}` },
-              { k: "Domains", v: `${DOMAINS.length}` }
+              { k: "Areas", v: `${DOMAINS.length}` }
             ].map((s) => (
               <div key={s.k}>
                 <div className="font-headline text-3xl font-bold text-primary">{s.v}</div>
@@ -419,8 +418,9 @@ export default function DiagnosticApp() {
             ))}
           </div>
           <p className="text-on-surface leading-relaxed mb-3">
-            You&apos;ll rate {DOMAINS.length} domains of your operating system on a 0–4 maturity
-            scale. It takes about five minutes.
+            You&apos;ll answer {TOTAL_QUESTIONS} quick questions across {DOMAINS.length} parts of
+            your revenue operation. Answer honestly — there are no wrong answers, and it takes about
+            five minutes.
           </p>
           <ul className="text-sm text-on-surface-variant space-y-1.5 mb-8">
             {SCALE.map((s) => (
@@ -467,7 +467,7 @@ export default function DiagnosticApp() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
             <div className="font-label text-xs font-bold tracking-widest uppercase text-accent">
-              Domain {domain.n} of {DOMAINS.length} · {domain.title}
+              Part {domain.n} of {DOMAINS.length} · {domain.title}
             </div>
             <div className="font-label text-xs font-semibold text-on-surface-variant tabular-nums">
               {answeredCount}/{TOTAL_QUESTIONS}
@@ -528,7 +528,7 @@ export default function DiagnosticApp() {
           {/* Optional evidence note */}
           <div className="px-2">
             <label className="font-label text-xs font-semibold tracking-widest uppercase text-on-surface-variant">
-              Evidence note for {domain.title.toLowerCase()} (optional)
+              Add a note (optional)
             </label>
             <textarea
               value={notes[domain.key] ?? ""}
