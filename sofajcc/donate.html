@@ -1,126 +1,158 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="scroll-smooth" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SoFa Jewish Community Center - Donate</title>
-  <meta name="description" content="Support the SoFa Jewish Community Center. Your donation helps sustain prayer services, Torah study, holiday celebrations, and community programs for every Jew. Give with an open heart.">
-  <link rel="canonical" href="https://www.sofajcc.org/donate">
-  <meta name="robots" content="index, follow">
-  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="/assets/favicon.svg">
-
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="SoFa Jewish Community Center">
-  <meta property="og:title" content="SoFa Jewish Community Center - Donate">
-  <meta property="og:description" content="Support the SoFa Jewish Community Center. Your generosity sustains a warm and welcoming home for Jewish life.">
-  <meta property="og:url" content="https://www.sofajcc.org/donate">
-  <meta property="og:image" content="https://www.sofajcc.org/assets/og.svg">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="SoFa Jewish Community Center - Donate">
-  <meta name="twitter:description" content="Your generosity sustains a warm and welcoming home for Jewish life.">
-  <meta name="twitter:image" content="https://www.sofajcc.org/assets/og.svg">
-
-  <link rel="stylesheet" href="/assets/styles.css">
-  <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SoFa Jewish Community Center - Donate</title>
+<meta name="description" content="Support the SoFa Jewish Community Center. Your generosity ensures the SoFa remains a warm, welcoming spiritual home — sustaining prayer, Torah study, holidays, and community programs. Give with an open heart."/>
+<link rel="canonical" href="https://www.sofajcc.org/donate"/>
+<meta name="robots" content="index, follow"/>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="/assets/favicon.svg"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="SoFa Jewish Community Center"/>
+<meta property="og:title" content="SoFa Jewish Community Center - Donate"/>
+<meta property="og:description" content="Support the SoFa Jewish Community Center. Your generosity sustains a warm and welcoming home for Jewish life."/>
+<meta property="og:url" content="https://www.sofajcc.org/donate"/>
+<meta property="og:image" content="https://www.sofajcc.org/assets/og.svg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="SoFa Jewish Community Center - Donate"/>
+<meta name="twitter:description" content="Your generosity sustains a warm and welcoming home for Jewish life."/>
+<meta name="twitter:image" content="https://www.sofajcc.org/assets/og.svg"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="/assets/tailwind.css" rel="stylesheet"/>
+<script async src="https://js.stripe.com/v3/buy-button.js"></script>
 </head>
-<body>
-  <header class="site-header">
-    <nav class="nav">
-      <a class="brand" href="/home" aria-label="SoFa Jewish Community Center — Home">
-        <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#17335c"/><g fill="none" stroke="#e6cd93" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 34v-4a4 4 0 0 1 4-4h24a4 4 0 0 1 4 4v4"/><path d="M13 34a3 3 0 0 1 3 3v6h32v-6a3 3 0 0 1 6 0v9a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2v-9a3 3 0 0 1 3-3z" fill="#c99a3f" stroke="#c99a3f"/><path d="M20 45v3M44 45v3" stroke="#0f2542"/></g></svg>
-        <span class="brand-name">SoFa<span>Jewish Community Center</span></span>
-      </a>
-      <button class="nav-toggle" aria-label="Menu" aria-controls="menu"><span></span><span></span><span></span></button>
-      <ul class="menu" id="menu">
-        <li><a href="/home">Home</a></li>
-        <li><a href="/about">About</a></li>
-        <li><a href="/good-deeds">Good Deeds</a></li>
-        <li><a href="/donate" class="donate active">Donate</a></li>
-      </ul>
-    </nav>
-  </header>
-
-  <main>
-    <section class="hero" style="padding:70px 22px 74px">
-      <div class="wrap">
-        <span class="kicker">Partner With Us</span>
-        <h1>Support SoFa</h1>
-        <p class="tagline">Every gift helps keep the SoFa a warm, welcoming home for Jewish life.</p>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="donate-grid">
-          <div>
-            <span class="eyebrow">Your Impact</span>
-            <h2 style="font-family:var(--font);color:var(--navy);font-size:1.9rem;margin:10px 0 14px">Give with an open heart</h2>
-            <p class="lead" style="margin-bottom:8px">When you give to SoFa, you help sustain a community built on unconditional love — <em>Ahavat Yisrael</em>. Your support makes possible:</p>
-            <ul class="give-list">
-              <li><span class="chk">&#10003;</span><span>Lively <strong>Shabbos &amp; holiday services</strong> open to all.</span></li>
-              <li><span class="chk">&#10003;</span><span>Weekly <strong>Torah study</strong> and the Shabbos Table Dvar Torah.</span></li>
-              <li><span class="chk">&#10003;</span><span><strong>Career guidance</strong> and <strong>mental health support</strong> for our members.</span></li>
-              <li><span class="chk">&#10003;</span><span>A comfortable, family-focused <strong>community home</strong> for every Jew.</span></li>
-            </ul>
-            <p style="margin-top:22px;color:var(--muted)">Every contribution, large or small, is deeply appreciated. Thank you for partnering with us.</p>
-          </div>
-
-          <div class="donate-card">
-            <div class="ic" style="width:56px;height:56px;margin:0 auto 16px;border-radius:16px;display:grid;place-items:center;background:var(--cream-2);color:var(--navy)">
-              <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 22l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
-            </div>
-            <h3 style="font-family:var(--font);color:var(--navy);margin:0 0 6px;font-size:1.4rem">Make a Donation</h3>
-            <p style="color:var(--muted);margin:0 0 22px">Secure giving powered by Stripe.</p>
-
-            <!-- Stripe Buy Button (preserved from the current site) -->
-            <stripe-buy-button
-              buy-button-id="buy_btn_1Tb1mgLMjVclDp8Qk5BUfjEb"
-              publishable-key="pk_live_51TX5DNLMjVclDp8QduohZprWr4rrpOcfjZfqEHHelZHT0YIWhgnRg9jIgxPHtAIp3Q8nWckzZR36DtVDfGwgq5iL00zIlJdkEt">
-            </stripe-buy-button>
-
-            <p style="font-size:.82rem;color:var(--muted);margin:20px 0 0">If the donation button doesn't appear, please
-              <a href="/about#contact">contact us</a> and we'll be glad to help.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="footer-grid">
-      <div>
-        <a class="brand" href="/home" style="margin-bottom:14px">
-          <svg viewBox="0 0 64 64" aria-hidden="true" style="width:40px;height:40px"><rect width="64" height="64" rx="14" fill="#0f2542"/><g fill="none" stroke="#e6cd93" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 34v-4a4 4 0 0 1 4-4h24a4 4 0 0 1 4 4v4"/><path d="M13 34a3 3 0 0 1 3 3v6h32v-6a3 3 0 0 1 6 0v9a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2v-9a3 3 0 0 1 3-3z" fill="#c99a3f" stroke="#c99a3f"/><path d="M20 45v3M44 45v3" stroke="#0f2542"/></g></svg>
-          <span class="brand-name">SoFa<span>Jewish Community Center</span></span>
-        </a>
-        <p style="max-width:320px;color:#aebbcd">A warm and welcoming Chabad Jewish Community Center. Pray. Celebrate. Love. Friendship.</p>
-      </div>
-      <div>
-        <h4>Explore</h4>
-        <ul>
-          <li><a href="/home">Home</a></li>
-          <li><a href="/about">About</a></li>
-          <li><a href="/good-deeds">Good Deeds</a></li>
-          <li><a href="/donate">Donate</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Connect</h4>
-        <ul>
-          <li><a href="/about#contact">Contact Us</a></li>
-          <li><a href="https://docs.google.com/document/d/1khotQ-cPlYrS90Bp4ns1PhuWbHrbEWAib1o7b-3ud50/preview" target="_blank" rel="noopener">Weekly Dvar Torah</a></li>
-          <li><a href="/donate">Make a Donation</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>&copy; <span id="yr">2026</span> SoFa Jewish Community Center. All rights reserved.</span>
-      <span>Inspired by the Rebbe's vision &middot; Ahavat Yisrael</span>
-    </div>
-  </footer>
-
-  <script src="/assets/nav.js"></script>
-  <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+<body class="bg-soft-cream text-on-background">
+<!-- Top Navigation -->
+<nav class="fixed top-0 w-full z-50 bg-soft-cream/80 backdrop-blur-md shadow-sm transition-all duration-300" id="siteNav">
+<div class="flex justify-between items-center px-gutter py-4 max-w-container-max mx-auto">
+<a class="font-display-lg text-headline-sm text-primary tracking-tighter" href="/home">SoFa JCC</a>
+<div class="hidden md:flex items-center gap-stack-lg">
+<a class="font-button text-button text-on-surface-variant hover:text-secondary transition-colors duration-300" href="/home">Home</a>
+<a class="font-button text-button text-on-surface-variant hover:text-secondary transition-colors duration-300" href="/about">About</a>
+<a class="font-button text-button text-on-surface-variant hover:text-secondary transition-colors duration-300" href="/good-deeds">Good Deeds</a>
+<a class="font-button text-button text-primary border-b-2 border-secondary pb-1 transition-colors duration-300" href="/donate">Donate</a>
+</div>
+<button aria-label="Menu" class="md:hidden text-primary" id="navToggle"><span class="material-symbols-outlined">menu</span></button>
+</div>
+<div class="hidden md:hidden bg-soft-cream border-t border-outline-variant px-gutter py-4 space-y-2" id="mobileMenu">
+<a class="block font-button text-button text-on-surface-variant py-2" href="/home">Home</a>
+<a class="block font-button text-button text-on-surface-variant py-2" href="/about">About</a>
+<a class="block font-button text-button text-on-surface-variant py-2" href="/good-deeds">Good Deeds</a>
+<a class="block bg-primary text-on-primary text-center px-6 py-3 rounded-full font-button text-button" href="/donate">Donate</a>
+</div>
+</nav>
+<main class="pt-32">
+<!-- Hero Section -->
+<section class="max-w-container-max mx-auto px-gutter mb-stack-lg">
+<div class="max-w-[720px]">
+<span class="font-label-caps text-label-caps text-secondary mb-4 block">PARTNER WITH US</span>
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg mb-6 text-primary">Support the SoFa Community</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-8 leading-relaxed">
+Your generosity ensures that the SoFa remains a warm, welcoming spiritual home for everyone. Help us ignite the soul of Judaism through prayer, celebration, and friendship — built on unconditional love, <em>Ahavat Yisrael</em>.
+</p>
+</div>
+</section>
+<!-- Giving levels (informational) -->
+<section class="max-w-container-max mx-auto px-gutter mb-section-gap">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="bg-white p-8 rounded-xl premium-shadow border border-surface-variant/40">
+<div class="flex justify-between items-start mb-6">
+<div class="bg-soft-cream p-3 rounded-lg text-secondary"><span class="material-symbols-outlined text-2xl">volunteer_activism</span></div>
+<span class="font-display-lg text-headline-sm text-primary">$36</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-2 text-primary">Double Chai</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Supports a seat at our weekly community Shabbos table.</p>
+</div>
+<div class="bg-white p-8 rounded-xl premium-shadow border border-surface-variant/40">
+<div class="flex justify-between items-start mb-6">
+<div class="bg-soft-cream p-3 rounded-lg text-secondary"><span class="material-symbols-outlined text-2xl">menu_book</span></div>
+<span class="font-display-lg text-headline-sm text-primary">$180</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-2 text-primary">Torah Pillar</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Sponsors a month of educational materials for our Weekly Shiur.</p>
+</div>
+<div class="bg-white p-8 rounded-xl premium-shadow border border-surface-variant/40">
+<div class="flex justify-between items-start mb-6">
+<div class="bg-soft-cream p-3 rounded-lg text-secondary"><span class="material-symbols-outlined text-2xl">diversity_1</span></div>
+<span class="font-display-lg text-headline-sm text-primary">$500</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-2 text-primary">Community Anchor</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Helps fund a community-wide holiday celebration for all families.</p>
+</div>
+</div>
+</section>
+<div class="sofa-divider"></div>
+<!-- Give Section: Impact + real Stripe button -->
+<section class="max-w-container-max mx-auto px-gutter mb-section-gap">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+<!-- Impact -->
+<div class="lg:col-span-5 space-y-12">
+<div>
+<h2 class="font-headline-md text-headline-md mb-6 text-primary">Your Impact</h2>
+<div class="bg-white p-8 rounded-xl premium-shadow space-y-6">
+<div class="flex items-center gap-4"><span class="material-symbols-outlined text-sage-status">check_circle</span><p class="font-body-md text-body-md">Sustaining lively Shabbos &amp; holiday services, open to all.</p></div>
+<div class="flex items-center gap-4"><span class="material-symbols-outlined text-sage-status">check_circle</span><p class="font-body-md text-body-md">Weekly Torah study and the Shabbos Table Dvar Torah.</p></div>
+<div class="flex items-center gap-4"><span class="material-symbols-outlined text-sage-status">check_circle</span><p class="font-body-md text-body-md">Career guidance and mental health support for our members.</p></div>
+<div class="flex items-center gap-4"><span class="material-symbols-outlined text-sage-status">check_circle</span><p class="font-body-md text-body-md">A comfortable, family-focused community home for every Jew.</p></div>
+</div>
+</div>
+<div class="relative rounded-xl overflow-hidden h-64 w-full">
+<div class="absolute inset-0 bg-cover bg-center" style="background-image: url('/assets/img/donate-img.jpg')"></div>
+</div>
+</div>
+<!-- Real donation -->
+<div class="lg:col-span-7 bg-white p-8 md:p-10 rounded-xl premium-shadow text-center">
+<div class="w-14 h-14 bg-soft-cream rounded-2xl flex items-center justify-center text-secondary mx-auto mb-5"><span class="material-symbols-outlined text-3xl">favorite</span></div>
+<h2 class="font-headline-md text-headline-md mb-2 text-primary">Make a Donation</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-8">Give with an open heart. Secure giving powered by Stripe.</p>
+<!-- Stripe Buy Button (live, from the current site) -->
+<stripe-buy-button
+buy-button-id="buy_btn_1Tb1mgLMjVclDp8Qk5BUfjEb"
+publishable-key="pk_live_51TX5DNLMjVclDp8QduohZprWr4rrpOcfjZfqEHHelZHT0YIWhgnRg9jIgxPHtAIp3Q8nWckzZR36DtVDfGwgq5iL00zIlJdkEt">
+</stripe-buy-button>
+<div class="flex items-center justify-center gap-2 text-on-surface-variant opacity-70 mt-8">
+<span class="material-symbols-outlined text-sm">lock</span>
+<span class="font-button text-xs">Encrypted &amp; secure transaction</span>
+</div>
+<p class="font-body-md text-sm text-on-surface-variant mt-4">If the button doesn't appear, please <a class="text-secondary hover:underline" href="/about#contact">contact us</a> and we'll be glad to help.</p>
+</div>
+</div>
+</section>
+</main>
+<!--#FOOTER#-->
+<footer class="bg-surface border-t border-outline-variant">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-stack-lg px-gutter py-section-gap max-w-container-max mx-auto">
+<div class="md:col-span-2">
+<h2 class="font-display-lg text-headline-md text-primary mb-4">SoFa JCC</h2>
+<p class="font-body-md text-on-surface-variant max-w-[320px] mb-4">A warm and welcoming Chabad Jewish Community Center. Pray. Celebrate. Love. Friendship.</p>
+<p class="font-body-md italic text-secondary text-sm">Inspired by the Rebbe's vision &middot; Ahavat Yisrael</p>
+</div>
+<div>
+<h4 class="font-label-caps text-label-caps text-primary mb-6">Explore</h4>
+<ul class="space-y-3">
+<li><a class="font-body-md text-on-surface-variant hover:text-secondary transition-colors" href="/home">Home</a></li>
+<li><a class="font-body-md text-on-surface-variant hover:text-secondary transition-colors" href="/about">About</a></li>
+<li><a class="font-body-md text-on-surface-variant hover:text-secondary transition-colors" href="/good-deeds">Good Deeds</a></li>
+<li><a class="font-body-md text-on-surface-variant hover:text-secondary transition-colors" href="/donate">Donate</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-caps text-label-caps text-primary mb-6">Visit &amp; Connect</h4>
+<ul class="space-y-3 font-body-md text-on-surface-variant">
+<li>1748 South Hayworth Avenue<br/>Los Angeles, CA 90035</li>
+<li><a class="hover:text-secondary transition-colors" href="tel:+18584012037">(858) 401-2037</a></li>
+<li><a class="hover:text-secondary transition-colors" href="mailto:office@sofajcc.org">office@sofajcc.org</a></li>
+</ul>
+</div>
+</div>
+<div class="max-w-container-max mx-auto px-gutter py-8 border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="font-body-md text-on-surface-variant text-sm">&copy; <span id="yr">2026</span> SoFa Jewish Community Center, Inc. &middot; A California Religious Nonprofit Corporation</p>
+<p class="font-body-md text-on-surface-variant text-sm">Tax-deductible &middot; EIN 41-2361116</p>
+</div>
+</footer>
+<script src="/assets/nav.js"></script>
 </body>
 </html>

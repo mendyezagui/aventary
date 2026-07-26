@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom component styles (from Stitch design) */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  vertical-align: middle;
+}
+.glass-nav { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.sofa-divider::after {
+  content: "+"; display: block; text-align: center;
+  font-family: 'Playfair Display', serif; color: #775a19; font-size: 2rem; opacity: 0.55; margin: 4rem 0;
+}
+.ambient-shadow { box-shadow: 0 10px 40px -10px rgba(15, 23, 42, 0.05); }
+.ambient-shadow-hover { transition: transform .3s ease, box-shadow .3s ease; }
+.ambient-shadow-hover:hover { box-shadow: 0 20px 50px -15px rgba(15, 23, 42, 0.08); transform: translateY(-4px); }
+.soft-card-shadow { box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.05); }
+.hover-lift { transition: transform .3s ease, box-shadow .3s ease; }
+.hover-lift:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08); }
+.premium-shadow { box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05); transition: all .3s ease; }
+.premium-shadow:hover { box-shadow: 0 20px 40px -5px rgba(15, 23, 42, 0.08); transform: translateY(-2px); }
+.hero-gradient { background: linear-gradient(to right, rgba(249,246,240,1) 40%, rgba(249,246,240,0) 100%); }
+stripe-buy-button { display: block; }
+
+html { scroll-behavior: smooth; }
