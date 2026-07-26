@@ -1,0 +1,8 @@
+# Cloudflare Pages redirects
+# Preserve the Google Sites URL structure: root -> /home (301), matching current behavior.
+/            /home        301
+/index.html  /home        301
+
+# Legacy / alternate paths -> canonical pages
+/index       /home        301
+/contact     /about#contact   301
