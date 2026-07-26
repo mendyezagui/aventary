@@ -1,0 +1,175 @@
+/* SoFa Jewish Community Center — shared styles */
+:root {
+  --navy: #17335c;
+  --navy-deep: #0f2542;
+  --gold: #c99a3f;
+  --gold-soft: #e6cd93;
+  --cream: #faf6ee;
+  --cream-2: #f3ecdd;
+  --ink: #23272e;
+  --muted: #5c6470;
+  --line: #e7ddc8;
+  --white: #ffffff;
+  --radius: 16px;
+  --shadow: 0 10px 30px rgba(23, 51, 92, 0.08);
+  --shadow-lg: 0 20px 50px rgba(15, 37, 66, 0.14);
+  --wrap: 1080px;
+  --font: "Georgia", "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--cream);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: var(--navy); }
+
+.wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 22px; }
+
+/* ---------- Header ---------- */
+.site-header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(250, 246, 238, 0.92);
+  backdrop-filter: saturate(140%) blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 14px 22px; max-width: var(--wrap); margin: 0 auto;
+}
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--navy); }
+.brand svg { width: 42px; height: 42px; flex: none; }
+.brand-name { font-family: var(--font); font-weight: 700; font-size: 1.18rem; letter-spacing: .2px; line-height: 1.1; }
+.brand-name span { display: block; font-family: var(--sans); font-weight: 600; font-size: .62rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); margin-top: 2px; }
+.menu { display: flex; align-items: center; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.menu a {
+  text-decoration: none; color: var(--ink); font-weight: 600; font-size: .95rem;
+  padding: 8px 14px; border-radius: 999px; transition: background .15s, color .15s;
+}
+.menu a:hover { background: var(--cream-2); }
+.menu a.active { color: var(--navy); background: var(--cream-2); }
+.menu a.donate {
+  background: var(--navy); color: #fff; padding: 9px 18px;
+}
+.menu a.donate:hover { background: var(--navy-deep); }
+.nav-toggle { display: none; background: none; border: 0; cursor: pointer; padding: 8px; }
+.nav-toggle span { display: block; width: 24px; height: 2px; background: var(--navy); margin: 5px 0; border-radius: 2px; }
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(1200px 500px at 80% -10%, rgba(201,154,63,.22), transparent 60%),
+    linear-gradient(160deg, var(--navy) 0%, var(--navy-deep) 100%);
+  color: #fff; text-align: center;
+  padding: 88px 22px 96px;
+}
+.hero h1 {
+  font-family: var(--font); font-weight: 700; margin: 0 0 14px;
+  font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.1;
+}
+.hero .kicker {
+  display: inline-block; font-size: .72rem; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold-soft); font-weight: 700; margin-bottom: 18px;
+}
+.hero .tagline { font-size: clamp(1.05rem, 2.4vw, 1.4rem); color: #eaf0f8; font-weight: 400; margin: 0 auto; max-width: 620px; }
+.hero .cta-row { margin-top: 30px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-block; text-decoration: none; font-weight: 700; font-size: .98rem;
+  padding: 13px 26px; border-radius: 999px; cursor: pointer; border: 2px solid transparent;
+  transition: transform .12s ease, background .15s, color .15s, box-shadow .15s;
+}
+.btn:active { transform: translateY(1px); }
+.btn-gold { background: var(--gold); color: #2a1e05; }
+.btn-gold:hover { background: var(--gold-soft); }
+.btn-ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.6); }
+.btn-ghost:hover { background: rgba(255,255,255,.12); }
+.btn-navy { background: var(--navy); color: #fff; }
+.btn-navy:hover { background: var(--navy-deep); }
+
+/* ---------- Sections ---------- */
+.section { padding: 66px 0; }
+.section.alt { background: var(--cream-2); }
+.section-head { text-align: center; max-width: 680px; margin: 0 auto 44px; }
+.eyebrow { font-size: .72rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+.section h2 { font-family: var(--font); font-size: clamp(1.7rem, 3.6vw, 2.4rem); margin: 10px 0 12px; color: var(--navy); }
+.lead { font-size: 1.12rem; color: var(--muted); }
+.prose { max-width: 720px; margin: 0 auto; }
+.prose p { margin: 0 0 18px; font-size: 1.08rem; }
+.prose h3 { font-family: var(--font); color: var(--navy); font-size: 1.4rem; margin: 34px 0 10px; }
+
+/* ---------- Program cards ---------- */
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.card {
+  background: var(--white); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 26px 22px; text-align: center; box-shadow: var(--shadow);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.card .ic {
+  width: 54px; height: 54px; margin: 0 auto 14px; border-radius: 14px;
+  display: grid; place-items: center; background: var(--cream-2); color: var(--navy);
+}
+.card .ic svg { width: 28px; height: 28px; }
+.card h3 { margin: 0 0 6px; font-family: var(--font); color: var(--navy); font-size: 1.15rem; }
+.card p { margin: 0; color: var(--muted); font-size: .95rem; }
+
+/* ---------- Panels / embeds ---------- */
+.panel {
+  background: var(--white); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.panel-head { padding: 18px 24px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.panel-head h3 { margin: 0; font-family: var(--font); color: var(--navy); font-size: 1.2rem; }
+.tag { font-size: .62rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; color: var(--gold); background: var(--cream-2); padding: 4px 10px; border-radius: 999px; }
+.embed-frame { width: 100%; border: 0; display: block; background: var(--cream); }
+
+/* Donate layout */
+.donate-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 34px; align-items: start; }
+.donate-card { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px; text-align: center; }
+.give-list { list-style: none; padding: 0; margin: 22px 0 0; }
+.give-list li { padding: 12px 0; border-top: 1px solid var(--line); display: flex; gap: 12px; align-items: flex-start; }
+.give-list li:first-child { border-top: 0; }
+.give-list .chk { color: var(--gold); flex: none; margin-top: 3px; }
+
+/* CTA band */
+.cta-band { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-deep) 100%); color: #fff; text-align: center; padding: 62px 22px; }
+.cta-band h2 { font-family: var(--font); font-size: clamp(1.6rem, 3.4vw, 2.2rem); margin: 0 0 10px; }
+.cta-band p { color: #dbe4f1; margin: 0 auto 26px; max-width: 560px; }
+
+/* ---------- Footer ---------- */
+.site-footer { background: var(--navy-deep); color: #cdd7e6; padding: 48px 22px 30px; }
+.footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 30px; max-width: var(--wrap); margin: 0 auto; }
+.site-footer .brand-name { color: #fff; }
+.site-footer h4 { color: #fff; font-size: .8rem; letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 14px; }
+.site-footer a { color: #cdd7e6; text-decoration: none; }
+.site-footer a:hover { color: #fff; text-decoration: underline; }
+.site-footer ul { list-style: none; padding: 0; margin: 0; }
+.site-footer li { margin-bottom: 9px; }
+.footer-bottom { max-width: var(--wrap); margin: 30px auto 0; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.12); font-size: .85rem; color: #9fb0c6; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .cards { grid-template-columns: repeat(2, 1fr); }
+  .donate-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .menu { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: stretch; background: var(--cream); border-bottom: 1px solid var(--line); padding: 10px 16px 16px; gap: 4px; }
+  .menu.open { display: flex; }
+  .menu a { padding: 12px 14px; }
+  .menu a.donate { text-align: center; }
+  .nav-toggle { display: block; }
+  .cards { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .hero { padding: 64px 20px 70px; }
+}
