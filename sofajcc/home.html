@@ -7,18 +7,18 @@
 <meta name="description" content="SoFa Community welcomes you. A warm and welcoming Chabad Jewish Community Center in Los Angeles — prayer, Torah study, holidays, and heartfelt community connection. Pray. Celebrate. Love. Friendship."/>
 <link rel="canonical" href="https://www.sofajcc.org/home"/>
 <meta name="robots" content="index, follow"/>
-<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"/>
-<link rel="apple-touch-icon" href="/assets/favicon.svg"/>
+<link rel="icon" href="/assets/img/sofa-favicon.png" type="image/png"/>
+<link rel="apple-touch-icon" href="/assets/img/sofa-icon.png"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="SoFa Jewish Community Center"/>
 <meta property="og:title" content="SoFa Jewish Community Center"/>
 <meta property="og:description" content="A warm and welcoming Chabad Jewish Community Center. Pray. Celebrate. Love. Friendship. Come sit, learn, and grow with us."/>
 <meta property="og:url" content="https://www.sofajcc.org/home"/>
-<meta property="og:image" content="https://www.sofajcc.org/assets/og.svg"/>
+<meta property="og:image" content="https://www.sofajcc.org/assets/img/sofa-brand.jpg"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="SoFa Jewish Community Center"/>
 <meta name="twitter:description" content="A warm and welcoming Chabad Jewish Community Center. Pray. Celebrate. Love. Friendship."/>
-<meta name="twitter:image" content="https://www.sofajcc.org/assets/og.svg"/>
+<meta name="twitter:image" content="https://www.sofajcc.org/assets/img/sofa-brand.jpg"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="/assets/tailwind.css" rel="stylesheet"/>
@@ -29,7 +29,7 @@
   "name": "SoFa Jewish Community Center",
   "alternateName": "The Sofa JCC",
   "url": "https://www.sofajcc.org/home",
-  "logo": "https://www.sofajcc.org/assets/og.svg",
+  "logo": "https://www.sofajcc.org/assets/img/sofa-brand.jpg",
   "email": "office@sofajcc.org",
   "telephone": "+1-858-401-2037",
   "address": { "@type": "PostalAddress", "streetAddress": "1748 South Hayworth Avenue", "addressLocality": "Los Angeles", "addressRegion": "CA", "postalCode": "90035", "addressCountry": "US" },
@@ -41,7 +41,7 @@
 <!-- Top Navigation Bar -->
 <nav class="fixed top-0 w-full z-50 bg-soft-cream/80 backdrop-blur-md shadow-sm transition-all duration-300 ease-in-out" id="siteNav">
 <div class="flex justify-between items-center px-gutter py-4 max-w-container-max mx-auto">
-<a class="font-display-lg text-headline-sm text-primary tracking-tighter" href="/home">SoFa JCC</a>
+<a class="flex items-center gap-2 font-display-lg text-headline-sm text-primary tracking-tighter" href="/home"><img src="/assets/img/sofa-icon.png" alt="SoFa JCC logo" class="w-9 h-9"/>SoFa JCC</a>
 <div class="hidden md:flex items-center gap-stack-lg">
 <a class="font-button text-button text-primary border-b-2 border-secondary pb-1 transition-colors duration-300" href="/home">Home</a>
 <a class="font-button text-button text-on-surface-variant hover:text-secondary transition-colors duration-300" href="/about">About</a>
@@ -59,28 +59,23 @@
 </nav>
 <main class="mt-20">
 <!-- Hero Section -->
-<section class="relative min-h-[640px] md:min-h-[780px] flex items-center overflow-hidden">
-<div class="absolute inset-0 z-0 flex">
-<div class="w-full md:w-1/2 bg-soft-cream z-10 hidden md:block"></div>
-<div class="w-full md:w-1/2 relative h-full">
-<div class="absolute inset-0 hero-gradient z-20 hidden md:block"></div>
-<div class="h-full w-full bg-cover bg-center" style="background-image: url('/assets/img/home-hero.jpg')"></div>
-</div>
-</div>
-<div class="absolute inset-0 bg-soft-cream/70 md:bg-transparent z-10"></div>
-<div class="relative z-30 max-w-container-max mx-auto px-gutter w-full">
-<div class="max-w-[640px]">
+<section class="max-w-container-max mx-auto px-gutter pt-6 pb-10 md:pt-10 md:pb-14">
+<div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+<div class="max-w-[640px] order-2 md:order-1">
 <span class="font-label-caps text-label-caps text-secondary mb-4 block">B'RUCHIM HABA'IM</span>
-<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-6">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-5">
 SoFa Community Welcomes You
 </h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant mb-10 border-l-2 border-secondary pl-6 italic">
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-8 border-l-2 border-secondary pl-6 italic">
 Pray + Celebrate + Love + Friendship
 </p>
 <div class="flex flex-col sm:flex-row gap-4">
 <a class="bg-primary text-on-primary px-10 py-4 rounded-full font-button text-button inline-block text-center hover:bg-secondary transition-all duration-300" href="#welcome">Discover SoFa</a>
 <a class="border border-secondary text-secondary px-10 py-4 rounded-full font-button text-button inline-block text-center hover:bg-secondary-container transition-all duration-300" href="/about#contact">Get in Touch</a>
 </div>
+</div>
+<div class="order-1 md:order-2">
+<img src="/assets/img/sofa-lockup.jpg" alt="The SoFa Jewish Community Center — a warm home for Jewish life" class="w-full max-w-[460px] mx-auto"/>
 </div>
 </div>
 </section>
@@ -155,25 +150,22 @@ Learn about our mission
 </div>
 </section>
 <!-- Dvar Torah Section -->
-<section class="py-section-gap max-w-container-max mx-auto px-gutter sofa-divider">
-<div class="bg-white rounded-2xl overflow-hidden ambient-shadow flex flex-col md:flex-row border border-outline-variant/20">
-<div class="md:w-2/5 relative h-64 md:h-auto">
-<div class="h-full w-full bg-cover bg-center" style="background-image: url('/assets/img/home-dvar.jpg')"></div>
-<div class="absolute top-6 left-6">
-<span class="bg-sage-status text-white text-xs font-label-caps px-3 py-1 rounded-full uppercase tracking-widest">Updated Weekly</span>
+<section class="py-section-gap max-w-container-max mx-auto px-gutter">
+<div class="bg-white rounded-2xl ambient-shadow border border-outline-variant/20 p-gutter md:p-stack-lg flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+<div class="flex-1">
+<div class="flex items-center gap-3 mb-3">
+<span class="font-label-caps text-label-caps text-secondary block">LEARN WITH US</span>
+<span class="bg-sage-status text-white text-[10px] font-label-caps px-3 py-1 rounded-full uppercase tracking-widest">Updated Weekly</span>
 </div>
-</div>
-<div class="md:w-3/5 p-gutter md:p-stack-lg flex flex-col justify-center">
-<span class="font-label-caps text-label-caps text-secondary mb-4 block">LEARN WITH US</span>
-<h2 class="font-headline-md text-headline-md text-primary mb-4">Shabbos Table Dvar Torah</h2>
-<p class="text-on-surface-variant font-body-lg mb-8 max-w-[500px]">
+<h2 class="font-headline-md text-headline-md text-primary mb-3">Shabbos Table Dvar Torah</h2>
+<p class="text-on-surface-variant font-body-md max-w-[560px]">
 "This Week's Vort" — a short weekly Torah thought designed for your Shabbos table to ignite conversation and connection.
 </p>
-<a class="text-primary font-button text-button group flex items-center gap-3" href="https://docs.google.com/document/d/1khotQ-cPlYrS90Bp4ns1PhuWbHrbEWAib1o7b-3ud50/preview" target="_blank" rel="noopener">
-Open the full Dvar Torah
-<span class="material-symbols-outlined text-secondary transition-transform group-hover:translate-x-2">arrow_right_alt</span>
-</a>
 </div>
+<a class="shrink-0 bg-primary text-on-primary px-8 py-4 rounded-full font-button text-button inline-flex items-center gap-3 hover:bg-secondary transition-all" href="https://docs.google.com/document/d/1khotQ-cPlYrS90Bp4ns1PhuWbHrbEWAib1o7b-3ud50/preview" target="_blank" rel="noopener">
+Open the full Dvar Torah
+<span class="material-symbols-outlined">arrow_right_alt</span>
+</a>
 </div>
 </section>
 <!-- Final CTA Section -->

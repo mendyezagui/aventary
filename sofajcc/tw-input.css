@@ -11,7 +11,7 @@
 .glass-nav { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .sofa-divider::after {
   content: "+"; display: block; text-align: center;
-  font-family: 'Playfair Display', serif; color: #775a19; font-size: 2rem; opacity: 0.55; margin: 4rem 0;
+  font-family: 'Playfair Display', serif; color: #775a19; font-size: 2rem; opacity: 0.55; margin: 2rem 0;
 }
 .ambient-shadow { box-shadow: 0 10px 40px -10px rgba(15, 23, 42, 0.05); }
 .ambient-shadow-hover { transition: transform .3s ease, box-shadow .3s ease; }

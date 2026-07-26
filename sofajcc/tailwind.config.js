@@ -25,7 +25,7 @@ module.exports = {
       },
       borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
       spacing: {
-        "section-gap": "8rem", "stack-lg": "3rem", "container-max": "1280px", "stack-sm": "0.5rem",
+        "section-gap": "4rem", "stack-lg": "2.25rem", "container-max": "1280px", "stack-sm": "0.5rem",
         "stack-md": "1.5rem", "margin-mobile": "1rem", "gutter": "2rem"
       },
       fontFamily: {
