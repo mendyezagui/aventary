@@ -25,3 +25,5 @@
 stripe-buy-button { display: block; }
 
 html { scroll-behavior: smooth; }
+
+[id] { scroll-margin-top: 5.5rem; }
