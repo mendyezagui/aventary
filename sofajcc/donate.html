@@ -44,113 +44,93 @@
 <a class="block bg-primary text-on-primary text-center px-6 py-3 rounded-full font-button text-button" href="/donate">Donate</a>
 </div>
 </nav>
-<main class="pt-24">
-<!-- Hero Section -->
-<section class="max-w-container-max mx-auto px-gutter mb-10">
-<div class="max-w-[720px]">
-<span class="font-label-caps text-label-caps text-secondary mb-4 block">PARTNER WITH US</span>
-<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg mb-6 text-primary">Support the SoFa Community</h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant mb-8 leading-relaxed">
-Your generosity ensures that the SoFa remains a warm, welcoming spiritual home for everyone. Help us ignite the soul of Judaism through prayer, celebration, and friendship — built on unconditional love, <em>Ahavat Yisrael</em>.
-</p>
-</div>
+<main class="pt-20">
+<!-- Hero (compact) -->
+<section class="max-w-container-max mx-auto px-gutter pt-4 pb-6 text-center">
+<span class="font-label-caps text-label-caps text-secondary mb-3 block">PARTNER WITH US</span>
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg mb-3 text-primary">Support the SoFa Community</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-[640px] mx-auto">Your generosity keeps the SoFa a warm, welcoming spiritual home — prayer, celebration, and friendship built on unconditional love, <em>Ahavat Yisrael</em>.</p>
 </section>
-<!-- Giving levels (informational) -->
-<section class="max-w-container-max mx-auto px-gutter mb-12">
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-<div class="bg-white p-8 rounded-xl premium-shadow border border-surface-variant/40">
-<div class="flex justify-between items-start mb-6">
-<div class="bg-soft-cream p-3 rounded-lg text-secondary"><span class="material-symbols-outlined text-2xl">volunteer_activism</span></div>
-<span class="font-display-lg text-headline-sm text-primary">$36</span>
-</div>
-<h3 class="font-headline-sm text-headline-sm mb-2 text-primary">Double Chai</h3>
-<p class="font-body-md text-body-md text-on-surface-variant">Supports a seat at our weekly community Shabbos table.</p>
-</div>
-<div class="bg-white p-8 rounded-xl premium-shadow border border-surface-variant/40">
-<div class="flex justify-between items-start mb-6">
-<div class="bg-soft-cream p-3 rounded-lg text-secondary"><span class="material-symbols-outlined text-2xl">menu_book</span></div>
-<span class="font-display-lg text-headline-sm text-primary">$180</span>
-</div>
-<h3 class="font-headline-sm text-headline-sm mb-2 text-primary">Torah Pillar</h3>
-<p class="font-body-md text-body-md text-on-surface-variant">Sponsors a month of educational materials for our Weekly Shiur.</p>
-</div>
-<div class="bg-white p-8 rounded-xl premium-shadow border border-surface-variant/40">
-<div class="flex justify-between items-start mb-6">
-<div class="bg-soft-cream p-3 rounded-lg text-secondary"><span class="material-symbols-outlined text-2xl">diversity_1</span></div>
-<span class="font-display-lg text-headline-sm text-primary">$500</span>
-</div>
-<h3 class="font-headline-sm text-headline-sm mb-2 text-primary">Community Anchor</h3>
-<p class="font-body-md text-body-md text-on-surface-variant">Helps fund a community-wide holiday celebration for all families.</p>
-</div>
-</div>
-</section>
-<!-- Give Section: Impact + real Stripe button -->
-<section class="max-w-container-max mx-auto px-gutter mb-16">
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
-<!-- Impact -->
-<div class="lg:col-span-5">
-<h2 class="font-headline-md text-headline-md mb-6 text-primary">Your Impact</h2>
-<div class="bg-white p-8 rounded-xl premium-shadow space-y-5">
-<div class="flex items-center gap-4"><span class="material-symbols-outlined text-sage-status">check_circle</span><p class="font-body-md text-body-md">Sustaining lively Shabbos &amp; holiday services, open to all.</p></div>
-<div class="flex items-center gap-4"><span class="material-symbols-outlined text-sage-status">check_circle</span><p class="font-body-md text-body-md">Weekly Torah study and the Shabbos Table Dvar Torah.</p></div>
-<div class="flex items-center gap-4"><span class="material-symbols-outlined text-sage-status">check_circle</span><p class="font-body-md text-body-md">Career guidance and mental health support for our members.</p></div>
-<div class="flex items-center gap-4"><span class="material-symbols-outlined text-sage-status">check_circle</span><p class="font-body-md text-body-md">A comfortable, family-focused community home for every Jew.</p></div>
-</div>
-</div>
-<!-- Real donation -->
-<div class="lg:col-span-7 bg-white p-8 md:p-10 rounded-xl premium-shadow text-center">
-<div class="w-14 h-14 bg-soft-cream rounded-2xl flex items-center justify-center text-secondary mx-auto mb-5"><span class="material-symbols-outlined text-3xl">favorite</span></div>
-<h2 class="font-headline-md text-headline-md mb-2 text-primary">Make a Donation</h2>
-<p class="font-body-md text-body-md text-on-surface-variant mb-8">Give with an open heart. Secure giving powered by Stripe.</p>
+<!-- TOP MODULE: Make a Donation -->
+<section class="max-w-container-max mx-auto px-gutter mb-8">
+<div class="bg-white p-6 md:p-8 rounded-xl premium-shadow max-w-[760px] mx-auto text-center">
+<div class="w-12 h-12 bg-soft-cream rounded-2xl flex items-center justify-center text-secondary mx-auto mb-4"><span class="material-symbols-outlined text-2xl">favorite</span></div>
+<h2 class="font-headline-md text-headline-md mb-1 text-primary">Make a Donation</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Give with an open heart. Secure giving powered by Stripe.</p>
 <!-- Stripe Buy Button (live, from the current site) -->
 <stripe-buy-button
 buy-button-id="buy_btn_1Tb1mgLMjVclDp8Qk5BUfjEb"
 publishable-key="pk_live_51TX5DNLMjVclDp8QduohZprWr4rrpOcfjZfqEHHelZHT0YIWhgnRg9jIgxPHtAIp3Q8nWckzZR36DtVDfGwgq5iL00zIlJdkEt">
 </stripe-buy-button>
-<div class="flex items-center justify-center gap-2 text-on-surface-variant opacity-70 mt-8">
-<span class="material-symbols-outlined text-sm">lock</span>
-<span class="font-button text-xs">Encrypted &amp; secure transaction</span>
+<div class="flex items-center justify-center gap-2 text-on-surface-variant opacity-70 mt-6"><span class="material-symbols-outlined text-sm">lock</span><span class="font-button text-xs">Encrypted &amp; secure transaction</span></div>
+<!-- compact impact row -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 text-left mt-6 pt-6 border-t border-surface-variant/50">
+<div class="flex items-start gap-2"><span class="material-symbols-outlined text-sage-status text-lg">check_circle</span><p class="font-body-md text-sm text-on-surface-variant">Lively Shabbos &amp; holiday services, open to all.</p></div>
+<div class="flex items-start gap-2"><span class="material-symbols-outlined text-sage-status text-lg">check_circle</span><p class="font-body-md text-sm text-on-surface-variant">Weekly Torah study &amp; the Shabbos Dvar Torah.</p></div>
+<div class="flex items-start gap-2"><span class="material-symbols-outlined text-sage-status text-lg">check_circle</span><p class="font-body-md text-sm text-on-surface-variant">Career guidance &amp; mental health support.</p></div>
+<div class="flex items-start gap-2"><span class="material-symbols-outlined text-sage-status text-lg">check_circle</span><p class="font-body-md text-sm text-on-surface-variant">A family-focused community home for every Jew.</p></div>
 </div>
-<p class="font-body-md text-sm text-on-surface-variant mt-4">If the button doesn't appear, please <a class="text-secondary hover:underline" href="/about#contact">contact us</a> and we'll be glad to help.</p>
-</div>
+<p class="font-body-md text-sm text-on-surface-variant mt-5">If the button doesn't appear, please <a class="text-secondary hover:underline" href="/about#contact">contact us</a> and we'll be glad to help.</p>
 </div>
 </section>
-<!-- Things We Need (in-kind wishlist) -->
-<section class="max-w-container-max mx-auto px-gutter mb-16" id="wishlist">
-<div class="max-w-[720px] mb-8">
-<span class="font-label-caps text-label-caps text-secondary mb-4 block">THINGS WE NEED</span>
-<h2 class="font-headline-md text-headline-md mb-4 text-primary">Sponsor a Gift for the Shul</h2>
-<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">Prefer to give something tangible? These are sefarim our community is building toward. Sponsor a set directly from the publisher, then <a class="text-secondary hover:underline" href="/about#contact">let us know</a> so we can arrange delivery to the SoFa.</p>
+<!-- Things We Need (same level — in-kind wishlist) -->
+<section class="max-w-container-max mx-auto px-gutter mb-8" id="wishlist">
+<div class="max-w-[760px] mx-auto flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 mb-5">
+<div>
+<span class="font-label-caps text-label-caps text-secondary block mb-1">THINGS WE NEED</span>
+<h2 class="font-headline-md text-headline-md text-primary">Sponsor a Gift for the Shul</h2>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<p class="font-body-md text-sm text-on-surface-variant max-w-[340px]">Sponsor a set from the publisher, then <a class="text-secondary hover:underline" href="/about#contact">let us know</a> to arrange delivery.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-[760px] mx-auto">
 <!-- Item 1 -->
-<div class="bg-white p-8 rounded-xl premium-shadow border border-surface-variant/40 flex flex-col">
-<div class="flex items-start justify-between mb-5">
-<div class="bg-soft-cream p-3 rounded-lg text-secondary"><span class="material-symbols-outlined text-2xl">auto_stories</span></div>
+<div class="bg-white p-6 rounded-xl premium-shadow border border-surface-variant/40 flex flex-col">
+<div class="flex items-start justify-between mb-4">
+<div class="bg-soft-cream p-2.5 rounded-lg text-secondary"><span class="material-symbols-outlined text-xl">auto_stories</span></div>
 <span class="bg-secondary-fixed/50 text-secondary font-label-caps text-label-caps px-3 py-1 rounded-full whitespace-nowrap">2 sets needed</span>
 </div>
 <h3 class="font-headline-sm text-headline-sm mb-2 text-primary">Lessons in Sefer HaMaamarim of the Rebbe</h3>
-<p class="font-body-md text-body-md text-on-surface-variant mb-6">A 3-volume set of the Rebbe's ma'amarim, adapted into clear English lessons for study and reflection.</p>
-<div class="mt-auto flex flex-wrap items-center justify-between gap-4 pt-5 border-t border-surface-variant/50">
+<p class="font-body-md text-sm text-on-surface-variant mb-4">A 3-volume set of the Rebbe's ma'amarim, in clear English.</p>
+<div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-surface-variant/50">
 <span class="font-body-md text-body-md text-primary"><span class="font-semibold">$91.65</span> <span class="text-on-surface-variant text-sm">/ set</span></span>
-<a class="inline-flex items-center gap-1.5 bg-primary text-on-primary px-6 py-3 rounded-full font-button text-button hover:bg-secondary transition-colors" href="https://shop.sie.org/collections/likkutei-sichos/products/lessons-in-sefer-hamaamarim-of-the-rebbe-set-1" target="_blank" rel="noopener">Sponsor a set <span class="material-symbols-outlined text-[18px]">open_in_new</span></a>
+<a class="inline-flex items-center gap-1.5 bg-primary text-on-primary px-5 py-2.5 rounded-full font-button text-button hover:bg-secondary transition-colors" href="https://shop.sie.org/collections/likkutei-sichos/products/lessons-in-sefer-hamaamarim-of-the-rebbe-set-1" target="_blank" rel="noopener">Sponsor a set <span class="material-symbols-outlined text-[18px]">open_in_new</span></a>
 </div>
 </div>
 <!-- Item 2 -->
-<div class="bg-white p-8 rounded-xl premium-shadow border border-surface-variant/40 flex flex-col">
-<div class="flex items-start justify-between mb-5">
-<div class="bg-soft-cream p-3 rounded-lg text-secondary"><span class="material-symbols-outlined text-2xl">menu_book</span></div>
+<div class="bg-white p-6 rounded-xl premium-shadow border border-surface-variant/40 flex flex-col">
+<div class="flex items-start justify-between mb-4">
+<div class="bg-soft-cream p-2.5 rounded-lg text-secondary"><span class="material-symbols-outlined text-xl">menu_book</span></div>
 <span class="bg-secondary-fixed/50 text-secondary font-label-caps text-label-caps px-3 py-1 rounded-full whitespace-nowrap">2 sets needed</span>
 </div>
 <h3 class="font-headline-sm text-headline-sm mb-2 text-primary">Selections from Likkutei Sichos</h3>
-<p class="font-body-md text-body-md text-on-surface-variant mb-6">A 5-volume set of the Rebbe's teachings on the weekly parsha, in accessible English.</p>
-<div class="mt-auto flex flex-wrap items-center justify-between gap-4 pt-5 border-t border-surface-variant/50">
+<p class="font-body-md text-sm text-on-surface-variant mb-4">A 5-volume set of the Rebbe's teachings on the weekly parsha.</p>
+<div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-surface-variant/50">
 <span class="font-body-md text-body-md text-primary"><span class="font-semibold">$199.99</span> <span class="text-on-surface-variant text-sm">/ set</span></span>
-<a class="inline-flex items-center gap-1.5 bg-primary text-on-primary px-6 py-3 rounded-full font-button text-button hover:bg-secondary transition-colors" href="https://shop.sie.org/products/likkutei-sichos-set" target="_blank" rel="noopener">Sponsor a set <span class="material-symbols-outlined text-[18px]">open_in_new</span></a>
+<a class="inline-flex items-center gap-1.5 bg-primary text-on-primary px-5 py-2.5 rounded-full font-button text-button hover:bg-secondary transition-colors" href="https://shop.sie.org/products/likkutei-sichos-set" target="_blank" rel="noopener">Sponsor a set <span class="material-symbols-outlined text-[18px]">open_in_new</span></a>
 </div>
 </div>
 </div>
-<p class="font-body-md text-sm text-on-surface-variant mt-6 max-w-[720px]">Prices are set by the publisher (<a class="text-secondary hover:underline" href="https://shop.sie.org" target="_blank" rel="noopener">shop.sie.org</a>) and may vary. Have something else you'd like to donate? <a class="text-secondary hover:underline" href="/about#contact">Get in touch</a> — we'd be honored.</p>
+<p class="font-body-md text-xs text-on-surface-variant mt-4 max-w-[760px] mx-auto text-center">Prices are set by the publisher (<a class="text-secondary hover:underline" href="https://shop.sie.org" target="_blank" rel="noopener">shop.sie.org</a>) and may vary. Have something else to donate? <a class="text-secondary hover:underline" href="/about#contact">Get in touch.</a></p>
+</section>
+<!-- Suggested giving levels (compact) -->
+<section class="max-w-container-max mx-auto px-gutter mb-12">
+<div class="max-w-[760px] mx-auto">
+<h2 class="font-label-caps text-label-caps text-secondary text-center mb-4">WAYS TO GIVE</h2>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div class="bg-white p-5 rounded-xl premium-shadow border border-surface-variant/40 flex items-center gap-4">
+<div class="bg-soft-cream p-2.5 rounded-lg text-secondary shrink-0"><span class="material-symbols-outlined text-xl">volunteer_activism</span></div>
+<div><span class="font-display-lg text-headline-sm text-primary block leading-none mb-1">$36</span><span class="font-body-md text-xs text-on-surface-variant">Double Chai · a seat at our Shabbos table</span></div>
+</div>
+<div class="bg-white p-5 rounded-xl premium-shadow border border-surface-variant/40 flex items-center gap-4">
+<div class="bg-soft-cream p-2.5 rounded-lg text-secondary shrink-0"><span class="material-symbols-outlined text-xl">menu_book</span></div>
+<div><span class="font-display-lg text-headline-sm text-primary block leading-none mb-1">$180</span><span class="font-body-md text-xs text-on-surface-variant">Torah Pillar · a month of shiur materials</span></div>
+</div>
+<div class="bg-white p-5 rounded-xl premium-shadow border border-surface-variant/40 flex items-center gap-4">
+<div class="bg-soft-cream p-2.5 rounded-lg text-secondary shrink-0"><span class="material-symbols-outlined text-xl">diversity_1</span></div>
+<div><span class="font-display-lg text-headline-sm text-primary block leading-none mb-1">$500</span><span class="font-body-md text-xs text-on-surface-variant">Community Anchor · a holiday celebration</span></div>
+</div>
+</div>
+</div>
 </section>
 </main>
 <!--#FOOTER#-->
