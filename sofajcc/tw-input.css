@@ -24,6 +24,10 @@
 .hero-gradient { background: linear-gradient(to right, rgba(249,246,240,1) 40%, rgba(249,246,240,0) 100%); }
 stripe-buy-button { display: block; }
 
+/* Good Deeds "building blocks" — gentle playful lift on hover */
+.gd-block { transition: transform .18s ease, box-shadow .18s ease; }
+.gd-block:hover { transform: translateY(-3px) rotate(-.5deg); box-shadow: 0 10px 22px -10px rgba(15, 23, 42, .18); }
+
 html { scroll-behavior: smooth; }
 
 [id] { scroll-margin-top: 5.5rem; }

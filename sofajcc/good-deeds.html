@@ -103,8 +103,8 @@
 <span class="bg-sage-status text-white text-[10px] font-label-caps px-3 py-1 rounded-full uppercase tracking-widest">Live</span>
 <span id="gd-count" class="ml-auto text-sm text-on-surface-variant"></span>
 </div>
-<div id="gd-chain" class="p-4 md:p-6 space-y-3 max-h-[640px] overflow-y-auto">
-<p id="gd-loading" class="text-center text-on-surface-variant py-12">Loading the chain…</p>
+<div id="gd-chain" class="p-4 md:p-5 flex flex-wrap content-start gap-2.5 max-h-[640px] overflow-y-auto">
+<p id="gd-loading" class="w-full text-center text-on-surface-variant py-12">Loading the chain…</p>
 </div>
 </div>
 </div>
@@ -161,12 +161,21 @@
 
   function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
 
-  function link(d) {
+  // Rotating soft "building block" tints — warm and on-brand.
+  var BLOCKS = [
+    'bg-[#f5ead0] border-[#e6cd93]',
+    'bg-[#e8eee1] border-[#cdd8c2]',
+    'bg-[#f4e6db] border-[#e6cdb9]',
+    'bg-[#eeeae2] border-[#dcd5c8]',
+    'bg-[#eae7f0] border-[#d3cde0]'
+  ];
+
+  function link(d, i) {
+    var tint = BLOCKS[i % BLOCKS.length];
     var where = d.location ? ' · <span class="text-secondary">' + esc(d.location) + '</span>' : '';
-    return '<div class="flex gap-3 items-start">' +
-      '<span class="mt-1 text-secondary shrink-0" aria-hidden="true">&#10022;</span>' +
-      '<div><p class="text-on-background">' + esc(d.deed) + '</p>' +
-      '<p class="text-sm text-on-surface-variant mt-0.5">— ' + esc(d.name) + where + '</p></div>' +
+    return '<div class="gd-block ' + tint + ' border rounded-xl px-4 py-3 shadow-sm max-w-full sm:max-w-[300px] break-words">' +
+      '<p class="text-on-background leading-snug">' + esc(d.deed) + '</p>' +
+      '<p class="text-sm text-on-surface-variant mt-1.5 font-medium">— ' + esc(d.name) + where + '</p>' +
     '</div>';
   }
 
@@ -180,7 +189,7 @@
           chain.innerHTML = '<p class="text-center text-on-surface-variant py-12">Be the first link in the chain.</p>';
           return;
         }
-        chain.innerHTML = deeds.map(link).join('<div class="border-t border-outline-variant/25"></div>');
+        chain.innerHTML = deeds.map(link).join('');
       })
       .catch(function () {
         chain.innerHTML = '<p class="text-center text-on-surface-variant py-12">The chain could not load right now. Please try again shortly.</p>';
