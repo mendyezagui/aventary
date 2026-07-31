@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>SoFa Jewish Community Center - Good Deeds</title>
-<meta name="description" content="Join the Good Deeds Chain at the SoFa Jewish Community Center. Add a mitzvah, spread kindness, and help complete the picture — every good deed brings more light into the world."/>
+<meta name="description" content="Join the Good Deeds Chain at the SoFa Jewish Community Center. Add a mitzvah, spread kindness, and help build our community's wall of good deeds — every good deed brings more light into the world."/>
 <link rel="canonical" href="https://www.sofajcc.org/good-deeds"/>
 <meta name="robots" content="index, follow"/>
 <link rel="icon" href="/assets/img/sofa-favicon.png" type="image/png"/>
@@ -12,235 +12,294 @@
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="SoFa Jewish Community Center"/>
 <meta property="og:title" content="SoFa Jewish Community Center - Good Deeds"/>
-<meta property="og:description" content="Join the Good Deeds Chain — add a mitzvah, spread kindness, and help complete the picture."/>
+<meta property="og:description" content="Join the Good Deeds Chain — add a mitzvah, spread kindness, and help build the wall."/>
 <meta property="og:url" content="https://www.sofajcc.org/good-deeds"/>
 <meta property="og:image" content="https://www.sofajcc.org/assets/img/sofa-brand.jpg"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="SoFa Jewish Community Center - Good Deeds"/>
 <meta name="twitter:description" content="Join the Good Deeds Chain — add a mitzvah and spread kindness."/>
 <meta name="twitter:image" content="https://www.sofajcc.org/assets/img/sofa-brand.jpg"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="/assets/tailwind.css?v=9" rel="stylesheet"/>
+<link href="/assets/tailwind.css?v=10" rel="stylesheet"/>
 <script type="application/ld+json">
 { "@context": "https://schema.org", "@type": "WebPage", "name": "Good Deeds — SoFa Jewish Community Center", "url": "https://www.sofajcc.org/good-deeds", "description": "Join the Good Deeds Chain at the SoFa Jewish Community Center — add a mitzvah and spread kindness." }
 </script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  /* Building blocks */
+  .deed-block {
+    opacity: 0;
+    transition: opacity .5s ease, transform .4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow .4s ease;
+    border-bottom: 4px solid rgba(3, 25, 46, 0.10);
+    border-right: 4px solid rgba(3, 25, 46, 0.10);
+    overflow: hidden;
+  }
+  .deed-block.in { opacity: 1; }
+  .deed-block:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.10), 0 10px 10px -5px rgba(0,0,0,0.04);
+    border-bottom-width: 6px;
+    border-right-width: 6px;
+  }
+  .scroll-mask { -webkit-mask-image: linear-gradient(to bottom, black 88%, transparent 100%); mask-image: linear-gradient(to bottom, black 88%, transparent 100%); }
+  /* Interlocking masonry grid */
+  .wall-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-auto-rows: 150px;
+    grid-auto-flow: dense;
+    gap: 1rem;
+  }
+  .block-square { grid-row: span 1; grid-column: span 1; }
+  .block-tall   { grid-row: span 2; grid-column: span 1; }
+  .block-wide   { grid-row: span 1; grid-column: span 2; }
+  .block-large  { grid-row: span 2; grid-column: span 2; }
+  @media (max-width: 640px) { .block-wide, .block-large { grid-column: span 1; } }
+</style>
 </head>
-<body class="bg-soft-cream text-on-background font-body-md selection:bg-secondary-container selection:text-secondary">
+<body class="bg-parchment-cream text-on-background font-body-md selection:bg-heritage-gold/30">
 <!-- Top Navigation -->
-<nav class="fixed top-0 w-full z-50 bg-soft-cream/80 backdrop-blur-md shadow-sm transition-all duration-300" id="siteNav">
-<div class="flex justify-between items-center px-gutter py-4 max-w-container-max mx-auto">
-<a class="font-display-lg text-headline-sm text-primary tracking-tighter" href="/home">SoFa JCC</a>
-<div class="hidden md:flex items-center gap-stack-lg">
-<a class="font-button text-button text-on-surface-variant hover:text-secondary transition-colors duration-300" href="/home">Home</a>
-<a class="font-button text-button text-on-surface-variant hover:text-secondary transition-colors duration-300" href="/about">About</a>
-<a class="font-button text-button text-primary border-b-2 border-secondary pb-1 transition-colors duration-300" href="/good-deeds">Good Deeds</a>
-<a class="bg-primary text-on-primary px-8 py-3 rounded-full font-button text-button hover:bg-secondary transition-all duration-300" href="/donate">Donate</a>
+<nav class="fixed top-0 left-0 w-full z-50 bg-parchment-cream/90 backdrop-blur-md border-b border-outline-variant transition-all duration-300" id="siteNav">
+<div class="max-w-container-max mx-auto px-gutter py-4 flex justify-between items-center">
+<a class="font-headline-md text-headline-md font-bold text-gd-navy tracking-tight" href="/home">SoFa JCC</a>
+<div class="hidden md:flex items-center gap-8">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-gd-navy transition-colors" href="/home">Home</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-gd-navy transition-colors" href="/about">About</a>
+<a class="font-label-caps text-label-caps text-gd-navy border-b-2 border-heritage-gold pb-1 font-bold" href="/good-deeds">Good Deeds</a>
+<a class="bg-gd-navy text-parchment-cream px-6 py-2 rounded-full font-label-caps text-label-caps hover:bg-deep-navy transition-all active:scale-95" href="/donate">Donate</a>
 </div>
-<button aria-label="Menu" class="md:hidden text-primary" id="navToggle"><span class="material-symbols-outlined">menu</span></button>
+<button aria-label="Menu" class="md:hidden text-gd-navy" id="navToggle"><span class="material-symbols-outlined">menu</span></button>
 </div>
-<div class="hidden md:hidden bg-soft-cream border-t border-outline-variant px-gutter py-4 space-y-2" id="mobileMenu">
-<a class="block font-button text-button text-on-surface-variant py-2" href="/home">Home</a>
-<a class="block font-button text-button text-on-surface-variant py-2" href="/about">About</a>
-<a class="block font-button text-button text-primary py-2" href="/good-deeds">Good Deeds</a>
-<a class="block bg-primary text-on-primary text-center px-6 py-3 rounded-full font-button text-button" href="/donate">Donate</a>
+<div class="hidden md:hidden bg-parchment-cream border-t border-outline-variant px-gutter py-4 space-y-2" id="mobileMenu">
+<a class="block font-label-caps text-label-caps text-on-surface-variant py-2" href="/home">Home</a>
+<a class="block font-label-caps text-label-caps text-on-surface-variant py-2" href="/about">About</a>
+<a class="block font-label-caps text-label-caps text-gd-navy py-2 font-bold" href="/good-deeds">Good Deeds</a>
+<a class="block bg-gd-navy text-parchment-cream text-center px-6 py-3 rounded-full font-label-caps text-label-caps" href="/donate">Donate</a>
 </div>
 </nav>
 <main class="pt-24">
 <!-- Hero -->
-<section class="max-w-container-max mx-auto px-gutter pt-6 pb-8 md:pt-10 md:pb-12 grid md:grid-cols-2 items-center gap-8 md:gap-12">
-<div class="space-y-5 order-2 md:order-1">
-<span class="font-label-caps text-label-caps text-secondary uppercase">Mitzvahs &amp; Kindness</span>
-<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary">Small Deeds, <br/><span class="italic text-secondary">Infinite Impact.</span></h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant max-w-[540px]">Every good deed adds a link. Inspired by the Rebbe's vision of unconditional love, the SoFa Good Deeds Chain turns kindness into community — one mitzvah at a time.</p>
-<div class="flex flex-wrap gap-4 pt-1">
-<a class="bg-primary text-on-primary px-8 py-4 font-button text-button rounded-full hover:bg-secondary transition-all" href="#chain">Join the Chain</a>
-
+<section class="max-w-container-max mx-auto px-gutter py-section-gap grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+<div class="space-y-stack-md order-2 md:order-1">
+<span class="font-label-caps text-label-caps text-heritage-gold tracking-widest block uppercase">Mitzvahs &amp; Kindness</span>
+<h1 class="font-display-lg text-headline-lg-mobile md:text-display-xl text-gd-navy leading-tight">Small Deeds,<br/><span class="italic font-normal text-secondary">Infinite Impact.</span></h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">Every good deed adds a link. Inspired by the Rebbe's vision of unconditional love, the SoFa Good Deeds Chain turns kindness into community — one mitzvah at a time.</p>
+<div class="pt-4">
+<a class="inline-flex items-center gap-2 bg-gd-navy text-parchment-cream px-8 py-4 rounded-full font-label-caps text-label-caps hover:bg-deep-navy transition-all transform hover:-translate-y-1 shadow-md" href="#join">Join the Chain<span class="material-symbols-outlined text-[18px]">link</span></a>
 </div>
 </div>
-<div class="order-1 md:order-2">
-<img src="/assets/img/sofa-brand.jpg" alt="The SoFa community together" class="w-full max-w-[440px] mx-auto rounded-xl"/>
+<div class="relative group order-1 md:order-2">
+<div class="absolute -inset-4 bg-heritage-gold/10 rounded-xl blur-2xl group-hover:bg-heritage-gold/20 transition-all"></div>
+<div class="relative bg-white p-6 rounded-2xl shadow-sm border border-outline-variant overflow-hidden">
+<img alt="The SoFa community together" class="w-full h-auto object-cover rounded-xl" src="/assets/img/sofa-brand.jpg"/>
+</div>
 </div>
 </section>
-<!-- The Good Deeds Chain (self-hosted: Cloudflare Pages Functions + D1) -->
-<section class="max-w-container-max mx-auto px-gutter py-12 md:py-16" id="chain">
-<div class="text-center mb-8 space-y-4">
-<span class="font-label-caps text-label-caps text-secondary uppercase">Every Jew is a letter in the same Torah scroll</span>
-<h2 class="font-headline-md text-headline-md text-primary">Join the Good Deeds Chain</h2>
-<p class="font-body-md text-body-md text-on-surface-variant max-w-[640px] mx-auto">A single act of kindness creates a ripple that reaches farther than we can imagine. Add yours below and inspire the next link in the chain.</p>
+<!-- Join / The Kindness Wall -->
+<section class="bg-white border-y border-outline-variant py-section-gap overflow-hidden" id="join">
+<div class="max-w-container-max mx-auto px-gutter">
+<div class="text-center mb-12 md:mb-16 space-y-4">
+<span class="font-label-caps text-label-caps text-heritage-gold uppercase tracking-widest">Every Jew is a letter in the same Torah scroll</span>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-gd-navy">The Kindness Wall</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto">A single act of kindness creates a ripple that reaches farther than we can imagine. Add your block to our community foundation.</p>
 </div>
-
-<div class="grid lg:grid-cols-5 gap-6 md:gap-8 items-start">
-<!-- Submission form -->
-<div class="lg:col-span-2 bg-white rounded-2xl soft-card-shadow border border-outline-variant/20 p-6 md:p-8">
-<h3 class="font-headline-sm text-headline-sm text-primary mb-1">Add a good deed</h3>
-<p class="text-sm text-on-surface-variant mb-5">Share a mitzvah — big or small. Every one adds a link.</p>
-<form id="deedForm" novalidate>
-<label class="block font-button text-button text-primary mb-1" for="gd-name">Your name</label>
-<input id="gd-name" name="name" type="text" maxlength="80" required class="w-full rounded-lg border border-outline-variant/60 px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-secondary" placeholder="e.g. Sarah from San Francisco"/>
-
-<label class="block font-button text-button text-primary mb-1" for="gd-deed">Your good deed</label>
-<textarea id="gd-deed" name="deed" rows="3" maxlength="280" required class="w-full rounded-lg border border-outline-variant/60 px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-secondary resize-y" placeholder="Visited a lonely neighbor, gave charity, called a friend…"></textarea>
-
-<label class="block font-button text-button text-primary mb-1" for="gd-location">Location <span class="text-on-surface-variant font-normal">(optional)</span></label>
-<input id="gd-location" name="location" type="text" maxlength="80" class="w-full rounded-lg border border-outline-variant/60 px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-secondary" placeholder="City, State"/>
-
-<!-- Honeypot: hidden from humans, tempting to bots -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+<!-- Foundation Form -->
+<div class="lg:col-span-4">
+<div class="bg-gd-navy text-parchment-cream p-8 rounded-2xl border-b-8 border-r-8 border-deep-navy/40 lg:sticky lg:top-32">
+<div class="mb-6">
+<h3 class="font-headline-md text-headline-md text-parchment-cream mb-2">Build the Foundation</h3>
+<p class="font-body-md text-parchment-cream/70">Submit your mitzvah to add a new block to our growing wall of kindness.</p>
+</div>
+<form id="deedForm" class="space-y-5" novalidate>
+<div>
+<label class="block font-label-caps text-[10px] uppercase tracking-widest text-parchment-cream/60 mb-2" for="gd-name">Your Name</label>
+<input id="gd-name" name="name" type="text" maxlength="80" required class="w-full bg-white/10 border border-white/20 text-white rounded-lg px-4 py-3 focus:ring-2 focus:ring-heritage-gold focus:border-heritage-gold transition-all placeholder:text-white/30" placeholder="Sarah M."/>
+</div>
+<div>
+<label class="block font-label-caps text-[10px] uppercase tracking-widest text-parchment-cream/60 mb-2" for="gd-deed">The Good Deed</label>
+<textarea id="gd-deed" name="deed" rows="3" maxlength="280" required class="w-full bg-white/10 border border-white/20 text-white rounded-lg px-4 py-3 focus:ring-2 focus:ring-heritage-gold focus:border-heritage-gold transition-all placeholder:text-white/30 resize-y" placeholder="What did you do today?"></textarea>
+</div>
+<div>
+<label class="block font-label-caps text-[10px] uppercase tracking-widest text-parchment-cream/60 mb-2" for="gd-location">Location <span class="normal-case tracking-normal text-parchment-cream/40">(optional)</span></label>
+<input id="gd-location" name="location" type="text" maxlength="80" class="w-full bg-white/10 border border-white/20 text-white rounded-lg px-4 py-3 focus:ring-2 focus:ring-heritage-gold focus:border-heritage-gold transition-all placeholder:text-white/30" placeholder="City, State"/>
+</div>
+<!-- Honeypot -->
 <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;height:0;overflow:hidden">
 <label>Website<input name="website" type="text" tabindex="-1" autocomplete="off"/></label>
 </div>
-
-<button id="gd-submit" type="submit" class="w-full bg-primary text-on-primary px-8 py-4 font-button text-button rounded-full hover:bg-secondary transition-all disabled:opacity-60">Add to the chain &rarr;</button>
-<p id="gd-msg" class="text-sm mt-3 hidden"></p>
-<p class="text-xs text-on-surface-variant/70 mt-3">Submissions are reviewed before they appear.</p>
+<button id="gd-submit" type="submit" class="w-full bg-heritage-gold text-gd-navy py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-white transition-all group disabled:opacity-60">Add My Block<span class="material-symbols-outlined group-hover:-translate-y-0.5 transition-transform">vertical_align_top</span></button>
+<p id="gd-msg" class="text-sm text-center hidden"></p>
+<p class="text-center font-label-caps text-[10px] text-parchment-cream/50 italic">Building blocks are reviewed before appearing.</p>
 </form>
 </div>
-
-<!-- Live chain -->
-<div class="lg:col-span-3 bg-white rounded-2xl overflow-hidden soft-card-shadow border border-outline-variant/20">
-<div class="flex items-center gap-3 px-6 py-4 border-b border-outline-variant/30">
-<h3 class="font-headline-sm text-headline-sm text-primary">The Good Deeds Chain</h3>
-<span class="bg-sage-status text-white text-[10px] font-label-caps px-3 py-1 rounded-full uppercase tracking-widest">Live</span>
-<span id="gd-count" class="ml-auto text-sm text-on-surface-variant"></span>
 </div>
-<div id="gd-chain" class="p-4 md:p-5 flex flex-wrap content-start gap-2.5 max-h-[640px] overflow-y-auto">
-<p id="gd-loading" class="w-full text-center text-on-surface-variant py-12">Loading the chain…</p>
+<!-- Wall -->
+<div class="lg:col-span-8">
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-3">
+<h3 class="font-headline-md text-headline-md text-gd-navy">Recent Blocks</h3>
+<span class="flex items-center gap-1 bg-soft-olive/10 text-soft-olive font-label-caps text-[10px] px-2 py-1 rounded-full uppercase tracking-widest">
+<span class="w-1.5 h-1.5 rounded-full bg-soft-olive animate-pulse"></span>Live</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant"><span id="gd-total">—</span> Blocks Built</span>
+</div>
+<div id="gd-wall" class="wall-grid scroll-mask max-h-[900px] overflow-y-auto pr-2 pb-12">
+<p id="gd-loading" class="col-span-full text-center text-on-surface-variant py-16">Building the wall…</p>
+</div>
 </div>
 </div>
 </div>
 </section>
 <!-- CTA -->
-<section class="bg-primary text-on-primary py-12 md:py-16 text-center">
-<div class="max-w-container-max mx-auto px-gutter">
-<h2 class="font-headline-md text-headline-md mb-6">Together, we complete the picture</h2>
-<p class="font-body-lg text-body-lg mb-10 max-w-[600px] mx-auto opacity-80">Bring your kindness home to SoFa — visit, learn, and grow with our community.</p>
-<div class="flex flex-col sm:flex-row gap-6 justify-center">
-<a class="bg-white text-primary px-12 py-4 rounded-full font-button text-button hover:bg-secondary-fixed transition-colors duration-300" href="/about#contact">Get in Touch</a>
-<a class="border border-white/30 text-white px-12 py-4 rounded-full font-button text-button hover:bg-white/10 transition-colors duration-300" href="/donate">Support SoFa</a>
+<section class="relative bg-gd-navy py-24 md:py-32 overflow-hidden">
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+<div class="max-w-container-max mx-auto px-gutter relative z-10 text-center space-y-stack-md">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-parchment-cream">Together, we complete the picture</h2>
+<p class="font-body-lg text-body-lg text-parchment-cream/80 max-w-2xl mx-auto">Bring your kindness home to SoFa — visit, learn, and grow with our community.</p>
+<div class="pt-8 flex flex-col sm:flex-row items-center justify-center gap-6">
+<a class="bg-parchment-cream text-gd-navy px-10 py-4 rounded-full font-bold hover:bg-white transition-all transform hover:scale-105" href="/about#contact">Get in Touch</a>
+<a class="border border-parchment-cream/30 text-parchment-cream px-10 py-4 rounded-full font-bold hover:bg-parchment-cream/10 transition-all transform hover:scale-105" href="/donate">Support SoFa</a>
 </div>
 </div>
 </section>
 </main>
-<!--#FOOTER#-->
-<footer class="bg-surface border-t border-outline-variant">
-<div class="grid grid-cols-1 md:grid-cols-4 gap-stack-lg px-gutter py-section-gap max-w-container-max mx-auto">
-<div class="md:col-span-2">
-<h2 class="font-display-lg text-headline-md text-primary mb-4">SoFa JCC</h2>
-<p class="font-body-md text-on-surface-variant max-w-[320px] mb-4">A warm and welcoming Chabad Jewish Community Center. Pray. Celebrate. Love. Friendship.</p>
-<p class="font-body-md italic text-secondary text-sm">Inspired by the Rebbe's vision &middot; Ahavat Yisrael</p>
+<!-- Footer -->
+<footer class="bg-gd-navy text-parchment-cream">
+<div class="max-w-container-max mx-auto px-gutter py-section-gap grid grid-cols-1 md:grid-cols-3 gap-stack-md">
+<div class="space-y-4">
+<h3 class="font-headline-md text-headline-md text-parchment-cream">SoFa JCC</h3>
+<p class="font-body-md text-body-md text-parchment-cream/70 max-w-xs">A warm and welcoming Chabad Jewish Community Center. Pray. Celebrate. Love. Friendship.</p>
+<p class="italic text-heritage-gold text-sm">Inspired by the Rebbe's vision · Ahavat Yisrael</p>
 </div>
-<div>
-<h4 class="font-label-caps text-label-caps text-primary mb-6">Explore</h4>
-<ul class="space-y-3">
-<li><a class="font-body-md text-on-surface-variant hover:text-secondary transition-colors" href="/home">Home</a></li>
-<li><a class="font-body-md text-on-surface-variant hover:text-secondary transition-colors" href="/about">About</a></li>
-<li><a class="font-body-md text-on-surface-variant hover:text-secondary transition-colors" href="/good-deeds">Good Deeds</a></li>
-<li><a class="font-body-md text-on-surface-variant hover:text-secondary transition-colors" href="/donate">Donate</a></li>
+<div class="space-y-4 md:pl-12">
+<h4 class="font-label-caps text-label-caps text-heritage-gold uppercase tracking-widest">Explore</h4>
+<ul class="space-y-3 font-body-md">
+<li><a class="text-parchment-cream/80 hover:text-heritage-gold transition-colors" href="/home">Home</a></li>
+<li><a class="text-parchment-cream/80 hover:text-heritage-gold transition-colors" href="/about">About</a></li>
+<li><a class="text-heritage-gold font-bold" href="/good-deeds">Good Deeds</a></li>
+<li><a class="text-parchment-cream/80 hover:text-heritage-gold transition-colors" href="/donate">Donate</a></li>
 </ul>
 </div>
-<div>
-<h4 class="font-label-caps text-label-caps text-primary mb-6">Connect</h4>
-<ul class="space-y-3 font-body-md text-on-surface-variant">
-<li><a class="hover:text-secondary transition-colors" href="mailto:office@sofajcc.org">office@sofajcc.org</a></li>
-</ul>
+<div class="space-y-4">
+<h4 class="font-label-caps text-label-caps text-heritage-gold uppercase tracking-widest">Connect</h4>
+<a class="text-parchment-cream/80 hover:text-heritage-gold transition-colors block font-body-md" href="mailto:office@sofajcc.org">office@sofajcc.org</a>
 </div>
 </div>
-<div class="max-w-container-max mx-auto px-gutter py-8 border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center gap-4">
-<p class="font-body-md text-on-surface-variant text-sm">&copy; <span id="yr">2026</span> SoFa Jewish Community Center, Inc. &middot; A California Religious Nonprofit Corporation</p>
-<p class="font-body-md text-on-surface-variant text-sm">An Orthodox Jewish House of Worship</p>
+<div class="max-w-container-max mx-auto px-gutter py-8 border-t border-parchment-cream/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-[0.2em] font-label-caps text-parchment-cream/40">
+<p>© <span id="yr">2026</span> SoFa Jewish Community Center, Inc. · A California Religious Nonprofit Corporation</p>
+<p>An Orthodox Jewish House of Worship</p>
 </div>
 </footer>
 <script>
 (function () {
-  var chain = document.getElementById('gd-chain');
-  var loading = document.getElementById('gd-loading');
-  var countEl = document.getElementById('gd-count');
+  var wall = document.getElementById('gd-wall');
+  var totalEl = document.getElementById('gd-total');
   var form = document.getElementById('deedForm');
   var msg = document.getElementById('gd-msg');
   var submit = document.getElementById('gd-submit');
 
   function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
 
-  // Rotating soft "building block" tints — warm and on-brand.
-  var BLOCKS = [
-    'bg-[#f5ead0] border-[#e6cd93]',
-    'bg-[#e8eee1] border-[#cdd8c2]',
-    'bg-[#f4e6db] border-[#e6cdb9]',
-    'bg-[#eeeae2] border-[#dcd5c8]',
-    'bg-[#eae7f0] border-[#d3cde0]'
+  // Block color treatments — rotated for a varied wall.
+  var STYLES = [
+    { bg: 'bg-soft-olive/10',     bd: 'border-soft-olive/20',  ac: 'text-soft-olive' },
+    { bg: 'bg-parchment-cream',   bd: 'border-outline-variant', ac: 'text-heritage-gold' },
+    { bg: 'bg-secondary-fixed/30', bd: 'border-secondary/20',  ac: 'text-secondary' },
+    { bg: 'bg-sky-tint/30',       bd: 'border-gd-navy/10',     ac: 'text-gd-navy' },
+    { bg: 'bg-heritage-gold/10',  bd: 'border-heritage-gold/20', ac: 'text-heritage-gold' },
+    { bg: 'bg-white',             bd: 'border-outline-variant', ac: 'text-on-surface-variant' }
   ];
 
-  function link(d, i) {
-    var tint = BLOCKS[i % BLOCKS.length];
-    var where = d.location ? ' · <span class="text-secondary">' + esc(d.location) + '</span>' : '';
-    return '<div class="gd-block ' + tint + ' border rounded-xl px-4 py-3 shadow-sm max-w-full sm:max-w-[300px] break-words">' +
-      '<p class="text-on-background leading-snug">' + esc(d.deed) + '</p>' +
-      '<p class="text-sm text-on-surface-variant mt-1.5 font-medium">— ' + esc(d.name) + where + '</p>' +
+  var CLAMP = { 'block-square': 'line-clamp-3', 'block-wide': 'line-clamp-3', 'block-tall': 'line-clamp-6', 'block-large': 'line-clamp-5' };
+
+  // Choose a block size that comfortably fits the text, with variety for short deeds.
+  function sizeFor(n, i) {
+    if (n > 150) return 'block-large';
+    if (n > 90)  return (i % 3 === 0 ? 'block-large' : 'block-tall');
+    if (n > 45)  return (i % 4 === 0 ? 'block-tall' : 'block-wide');
+    var v = ['block-square', 'block-wide', 'block-square', 'block-tall', 'block-square', 'block-square'];
+    return v[i % v.length];
+  }
+
+  function block(d, i) {
+    var s = STYLES[i % STYLES.length];
+    var size = sizeFor((d.deed || '').length, i);
+    var large = size === 'block-large';
+    var who = '— ' + esc(d.name) + (d.location ? ' · ' + esc(d.location) : '');
+    var pad = large ? 'p-8' : 'p-6';
+    var quote = large ? '<span class="material-symbols-outlined ' + s.ac + ' opacity-40">format_quote</span>' : '';
+    var deedCls = (large ? 'font-headline-md text-xl leading-snug' : 'font-body-md leading-relaxed') + ' text-gd-navy italic ' + CLAMP[size];
+    return '<div class="deed-block ' + size + ' ' + s.bg + ' ' + s.bd + ' border ' + pad + ' rounded-xl flex flex-col justify-between gap-3">' +
+      '<div class="space-y-2 min-h-0 overflow-hidden">' + quote + '<p class="' + deedCls + '">&ldquo;' + esc(d.deed) + '&rdquo;</p></div>' +
+      '<div class="pt-3 border-t ' + s.bd + ' shrink-0"><span class="font-label-caps text-[11px] ' + s.ac + ' font-bold uppercase tracking-wide">' + who + '</span></div>' +
     '</div>';
   }
 
-  function loadChain() {
+  function reveal() {
+    var blocks = wall.querySelectorAll('.deed-block');
+    blocks.forEach(function (b, i) { setTimeout(function () { b.classList.add('in'); }, (i % 8) * 70); });
+  }
+
+  function loadWall() {
     fetch('/api/good-deeds', { headers: { 'Accept': 'application/json' } })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         var deeds = data.deeds || [];
-        countEl.textContent = (data.total || deeds.length) + ' good deeds';
+        totalEl.textContent = (data.total || deeds.length);
         if (!deeds.length) {
-          chain.innerHTML = '<p class="text-center text-on-surface-variant py-12">Be the first link in the chain.</p>';
+          wall.innerHTML = '<p class="col-span-full text-center text-on-surface-variant py-16">Be the first block in the wall.</p>';
           return;
         }
-        chain.innerHTML = deeds.map(link).join('');
+        wall.innerHTML = deeds.map(block).join('');
+        reveal();
       })
       .catch(function () {
-        chain.innerHTML = '<p class="text-center text-on-surface-variant py-12">The chain could not load right now. Please try again shortly.</p>';
+        wall.innerHTML = '<p class="col-span-full text-center text-on-surface-variant py-16">The wall could not load right now. Please try again shortly.</p>';
       });
   }
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
-    msg.className = 'text-sm mt-3 hidden';
-    var payload = {
-      name: form.name.value,
-      deed: form.deed.value,
-      location: form.location.value,
-      website: form.website.value
-    };
+    msg.className = 'text-sm text-center hidden';
+    var payload = { name: form.name.value, deed: form.deed.value, location: form.location.value, website: form.website.value };
     if (payload.name.trim().length < 2 || payload.deed.trim().length < 3) {
       msg.textContent = 'Please add your name and your good deed.';
-      msg.className = 'text-sm mt-3 text-red-600';
+      msg.className = 'text-sm text-center text-red-300';
       return;
     }
     submit.disabled = true;
+    var label = submit.innerHTML;
     submit.textContent = 'Adding…';
-    fetch('/api/good-deeds', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
+    fetch('/api/good-deeds', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, body: b }; }); })
       .then(function (res) {
         if (!res.ok) {
           msg.textContent = res.body.error || 'Something went wrong. Please try again.';
-          msg.className = 'text-sm mt-3 text-red-600';
+          msg.className = 'text-sm text-center text-red-300';
           return;
         }
         form.reset();
-        msg.textContent = 'Thank you! Your good deed has been added and will appear in the chain once reviewed. 🌟';
-        msg.className = 'text-sm mt-3 text-secondary';
+        msg.textContent = 'Thank you! Your block has been added and will appear on the wall once reviewed. 🌟';
+        msg.className = 'text-sm text-center text-heritage-gold';
       })
       .catch(function () {
         msg.textContent = 'Network error. Please try again.';
-        msg.className = 'text-sm mt-3 text-red-600';
+        msg.className = 'text-sm text-center text-red-300';
       })
-      .finally(function () {
-        submit.disabled = false;
-        submit.innerHTML = 'Add to the chain &rarr;';
-      });
+      .finally(function () { submit.disabled = false; submit.innerHTML = label; });
   });
 
-  loadChain();
+  // Label focus micro-interaction
+  form.querySelectorAll('input, textarea').forEach(function (el) {
+    el.addEventListener('focus', function () { var l = el.parentElement.querySelector('label'); if (l) l.classList.add('text-heritage-gold'); });
+    el.addEventListener('blur', function () { var l = el.parentElement.querySelector('label'); if (l) l.classList.remove('text-heritage-gold'); });
+  });
+
+  loadWall();
 })();
 </script>
-<script src="/assets/nav.js?v=9"></script>
+<script src="/assets/nav.js?v=10"></script>
 </body>
 </html>

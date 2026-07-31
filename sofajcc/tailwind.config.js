@@ -21,7 +21,10 @@ module.exports = {
         "surface-container": "#f0edef", "secondary-container": "#fed488", "on-tertiary": "#ffffff",
         "error": "#ba1a1a", "primary": "#000000", "on-surface": "#1b1b1d", "surface-tint": "#565e74",
         "primary-container": "#131b2e", "primary-fixed": "#dae2fd", "secondary-fixed": "#ffdea5",
-        "error-container": "#ffdad6"
+        "error-container": "#ffdad6",
+        /* Good Deeds "Kindness Wall" palette (this page only) */
+        "parchment-cream": "#F5F5DC", "heritage-gold": "#C5A059", "soft-olive": "#2E8B57",
+        "deep-navy": "#1A2E44", "ink-black": "#0F172A", "gd-navy": "#03192e", "sky-tint": "#d1e4ff"
       },
       borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
       spacing: {
@@ -32,9 +35,13 @@ module.exports = {
         "label-caps": ["Inter", "sans-serif"], "headline-sm": ["Playfair Display", "serif"],
         "body-md": ["Inter", "sans-serif"], "display-lg": ["Playfair Display", "serif"],
         "button": ["Inter", "sans-serif"], "headline-md": ["Playfair Display", "serif"],
-        "display-lg-mobile": ["Playfair Display", "serif"], "body-lg": ["Inter", "sans-serif"]
+        "display-lg-mobile": ["Playfair Display", "serif"], "body-lg": ["Inter", "sans-serif"],
+        "headline-lg": ["Playfair Display", "serif"]
       },
       fontSize: {
+        "display-xl": ["64px", { lineHeight: "1.05", letterSpacing: "-0.02em", fontWeight: "700" }],
+        "headline-lg": ["40px", { lineHeight: "1.2", fontWeight: "600" }],
+        "headline-lg-mobile": ["32px", { lineHeight: "1.25", fontWeight: "600" }],
         "label-caps": ["12px", { lineHeight: "1", letterSpacing: "0.1em", fontWeight: "600" }],
         "headline-sm": ["24px", { lineHeight: "1.4", fontWeight: "600" }],
         "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
