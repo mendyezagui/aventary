@@ -21,7 +21,7 @@
 <meta name="twitter:image" content="https://www.sofajcc.org/assets/img/sofa-brand.jpg"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="/assets/tailwind.css?v=8" rel="stylesheet"/>
+<link href="/assets/tailwind.css?v=9" rel="stylesheet"/>
 <script type="application/ld+json">
 { "@context": "https://schema.org", "@type": "WebPage", "name": "Good Deeds — SoFa Jewish Community Center", "url": "https://www.sofajcc.org/good-deeds", "description": "Join the Good Deeds Chain at the SoFa Jewish Community Center — add a mitzvah and spread kindness." }
 </script>
@@ -62,24 +62,52 @@
 <img src="/assets/img/sofa-brand.jpg" alt="The SoFa community together" class="w-full max-w-[440px] mx-auto rounded-xl"/>
 </div>
 </section>
-<!-- The Good Deeds Chain (real Apps Script) -->
+<!-- The Good Deeds Chain (self-hosted: Cloudflare Pages Functions + D1) -->
 <section class="max-w-container-max mx-auto px-gutter py-12 md:py-16" id="chain">
 <div class="text-center mb-8 space-y-4">
 <span class="font-label-caps text-label-caps text-secondary uppercase">Every Jew is a letter in the same Torah scroll</span>
 <h2 class="font-headline-md text-headline-md text-primary">Join the Good Deeds Chain</h2>
-<p class="font-body-md text-body-md text-on-surface-variant max-w-[640px] mx-auto">A single act of kindness creates a ripple that reaches farther than we can imagine. Add yours to the SoFa Good Deeds Chain and inspire the next link.</p>
-<div class="pt-2">
-<a class="inline-block bg-primary text-on-primary px-10 py-4 font-button text-button rounded-full hover:bg-secondary transition-all" href="https://script.google.com/macros/s/AKfycbyr2YWt6FcJdqiKVG91Kl80H6ctul0ADdxJjpYwgRXAt6WAMDQ1OgPDwpkFMHTA97Y/exec" target="_blank" rel="noopener">Add a Good Deed &rarr;</a>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-[640px] mx-auto">A single act of kindness creates a ripple that reaches farther than we can imagine. Add yours below and inspire the next link in the chain.</p>
 </div>
+
+<div class="grid lg:grid-cols-5 gap-6 md:gap-8 items-start">
+<!-- Submission form -->
+<div class="lg:col-span-2 bg-white rounded-2xl soft-card-shadow border border-outline-variant/20 p-6 md:p-8">
+<h3 class="font-headline-sm text-headline-sm text-primary mb-1">Add a good deed</h3>
+<p class="text-sm text-on-surface-variant mb-5">Share a mitzvah — big or small. Every one adds a link.</p>
+<form id="deedForm" novalidate>
+<label class="block font-button text-button text-primary mb-1" for="gd-name">Your name</label>
+<input id="gd-name" name="name" type="text" maxlength="80" required class="w-full rounded-lg border border-outline-variant/60 px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-secondary" placeholder="e.g. Sarah from San Francisco"/>
+
+<label class="block font-button text-button text-primary mb-1" for="gd-deed">Your good deed</label>
+<textarea id="gd-deed" name="deed" rows="3" maxlength="280" required class="w-full rounded-lg border border-outline-variant/60 px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-secondary resize-y" placeholder="Visited a lonely neighbor, gave charity, called a friend…"></textarea>
+
+<label class="block font-button text-button text-primary mb-1" for="gd-location">Location <span class="text-on-surface-variant font-normal">(optional)</span></label>
+<input id="gd-location" name="location" type="text" maxlength="80" class="w-full rounded-lg border border-outline-variant/60 px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-secondary" placeholder="City, State"/>
+
+<!-- Honeypot: hidden from humans, tempting to bots -->
+<div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;height:0;overflow:hidden">
+<label>Website<input name="website" type="text" tabindex="-1" autocomplete="off"/></label>
 </div>
-<div class="bg-white rounded-2xl overflow-hidden soft-card-shadow border border-outline-variant/20 max-w-[900px] mx-auto">
+
+<button id="gd-submit" type="submit" class="w-full bg-primary text-on-primary px-8 py-4 font-button text-button rounded-full hover:bg-secondary transition-all disabled:opacity-60">Add to the chain &rarr;</button>
+<p id="gd-msg" class="text-sm mt-3 hidden"></p>
+<p class="text-xs text-on-surface-variant/70 mt-3">Submissions are reviewed before they appear.</p>
+</form>
+</div>
+
+<!-- Live chain -->
+<div class="lg:col-span-3 bg-white rounded-2xl overflow-hidden soft-card-shadow border border-outline-variant/20">
 <div class="flex items-center gap-3 px-6 py-4 border-b border-outline-variant/30">
 <h3 class="font-headline-sm text-headline-sm text-primary">The Good Deeds Chain</h3>
 <span class="bg-sage-status text-white text-[10px] font-label-caps px-3 py-1 rounded-full uppercase tracking-widest">Live</span>
+<span id="gd-count" class="ml-auto text-sm text-on-surface-variant"></span>
 </div>
-<iframe class="w-full" style="height:700px;border:0;background:#F9F6F0" loading="lazy" title="Join the Good Deeds Chain" src="https://script.google.com/macros/s/AKfycbyr2YWt6FcJdqiKVG91Kl80H6ctul0ADdxJjpYwgRXAt6WAMDQ1OgPDwpkFMHTA97Y/exec">Loading…</iframe>
+<div id="gd-chain" class="p-4 md:p-6 space-y-3 max-h-[640px] overflow-y-auto">
+<p id="gd-loading" class="text-center text-on-surface-variant py-12">Loading the chain…</p>
 </div>
-<p class="text-center text-on-surface-variant text-sm mt-4">If the chain doesn't load above, use the <a class="text-secondary hover:underline" href="https://script.google.com/macros/s/AKfycbyr2YWt6FcJdqiKVG91Kl80H6ctul0ADdxJjpYwgRXAt6WAMDQ1OgPDwpkFMHTA97Y/exec" target="_blank" rel="noopener">Add a Good Deed</a> button.</p>
+</div>
+</div>
 </section>
 <!-- CTA -->
 <section class="bg-primary text-on-primary py-12 md:py-16 text-center">
@@ -122,6 +150,88 @@
 <p class="font-body-md text-on-surface-variant text-sm">An Orthodox Jewish House of Worship</p>
 </div>
 </footer>
-<script src="/assets/nav.js?v=8"></script>
+<script>
+(function () {
+  var chain = document.getElementById('gd-chain');
+  var loading = document.getElementById('gd-loading');
+  var countEl = document.getElementById('gd-count');
+  var form = document.getElementById('deedForm');
+  var msg = document.getElementById('gd-msg');
+  var submit = document.getElementById('gd-submit');
+
+  function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
+
+  function link(d) {
+    var where = d.location ? ' · <span class="text-secondary">' + esc(d.location) + '</span>' : '';
+    return '<div class="flex gap-3 items-start">' +
+      '<span class="mt-1 text-secondary shrink-0" aria-hidden="true">&#10022;</span>' +
+      '<div><p class="text-on-background">' + esc(d.deed) + '</p>' +
+      '<p class="text-sm text-on-surface-variant mt-0.5">— ' + esc(d.name) + where + '</p></div>' +
+    '</div>';
+  }
+
+  function loadChain() {
+    fetch('/api/good-deeds', { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var deeds = data.deeds || [];
+        countEl.textContent = (data.total || deeds.length) + ' good deeds';
+        if (!deeds.length) {
+          chain.innerHTML = '<p class="text-center text-on-surface-variant py-12">Be the first link in the chain.</p>';
+          return;
+        }
+        chain.innerHTML = deeds.map(link).join('<div class="border-t border-outline-variant/25"></div>');
+      })
+      .catch(function () {
+        chain.innerHTML = '<p class="text-center text-on-surface-variant py-12">The chain could not load right now. Please try again shortly.</p>';
+      });
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    msg.className = 'text-sm mt-3 hidden';
+    var payload = {
+      name: form.name.value,
+      deed: form.deed.value,
+      location: form.location.value,
+      website: form.website.value
+    };
+    if (payload.name.trim().length < 2 || payload.deed.trim().length < 3) {
+      msg.textContent = 'Please add your name and your good deed.';
+      msg.className = 'text-sm mt-3 text-red-600';
+      return;
+    }
+    submit.disabled = true;
+    submit.textContent = 'Adding…';
+    fetch('/api/good-deeds', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, body: b }; }); })
+      .then(function (res) {
+        if (!res.ok) {
+          msg.textContent = res.body.error || 'Something went wrong. Please try again.';
+          msg.className = 'text-sm mt-3 text-red-600';
+          return;
+        }
+        form.reset();
+        msg.textContent = 'Thank you! Your good deed has been added and will appear in the chain once reviewed. 🌟';
+        msg.className = 'text-sm mt-3 text-secondary';
+      })
+      .catch(function () {
+        msg.textContent = 'Network error. Please try again.';
+        msg.className = 'text-sm mt-3 text-red-600';
+      })
+      .finally(function () {
+        submit.disabled = false;
+        submit.innerHTML = 'Add to the chain &rarr;';
+      });
+  });
+
+  loadChain();
+})();
+</script>
+<script src="/assets/nav.js?v=9"></script>
 </body>
 </html>

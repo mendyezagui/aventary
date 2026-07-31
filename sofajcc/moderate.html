@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Moderate — Good Deeds</title>
+<meta name="robots" content="noindex, nofollow"/>
+<link rel="icon" href="/assets/img/sofa-favicon.png" type="image/png"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="/assets/tailwind.css?v=9" rel="stylesheet"/>
+</head>
+<body class="bg-soft-cream text-on-background font-body-md">
+<main class="max-w-[820px] mx-auto px-gutter py-10">
+<header class="flex items-baseline justify-between flex-wrap gap-3 mb-2">
+<h1 class="font-display-lg text-headline-md text-primary">Good Deeds · Moderation</h1>
+<button id="logout" class="text-sm text-on-surface-variant hover:text-secondary underline hidden">Sign out</button>
+</header>
+<p id="counts" class="text-sm text-on-surface-variant mb-6"></p>
+
+<!-- Token gate -->
+<section id="gate" class="bg-white rounded-2xl soft-card-shadow border border-outline-variant/20 p-6 max-w-[420px]">
+<label class="block font-button text-button text-primary mb-2" for="token">Admin token</label>
+<input id="token" type="password" autocomplete="off" class="w-full rounded-lg border border-outline-variant/60 px-4 py-3 mb-3 focus:outline-none focus:ring-2 focus:ring-secondary" placeholder="Paste your admin token"/>
+<button id="unlock" class="bg-primary text-on-primary px-6 py-3 rounded-full font-button text-button hover:bg-secondary transition-colors">Unlock</button>
+<p id="gateErr" class="text-sm text-red-600 mt-3 hidden"></p>
+</section>
+
+<!-- Queue -->
+<section id="queue" class="hidden space-y-4"></section>
+<p id="empty" class="hidden text-on-surface-variant py-10 text-center">No pending deeds. All caught up. ✓</p>
+
+<div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-primary text-on-primary px-5 py-3 rounded-full text-sm shadow-lg"></div>
+</main>
+
+<script>
+(function () {
+  var KEY = 'sofa_admin_token';
+  var token = localStorage.getItem(KEY) || '';
+  var gate = document.getElementById('gate');
+  var queue = document.getElementById('queue');
+  var empty = document.getElementById('empty');
+  var counts = document.getElementById('counts');
+  var logout = document.getElementById('logout');
+
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.remove('hidden');
+    clearTimeout(t._h);
+    t._h = setTimeout(function () { t.classList.add('hidden'); }, 2200);
+  }
+
+  function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
+
+  function headers() { return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }; }
+
+  function show(authedOk) {
+    gate.classList.toggle('hidden', authedOk);
+    logout.classList.toggle('hidden', !authedOk);
+  }
+
+  function load() {
+    fetch('/api/admin/good-deeds', { headers: headers() })
+      .then(function (r) {
+        if (r.status === 401) { throw new Error('unauth'); }
+        return r.json();
+      })
+      .then(function (data) {
+        show(true);
+        var c = data.counts || {};
+        counts.textContent = (c.pending || 0) + ' pending · ' + (c.approved || 0) + ' approved · ' + (c.rejected || 0) + ' rejected';
+        render(data.pending || []);
+      })
+      .catch(function () {
+        token = '';
+        localStorage.removeItem(KEY);
+        show(false);
+        var ge = document.getElementById('gateErr');
+        ge.textContent = 'That token was not accepted.';
+        ge.classList.remove('hidden');
+      });
+  }
+
+  function render(items) {
+    queue.innerHTML = '';
+    empty.classList.toggle('hidden', items.length > 0);
+    queue.classList.toggle('hidden', items.length === 0);
+    items.forEach(function (d) {
+      var card = document.createElement('div');
+      card.className = 'bg-white rounded-2xl soft-card-shadow border border-outline-variant/20 p-5 flex flex-col sm:flex-row sm:items-start gap-4';
+      var meta = d.location ? ' · ' + esc(d.location) : '';
+      card.innerHTML =
+        '<div class="flex-1">' +
+          '<p class="font-headline-sm text-primary mb-1">' + esc(d.name) + meta + '</p>' +
+          '<p class="text-on-surface-variant">' + esc(d.deed) + '</p>' +
+          '<p class="text-xs text-on-surface-variant/70 mt-2">' + esc(d.created_at) + ' UTC</p>' +
+        '</div>' +
+        '<div class="flex sm:flex-col gap-2 shrink-0">' +
+          '<button data-a="approve" class="bg-primary text-on-primary px-4 py-2 rounded-full text-sm font-button hover:bg-secondary transition-colors">Approve</button>' +
+          '<button data-a="reject" class="border border-outline-variant/60 text-on-surface-variant px-4 py-2 rounded-full text-sm font-button hover:bg-red-50 hover:text-red-600 transition-colors">Reject</button>' +
+        '</div>';
+      card.querySelectorAll('button').forEach(function (b) {
+        b.addEventListener('click', function () { act(d.id, b.getAttribute('data-a'), card); });
+      });
+      queue.appendChild(card);
+    });
+  }
+
+  function act(id, action, card) {
+    card.style.opacity = '0.4';
+    fetch('/api/admin/good-deeds', {
+      method: 'POST', headers: headers(), body: JSON.stringify({ id: id, action: action })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function () {
+        toast(action === 'approve' ? 'Approved ✓' : 'Rejected');
+        card.remove();
+        if (!queue.querySelector('div')) { queue.classList.add('hidden'); empty.classList.remove('hidden'); }
+        // refresh counts
+        fetch('/api/admin/good-deeds', { headers: headers() }).then(function (r) { return r.json(); }).then(function (data) {
+          var c = data.counts || {};
+          counts.textContent = (c.pending || 0) + ' pending · ' + (c.approved || 0) + ' approved · ' + (c.rejected || 0) + ' rejected';
+        });
+      })
+      .catch(function () { card.style.opacity = '1'; toast('Something went wrong.'); });
+  }
+
+  document.getElementById('unlock').addEventListener('click', function () {
+    token = document.getElementById('token').value.trim();
+    if (!token) return;
+    localStorage.setItem(KEY, token);
+    document.getElementById('gateErr').classList.add('hidden');
+    load();
+  });
+  document.getElementById('token').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') document.getElementById('unlock').click();
+  });
+  logout.addEventListener('click', function () {
+    token = ''; localStorage.removeItem(KEY); show(false); queue.classList.add('hidden'); empty.classList.add('hidden'); counts.textContent = '';
+  });
+
+  if (token) load();
+})();
+</script>
+</body>
+</html>
