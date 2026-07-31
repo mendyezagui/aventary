@@ -11,6 +11,10 @@
 /assets/nav.js
   Cache-Control: public, max-age=0, must-revalidate
 
+# API responses must never be cached at the edge.
+/api/*
+  Cache-Control: no-store
+
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

@@ -16,10 +16,50 @@ preserved** during the move.
 | `home.html` | `/home` | Welcome, programs, weekly Dvar Torah (embedded Google Doc) |
 | `about.html` | `/about` | Mission, vision, embedded **Contact Us** Google Form (`#contact`) |
 | `donate.html` | `/donate` | Live **Stripe** donation button (carried over unchanged) |
-| `good-deeds.html` | `/good-deeds` | "Join the Good Deeds Chain" (Google Apps Script) |
+| `good-deeds.html` | `/good-deeds` | "Join the Good Deeds Chain" — **self-hosted** form + live chain (Cloudflare D1) |
+| `moderate.html` | `/moderate` | Hidden, `noindex` moderation dashboard for the Good Deeds queue |
 | `404.html` | any unknown path | Friendly not-found page |
 
 `/` redirects to `/home` (301), matching the current site.
+
+## Good Deeds backend (self-hosted on Cloudflare)
+
+The Good Deeds Chain no longer depends on Google Apps Script. It runs entirely
+on Cloudflare infrastructure we control:
+
+- **Database:** Cloudflare **D1** (SQLite). Database name `sofajcc-deeds`, schema
+  in [`schema.sql`](schema.sql). Bound to the Pages project as `DB`.
+- **API:** Cloudflare **Pages Functions** in [`functions/`](functions/):
+  - `GET /api/good-deeds` — returns approved deeds (newest first).
+  - `POST /api/good-deeds` — submits a deed as `pending`. Has a hidden honeypot
+    field and per-IP-hash rate limiting (IPs are stored only as salted SHA-256
+    hashes, never in the clear).
+  - `GET|POST /api/admin/good-deeds` — moderation (approve / reject / delete),
+    protected by a bearer token.
+- **Moderation:** open `/moderate`, paste the admin token, and approve/reject the
+  pending queue. Submissions are **never public until approved.**
+
+### Secrets (Pages project → Settings → Variables and Secrets, production)
+
+| Name | Purpose |
+|------|---------|
+| `ADMIN_TOKEN` | Bearer token for `/moderate` and the admin API. |
+| `DEEDS_SALT`  | Salt for hashing submitter IPs (rate limiting). |
+
+These live **only** as encrypted Pages env vars — never in the repo. To rotate
+the admin token: set a new `ADMIN_TOKEN` secret in the dashboard (or via the
+Pages API), redeploy, and use the new value at `/moderate`.
+
+### One-time setup (already done, for reference)
+
+```bash
+export CLOUDFLARE_API_TOKEN=...   # D1:Edit + Pages:Edit
+export CLOUDFLARE_ACCOUNT_ID=3ce1454beb9c83c90403c54e0855e4f9
+wrangler d1 create sofajcc-deeds
+wrangler d1 execute sofajcc-deeds --remote --file=schema.sql
+# then bind DB → the new database_id and set ADMIN_TOKEN / DEEDS_SALT
+# on the Pages project's production config, and deploy.
+```
 
 ## Preview locally
 
@@ -36,16 +76,26 @@ some panels look empty on `localhost` — that's expected.)
 
 ## Deploy to Cloudflare Pages
 
-This site is a static folder. Two ways to publish it:
+Because the site now includes Pages Functions and must NOT publish build/config
+files, **always deploy with the provided script**, which assembles a clean
+publish directory first:
 
-### Option A — Wrangler (fastest, direct upload)
+### Option A — `./publish.sh` (recommended)
 
 ```bash
-npm install -g wrangler        # if you don't have it
-wrangler login
-wrangler pages project create sofajcc --production-branch main
-wrangler pages deploy sofajcc --project-name sofajcc
+export CLOUDFLARE_API_TOKEN=...      # Pages:Edit (+ D1:Edit for db changes)
+export CLOUDFLARE_ACCOUNT_ID=3ce1454beb9c83c90403c54e0855e4f9
+./publish.sh
 ```
+
+This builds the CSS, copies only publishable files into `.pages-dist/`
+(HTML, `assets/`, `functions/`, `_headers`, `_redirects`, `robots.txt`,
+`sitemap.xml`), and runs `wrangler pages deploy .pages-dist`.
+
+> ⚠️ **Do not run `wrangler pages deploy .` on the source folder.** Cloudflare
+> Pages ignores `.assetsignore`, so a raw deploy would publicly serve
+> `package.json`, `tailwind.config.js`, `schema.sql`, and any local `*.env`
+> file. `publish.sh` exists precisely to prevent that.
 
 Cloudflare gives you a `https://sofajcc.pages.dev` URL. Open it and click
 through every page **before** touching DNS.
@@ -115,7 +165,8 @@ are wired to your existing Google/Stripe accounts, so they update on their own:
   (`buy_btn_1Tb1mgLMjVclDp8Qk5BUfjEb`). Manage amounts/receipts in Stripe.
   *Note: the publishable key and button id in `donate.html` are public by design
   — Stripe intends them to live in client-side HTML.*
-- **Good Deeds chain** — embeds your Apps Script web app.
+- **Good Deeds chain** — self-hosted on Cloudflare D1 + Pages Functions (see the
+  "Good Deeds backend" section above). Moderate submissions at `/moderate`.
 - **Branding** — the logo is an inline SVG (a sofa mark) in each page's header
   and in `assets/favicon.svg` / `assets/og.svg`. Swap in a real logo image any
   time by replacing those references.
