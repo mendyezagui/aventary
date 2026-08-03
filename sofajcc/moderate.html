@@ -7,10 +7,10 @@
 <meta name="robots" content="noindex, nofollow"/>
 <link rel="icon" href="/assets/img/sofa-favicon.png" type="image/png"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="/assets/tailwind.css?v=9" rel="stylesheet"/>
+<link href="/assets/tailwind.css?v=10" rel="stylesheet"/>
 </head>
 <body class="bg-soft-cream text-on-background font-body-md">
-<main class="max-w-[820px] mx-auto px-gutter py-10">
+<main class="max-w-[860px] mx-auto px-gutter py-10">
 <header class="flex items-baseline justify-between flex-wrap gap-3 mb-2">
 <h1 class="font-display-lg text-headline-md text-primary">Good Deeds · Moderation</h1>
 <button id="logout" class="text-sm text-on-surface-variant hover:text-secondary underline hidden">Sign out</button>
@@ -25,22 +25,40 @@
 <p id="gateErr" class="text-sm text-red-600 mt-3 hidden"></p>
 </section>
 
-<!-- Queue -->
-<section id="queue" class="hidden space-y-4"></section>
-<p id="empty" class="hidden text-on-surface-variant py-10 text-center">No pending deeds. All caught up. ✓</p>
+<!-- Board -->
+<div id="board" class="hidden space-y-10">
+<section>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-1">Pending</h2>
+<p class="text-sm text-on-surface-variant mb-4">New submissions waiting to be published.</p>
+<div id="pendingList" class="space-y-4"></div>
+<p id="pendingEmpty" class="hidden text-on-surface-variant py-6 text-center bg-white rounded-2xl border border-outline-variant/20">No pending deeds. All caught up. ✓</p>
+</section>
+<section>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-1">Published</h2>
+<p class="text-sm text-on-surface-variant mb-4">Live on the wall. Edit to fix wording, or unpublish to hide.</p>
+<div id="publishedList" class="space-y-4"></div>
+<p id="publishedEmpty" class="hidden text-on-surface-variant py-6 text-center bg-white rounded-2xl border border-outline-variant/20">Nothing published yet.</p>
+</section>
+</div>
 
-<div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-primary text-on-primary px-5 py-3 rounded-full text-sm shadow-lg"></div>
+<div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-primary text-on-primary px-5 py-3 rounded-full text-sm shadow-lg z-50"></div>
 </main>
 
 <script>
 (function () {
   var KEY = 'sofa_admin_token';
   var token = localStorage.getItem(KEY) || '';
+  var data = { pending: [], approved: [] };
+  var editingId = null;
+
   var gate = document.getElementById('gate');
-  var queue = document.getElementById('queue');
-  var empty = document.getElementById('empty');
+  var board = document.getElementById('board');
   var counts = document.getElementById('counts');
   var logout = document.getElementById('logout');
+  var pendingList = document.getElementById('pendingList');
+  var publishedList = document.getElementById('publishedList');
+  var pendingEmpty = document.getElementById('pendingEmpty');
+  var publishedEmpty = document.getElementById('publishedEmpty');
 
   function toast(msg) {
     var t = document.getElementById('toast');
@@ -49,78 +67,141 @@
     clearTimeout(t._h);
     t._h = setTimeout(function () { t.classList.add('hidden'); }, 2200);
   }
-
   function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
-
+  function attr(s) { return esc(s).replace(/"/g, '&quot;'); }
   function headers() { return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }; }
+  function show(ok) { gate.classList.toggle('hidden', ok); board.classList.toggle('hidden', !ok); logout.classList.toggle('hidden', !ok); }
 
-  function show(authedOk) {
-    gate.classList.toggle('hidden', authedOk);
-    logout.classList.toggle('hidden', !authedOk);
+  function setCounts() {
+    fetch('/api/admin/good-deeds', { headers: headers() }).then(function (r) { return r.json(); }).then(function (d) {
+      var c = d.counts || {};
+      counts.textContent = (c.pending || 0) + ' pending · ' + (c.approved || 0) + ' approved · ' + (c.rejected || 0) + ' rejected';
+    });
   }
 
   function load() {
     fetch('/api/admin/good-deeds', { headers: headers() })
-      .then(function (r) {
-        if (r.status === 401) { throw new Error('unauth'); }
-        return r.json();
-      })
-      .then(function (data) {
+      .then(function (r) { if (r.status === 401) throw new Error('unauth'); return r.json(); })
+      .then(function (d) {
         show(true);
-        var c = data.counts || {};
+        var c = d.counts || {};
         counts.textContent = (c.pending || 0) + ' pending · ' + (c.approved || 0) + ' approved · ' + (c.rejected || 0) + ' rejected';
-        render(data.pending || []);
+        data.pending = d.pending || [];
+        data.approved = d.approved || [];
+        renderAll();
       })
       .catch(function () {
-        token = '';
-        localStorage.removeItem(KEY);
-        show(false);
+        token = ''; localStorage.removeItem(KEY); show(false);
         var ge = document.getElementById('gateErr');
-        ge.textContent = 'That token was not accepted.';
-        ge.classList.remove('hidden');
+        ge.textContent = 'That token was not accepted.'; ge.classList.remove('hidden');
       });
   }
 
-  function render(items) {
-    queue.innerHTML = '';
-    empty.classList.toggle('hidden', items.length > 0);
-    queue.classList.toggle('hidden', items.length === 0);
-    items.forEach(function (d) {
-      var card = document.createElement('div');
-      card.className = 'bg-white rounded-2xl soft-card-shadow border border-outline-variant/20 p-5 flex flex-col sm:flex-row sm:items-start gap-4';
-      var meta = d.location ? ' · ' + esc(d.location) : '';
-      card.innerHTML =
-        '<div class="flex-1">' +
-          '<p class="font-headline-sm text-primary mb-1">' + esc(d.name) + meta + '</p>' +
-          '<p class="text-on-surface-variant">' + esc(d.deed) + '</p>' +
-          '<p class="text-xs text-on-surface-variant/70 mt-2">' + esc(d.created_at) + ' UTC</p>' +
-        '</div>' +
-        '<div class="flex sm:flex-col gap-2 shrink-0">' +
-          '<button data-a="approve" class="bg-primary text-on-primary px-4 py-2 rounded-full text-sm font-button hover:bg-secondary transition-colors">Approve</button>' +
-          '<button data-a="reject" class="border border-outline-variant/60 text-on-surface-variant px-4 py-2 rounded-full text-sm font-button hover:bg-red-50 hover:text-red-600 transition-colors">Reject</button>' +
-        '</div>';
-      card.querySelectorAll('button').forEach(function (b) {
-        b.addEventListener('click', function () { act(d.id, b.getAttribute('data-a'), card); });
+  function pill(kind) {
+    return kind === 'approved'
+      ? '<span class="text-[10px] font-button uppercase tracking-widest bg-sage-status/10 text-sage-status px-2 py-1 rounded-full">Published</span>'
+      : '<span class="text-[10px] font-button uppercase tracking-widest bg-secondary-fixed/50 text-secondary px-2 py-1 rounded-full">Pending</span>';
+  }
+
+  function displayCard(d, kind) {
+    var card = document.createElement('div');
+    card.className = 'bg-white rounded-2xl soft-card-shadow border border-outline-variant/20 p-5 flex flex-col sm:flex-row sm:items-start gap-4';
+    var meta = d.location ? ' · ' + esc(d.location) : '';
+    var actions = kind === 'pending'
+      ? '<button data-a="approve" class="bg-primary text-on-primary px-4 py-2 rounded-full text-sm font-button hover:bg-secondary transition-colors">Approve</button>' +
+        '<button data-a="reject" class="border border-outline-variant/60 text-on-surface-variant px-4 py-2 rounded-full text-sm font-button hover:bg-red-50 hover:text-red-600 transition-colors">Reject</button>'
+      : '<button data-a="reject" class="border border-outline-variant/60 text-on-surface-variant px-4 py-2 rounded-full text-sm font-button hover:bg-red-50 hover:text-red-600 transition-colors">Unpublish</button>' +
+        '<button data-a="delete" class="border border-outline-variant/60 text-on-surface-variant px-4 py-2 rounded-full text-sm font-button hover:bg-red-50 hover:text-red-600 transition-colors">Delete</button>';
+    card.innerHTML =
+      '<div class="flex-1 min-w-0">' +
+        '<div class="flex items-center gap-2 mb-1">' + pill(kind) + '<p class="font-headline-sm text-primary truncate">' + esc(d.name) + meta + '</p></div>' +
+        '<p class="text-on-surface-variant break-words">' + esc(d.deed) + '</p>' +
+        '<p class="text-xs text-on-surface-variant/70 mt-2">' + esc(d.created_at) + ' UTC · #' + d.id + '</p>' +
+      '</div>' +
+      '<div class="flex sm:flex-col gap-2 shrink-0">' +
+        '<button data-a="edit" class="border border-secondary/50 text-secondary px-4 py-2 rounded-full text-sm font-button hover:bg-secondary hover:text-on-primary transition-colors">Edit</button>' +
+        actions +
+      '</div>';
+    card.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var a = b.getAttribute('data-a');
+        if (a === 'edit') { editingId = d.id; renderAll(); return; }
+        act(d.id, a, card);
       });
-      queue.appendChild(card);
     });
+    return card;
+  }
+
+  function editCard(d) {
+    var card = document.createElement('div');
+    card.className = 'bg-white rounded-2xl soft-card-shadow border border-secondary/40 p-5 space-y-3';
+    card.innerHTML =
+      '<div class="grid gap-3 sm:grid-cols-2">' +
+        '<div><label class="block text-xs font-button uppercase tracking-widest text-on-surface-variant mb-1">Name</label>' +
+          '<input class="ed-name w-full rounded-lg border border-outline-variant/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-secondary" maxlength="80" value="' + attr(d.name) + '"/></div>' +
+        '<div><label class="block text-xs font-button uppercase tracking-widest text-on-surface-variant mb-1">Location</label>' +
+          '<input class="ed-loc w-full rounded-lg border border-outline-variant/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-secondary" maxlength="80" value="' + attr(d.location || '') + '"/></div>' +
+      '</div>' +
+      '<div><label class="block text-xs font-button uppercase tracking-widest text-on-surface-variant mb-1">Good deed</label>' +
+        '<textarea class="ed-deed w-full rounded-lg border border-outline-variant/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-secondary resize-y" rows="3" maxlength="280">' + esc(d.deed) + '</textarea></div>' +
+      '<div class="flex items-center gap-2">' +
+        '<button class="ed-save bg-primary text-on-primary px-5 py-2 rounded-full text-sm font-button hover:bg-secondary transition-colors">Save</button>' +
+        '<button class="ed-cancel border border-outline-variant/60 text-on-surface-variant px-5 py-2 rounded-full text-sm font-button hover:bg-soft-cream transition-colors">Cancel</button>' +
+        '<span class="ed-err text-sm text-red-600 hidden"></span>' +
+      '</div>';
+    card.querySelector('.ed-cancel').addEventListener('click', function () { editingId = null; renderAll(); });
+    card.querySelector('.ed-save').addEventListener('click', function () {
+      var payload = {
+        id: d.id, action: 'edit',
+        name: card.querySelector('.ed-name').value,
+        deed: card.querySelector('.ed-deed').value,
+        location: card.querySelector('.ed-loc').value
+      };
+      var errEl = card.querySelector('.ed-err');
+      if (payload.name.trim().length < 2 || payload.deed.trim().length < 3) {
+        errEl.textContent = 'Name and deed are required.'; errEl.classList.remove('hidden'); return;
+      }
+      var saveBtn = card.querySelector('.ed-save');
+      saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
+      fetch('/api/admin/good-deeds', { method: 'POST', headers: headers(), body: JSON.stringify(payload) })
+        .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, body: b }; }); })
+        .then(function (res) {
+          if (!res.ok) { errEl.textContent = res.body.error || 'Could not save.'; errEl.classList.remove('hidden'); saveBtn.disabled = false; saveBtn.textContent = 'Save'; return; }
+          // update local copy
+          var list = data.pending.concat(data.approved);
+          for (var i = 0; i < list.length; i++) if (list[i].id === d.id) {
+            list[i].name = payload.name.trim(); list[i].deed = payload.deed.trim(); list[i].location = payload.location.trim();
+          }
+          editingId = null; renderAll(); toast('Saved ✓');
+        })
+        .catch(function () { errEl.textContent = 'Network error.'; errEl.classList.remove('hidden'); saveBtn.disabled = false; saveBtn.textContent = 'Save'; });
+    });
+    return card;
+  }
+
+  function renderList(el, items, kind, emptyEl) {
+    el.innerHTML = '';
+    emptyEl.classList.toggle('hidden', items.length > 0);
+    items.forEach(function (d) { el.appendChild(editingId === d.id ? editCard(d) : displayCard(d, kind)); });
+  }
+
+  function renderAll() {
+    renderList(pendingList, data.pending, 'pending', pendingEmpty);
+    renderList(publishedList, data.approved, 'approved', publishedEmpty);
   }
 
   function act(id, action, card) {
     card.style.opacity = '0.4';
-    fetch('/api/admin/good-deeds', {
-      method: 'POST', headers: headers(), body: JSON.stringify({ id: id, action: action })
-    })
+    fetch('/api/admin/good-deeds', { method: 'POST', headers: headers(), body: JSON.stringify({ id: id, action: action }) })
       .then(function (r) { return r.json(); })
       .then(function () {
-        toast(action === 'approve' ? 'Approved ✓' : 'Rejected');
-        card.remove();
-        if (!queue.querySelector('div')) { queue.classList.add('hidden'); empty.classList.remove('hidden'); }
-        // refresh counts
-        fetch('/api/admin/good-deeds', { headers: headers() }).then(function (r) { return r.json(); }).then(function (data) {
-          var c = data.counts || {};
-          counts.textContent = (c.pending || 0) + ' pending · ' + (c.approved || 0) + ' approved · ' + (c.rejected || 0) + ' rejected';
-        });
+        toast(action === 'approve' ? 'Approved ✓' : action === 'delete' ? 'Deleted' : action === 'reject' ? 'Updated' : 'Done');
+        // move item between local lists
+        var item = null, i;
+        for (i = 0; i < data.pending.length; i++) if (data.pending[i].id === id) { item = data.pending.splice(i, 1)[0]; break; }
+        if (!item) for (i = 0; i < data.approved.length; i++) if (data.approved[i].id === id) { item = data.approved.splice(i, 1)[0]; break; }
+        if (item && action === 'approve') { item.status = 'approved'; data.approved.unshift(item); }
+        renderAll(); setCounts();
       })
       .catch(function () { card.style.opacity = '1'; toast('Something went wrong.'); });
   }
@@ -132,12 +213,8 @@
     document.getElementById('gateErr').classList.add('hidden');
     load();
   });
-  document.getElementById('token').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') document.getElementById('unlock').click();
-  });
-  logout.addEventListener('click', function () {
-    token = ''; localStorage.removeItem(KEY); show(false); queue.classList.add('hidden'); empty.classList.add('hidden'); counts.textContent = '';
-  });
+  document.getElementById('token').addEventListener('keydown', function (e) { if (e.key === 'Enter') document.getElementById('unlock').click(); });
+  logout.addEventListener('click', function () { token = ''; localStorage.removeItem(KEY); show(false); counts.textContent = ''; });
 
   if (token) load();
 })();
