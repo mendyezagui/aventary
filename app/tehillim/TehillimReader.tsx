@@ -316,35 +316,6 @@ export default function TehillimReader() {
 
           <div className="spacer" />
 
-          <div className="speed">
-            <button
-              type="button"
-              className="btn-round"
-              onClick={() => setSpeed(speed - SPEED_STEP)}
-              title="Slower"
-            >
-              −
-            </button>
-            <input
-              type="range"
-              min={SPEED_MIN}
-              max={SPEED_MAX}
-              step={0.1}
-              value={speed}
-              onChange={(e) => setSpeed(Number(e.target.value))}
-              aria-label="Auto-scroll speed"
-            />
-            <button
-              type="button"
-              className="btn-round"
-              onClick={() => setSpeed(speed + SPEED_STEP)}
-              title="Faster"
-            >
-              +
-            </button>
-            <span className="speed-num">{speedPct}%</span>
-          </div>
-
           <div className="fontsz">
             <button
               type="button"
@@ -365,15 +336,6 @@ export default function TehillimReader() {
               A
             </button>
           </div>
-
-          <button
-            type="button"
-            className={`btn-play ${playing ? "btn-play-on" : ""}`}
-            onClick={() => setPlaying((p) => !p)}
-            title="Auto-scroll (Space)"
-          >
-            {playing ? "⏸ Pause" : "▶ Auto-scroll"}
-          </button>
 
           <button
             type="button"
@@ -446,6 +408,42 @@ export default function TehillimReader() {
           </>
         )}
       </main>
+
+      {/* ---- Floating auto-scroll bubble (always reachable) ---- */}
+      <div dir="ltr" className="fab" role="group" aria-label="Auto-scroll controls">
+        <div className="fab-speed">
+          <button
+            type="button"
+            className="fab-step"
+            onClick={() => setSpeed(speed - SPEED_STEP)}
+            title="Slower"
+            aria-label="Slower"
+          >
+            −
+          </button>
+          <span className="fab-pct" title="Auto-scroll speed">
+            {speedPct}%
+          </span>
+          <button
+            type="button"
+            className="fab-step"
+            onClick={() => setSpeed(speed + SPEED_STEP)}
+            title="Faster"
+            aria-label="Faster"
+          >
+            +
+          </button>
+        </div>
+        <button
+          type="button"
+          className={`fab-play ${playing ? "fab-play-on" : ""}`}
+          onClick={() => setPlaying((p) => !p)}
+          title={playing ? "Pause (Space)" : "Auto-scroll (Space)"}
+          aria-label={playing ? "Pause auto-scroll" : "Start auto-scroll"}
+        >
+          {playing ? "❚❚" : "▶"}
+        </button>
+      </div>
     </div>
   );
 }
