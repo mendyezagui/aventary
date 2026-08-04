@@ -1,0 +1,268 @@
+/* Tehillim reader — scoped under .tehillim-page */
+
+.tehillim-page {
+  --paper: #faf6ec;
+  --paper-2: #f3ecdb;
+  --ink: #20242e;
+  --muted: #6b6455;
+  --accent: #2f3a7c; /* royal blue */
+  --gold: #a9791c; /* verse numerals */
+  --line: rgba(47, 58, 124, 0.16);
+  min-height: 100vh;
+  background: radial-gradient(140% 120% at 50% 0%, var(--paper) 0%, var(--paper-2) 100%);
+  color: var(--ink);
+}
+
+.tehillim-root {
+  min-height: 100vh;
+}
+
+/* ---------- Control bar ---------- */
+.ctrlbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(250, 246, 236, 0.86);
+  backdrop-filter: saturate(140%) blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.ctrlbar-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.15;
+  padding: 7px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.btn:hover {
+  border-color: var(--accent);
+}
+.btn-on {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 4px 14px rgba(47, 58, 124, 0.25);
+}
+.btn-strong {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.btn-sub {
+  font-size: 0.72rem;
+  opacity: 0.8;
+  margin-top: 1px;
+}
+
+.jump {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.jump-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+.jump select {
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.9rem;
+  cursor: pointer;
+  max-width: 130px;
+}
+
+.daychips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 100%;
+}
+.chip {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.chip-on {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #fff;
+}
+
+.spacer {
+  flex: 1 1 auto;
+  min-width: 8px;
+}
+
+.speed {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.speed input[type="range"] {
+  width: 110px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.speed-num {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 600;
+  width: 34px;
+  text-align: right;
+}
+.btn-round {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.btn-round:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-play {
+  padding: 9px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.15s, background 0.15s;
+  box-shadow: 0 4px 14px rgba(47, 58, 124, 0.25);
+}
+.btn-play:hover {
+  transform: translateY(-1px);
+}
+.btn-play-on {
+  background: #b23b3b;
+  border-color: #b23b3b;
+  box-shadow: 0 4px 14px rgba(178, 59, 59, 0.28);
+}
+
+/* ---------- Text ---------- */
+.scroll-area {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 22px 55vh; /* deep bottom padding so the last verses can reach mid-screen */
+  font-family: var(--font-hebrew), "Frank Ruhl Libre", "David Libre", Georgia, serif;
+}
+
+.selheading {
+  text-align: center;
+  font-size: 1.05rem;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 18px;
+}
+
+.chapter {
+  margin: 0 0 40px;
+}
+.chapter-h {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  margin: 30px 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.chapter-word {
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.chapter-num {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.chapter-range {
+  font-size: 0.95rem;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.verses {
+  font-size: clamp(1.35rem, 1.1rem + 1vw, 1.72rem);
+  line-height: 2.15;
+}
+.verse {
+  margin: 0 0 2px;
+  text-align: justify;
+  text-align-last: right;
+}
+.vnum {
+  display: inline-block;
+  font-size: 0.6em;
+  color: var(--gold);
+  font-weight: 700;
+  vertical-align: 0.35em;
+  margin-inline-start: 0.35em;
+  margin-inline-end: 0.15em;
+  unicode-bidi: isolate;
+}
+.vtext {
+  unicode-bidi: isolate;
+}
+
+.endnote {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-top: 36px;
+  opacity: 0.7;
+}
+
+@media (max-width: 640px) {
+  .ctrlbar-inner {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  .daychips {
+    order: 5;
+    width: 100%;
+  }
+  .scroll-area {
+    padding: 20px 16px 55vh;
+  }
+}
