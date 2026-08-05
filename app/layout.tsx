@@ -87,6 +87,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           data-domain="aventary.com"
           src="https://plausible.io/js/script.outbound-links.file-downloads.js"
         />
+        {/* Google Analytics 4 */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-2PELLWT8WS"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-2PELLWT8WS');"
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
