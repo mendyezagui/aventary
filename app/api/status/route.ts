@@ -18,9 +18,13 @@ function demoEvents(now: Date): CalendarEvent[] {
   const later = new Date(now.getTime() + 3 * 60 * 60 * 1000);
   const laterEnd = new Date(later.getTime() + 60 * 60 * 1000);
   return [
-    { uid: "demo-1", summary: "Demo standup", start: soon, end: soonEnd, allDay: false },
-    { uid: "demo-2", summary: "Demo client call", start: later, end: laterEnd, allDay: false }
+    { uid: "demo-1", summary: "Demo standup", start: soon, end: soonEnd, allDay: false, attendeeCount: 3 },
+    { uid: "demo-2", summary: "Demo client call", start: later, end: laterEnd, allDay: false, attendeeCount: 2 }
     ];
+}
+
+function truthy(v: string | undefined | null): boolean {
+  return v === "1" || v === "true" || v === "yes" || v === "on";
 }
 
 const loadFeeds = unstable_cache(
@@ -65,6 +69,14 @@ const now = new Date();
   const warnRaw = parseInt(process.env.MEETING_WARN_MINUTES || "5", 10);
   const warn = Number.isFinite(warnRaw) ? warnRaw : 5;
 
+  // Only alert for meetings with someone other than you invited. Off by default;
+  // enable with MEETING_REQUIRE_GUESTS=1, or override per-request with ?guestsOnly=1|0.
+  const guestsParam = req.nextUrl.searchParams.get("guestsOnly");
+  const requireAttendees =
+    guestsParam !== null ? truthy(guestsParam) : truthy(process.env.MEETING_REQUIRE_GUESTS);
+  const minRaw = parseInt(process.env.MEETING_MIN_ATTENDEES || "2", 10);
+  const minAttendees = Number.isFinite(minRaw) && minRaw > 0 ? minRaw : 2;
+
 const urls = [
   process.env.MEETING_ICAL_URL,
   process.env.MEETING_ICAL_URL_2,
@@ -99,7 +111,7 @@ if (urls.length) {
   source = "demo";
 }
 
-const status = computeStatus(events, now, { warnMinutes: warn });
+const status = computeStatus(events, now, { warnMinutes: warn, requireAttendees, minAttendees });
 
 const nextStartsInSeconds = status.next
   ? Math.round((new Date(status.next.start).getTime() - now.getTime()) / 1000)
@@ -114,6 +126,8 @@ return NextResponse.json(
     source,
     error,
     warnMinutes: warn,
+    requireAttendees,
+    minAttendees,
     now: now.toISOString()
   },
   { headers: { "Cache-Control": "no-store" } }

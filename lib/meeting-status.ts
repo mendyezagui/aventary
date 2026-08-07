@@ -21,6 +21,7 @@ export type SerializableEvent = {
   start: string; // ISO
   end: string; // ISO
   allDay: boolean;
+  attendeeCount: number;
 };
 
 export type StatusOptions = {
@@ -28,6 +29,14 @@ export type StatusOptions = {
   warnMinutes?: number;
   /** Ignore all-day events (they shouldn't make the light red all day). */
   ignoreAllDay?: boolean;
+  /**
+   * Only treat an event as a meeting when it has at least `minAttendees`
+   * attendees — i.e. someone other than you is invited. Personal blocks
+   * (no guests) then leave the light green.
+   */
+  requireAttendees?: boolean;
+  /** Attendee threshold for requireAttendees (default 2: you + at least one other). */
+  minAttendees?: number;
 };
 
 function toSerializable(e: CalendarEvent): SerializableEvent {
@@ -36,7 +45,8 @@ function toSerializable(e: CalendarEvent): SerializableEvent {
     summary: e.summary,
     start: e.start.toISOString(),
     end: e.end.toISOString(),
-    allDay: e.allDay
+    allDay: e.allDay,
+    attendeeCount: e.attendeeCount
   };
 }
 
@@ -47,10 +57,13 @@ export function computeStatus(
 ): MeetingStatus {
   const warnMinutes = options.warnMinutes ?? 5;
   const ignoreAllDay = options.ignoreAllDay ?? true;
+  const requireAttendees = options.requireAttendees ?? false;
+  const minAttendees = options.minAttendees ?? 2;
   const t = now.getTime();
 
   const timed = events
     .filter((e) => (ignoreAllDay ? !e.allDay : true))
+    .filter((e) => (requireAttendees ? e.attendeeCount >= minAttendees : true))
     .slice()
     .sort((a, b) => a.start.getTime() - b.start.getTime());
 

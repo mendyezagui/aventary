@@ -16,6 +16,8 @@ export type CalendarEvent = {
   start: Date;
   end: Date;
   allDay: boolean;
+  /** Number of ATTENDEE lines on the event (0 for a personal block with no guests). */
+  attendeeCount: number;
 };
 
 /** Unfold RFC 5545 folded lines: a leading space/tab continues the prior line. */
@@ -166,6 +168,7 @@ type RawEvent = {
   rrule?: string;
   exdates: number[];
   cancelled: boolean;
+  attendeeCount: number;
 };
 
 const DAY_INDEX: Record<string, number> = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 };
@@ -220,7 +223,7 @@ function expand(ev: RawEvent, windowStart: Date, windowEnd: Date): CalendarEvent
   // event's wall-clock time-of-day and zone.
   const makeAt = (y: number, mo: number, d: number): CalendarEvent => {
     const start = toUtc(y, mo, d, dv.h, dv.mi, dv.s, dv.tzid);
-    return { uid: ev.uid, summary: ev.summary, start, end: new Date(start.getTime() + duration), allDay: dv.allDay };
+    return { uid: ev.uid, summary: ev.summary, start, end: new Date(start.getTime() + duration), allDay: dv.allDay, attendeeCount: ev.attendeeCount };
   };
   const inWindow = (e: CalendarEvent) =>
     e.end.getTime() > windowStart.getTime() && e.start.getTime() < windowEnd.getTime();
@@ -293,7 +296,7 @@ export function parseICS(
   for (const line of lines) {
     const { name, params, value } = parseLine(line);
     if (name === "BEGIN" && value === "VEVENT") {
-      cur = { uid: "", summary: "(busy)", exdates: [], cancelled: false };
+      cur = { uid: "", summary: "(busy)", exdates: [], cancelled: false, attendeeCount: 0 };
       continue;
     }
     if (name === "END" && value === "VEVENT") {
@@ -318,6 +321,11 @@ export function parseICS(
         break;
       case "RRULE":
         cur.rrule = value;
+        break;
+      case "ATTENDEE":
+        // Each ATTENDEE line is one invited participant. Google emits one per
+        // guest (including you) on events that have guests; personal blocks have none.
+        cur.attendeeCount++;
         break;
       case "EXDATE":
         for (const part of value.split(",")) {
