@@ -201,16 +201,31 @@ Deploy-script history lives in `ops/` (`deploy_digest.sh`, `deploy_who.sh`).
 
 ## 9. Monitoring (Datadog)
 
-> ⚠️ **Not present in code/units as inspected.** There is no Datadog SDK,
-> `dd-trace`, `datadog-agent` config, or `DD_*` env var referenced in the
-> application modules or the five `vantaca-*` systemd units. If Datadog is
-> running on this droplet it is doing so as a **host agent** independent of the
-> app, which this doc can't confirm from the code alone.
+**Confirmed running (2026-08-07).** A Datadog **host agent** is installed and
+active on the droplet itself — same box as the whole Vantaca stack:
 
-**Confirm what's actually there** (paste back and I'll fill this section in):
+| Fact | Value |
+|---|---|
+| Runs on | the droplet `134.209.126.217`, hostname `ubuntu-s-1vcpu-1gb-nyc1` |
+| Agent version | v7.80.2 (Go build), `agent` flavor |
+| Active since | 2026-07-28 (service `datadog-agent`, `active`) |
+| Config | `/etc/datadog-agent/datadog.yaml`; integrations in `conf.d`, custom checks in `checks.d` |
+| Also present | `datadog-agent` **private-action-runner** (`/etc/datadog-agent/private-action-runner`) — Datadog Private Actions / Workflow Automation runner |
+
+It is a **host/infra agent independent of the app code** — nothing in the
+`vantaca-*` modules or systemd units references Datadog (`dd-trace`, `DD_*`), so
+app-level APM/tracing is *not* wired in; Datadog sees the host + whatever checks
+are configured in `conf.d`.
+
+**"Seen in Second Brain":** a full-text search of Second Brain for `datadog`
+returns **no records** — so Datadog is not stored there. What surfaces in the
+Second Brain app is most likely an **embedded Datadog view/integration** in the
+UI (and/or the on-box **private-action-runner** bridging Datadog into internal
+systems), not Second Brain data.
+
+**Still to confirm** (which integrations, whether logs/APM are on, site/tags):
 ```bash
-ssh -i ~/.ssh/vantaca_vps root@134.209.126.217 \
-  'systemctl is-active datadog-agent 2>&1; echo "---"; datadog-agent status 2>&1 | sed -n "1,30p"; echo "---"; ls /etc/datadog-agent 2>&1'
+ssh -i ~/.ssh/vantaca_vps root@134.209.126.217 'find /etc/datadog-agent/conf.d -name "*.yaml" ! -name "*.example"; grep -HnE "^(logs_enabled|site|tags|apm_config|process_config):" /etc/datadog-agent/datadog.yaml; systemctl is-active datadog-agent-private-action-runner 2>&1'
 ```
 
 **Recommended coverage for this stack** (what Datadog *should* watch here):
@@ -221,13 +236,13 @@ ssh -i ~/.ssh/vantaca_vps root@134.209.126.217 \
 | MCP health | HTTP check on `127.0.0.1:8787/mcp` (init handshake) | alert on non-200 / timeout |
 | Timer freshness | last run of `vantaca-report` (and `vantaca-alerts` if re-enabled) | alert if a scheduled run is missed |
 | Cloudflare tunnel | `cloudflared` process + `vantaca.aventary.com/mcp` synthetic | alert on tunnel down |
-| Host | `datadog-agent` core checks (CPU, **disk** — the box has a fixed writable allowance, memory) | disk > 85% |
+| Host | `datadog-agent` core checks (CPU, **disk** — 1 vCPU / 1 GB box, fixed writable allowance, memory) | disk > 85% |
 | Claude cost/latency | derive from the `vantaca_audit` table (`cost_usd`, `ms`, `status`) — ship as custom metrics or a scheduled query | alert on cost spike / error-rate |
 | App errors | `journalctl`/log integration on the `vantaca-*` units | alert on `:warning:` / `askVantaca error` / `TOOLS_FAIL` |
 
-If you already have Datadog dashboards/monitors, tell me their names (or run the
-check above) and I'll replace this section with the real configuration.
+Run the "still to confirm" command above and I'll replace the recommended table
+with the integrations you actually have enabled.
 
 ---
 
-*Last updated: 2026-06-25.*
+*Last updated: 2026-08-07.*
