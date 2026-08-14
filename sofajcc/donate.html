@@ -22,7 +22,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="/assets/tailwind.css?v=10" rel="stylesheet"/>
-<script async src="https://js.stripe.com/v3/buy-button.js"></script>
 </head>
 <body class="bg-soft-cream text-on-background">
 <!-- Top Navigation -->
@@ -56,13 +55,12 @@
 <div class="bg-white p-6 md:p-8 rounded-xl premium-shadow max-w-[760px] mx-auto text-center">
 <div class="w-12 h-12 bg-soft-cream rounded-2xl flex items-center justify-center text-secondary mx-auto mb-4"><span class="material-symbols-outlined text-2xl">favorite</span></div>
 <h2 class="font-headline-md text-headline-md mb-1 text-primary">Make a Donation</h2>
-<p class="font-body-md text-body-md text-on-surface-variant mb-6">Give with an open heart. Secure giving powered by Stripe.</p>
-<!-- Stripe Buy Button (live, from the current site) -->
-<stripe-buy-button
-buy-button-id="buy_btn_1Tb1mgLMjVclDp8Qk5BUfjEb"
-publishable-key="pk_live_51TX5DNLMjVclDp8QduohZprWr4rrpOcfjZfqEHHelZHT0YIWhgnRg9jIgxPHtAIp3Q8nWckzZR36DtVDfGwgq5iL00zIlJdkEt">
-</stripe-buy-button>
-<div class="flex items-center justify-center gap-2 text-on-surface-variant opacity-70 mt-6"><span class="material-symbols-outlined text-sm">lock</span><span class="font-button text-xs">Encrypted &amp; secure transaction</span></div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Give with an open heart. Powered by Zeffy — <strong>100% of your donation</strong> reaches the SoFa, and you'll get an emailed tax receipt.</p>
+<!-- Zeffy donation form (embed) -->
+<div class="rounded-xl overflow-hidden border border-surface-variant/50 bg-soft-cream" style="position:relative;width:100%;height:800px;">
+<iframe title="Donate to SoFa Jewish Community Center" loading="lazy" allow="payment" allowtransparency="true" style="position:absolute;inset:0;border:0;width:100%;height:100%;" src="https://www.zeffy.com/embed/donation-form/donate-807">Loading the donation form…</iframe>
+</div>
+<div class="flex items-center justify-center gap-2 text-on-surface-variant opacity-70 mt-4"><span class="material-symbols-outlined text-sm">lock</span><span class="font-button text-xs">Secure &amp; tax-receipted — powered by Zeffy</span></div>
 <!-- compact impact row -->
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 text-left mt-6 pt-6 border-t border-surface-variant/50">
 <div class="flex items-start gap-2"><span class="material-symbols-outlined text-sage-status text-lg">check_circle</span><p class="font-body-md text-sm text-on-surface-variant">Lively Shabbos &amp; holiday services, open to all.</p></div>
@@ -70,7 +68,7 @@ publishable-key="pk_live_51TX5DNLMjVclDp8QduohZprWr4rrpOcfjZfqEHHelZHT0YIWhgnRg9
 <div class="flex items-start gap-2"><span class="material-symbols-outlined text-sage-status text-lg">check_circle</span><p class="font-body-md text-sm text-on-surface-variant">Career guidance &amp; mental health support.</p></div>
 <div class="flex items-start gap-2"><span class="material-symbols-outlined text-sage-status text-lg">check_circle</span><p class="font-body-md text-sm text-on-surface-variant">A family-focused community home for every Jew.</p></div>
 </div>
-<p class="font-body-md text-sm text-on-surface-variant mt-5">If the button doesn't appear, please <a class="text-secondary hover:underline" href="/about#contact">contact us</a> and we'll be glad to help.</p>
+<p class="font-body-md text-sm text-on-surface-variant mt-5">Trouble seeing the form? <a class="text-secondary hover:underline" href="https://www.zeffy.com/en-US/donation-form/donate-807" target="_blank" rel="noopener">Open the donation form in a new tab</a>, or <a class="text-secondary hover:underline" href="/about#contact">contact us</a> and we'll help.</p>
 </div>
 </section>
 <!-- Things We Need (same level — in-kind wishlist) -->

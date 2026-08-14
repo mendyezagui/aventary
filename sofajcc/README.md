@@ -15,7 +15,7 @@ preserved** during the move.
 |------|-----------|-------|
 | `home.html` | `/home` | Welcome, programs, weekly Dvar Torah (embedded Google Doc) |
 | `about.html` | `/about` | Mission, vision, embedded **Contact Us** Google Form (`#contact`) |
-| `donate.html` | `/donate` | Live **Stripe** donation button (carried over unchanged) |
+| `donate.html` | `/donate` | Embedded **Zeffy** donation form (auto tax receipts) + in-kind wishlist |
 | `good-deeds.html` | `/good-deeds` | "Join the Good Deeds Chain" — **self-hosted** form + live chain (Cloudflare D1) |
 | `moderate.html` | `/moderate` | Hidden, `noindex` moderation dashboard for the Good Deeds queue |
 | `404.html` | any unknown path | Friendly not-found page |
@@ -161,10 +161,12 @@ are wired to your existing Google/Stripe accounts, so they update on their own:
   (`docs.google.com/document/d/1khotQ-cPlYrS90Bp4ns1PhuWbHrbEWAib1o7b-3ud50`).
   Edit that doc and the site reflects it.
 - **Contact form** — embeds your Google Form; responses go to your Google account.
-- **Donation button** — the Stripe Buy Button
-  (`buy_btn_1Tb1mgLMjVclDp8Qk5BUfjEb`). Manage amounts/receipts in Stripe.
-  *Note: the publishable key and button id in `donate.html` are public by design
-  — Stripe intends them to live in client-side HTML.*
+- **Donations** — embedded **Zeffy** donation form
+  (`https://www.zeffy.com/embed/donation-form/donate-807`) in `donate.html`, with
+  a direct-link fallback. Zeffy is free for the nonprofit (100% of the gift
+  reaches the org) and emails donors an automatic tax receipt. Manage the form,
+  amounts, and receipts in the Zeffy dashboard. (Replaced the previous Stripe
+  Buy Button.)
 - **Good Deeds chain** — self-hosted on Cloudflare D1 + Pages Functions (see the
   "Good Deeds backend" section above). Moderate submissions at `/moderate`.
 - **Branding** — the logo is an inline SVG (a sofa mark) in each page's header
