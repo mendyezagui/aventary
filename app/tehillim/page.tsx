@@ -1,19 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Frank_Ruhl_Libre } from "next/font/google";
-import TehillimReader from "./TehillimReader";
+import { hebrew } from "./fonts";
+import HomeTehillim from "./HomeTehillim";
 import "./tehillim.css";
-
-const hebrew = Frank_Ruhl_Libre({
-  subsets: ["hebrew"],
-  weight: ["400", "500", "700"],
-  variable: "--font-hebrew",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Tehillim — Psalms",
   description:
-    "Read Tehillim (Psalms 1–150) in Hebrew with the daily portion by the day of the Hebrew month, jump to any Psalm, and hands-free auto-scroll with adjustable speed.",
+    "A Tehillim (Psalms) home: today's daily portion with the Elul and Ten Days of Repentance additions, Tehillim for a name (Psalm 119), saved Psalms for kaddish and family, and hands-free auto-scroll.",
   robots: { index: false, follow: false },
   manifest: "/tehillim/manifest.webmanifest",
   applicationName: "Tehillim",
@@ -37,10 +30,10 @@ export const viewport: Viewport = {
   themeColor: "#2b3a80",
 };
 
-export default function TehillimPage() {
+export default function TehillimHome() {
   return (
     <div className={`tehillim-page ${hebrew.variable}`}>
-      <TehillimReader />
+      <HomeTehillim />
     </div>
   );
 }

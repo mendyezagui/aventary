@@ -1,26 +1,41 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   TEXT,
   CHAPTER_COUNT,
   segmentsForDay,
+  seasonalAddition,
+  nameLetters,
+  stanzasForLetters,
+  KERA_SATAN,
+  NESHAMA,
   hebNumber,
   hebNumberPunct,
   type Segment,
 } from "./data";
+import { getSaved, isSaved, toggleSaved, type Saved } from "./store";
 
+type Addition = "kera" | "neshama" | "none";
 type Selection =
+  | { type: "today" }
   | { type: "day"; day: number }
-  | { type: "chapter"; chapter: number };
+  | { type: "chapter"; chapter: number }
+  | { type: "name"; name: string; add: Addition }
+  | { type: "saved" };
 
 type Theme = "light" | "dark";
 
 type HebToday = {
-  day: number; // Hebrew day of month, 1–30
-  combine: boolean; // true in a 29-day month (day 29 also gets day 30)
+  day: number;
+  combine: boolean;
+  month: string; // English month name from Intl, e.g. "Elul", "Tishri"
   label: string; // e.g. "כ״א באב תשפ״ו"
 };
+
+// A rendered block: an optional Hebrew heading + its chapter/stanza segments.
+type Group = { title?: string; note?: string; segments: Segment[] };
 
 const LS = "tehillim.v1";
 const SPEED_MIN = 0.4;
@@ -31,7 +46,6 @@ const FONT_MAX = 2;
 const FONT_STEP = 0.1;
 
 type Persisted = {
-  sel?: Selection;
   speed?: number;
   font?: number;
   theme?: Theme;
@@ -50,22 +64,20 @@ function saveLS(patch: Persisted) {
   try {
     localStorage.setItem(LS, JSON.stringify({ ...loadLS(), ...patch }));
   } catch {
-    /* storage unavailable — ignore */
+    /* ignore */
   }
 }
 
-function hebDayNum(d: Date): number {
-  return parseInt(
-    new Intl.DateTimeFormat("en-u-ca-hebrew", { day: "numeric" }).format(d),
-    10
-  );
+function hebField(base: Date, opt: Intl.DateTimeFormatOptions): string {
+  return new Intl.DateTimeFormat("en-u-ca-hebrew", opt).format(base);
 }
 
 function computeHebToday(base = new Date()): HebToday {
-  const day = hebDayNum(base);
+  const day = parseInt(hebField(base, { day: "numeric" }), 10);
+  const month = hebField(base, { month: "long" });
   const tomorrow = new Date(base.getTime() + 24 * 60 * 60 * 1000);
-  // A Hebrew month is "short" (29 days) when the day after the 29th is the 1st.
-  const combine = day === 29 && hebDayNum(tomorrow) === 1;
+  const tomDay = parseInt(hebField(tomorrow, { day: "numeric" }), 10);
+  const combine = day === 29 && tomDay === 1;
   let label = "";
   try {
     label = new Intl.DateTimeFormat("he-u-ca-hebrew", {
@@ -76,17 +88,37 @@ function computeHebToday(base = new Date()): HebToday {
   } catch {
     label = hebNumberPunct(day);
   }
-  return { day, combine, label };
+  return { day, combine, month, label };
 }
 
 function selKey(sel: Selection): string {
-  return sel.type === "day" ? "d" + sel.day : "c" + sel.chapter;
+  switch (sel.type) {
+    case "today":
+      return "today";
+    case "day":
+      return "d" + sel.day;
+    case "chapter":
+      return "c" + sel.chapter;
+    case "name":
+      return "n:" + sel.add + ":" + nameLetters(sel.name).join("");
+    case "saved":
+      return "saved";
+  }
+}
+
+function additionWord(add: Addition): string | null {
+  if (add === "kera") return KERA_SATAN;
+  if (add === "neshama") return NESHAMA;
+  return null;
 }
 
 export default function TehillimReader() {
+  const params = useSearchParams();
+
   const [ready, setReady] = useState(false);
   const [hebToday, setHebToday] = useState<HebToday | null>(null);
-  const [sel, setSel] = useState<Selection>({ type: "chapter", chapter: 1 });
+  const [sel, setSel] = useState<Selection>({ type: "today" });
+  const [saved, setSavedState] = useState<Saved[]>([]);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeedState] = useState(1.6);
   const [font, setFontState] = useState(1);
@@ -97,47 +129,99 @@ export default function TehillimReader() {
   selRef.current = sel;
   const pendingScroll = useRef<number | null>(null);
 
-  // ---- One-time client init: read the Hebrew date + restore saved state ----
+  // ---- One-time client init ----
   useEffect(() => {
     const t = computeHebToday();
     setHebToday(t);
-    const s = loadLS();
-    const startSel: Selection =
-      s.sel && (s.sel.type === "day" || s.sel.type === "chapter")
-        ? s.sel
-        : { type: "day", day: t.day };
+    setSavedState(getSaved());
+
+    // Selection comes from the URL (links from the home hub); default to today.
+    const mode = params.get("mode");
+    let startSel: Selection = { type: "today" };
+    if (mode === "chapter") {
+      const ch = Math.min(CHAPTER_COUNT, Math.max(1, Number(params.get("ch")) || 1));
+      startSel = { type: "chapter", chapter: ch };
+    } else if (mode === "day") {
+      const d = Math.min(30, Math.max(1, Number(params.get("day")) || t.day));
+      startSel = { type: "day", day: d };
+    } else if (mode === "name") {
+      const name = params.get("name") || "";
+      const addRaw = params.get("add");
+      const add: Addition =
+        addRaw === "kera" || addRaw === "neshama" ? addRaw : "none";
+      startSel = { type: "name", name, add };
+    } else if (mode === "saved") {
+      startSel = { type: "saved" };
+    }
     setSel(startSel);
+
+    const s = loadLS();
     if (typeof s.speed === "number") setSpeedState(s.speed);
     if (typeof s.font === "number") setFontState(s.font);
     if (typeof s.barOpen === "boolean") setBarOpenState(s.barOpen);
     setTheme(
       s.theme ||
-        (window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light")
+        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
     );
     if (s.scroll && s.scroll.key === selKey(startSel)) {
       pendingScroll.current = s.scroll.y;
     }
     setReady(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Apply the theme to the document root so the scoped tokens flip.
   useEffect(() => {
     if (!theme) return;
     document.documentElement.setAttribute("data-theme", theme);
     saveLS({ theme });
   }, [theme]);
 
-  const segments = useMemo<Segment[]>(() => {
-    if (sel.type === "day") return segmentsForDay(sel.day, hebToday?.combine ?? false);
-    const out: Segment[] = [];
-    for (let c = sel.chapter; c <= CHAPTER_COUNT; c++) out.push({ chapter: c });
+  // ---- Build the groups to render for the current selection ----
+  const groups = useMemo<Group[]>(() => {
+    if (sel.type === "chapter") {
+      const segs: Segment[] = [];
+      for (let c = sel.chapter; c <= CHAPTER_COUNT; c++) segs.push({ chapter: c });
+      return [{ segments: segs }];
+    }
+    if (sel.type === "day") {
+      return [{ segments: segmentsForDay(sel.day, false) }];
+    }
+    if (sel.type === "saved") {
+      return [{ segments: saved.map((s) => ({ chapter: s.ch })) }];
+    }
+    if (sel.type === "name") {
+      const letters = nameLetters(sel.name);
+      const out: Group[] = [
+        { title: sel.name.trim() || "—", note: "Psalm 119 — stanzas of the name", segments: stanzasForLetters(letters) },
+      ];
+      const word = additionWord(sel.add);
+      if (word) {
+        out.push({
+          title: word,
+          note: sel.add === "kera" ? "for a refuah" : "in memory",
+          segments: stanzasForLetters(nameLetters(word)),
+        });
+      }
+      return out;
+    }
+    // today
+    const combine = hebToday?.combine ?? false;
+    const day = hebToday?.day ?? 1;
+    const out: Group[] = [{ segments: segmentsForDay(day, combine) }];
+    if (hebToday) {
+      const add = seasonalAddition(hebToday.month, hebToday.day);
+      if (add) {
+        out.push({
+          title: add.title,
+          note: add.note,
+          segments: add.chapters.map((c) => ({ chapter: c })),
+        });
+      }
+    }
     return out;
-  }, [sel, hebToday]);
+  }, [sel, hebToday, saved]);
 
-  // On selection change: stop scrolling, then restore saved position (first
-  // load only) or jump to the top (user-driven change).
+  // Stop scrolling on selection change; restore saved position on first load only.
   useEffect(() => {
     if (!ready) return;
     setPlaying(false);
@@ -201,17 +285,14 @@ export default function TehillimReader() {
     setFontState(f);
     saveLS({ font: f });
   }, []);
-
-  const choose = useCallback((next: Selection) => {
-    saveLS({ sel: next });
-    setSel(next);
-  }, []);
   const setBarOpen = useCallback((v: boolean) => {
     setBarOpenState(v);
     saveLS({ barOpen: v });
   }, []);
+  const onToggleSave = useCallback((ch: number) => {
+    setSavedState(toggleSaved(ch));
+  }, []);
 
-  // Keyboard: space play/pause, up/down speed, +/- text size.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.code === "Space") {
@@ -235,20 +316,28 @@ export default function TehillimReader() {
     return () => window.removeEventListener("keydown", onKey);
   }, [speed, font, setSpeed, setFont]);
 
-  const speedPct = Math.round(
-    ((speed - SPEED_MIN) / (SPEED_MAX - SPEED_MIN)) * 100
-  );
+  const speedPct = Math.round(((speed - SPEED_MIN) / (SPEED_MAX - SPEED_MIN)) * 100);
 
-  const heading =
-    sel.type === "day"
-      ? `יוֹם ${hebNumberPunct(sel.day)}${
-          hebToday?.combine && sel.day === 29 ? " (ל׳)" : ""
-        }`
-      : `מִזְמוֹר ${hebNumberPunct(sel.chapter)}`;
+  const overallHeading = (() => {
+    switch (sel.type) {
+      case "today":
+        return `יוֹם ${hebToday ? hebNumberPunct(hebToday.day) : ""}`;
+      case "day":
+        return `יוֹם ${hebNumberPunct(sel.day)}`;
+      case "chapter":
+        return `מִזְמוֹר ${hebNumberPunct(sel.chapter)}`;
+      case "name":
+        return "תְּהִלִּים לְשֵׁם";
+      case "saved":
+        return "תְּהִלִּים שְׁמוּרִים";
+    }
+  })();
+
+  const showDayChips = sel.type === "today" || sel.type === "day";
+  const totalSegments = groups.reduce((n, g) => n + g.segments.length, 0);
 
   return (
     <div dir="rtl" className="tehillim-root">
-      {/* ---- Collapsed handle ---- */}
       {!barOpen && (
         <button
           dir="ltr"
@@ -262,13 +351,16 @@ export default function TehillimReader() {
         </button>
       )}
 
-      {/* ---- Control bar ---- */}
       <div dir="ltr" className="ctrlbar" hidden={!barOpen}>
         <div className="ctrlbar-inner">
+          <a className="btn-home" href="/tehillim" title="Home" aria-label="Home">
+            ⌂
+          </a>
+
           <button
             type="button"
-            className={`btn ${sel.type === "day" ? "btn-on" : ""}`}
-            onClick={() => hebToday && choose({ type: "day", day: hebToday.day })}
+            className={`btn ${sel.type === "today" ? "btn-on" : ""}`}
+            onClick={() => setSel({ type: "today" })}
             title="Today's Tehillim (by the Hebrew day of the month)"
           >
             <span className="btn-strong">Today</span>
@@ -284,7 +376,7 @@ export default function TehillimReader() {
             <select
               value={sel.type === "chapter" ? sel.chapter : ""}
               onChange={(e) =>
-                choose({ type: "chapter", chapter: Number(e.target.value) })
+                setSel({ type: "chapter", chapter: Number(e.target.value) })
               }
             >
               <option value="" disabled>
@@ -298,14 +390,14 @@ export default function TehillimReader() {
             </select>
           </label>
 
-          {sel.type === "day" && (
+          {showDayChips && (
             <div className="daychips">
               {Array.from({ length: 30 }, (_, i) => i + 1).map((d) => (
                 <button
                   key={d}
                   type="button"
-                  className={`chip ${sel.day === d ? "chip-on" : ""}`}
-                  onClick={() => choose({ type: "day", day: d })}
+                  className={`chip ${sel.type === "day" && sel.day === d ? "chip-on" : ""}`}
+                  onClick={() => setSel({ type: "day", day: d })}
                   title={`Day ${d}`}
                 >
                   {d}
@@ -359,57 +451,107 @@ export default function TehillimReader() {
         </div>
       </div>
 
-      {/* ---- Text ---- */}
       <main
         className="scroll-area"
         style={{ ["--fs" as string]: font } as React.CSSProperties}
       >
         {ready && (
           <>
-            <p className="selheading">{heading}</p>
+            <p className="selheading">{overallHeading}</p>
 
-            {segments.map((seg, i) => {
-              const verses = TEXT[String(seg.chapter)] ?? [];
-              const from = seg.from ?? 1;
-              const to = seg.to ?? verses.length;
-              const rangeNote =
-                seg.from || seg.to
-                  ? ` · ${hebNumberPunct(from)}–${hebNumberPunct(to)}`
-                  : "";
-              return (
-                <section key={`${seg.chapter}-${i}`} className="chapter">
-                  <h2 className="chapter-h">
-                    <span className="chapter-word">תְּהִלִּים</span>
-                    <span className="chapter-num">
-                      {hebNumberPunct(seg.chapter)}
-                    </span>
-                    {rangeNote && <span className="chapter-range">{rangeNote}</span>}
-                  </h2>
-                  <div className="verses">
-                    {verses.slice(from - 1, to).map((v, idx) => {
-                      const vn = from + idx;
-                      return (
-                        <p key={vn} className="verse">
-                          <span className="vnum">{hebNumber(vn)}</span>
-                          <span className="vtext">{v}</span>
-                        </p>
-                      );
-                    })}
+            {sel.type === "saved" && totalSegments === 0 && (
+              <p className="empty-note">
+                No saved Psalms yet. Open any Psalm and tap the ☆ to save it here —
+                for a yahrzeit, a kaddish, or a name you keep in mind.
+              </p>
+            )}
+
+            {groups.map((g, gi) => (
+              <section key={gi} className="group">
+                {g.title && (
+                  <div className="group-h">
+                    <span className="group-title">{g.title}</span>
+                    {g.note && <span className="group-note">{g.note}</span>}
                   </div>
-                </section>
-              );
-            })}
+                )}
+                {g.segments.map((seg, i) => {
+                  const verses = TEXT[String(seg.chapter)] ?? [];
+                  const from = seg.from ?? 1;
+                  const to = seg.to ?? verses.length;
+                  const isStanza = !!seg.label;
+                  const rangeNote =
+                    !isStanza && (seg.from || seg.to)
+                      ? ` · ${hebNumberPunct(from)}–${hebNumberPunct(to)}`
+                      : "";
+                  return (
+                    <section key={`${seg.chapter}-${i}`} className="chapter">
+                      <h2 className="chapter-h">
+                        {isStanza ? (
+                          <>
+                            <span className="chapter-num">{seg.label}</span>
+                            <span className="chapter-word">
+                              תְּהִלִּים קי״ט
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="chapter-word">תְּהִלִּים</span>
+                            <span className="chapter-num">
+                              {hebNumberPunct(seg.chapter)}
+                            </span>
+                            {rangeNote && (
+                              <span className="chapter-range">{rangeNote}</span>
+                            )}
+                            <button
+                              type="button"
+                              className={`savebtn ${isSaved(saved, seg.chapter) ? "saved" : ""}`}
+                              onClick={() => onToggleSave(seg.chapter)}
+                              title={
+                                isSaved(saved, seg.chapter)
+                                  ? "Remove from saved"
+                                  : "Save this Psalm"
+                              }
+                              aria-label={
+                                isSaved(saved, seg.chapter)
+                                  ? "Remove from saved"
+                                  : "Save this Psalm"
+                              }
+                            >
+                              {isSaved(saved, seg.chapter) ? "★" : "☆"}
+                            </button>
+                          </>
+                        )}
+                      </h2>
+                      <div className="verses">
+                        {verses.slice(from - 1, to).map((v, idx) => {
+                          const vn = from + idx;
+                          return (
+                            <p key={vn} className="verse">
+                              <span className="vnum">{hebNumber(vn)}</span>
+                              <span className="vtext">{v}</span>
+                            </p>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  );
+                })}
+              </section>
+            ))}
 
-            <p className="endnote">
-              {sel.type === "day"
-                ? "סליק · end of today's Tehillim"
-                : "· pick another Psalm above ·"}
-            </p>
+            {totalSegments > 0 && (
+              <p className="endnote">
+                {sel.type === "today" || sel.type === "day"
+                  ? "סליק · end of the portion"
+                  : sel.type === "name"
+                    ? "· may it be a merit ·"
+                    : "· end ·"}
+              </p>
+            )}
           </>
         )}
       </main>
 
-      {/* ---- Floating auto-scroll bubble (always reachable) ---- */}
       <div dir="ltr" className="fab" role="group" aria-label="Auto-scroll controls">
         <div className="fab-speed">
           <button

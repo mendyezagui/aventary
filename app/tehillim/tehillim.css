@@ -450,3 +450,339 @@
     transition: none;
   }
 }
+
+/* ---------- Home / navigation additions ---------- */
+.btn-home {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+.btn-home:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* group divider heading (seasonal additions, name sections) */
+.group {
+  margin: 0 0 8px;
+}
+.group + .group {
+  margin-top: 18px;
+}
+.group-h {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  margin: 26px 0 6px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.group-title {
+  font-family: var(--font-hebrew), "Frank Ruhl Libre", serif;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
+}
+.group-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.savebtn {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 6px;
+  transition: color 0.15s, transform 0.1s;
+}
+.savebtn:hover {
+  color: var(--gold);
+  transform: scale(1.12);
+}
+.savebtn.saved {
+  color: var(--gold);
+}
+
+.empty-note {
+  text-align: center;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 34ch;
+  margin: 30px auto;
+}
+
+/* ---------- Home hub ---------- */
+.home {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 26px 18px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.home-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.home-title {
+  font-family: var(--font-hebrew), "Frank Ruhl Libre", serif;
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0;
+  line-height: 1.1;
+}
+.home-sub {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  text-decoration: none;
+  color: var(--ink);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  transition: transform 0.13s, border-color 0.15s, box-shadow 0.15s;
+}
+a.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 22px var(--accent-soft);
+}
+.card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.card-kicker {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.card-title {
+  font-size: 1.22rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.card-desc {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.card-arrow {
+  font-size: 1.5rem;
+  color: var(--accent);
+  flex: 0 0 auto;
+}
+.card-primary {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--accent-soft), transparent 70%), var(--card);
+}
+.card-slim {
+  padding: 14px 18px;
+}
+.card-form {
+  align-items: stretch;
+}
+
+.badge {
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid var(--line);
+}
+.badge-elul {
+  color: #fff;
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.badge-aseret {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.badge-yomkippur {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.nameform {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+.nameinput {
+  font-family: var(--font-hebrew), "Frank Ruhl Libre", serif;
+  font-size: 1.5rem;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  width: 100%;
+}
+.nameinput:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+.addrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.addchip {
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.addchip:hover {
+  border-color: var(--accent);
+}
+.addchip.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--paper);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.1s, box-shadow 0.15s, opacity 0.15s;
+}
+.cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px var(--accent-soft);
+}
+.cta:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+}
+.cta-quiet {
+  align-self: flex-start;
+  margin-top: 12px;
+  background: transparent;
+  color: var(--accent);
+}
+.cta-quiet:hover {
+  background: var(--accent-soft);
+}
+
+.savedchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.savedchip {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--paper);
+}
+.savedchip a {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 6px 10px;
+  text-decoration: none;
+  color: var(--ink);
+}
+.savedchip a:hover {
+  background: var(--accent-soft);
+}
+.savedchip b {
+  font-family: var(--font-hebrew), "Frank Ruhl Libre", serif;
+  font-size: 1.1rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+.savedchip small {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.savedx {
+  border: none;
+  border-left: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0 9px;
+  font-size: 1rem;
+  line-height: 1;
+}
+.savedx:hover {
+  color: var(--stop);
+  background: var(--paper-2);
+}
+
+.home-foot {
+  margin-top: 10px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+@media (max-width: 640px) {
+  .home-title {
+    font-size: 2.2rem;
+  }
+}

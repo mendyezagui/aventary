@@ -8,8 +8,9 @@ export const CHAPTER_COUNT = 150;
 
 // ---- Daily portions by day of the Hebrew month (the classic Tehillim division) ----
 // A segment is a whole chapter, or a chapter limited to a verse range (used to split
-// Psalm 119 across days 25 and 26).
-export type Segment = { chapter: number; from?: number; to?: number };
+// Psalm 119 across days 25 and 26). `label` overrides the section heading (used to
+// show the acrostic letter in "Tehillim for a name" mode).
+export type Segment = { chapter: number; from?: number; to?: number; label?: string };
 
 export const DAILY: Record<number, Segment[]> = {
   1: range(1, 9),
@@ -81,4 +82,100 @@ export function hebNumberPunct(n: number): string {
   const s = hebNumber(n);
   if (s.length === 1) return s + "׳";
   return s.slice(0, -1) + "״" + s.slice(-1);
+}
+
+function seq(a: number, b: number): number[] {
+  const out: number[] = [];
+  for (let n = a; n <= b; n++) out.push(n);
+  return out;
+}
+
+// ---- Seasonal Tehillim: the Chabad (Alter Rebbe's) custom ----
+// From 1 Elul until Yom Kippur one says three chapters of Tehillim a day, in order
+// (1 Elul → 1-3, 2 Elul → 4-6, …), continuing through the Ten Days of Repentance,
+// and on Yom Kippur the remaining 36 chapters (115-150), completing the book.
+// Elul is always 29 days and Tishrei 1-9 add 9 more, so 38 days × 3 = 114 chapters
+// are said by Erev Yom Kippur, leaving exactly 36 for Yom Kippur itself.
+export type SeasonAddition = {
+  kind: "elul" | "aseret" | "yomkippur";
+  chapters: number[];
+  title: string; // Hebrew heading
+  note: string; // English sub-note
+};
+
+// `monthName` is the Hebrew-calendar month from Intl (e.g. "Elul", "Tishri").
+export function seasonalAddition(
+  monthName: string,
+  day: number
+): SeasonAddition | null {
+  const m = monthName.toLowerCase();
+  if (m.startsWith("elul") && day >= 1 && day <= 29) {
+    const start = 3 * (day - 1) + 1; // 1..85
+    return {
+      kind: "elul",
+      chapters: seq(start, start + 2),
+      title: "תְּהִלִּים לְחוֹדֶשׁ אֱלוּל",
+      note: `Elul custom — three chapters a day (day ${day} of Elul)`,
+    };
+  }
+  if (m.startsWith("tishri") || m.startsWith("tishrei")) {
+    if (day === 10) {
+      return {
+        kind: "yomkippur",
+        chapters: seq(115, 150),
+        title: "תְּהִלִּים לְיוֹם הַכִּפּוּרִים",
+        note:
+          "Yom Kippur — the final 36 chapters that complete the Tehillim (customarily 9 before Kol Nidrei, 9 before sleep, 9 after Musaf, 9 after Ne'ilah)",
+      };
+    }
+    if (day >= 1 && day <= 9) {
+      const idx = 29 + day; // continues the sequential count after Elul's 29 days
+      const start = 3 * (idx - 1) + 1;
+      return {
+        kind: "aseret",
+        chapters: seq(start, start + 2),
+        title: "תְּהִלִּים לַעֲשֶׂרֶת יְמֵי תְּשׁוּבָה",
+        note: "Ten Days of Repentance — three chapters a day",
+      };
+    }
+  }
+  return null;
+}
+
+// ---- Tehillim for a name: Psalm 119 by the letters of a Hebrew name ----
+// Psalm 119 is an acrostic: 22 stanzas of 8 verses, one per Hebrew letter. The custom
+// is to recite the stanzas spelling a person's Hebrew name, then (for a sick person) the
+// stanzas of קרע שטן, or (in memory of the departed) the stanzas of נשמה.
+const STANZA: Record<string, [number, number]> = {
+  א: [1, 8], ב: [9, 16], ג: [17, 24], ד: [25, 32], ה: [33, 40], ו: [41, 48],
+  ז: [49, 56], ח: [57, 64], ט: [65, 72], י: [73, 80], כ: [81, 88], ל: [89, 96],
+  מ: [97, 104], נ: [105, 112], ס: [113, 120], ע: [121, 128], פ: [129, 136],
+  צ: [137, 144], ק: [145, 152], ר: [153, 160], ש: [161, 168], ת: [169, 176],
+};
+const FINALS: Record<string, string> = { ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" };
+
+export const KERA_SATAN = "קרעשטן"; // ק ר ע ש ט ן  ("tear up the accuser")
+export const NESHAMA = "נשמה"; //     נ ש מ ה  (soul)
+
+// Pull the recognised Hebrew letters out of free text (ignoring nikkud, spaces,
+// punctuation, and any non-Hebrew characters), folding final forms to their base.
+export function nameLetters(input: string): string[] {
+  const out: string[] = [];
+  for (const ch of input) {
+    const c = FINALS[ch] ?? ch;
+    if (STANZA[c]) out.push(c);
+  }
+  return out;
+}
+
+// Segments (all within Psalm 119) for a list of already-normalised base letters.
+export function stanzasForLetters(letters: string[]): Segment[] {
+  return letters.map((c) => {
+    const [from, to] = STANZA[c];
+    return { chapter: 119, from, to, label: c };
+  });
+}
+
+export function hasValidNameLetters(input: string): boolean {
+  return nameLetters(input).length > 0;
 }
