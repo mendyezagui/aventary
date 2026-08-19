@@ -857,8 +857,28 @@ a.card:hover {
   border-color: var(--gold);
   color: #fff;
 }
+/* actively speeding over a familiar Psalm */
+.fab-enh.boosting {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #fff;
+  box-shadow: 0 0 0 2px var(--gold), 0 8px 22px rgba(169, 121, 28, 0.55);
+  animation: enh-pulse 0.9s ease-in-out infinite;
+}
+@keyframes enh-pulse {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.22);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .progress-badge {
     transition: none;
+  }
+  .fab-enh.boosting {
+    animation: none;
   }
 }
