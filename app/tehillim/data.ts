@@ -182,7 +182,7 @@ export function hasValidNameLetters(input: string): boolean {
 
 // ---- Liturgical Psalms: the ones woven throughout the prayer book ----
 // These recur across the services and are familiar enough that most people read
-// them faster. Used by the "auto-scroll enhancement" (familiar Psalms +10%).
+// them faster. Used by the "auto-scroll enhancement" (familiar Psalms +15%).
 // The note records where each appears (shown on hover). Nusach varies, so this
 // list is meant to be a sensible, editable default.
 export const LITURGICAL: Record<number, string> = {
@@ -190,16 +190,20 @@ export const LITURGICAL: Record<number, string> = {
   20: "Lamnatze'ach — weekday Shacharis",
   23: "Mizmor LeDavid — Shabbos meals; widely sung",
   24: "Shir shel Yom — Sunday; returning the Torah",
+  25: "Recited at Tachanun (weekday)",
   27: "LeDavid Hashem Ori — twice daily, Elul through Hoshana Rabbah",
   29: "Kabbalas Shabbos; returning the Torah",
   30: "Mizmor Shir Chanukas HaBayis — daily before Baruch She'amar",
   33: "Pesukei DeZimra (Shabbos & Yom Tov)",
   34: "Pesukei DeZimra (Shabbos); Torah procession",
+  35: "Commonly recited (Tehillim for the sick)",
   47: "Recited seven times before the shofar",
   48: "Shir shel Yom — Monday",
+  51: "Selichos & Tachanun — repentance",
   67: "Lamnatze'ach Bineginos — recited frequently",
   81: "Shir shel Yom — Thursday",
   82: "Shir shel Yom — Tuesday",
+  86: "Tefilla LeDavid — recited widely",
   90: "Pesukei DeZimra (Shabbos & Yom Tov)",
   91: "Yoshev BeSeser — Shabbos Pesukei DeZimra; bedtime Shema",
   92: "Shir shel Yom — Shabbos; Kabbalas Shabbos",
@@ -211,15 +215,24 @@ export const LITURGICAL: Record<number, string> = {
   98: "Kabbalas Shabbos",
   99: "Kabbalas Shabbos",
   100: "Mizmor LeToda — Pesukei DeZimra (weekday)",
+  104: "Barchi Nafshi — Rosh Chodesh; Shabbos Minchah (winter)",
+  107: "Hodu LaShem — festivals",
   113: "Hallel (festivals & Rosh Chodesh)",
   114: "Hallel (festivals & Rosh Chodesh)",
   115: "Hallel (festivals & Rosh Chodesh)",
   116: "Hallel (festivals & Rosh Chodesh)",
   117: "Hallel (festivals & Rosh Chodesh)",
   118: "Hallel (festivals & Rosh Chodesh)",
+  120: "Shir Hama'alos — Shabbos Minchah (winter)",
   121: "Shir Lama'alos — bedtime & travel",
+  122: "Shir Hama'alos — Shabbos Minchah (winter)",
+  123: "Shir Hama'alos — Shabbos Minchah (winter)",
+  124: "Shir Hama'alos — Shabbos Minchah (winter)",
+  125: "Shir Hama'alos — Shabbos Minchah (winter)",
   126: "Shir Hama'alos — before Birkas Hamazon (Shabbos/Yom Tov)",
+  127: "Shir Hama'alos — Shabbos Minchah (winter)",
   128: "Shir Hama'alos — after davening; weddings",
+  129: "Shir Hama'alos — Shabbos Minchah (winter)",
   130: "MiMa'amakim — Aseres Yemei Teshuvah",
   135: "Pesukei DeZimra (Shabbos & Yom Tov)",
   136: "Hallel HaGadol — Pesukei DeZimra (Shabbos)",
