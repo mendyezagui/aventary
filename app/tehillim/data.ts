@@ -179,3 +179,59 @@ export function stanzasForLetters(letters: string[]): Segment[] {
 export function hasValidNameLetters(input: string): boolean {
   return nameLetters(input).length > 0;
 }
+
+// ---- Liturgical Psalms: the ones woven throughout the prayer book ----
+// These recur across the services and are familiar enough that most people read
+// them faster. Used by the "auto-scroll enhancement" (familiar Psalms +10%).
+// The note records where each appears (shown on hover). Nusach varies, so this
+// list is meant to be a sensible, editable default.
+export const LITURGICAL: Record<number, string> = {
+  19: "Pesukei DeZimra (Shabbos & Yom Tov)",
+  20: "Lamnatze'ach — weekday Shacharis",
+  23: "Mizmor LeDavid — Shabbos meals; widely sung",
+  24: "Shir shel Yom — Sunday; returning the Torah",
+  27: "LeDavid Hashem Ori — twice daily, Elul through Hoshana Rabbah",
+  29: "Kabbalas Shabbos; returning the Torah",
+  30: "Mizmor Shir Chanukas HaBayis — daily before Baruch She'amar",
+  33: "Pesukei DeZimra (Shabbos & Yom Tov)",
+  34: "Pesukei DeZimra (Shabbos); Torah procession",
+  47: "Recited seven times before the shofar",
+  48: "Shir shel Yom — Monday",
+  67: "Lamnatze'ach Bineginos — recited frequently",
+  81: "Shir shel Yom — Thursday",
+  82: "Shir shel Yom — Tuesday",
+  90: "Pesukei DeZimra (Shabbos & Yom Tov)",
+  91: "Yoshev BeSeser — Shabbos Pesukei DeZimra; bedtime Shema",
+  92: "Shir shel Yom — Shabbos; Kabbalas Shabbos",
+  93: "Shir shel Yom — Friday; Kabbalas Shabbos",
+  94: "Shir shel Yom — Wednesday",
+  95: "Kabbalas Shabbos (Lechu Neranena)",
+  96: "Kabbalas Shabbos",
+  97: "Kabbalas Shabbos",
+  98: "Kabbalas Shabbos",
+  99: "Kabbalas Shabbos",
+  100: "Mizmor LeToda — Pesukei DeZimra (weekday)",
+  113: "Hallel (festivals & Rosh Chodesh)",
+  114: "Hallel (festivals & Rosh Chodesh)",
+  115: "Hallel (festivals & Rosh Chodesh)",
+  116: "Hallel (festivals & Rosh Chodesh)",
+  117: "Hallel (festivals & Rosh Chodesh)",
+  118: "Hallel (festivals & Rosh Chodesh)",
+  121: "Shir Lama'alos — bedtime & travel",
+  126: "Shir Hama'alos — before Birkas Hamazon (Shabbos/Yom Tov)",
+  128: "Shir Hama'alos — after davening; weddings",
+  130: "MiMa'amakim — Aseres Yemei Teshuvah",
+  135: "Pesukei DeZimra (Shabbos & Yom Tov)",
+  136: "Hallel HaGadol — Pesukei DeZimra (Shabbos)",
+  137: "Al Naharos Bavel — before Birkas Hamazon (weekday)",
+  145: "Ashrei — recited three times daily",
+  146: "Pesukei DeZimra (daily)",
+  147: "Pesukei DeZimra (daily)",
+  148: "Pesukei DeZimra (daily)",
+  149: "Pesukei DeZimra (daily)",
+  150: "Pesukei DeZimra (daily)",
+};
+
+export function isLiturgical(ch: number): boolean {
+  return Object.prototype.hasOwnProperty.call(LITURGICAL, ch);
+}
