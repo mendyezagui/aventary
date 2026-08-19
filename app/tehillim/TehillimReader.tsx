@@ -11,6 +11,8 @@ import {
   stanzasForLetters,
   KERA_SATAN,
   NESHAMA,
+  LITURGICAL,
+  isLiturgical,
   hebNumber,
   hebNumberPunct,
   type Segment,
@@ -50,8 +52,13 @@ type Persisted = {
   font?: number;
   theme?: Theme;
   barOpen?: boolean;
+  enhance?: boolean;
   scroll?: { key: string; y: number };
 };
+
+// When enhancement is on, auto-scroll speeds up by this factor over familiar
+// (liturgical) Psalms.
+const ENHANCE_FACTOR = 1.1;
 
 function loadLS(): Persisted {
   try {
@@ -124,10 +131,16 @@ export default function TehillimReader() {
   const [font, setFontState] = useState(1);
   const [theme, setTheme] = useState<Theme | null>(null);
   const [barOpen, setBarOpenState] = useState(true);
+  const [enhance, setEnhanceState] = useState(false);
 
   const selRef = useRef(sel);
   selRef.current = sel;
   const pendingScroll = useRef<number | null>(null);
+  const enhanceRef = useRef(enhance);
+  enhanceRef.current = enhance;
+  const fillRef = useRef<HTMLDivElement | null>(null);
+  const badgeRef = useRef<HTMLDivElement | null>(null);
+  const progRaf = useRef(0);
 
   // ---- One-time client init ----
   useEffect(() => {
@@ -159,6 +172,7 @@ export default function TehillimReader() {
     if (typeof s.speed === "number") setSpeedState(s.speed);
     if (typeof s.font === "number") setFontState(s.font);
     if (typeof s.barOpen === "boolean") setBarOpenState(s.barOpen);
+    if (typeof s.enhance === "boolean") setEnhanceState(s.enhance);
     setTheme(
       s.theme ||
         (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
@@ -233,13 +247,26 @@ export default function TehillimReader() {
     }
   }, [sel, ready]);
 
-  // Auto-scroll loop.
+  // Which Psalm sits on the "reading line" (~40% down the viewport) right now.
+  function familiarAtReadingLine(): boolean {
+    const el = document.elementFromPoint(
+      Math.round(window.innerWidth / 2),
+      Math.round(window.innerHeight * 0.4)
+    );
+    const sec = el?.closest?.(".chapter") as HTMLElement | null;
+    const ch = sec ? Number(sec.dataset.ch) : NaN;
+    return Number.isFinite(ch) && ch > 0 ? isLiturgical(ch) : false;
+  }
+
+  // Auto-scroll loop. With enhancement on, familiar Psalms move ENHANCE_FACTOR faster.
   useEffect(() => {
     if (!playing) return;
     let raf = 0;
     let carry = 0;
     const step = () => {
-      carry += speed;
+      const factor =
+        enhanceRef.current && familiarAtReadingLine() ? ENHANCE_FACTOR : 1;
+      carry += speed * factor;
       const px = Math.floor(carry);
       if (px >= 1) {
         window.scrollBy(0, px);
@@ -257,6 +284,47 @@ export default function TehillimReader() {
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
   }, [playing, speed]);
+
+  // Progress indicator: update the right-edge rail + % badge as you scroll
+  // (works for both manual and auto-scroll), throttled to one rAF.
+  useEffect(() => {
+    if (!ready) return;
+    const update = () => {
+      progRaf.current = 0;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const p = max > 4 ? Math.min(1, Math.max(0, window.scrollY / max)) : 1;
+      if (fillRef.current) fillRef.current.style.height = (p * 100).toFixed(2) + "%";
+      if (badgeRef.current) {
+        badgeRef.current.textContent = Math.round(p * 100) + "%";
+        const top0 = 76;
+        const band = Math.max(0, window.innerHeight - top0 - 150);
+        badgeRef.current.style.top = Math.round(top0 + p * band) + "px";
+      }
+    };
+    const onScroll = () => {
+      if (!progRaf.current) progRaf.current = requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (progRaf.current) cancelAnimationFrame(progRaf.current);
+    };
+  }, [ready]);
+
+  // Recompute progress after layout changes (new selection or text size).
+  useEffect(() => {
+    if (!ready) return;
+    const id = requestAnimationFrame(() => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const p = max > 4 ? Math.min(1, Math.max(0, window.scrollY / max)) : 1;
+      if (fillRef.current) fillRef.current.style.height = (p * 100).toFixed(2) + "%";
+      if (badgeRef.current) badgeRef.current.textContent = Math.round(p * 100) + "%";
+    });
+    return () => cancelAnimationFrame(id);
+  }, [ready, sel, font, groups]);
 
   // Remember scroll position within the current selection.
   useEffect(() => {
@@ -291,6 +359,10 @@ export default function TehillimReader() {
   }, []);
   const onToggleSave = useCallback((ch: number) => {
     setSavedState(toggleSaved(ch));
+  }, []);
+  const setEnhance = useCallback((v: boolean) => {
+    setEnhanceState(v);
+    saveLS({ enhance: v });
   }, []);
 
   useEffect(() => {
@@ -483,8 +555,13 @@ export default function TehillimReader() {
                     !isStanza && (seg.from || seg.to)
                       ? ` · ${hebNumberPunct(from)}–${hebNumberPunct(to)}`
                       : "";
+                  const familiar = !isStanza && isLiturgical(seg.chapter);
                   return (
-                    <section key={`${seg.chapter}-${i}`} className="chapter">
+                    <section
+                      key={`${seg.chapter}-${i}`}
+                      className="chapter"
+                      data-ch={seg.chapter}
+                    >
                       <h2 className="chapter-h">
                         {isStanza ? (
                           <>
@@ -501,6 +578,14 @@ export default function TehillimReader() {
                             </span>
                             {rangeNote && (
                               <span className="chapter-range">{rangeNote}</span>
+                            )}
+                            {familiar && (
+                              <span
+                                className={`litmark ${enhance ? "on" : ""}`}
+                                title={`Familiar in the siddur — ${LITURGICAL[seg.chapter]}${enhance ? " · +10% with enhancement" : ""}`}
+                              >
+                                ✦
+                              </span>
                             )}
                             <button
                               type="button"
@@ -552,7 +637,29 @@ export default function TehillimReader() {
         )}
       </main>
 
+      {/* Progress: right-edge rail + a % badge that travels as you scroll */}
+      <div className="progress-rail" aria-hidden>
+        <div ref={fillRef} className="progress-fill" />
+      </div>
+      <div
+        ref={badgeRef}
+        className="progress-badge"
+        aria-label="Percent completed"
+      >
+        0%
+      </div>
+
       <div dir="ltr" className="fab" role="group" aria-label="Auto-scroll controls">
+        <button
+          type="button"
+          className={`fab-enh ${enhance ? "on" : ""}`}
+          onClick={() => setEnhance(!enhance)}
+          title="Enhancement — familiar (siddur) Psalms auto-scroll 10% faster"
+          aria-pressed={enhance}
+          aria-label="Toggle auto-scroll enhancement"
+        >
+          ✦ <span className="fab-enh-lbl">{enhance ? "Enhanced" : "Enhance"}</span>
+        </button>
         <div className="fab-speed">
           <button
             type="button"

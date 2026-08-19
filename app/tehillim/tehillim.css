@@ -786,3 +786,79 @@ a.card:hover {
     font-size: 2.2rem;
   }
 }
+
+/* ---------- Scroll progress indicator ---------- */
+.progress-rail {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--line);
+  z-index: 15;
+  pointer-events: none;
+}
+.progress-fill {
+  width: 100%;
+  height: 0%;
+  background: var(--accent);
+  border-bottom-left-radius: 2px;
+}
+.progress-badge {
+  position: fixed;
+  top: 76px;
+  right: 9px;
+  z-index: 16;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--accent);
+  font: 700 0.72rem/1 var(--font-body, ui-sans-serif, system-ui, sans-serif);
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+  transition: top 0.08s linear;
+}
+
+/* familiar-in-the-siddur mark on a chapter heading */
+.litmark {
+  font-size: 0.72em;
+  color: var(--gold);
+  opacity: 0.45;
+  margin-inline-start: 0.4em;
+  cursor: help;
+}
+.litmark.on {
+  opacity: 1;
+}
+
+/* enhancement toggle in the floating bubble */
+.fab-enh {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--muted);
+  font: 600 0.78rem/1 var(--font-body, ui-sans-serif, system-ui, sans-serif);
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.fab-enh:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.fab-enh.on {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #fff;
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress-badge {
+    transition: none;
+  }
+}
