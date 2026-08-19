@@ -58,7 +58,8 @@ type Persisted = {
 
 // When enhancement is on, auto-scroll speeds up by this factor over familiar
 // (liturgical) Psalms.
-const ENHANCE_FACTOR = 1.1;
+const ENHANCE_FACTOR = 1.15;
+const ENHANCE_PCT = Math.round((ENHANCE_FACTOR - 1) * 100); // 15
 
 function loadLS(): Persisted {
   try {
@@ -141,6 +142,9 @@ export default function TehillimReader() {
   const fillRef = useRef<HTMLDivElement | null>(null);
   const badgeRef = useRef<HTMLDivElement | null>(null);
   const progRaf = useRef(0);
+  const enhBtnRef = useRef<HTMLButtonElement | null>(null);
+  const enhLblRef = useRef<HTMLSpanElement | null>(null);
+  const boostRef = useRef(false);
 
   // ---- One-time client init ----
   useEffect(() => {
@@ -258,15 +262,30 @@ export default function TehillimReader() {
     return Number.isFinite(ch) && ch > 0 ? isLiturgical(ch) : false;
   }
 
+  // Reflect the "actively boosting" state on the Enhance pill via the DOM
+  // (no React re-render mid-scroll). Only touches the DOM on a real transition.
+  function setBoostVisual(on: boolean) {
+    if (boostRef.current === on) return;
+    boostRef.current = on;
+    enhBtnRef.current?.classList.toggle("boosting", on);
+    if (enhLblRef.current) {
+      enhLblRef.current.textContent = on
+        ? `+${ENHANCE_PCT}%`
+        : enhanceRef.current
+          ? "Enhanced"
+          : "Enhance";
+    }
+  }
+
   // Auto-scroll loop. With enhancement on, familiar Psalms move ENHANCE_FACTOR faster.
   useEffect(() => {
     if (!playing) return;
     let raf = 0;
     let carry = 0;
     const step = () => {
-      const factor =
-        enhanceRef.current && familiarAtReadingLine() ? ENHANCE_FACTOR : 1;
-      carry += speed * factor;
+      const boosting = enhanceRef.current && familiarAtReadingLine();
+      setBoostVisual(boosting);
+      carry += speed * (boosting ? ENHANCE_FACTOR : 1);
       const px = Math.floor(carry);
       if (px >= 1) {
         window.scrollBy(0, px);
@@ -282,7 +301,11 @@ export default function TehillimReader() {
       raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      setBoostVisual(false); // clear the glow when paused / stopped
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playing, speed]);
 
   // Progress indicator: update the right-edge rail + % badge as you scroll
@@ -582,7 +605,7 @@ export default function TehillimReader() {
                             {familiar && (
                               <span
                                 className={`litmark ${enhance ? "on" : ""}`}
-                                title={`Familiar in the siddur — ${LITURGICAL[seg.chapter]}${enhance ? " · +10% with enhancement" : ""}`}
+                                title={`Familiar in the siddur — ${LITURGICAL[seg.chapter]}${enhance ? ` · +${ENHANCE_PCT}% with enhancement` : ""}`}
                               >
                                 ✦
                               </span>
@@ -651,14 +674,18 @@ export default function TehillimReader() {
 
       <div dir="ltr" className="fab" role="group" aria-label="Auto-scroll controls">
         <button
+          ref={enhBtnRef}
           type="button"
           className={`fab-enh ${enhance ? "on" : ""}`}
           onClick={() => setEnhance(!enhance)}
-          title="Enhancement — familiar (siddur) Psalms auto-scroll 10% faster"
+          title={`Enhancement — familiar (siddur) Psalms auto-scroll ${ENHANCE_PCT}% faster`}
           aria-pressed={enhance}
           aria-label="Toggle auto-scroll enhancement"
         >
-          ✦ <span className="fab-enh-lbl">{enhance ? "Enhanced" : "Enhance"}</span>
+          ✦{" "}
+          <span ref={enhLblRef} className="fab-enh-lbl">
+            {enhance ? "Enhanced" : "Enhance"}
+          </span>
         </button>
         <div className="fab-speed">
           <button
