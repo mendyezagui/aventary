@@ -4,6 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   seasonalAddition,
+  seasonProgress,
+  YOM_KIPPUR_SETS,
+  SEASON_DAYS,
+  CHAPTER_COUNT,
   nameLetters,
   hasValidNameLetters,
   hebNumberPunct,
@@ -76,6 +80,8 @@ export default function HomeTehillim() {
     [today]
   );
 
+  const progress = useMemo(() => (season ? seasonProgress(season) : null), [season]);
+
   const nameOk = hasValidNameLetters(name);
   const stanzaCount = useMemo(() => nameLetters(name).length, [name]);
 
@@ -110,8 +116,68 @@ export default function HomeTehillim() {
         </button>
       </header>
 
+      {/* The season's three chapters a day — Elul through Yom Kippur */}
+      {season && progress && (
+        <a
+          className={`card card-primary card-season season-${season.kind}`}
+          href="/tehillim/read?mode=season"
+        >
+          <div className="card-main">
+            <span className="card-kicker">{season.dayLabel}</span>
+            <span className="card-title" lang="he" dir="rtl">
+              {season.title}
+            </span>
+            <span className="card-desc">{season.note}</span>
+
+            {season.kind === "yomkippur" ? (
+              <div className="seasonsets">
+                {YOM_KIPPUR_SETS.map((set) => (
+                  <span className="seasonset" key={set.from}>
+                    <b lang="he" dir="rtl">
+                      {hebNumberPunct(set.from)}–{hebNumberPunct(set.to)}
+                    </b>
+                    <small>{set.note}</small>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <div className="seasonchips">
+                {season.chapters.map((c) => (
+                  <span className="seasonchip" key={c}>
+                    <b lang="he" dir="rtl">
+                      {hebNumberPunct(c)}
+                    </b>
+                    <small>{c}</small>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <span className="seasonbar" aria-hidden>
+              <span
+                className="seasonbar-fill"
+                style={{ width: `${progress.pct}%` }}
+              />
+            </span>
+            <span className="seasonprog">
+              Day {season.dayIndex} of {SEASON_DAYS} · {progress.said} of{" "}
+              {CHAPTER_COUNT} chapters
+              {progress.remaining > 0
+                ? ` · ${progress.remaining} to go`
+                : " · complete"}
+            </span>
+          </div>
+          <span className="card-arrow" aria-hidden>
+            →
+          </span>
+        </a>
+      )}
+
       {/* Daily Tehillim */}
-      <a className="card card-primary" href="/tehillim/read?mode=today">
+      <a
+        className={`card ${season ? "" : "card-primary"}`}
+        href="/tehillim/read?mode=today"
+      >
         <div className="card-main">
           <span className="card-kicker">Every day</span>
           <span className="card-title">Daily Tehillim</span>
@@ -122,8 +188,8 @@ export default function HomeTehillim() {
           {season && (
             <span className={`badge badge-${season.kind}`}>
               {season.kind === "yomkippur"
-                ? "Yom Kippur — completes the Tehillim (115–150)"
-                : `+ ${season.kind === "elul" ? "Elul" : "Ten Days"} chapters ${season.chapters[0]}–${season.chapters[season.chapters.length - 1]}`}
+                ? "The day's 36 chapters follow the portion"
+                : `The ${season.shortLabel} chapters ${season.chapters[0]}–${season.chapters[season.chapters.length - 1]} follow the portion`}
             </span>
           )}
         </div>

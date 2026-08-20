@@ -7,6 +7,8 @@ import {
   CHAPTER_COUNT,
   segmentsForDay,
   seasonalAddition,
+  chapterSegments,
+  YOM_KIPPUR_SETS,
   nameLetters,
   stanzasForLetters,
   KERA_SATAN,
@@ -25,6 +27,7 @@ type Selection =
   | { type: "day"; day: number }
   | { type: "chapter"; chapter: number }
   | { type: "name"; name: string; add: Addition }
+  | { type: "season" }
   | { type: "saved" };
 
 type Theme = "light" | "dark";
@@ -109,6 +112,8 @@ function selKey(sel: Selection): string {
       return "c" + sel.chapter;
     case "name":
       return "n:" + sel.add + ":" + nameLetters(sel.name).join("");
+    case "season":
+      return "season";
     case "saved":
       return "saved";
   }
@@ -167,6 +172,8 @@ export default function TehillimReader() {
       const add: Addition =
         addRaw === "kera" || addRaw === "neshama" ? addRaw : "none";
       startSel = { type: "name", name, add };
+    } else if (mode === "season") {
+      startSel = { type: "season" };
     } else if (mode === "saved") {
       startSel = { type: "saved" };
     }
@@ -194,6 +201,12 @@ export default function TehillimReader() {
     saveLS({ theme });
   }, [theme]);
 
+  // Today's place in the Elul → Yom Kippur count (null outside the season).
+  const season = useMemo(
+    () => (hebToday ? seasonalAddition(hebToday.month, hebToday.day) : null),
+    [hebToday]
+  );
+
   // ---- Build the groups to render for the current selection ----
   const groups = useMemo<Group[]>(() => {
     if (sel.type === "chapter") {
@@ -206,6 +219,24 @@ export default function TehillimReader() {
     }
     if (sel.type === "saved") {
       return [{ segments: saved.map((s) => ({ chapter: s.ch })) }];
+    }
+    if (sel.type === "season") {
+      if (!season) return [];
+      // On Yom Kippur the 36 are said nine at a time, at four points in the day.
+      if (season.kind === "yomkippur") {
+        return YOM_KIPPUR_SETS.map((set) => ({
+          title: set.title,
+          note: set.note,
+          segments: chapterSegments(set.from, set.to),
+        }));
+      }
+      return [
+        {
+          title: season.title,
+          note: `${season.note} · ${season.dayLabel}`,
+          segments: season.chapters.map((c) => ({ chapter: c })),
+        },
+      ];
     }
     if (sel.type === "name") {
       const letters = nameLetters(sel.name);
@@ -226,18 +257,15 @@ export default function TehillimReader() {
     const combine = hebToday?.combine ?? false;
     const day = hebToday?.day ?? 1;
     const out: Group[] = [{ segments: segmentsForDay(day, combine) }];
-    if (hebToday) {
-      const add = seasonalAddition(hebToday.month, hebToday.day);
-      if (add) {
-        out.push({
-          title: add.title,
-          note: add.note,
-          segments: add.chapters.map((c) => ({ chapter: c })),
-        });
-      }
+    if (season) {
+      out.push({
+        title: season.title,
+        note: `${season.note} · ${season.dayLabel}`,
+        segments: season.chapters.map((c) => ({ chapter: c })),
+      });
     }
     return out;
-  }, [sel, hebToday, saved]);
+  }, [sel, hebToday, season, saved]);
 
   // Stop scrolling on selection change; restore saved position on first load only.
   useEffect(() => {
@@ -423,6 +451,8 @@ export default function TehillimReader() {
         return `מִזְמוֹר ${hebNumberPunct(sel.chapter)}`;
       case "name":
         return "תְּהִלִּים לְשֵׁם";
+      case "season":
+        return season ? season.title : "תְּהִלִּים";
       case "saved":
         return "תְּהִלִּים שְׁמוּרִים";
     }
@@ -465,6 +495,22 @@ export default function TehillimReader() {
               </span>
             )}
           </button>
+
+          {season && (
+            <button
+              type="button"
+              className={`btn ${sel.type === "season" ? "btn-on" : ""}`}
+              onClick={() => setSel({ type: "season" })}
+              title="The season's chapters on their own — three a day from 1 Elul through Yom Kippur"
+            >
+              <span className="btn-strong">{season.shortLabel}</span>
+              <span className="btn-sub">
+                {season.kind === "yomkippur"
+                  ? "115–150 · four sets of nine"
+                  : `${season.chapters[0]}–${season.chapters[season.chapters.length - 1]} · three a day`}
+              </span>
+            </button>
+          )}
 
           <label className="jump">
             <span className="jump-label">Psalm</span>
@@ -553,6 +599,13 @@ export default function TehillimReader() {
         {ready && (
           <>
             <p className="selheading">{overallHeading}</p>
+
+            {sel.type === "season" && totalSegments === 0 && (
+              <p className="empty-note">
+                The three-chapters-a-day count runs from 1 Elul through Yom Kippur.
+                Outside those days, read today&rsquo;s portion from the home screen.
+              </p>
+            )}
 
             {sel.type === "saved" && totalSegments === 0 && (
               <p className="empty-note">
@@ -649,7 +702,7 @@ export default function TehillimReader() {
 
             {totalSegments > 0 && (
               <p className="endnote">
-                {sel.type === "today" || sel.type === "day"
+                {sel.type === "today" || sel.type === "day" || sel.type === "season"
                   ? "סליק · end of the portion"
                   : sel.type === "name"
                     ? "· may it be a merit ·"

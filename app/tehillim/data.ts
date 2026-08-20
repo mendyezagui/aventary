@@ -96,12 +96,26 @@ function seq(a: number, b: number): number[] {
 // and on Yom Kippur the remaining 36 chapters (115-150), completing the book.
 // Elul is always 29 days and Tishrei 1-9 add 9 more, so 38 days × 3 = 114 chapters
 // are said by Erev Yom Kippur, leaving exactly 36 for Yom Kippur itself.
+export type SeasonKind = "elul" | "aseret" | "yomkippur";
+
 export type SeasonAddition = {
-  kind: "elul" | "aseret" | "yomkippur";
+  kind: SeasonKind;
   chapters: number[];
   title: string; // Hebrew heading
   note: string; // English sub-note
+  dayIndex: number; // 1 Elul = 1 … 9 Tishrei = 38, Yom Kippur = 39
+  dayLabel: string; // e.g. "Day 12 of Elul"
+  shortLabel: string; // e.g. "Elul" — for chips and buttons
 };
+
+// 29 days of Elul + Tishrei 1–9 + Yom Kippur itself.
+export const SEASON_DAYS = 39;
+
+// The three chapters for the n-th day of the count (day 1 → 1-3, day 2 → 4-6, …).
+function threeFor(index: number): number[] {
+  const start = 3 * (index - 1) + 1;
+  return seq(start, start + 2);
+}
 
 // `monthName` is the Hebrew-calendar month from Intl (e.g. "Elul", "Tishri").
 export function seasonalAddition(
@@ -110,12 +124,14 @@ export function seasonalAddition(
 ): SeasonAddition | null {
   const m = monthName.toLowerCase();
   if (m.startsWith("elul") && day >= 1 && day <= 29) {
-    const start = 3 * (day - 1) + 1; // 1..85
     return {
       kind: "elul",
-      chapters: seq(start, start + 2),
+      chapters: threeFor(day),
       title: "תְּהִלִּים לְחוֹדֶשׁ אֱלוּל",
-      note: `Elul custom — three chapters a day (day ${day} of Elul)`,
+      note: "Elul — three chapters a day, in order, from Rosh Chodesh Elul",
+      dayIndex: day,
+      dayLabel: `Day ${day} of Elul`,
+      shortLabel: "Elul",
     };
   }
   if (m.startsWith("tishri") || m.startsWith("tishrei")) {
@@ -125,21 +141,58 @@ export function seasonalAddition(
         chapters: seq(115, 150),
         title: "תְּהִלִּים לְיוֹם הַכִּפּוּרִים",
         note:
-          "Yom Kippur — the final 36 chapters that complete the Tehillim (customarily 9 before Kol Nidrei, 9 before sleep, 9 after Musaf, 9 after Ne'ilah)",
+          "Yom Kippur — the last 36 chapters, in four sets of nine, completing the Tehillim",
+        dayIndex: SEASON_DAYS,
+        dayLabel: "Yom Kippur",
+        shortLabel: "Yom Kippur",
       };
     }
     if (day >= 1 && day <= 9) {
       const idx = 29 + day; // continues the sequential count after Elul's 29 days
-      const start = 3 * (idx - 1) + 1;
       return {
         kind: "aseret",
-        chapters: seq(start, start + 2),
+        chapters: threeFor(idx),
         title: "תְּהִלִּים לַעֲשֶׂרֶת יְמֵי תְּשׁוּבָה",
-        note: "Ten Days of Repentance — three chapters a day",
+        note: "Ten Days of Repentance — three chapters a day, continuing the Elul count",
+        dayIndex: idx,
+        dayLabel: `${day} Tishrei — Ten Days of Repentance`,
+        shortLabel: "Ten Days",
       };
     }
   }
   return null;
+}
+
+// Yom Kippur's 36 are said at four points in the day, nine at a time.
+export const YOM_KIPPUR_SETS: {
+  from: number;
+  to: number;
+  title: string;
+  note: string;
+}[] = [
+  { from: 115, to: 123, title: "לִפְנֵי כָּל נִדְרֵי", note: "Nine before Kol Nidrei" },
+  { from: 124, to: 132, title: "לִפְנֵי הַשֵּׁנָה", note: "Nine before sleep" },
+  { from: 133, to: 141, title: "אַחַר מוּסָף", note: "Nine after Musaf" },
+  { from: 142, to: 150, title: "אַחַר נְעִילָה", note: "Nine after Ne'ilah" },
+];
+
+// How far through the 150 the count has reached, counting today's chapters.
+export function seasonProgress(add: SeasonAddition): {
+  said: number;
+  remaining: number;
+  pct: number;
+} {
+  const said = add.chapters[add.chapters.length - 1];
+  return {
+    said,
+    remaining: CHAPTER_COUNT - said,
+    pct: Math.round((said / CHAPTER_COUNT) * 100),
+  };
+}
+
+// Whole-chapter segments for an inclusive chapter range.
+export function chapterSegments(from: number, to: number): Segment[] {
+  return seq(from, to).map((chapter) => ({ chapter }));
 }
 
 // ---- Tehillim for a name: Psalm 119 by the letters of a Hebrew name ----

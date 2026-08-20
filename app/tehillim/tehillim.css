@@ -882,3 +882,93 @@ a.card:hover {
     animation: none;
   }
 }
+
+/* ---- The season's three chapters a day (Elul → Yom Kippur) ---- */
+.card-season .card-title {
+  font-family: var(--font-hebrew), "Frank Ruhl Libre", serif;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  color: var(--accent);
+  /* RTL for correct Hebrew shaping, but aligned with the rest of the card. */
+  text-align: left;
+}
+.card-season .card-kicker {
+  color: var(--accent);
+}
+.season-elul .card-kicker {
+  color: var(--gold);
+}
+
+.seasonchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.seasonchip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+}
+.seasonchip b {
+  font-family: var(--font-hebrew), "Frank Ruhl Libre", serif;
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.seasonchip small {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.seasonsets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.seasonset {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--accent-soft);
+}
+.seasonset b {
+  font-family: var(--font-hebrew), "Frank Ruhl Libre", serif;
+  font-size: 1rem;
+  color: var(--accent);
+}
+.seasonset small {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.seasonbar {
+  display: block;
+  height: 5px;
+  margin-top: 12px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  overflow: hidden;
+}
+.seasonbar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+}
+.season-elul .seasonbar-fill {
+  background: var(--gold);
+}
+.seasonprog {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
