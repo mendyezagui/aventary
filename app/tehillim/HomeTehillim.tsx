@@ -8,7 +8,12 @@ import {
   hasValidNameLetters,
   hebNumberPunct,
 } from "./data";
-import { getSaved, removeSaved, type Saved } from "./store";
+import {
+  getSaved,
+  removeSaved,
+  setSaved as writeSaved,
+  type Saved,
+} from "./store";
 
 type Theme = "light" | "dark";
 type Addition = "none" | "kera" | "neshama";
@@ -27,6 +32,8 @@ export default function HomeTehillim() {
   const [name, setName] = useState("");
   const [add, setAdd] = useState<Addition>("kera");
   const [theme, setTheme] = useState<Theme>("light");
+  const [picking, setPicking] = useState(false);
+  const [pick, setPick] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const now = new Date();
@@ -90,6 +97,29 @@ export default function HomeTehillim() {
     setSaved(removeSaved(ch));
   }
 
+  // ---- multi-select picker ----
+  function openPicker() {
+    setPick(new Set(saved.map((s) => s.ch)));
+    setPicking(true);
+  }
+  function togglePick(n: number) {
+    setPick((prev) => {
+      const next = new Set(prev);
+      if (next.has(n)) next.delete(n);
+      else next.add(n);
+      return next;
+    });
+  }
+  function commitPicker() {
+    const existing = new Map(saved.map((s) => [s.ch, s]));
+    const list: Saved[] = [...pick]
+      .sort((a, b) => a - b)
+      .map((ch) => existing.get(ch) ?? { ch });
+    writeSaved(list);
+    setSaved(list);
+    setPicking(false);
+  }
+
   return (
     <div dir="ltr" className="home">
       <header className="home-head">
@@ -110,7 +140,7 @@ export default function HomeTehillim() {
         </button>
       </header>
 
-      {/* Daily Tehillim */}
+      {/* 1 — Daily Tehillim */}
       <a className="card card-primary" href="/tehillim/read?mode=today">
         <div className="card-main">
           <span className="card-kicker">Every day</span>
@@ -132,7 +162,94 @@ export default function HomeTehillim() {
         </span>
       </a>
 
-      {/* Tehillim for a name */}
+      {/* 2 — Saved Psalms */}
+      <section className="card">
+        <div className="card-main">
+          <span className="card-kicker">Kept for kaddish &amp; family</span>
+          <span className="card-title">Saved Psalms</span>
+
+          {ready && saved.length === 0 ? (
+            <span className="card-desc">
+              None yet — tap <b>Add Psalms</b> to pick a few, or the ☆ while reading.
+              They join your Daily Tehillim.
+            </span>
+          ) : (
+            <div className="savedchips">
+              {saved.map((s) => (
+                <span className="savedchip" key={s.ch}>
+                  <a href={`/tehillim/read?mode=chapter&ch=${s.ch}`}>
+                    <b lang="he" dir="rtl">
+                      {hebNumberPunct(s.ch)}
+                    </b>
+                    <small>{s.ch}</small>
+                  </a>
+                  <button
+                    type="button"
+                    className="savedx"
+                    onClick={() => removeOne(s.ch)}
+                    title="Remove"
+                    aria-label={`Remove Psalm ${s.ch}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="saved-actions">
+            <button type="button" className="cta cta-quiet" onClick={openPicker}>
+              ＋ Add Psalms
+            </button>
+            {saved.length > 0 && (
+              <a className="cta cta-quiet" href="/tehillim/read?mode=saved">
+                Read all →
+              </a>
+            )}
+          </div>
+
+          {picking && (
+            <div className="picker">
+              <div className="picker-head">
+                <span className="picker-count">
+                  Tap to select · {pick.size} chosen
+                </span>
+                <div className="picker-btns">
+                  <button
+                    type="button"
+                    className="picker-cancel"
+                    onClick={() => setPicking(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="picker-save"
+                    onClick={commitPicker}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+              <div className="picker-grid">
+                {Array.from({ length: 150 }, (_, i) => i + 1).map((n) => (
+                  <button
+                    type="button"
+                    key={n}
+                    className={`picker-cell ${pick.has(n) ? "on" : ""}`}
+                    aria-pressed={pick.has(n)}
+                    onClick={() => togglePick(n)}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 3 — Tehillim for a name */}
       <section className="card card-form">
         <div className="card-main">
           <span className="card-kicker">Psalm 119</span>
@@ -154,9 +271,9 @@ export default function HomeTehillim() {
             />
             <div className="addrow" role="radiogroup" aria-label="Additional stanzas">
               {[
-                { k: "kera", label: "+ קרע שטן", hint: "refuah" },
-                { k: "neshama", label: "+ נשמה", hint: "memory" },
-                { k: "none", label: "Name only", hint: "" },
+                { k: "kera", label: "+ קרע שטן" },
+                { k: "neshama", label: "+ נשמה" },
+                { k: "none", label: "Name only" },
               ].map((o) => (
                 <button
                   type="button"
@@ -171,49 +288,11 @@ export default function HomeTehillim() {
               ))}
             </div>
             <button type="submit" className="cta" disabled={!nameOk}>
-              {nameOk ? `Open — ${stanzaCount} stanza${stanzaCount === 1 ? "" : "s"}` : "Type a Hebrew name"}
+              {nameOk
+                ? `Open — ${stanzaCount} stanza${stanzaCount === 1 ? "" : "s"}`
+                : "Type a Hebrew name"}
             </button>
           </form>
-        </div>
-      </section>
-
-      {/* Saved Psalms */}
-      <section className="card">
-        <div className="card-main">
-          <span className="card-kicker">Kept for kaddish &amp; family</span>
-          <span className="card-title">Saved Psalms</span>
-          {ready && saved.length === 0 ? (
-            <span className="card-desc">
-              None yet. While reading, tap the ☆ on any Psalm to keep it here.
-            </span>
-          ) : (
-            <>
-              <div className="savedchips">
-                {saved.map((s) => (
-                  <span className="savedchip" key={s.ch}>
-                    <a href={`/tehillim/read?mode=chapter&ch=${s.ch}`}>
-                      <b lang="he" dir="rtl">
-                        {hebNumberPunct(s.ch)}
-                      </b>
-                      <small>{s.ch}</small>
-                    </a>
-                    <button
-                      type="button"
-                      className="savedx"
-                      onClick={() => removeOne(s.ch)}
-                      title="Remove"
-                      aria-label={`Remove Psalm ${s.ch}`}
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <a className="cta cta-quiet" href="/tehillim/read?mode=saved">
-                Read all saved →
-              </a>
-            </>
-          )}
         </div>
       </section>
 

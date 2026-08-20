@@ -222,7 +222,8 @@ export default function TehillimReader() {
       }
       return out;
     }
-    // today
+    // today: the day's portion + the seasonal addition + your saved Psalms,
+    // so Daily Tehillim is one destination for everything said each day.
     const combine = hebToday?.combine ?? false;
     const day = hebToday?.day ?? 1;
     const out: Group[] = [{ segments: segmentsForDay(day, combine) }];
@@ -235,6 +236,13 @@ export default function TehillimReader() {
           segments: add.chapters.map((c) => ({ chapter: c })),
         });
       }
+    }
+    if (saved.length) {
+      out.push({
+        title: "תְּהִלִּים שְׁמוּרִים",
+        note: "Your saved Psalms",
+        segments: saved.map((s) => ({ chapter: s.ch })),
+      });
     }
     return out;
   }, [sel, hebToday, saved]);
