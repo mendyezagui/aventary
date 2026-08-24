@@ -99,10 +99,12 @@ function computeHebToday(base = new Date()): HebToday {
   return { day, combine, month, label };
 }
 
-function selKey(sel: Selection): string {
+// The "today" key carries the calendar day so a new day starts fresh (at the
+// top) instead of restoring yesterday's scroll position.
+function selKey(sel: Selection, todayKey = ""): string {
   switch (sel.type) {
     case "today":
-      return "today";
+      return "today:" + todayKey;
     case "day":
       return "d" + sel.day;
     case "chapter":
@@ -137,6 +139,7 @@ export default function TehillimReader() {
   const selRef = useRef(sel);
   selRef.current = sel;
   const pendingScroll = useRef<number | null>(null);
+  const todayKeyRef = useRef("");
   const enhanceRef = useRef(enhance);
   enhanceRef.current = enhance;
   const fillRef = useRef<HTMLDivElement | null>(null);
@@ -149,6 +152,7 @@ export default function TehillimReader() {
   // ---- One-time client init ----
   useEffect(() => {
     const t = computeHebToday();
+    todayKeyRef.current = new Date().toDateString(); // unique per calendar day
     setHebToday(t);
     setSavedState(getSaved());
 
@@ -181,7 +185,7 @@ export default function TehillimReader() {
       s.theme ||
         (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
     );
-    if (s.scroll && s.scroll.key === selKey(startSel)) {
+    if (s.scroll && s.scroll.key === selKey(startSel, todayKeyRef.current)) {
       pendingScroll.current = s.scroll.y;
     }
     setReady(true);
@@ -364,7 +368,12 @@ export default function TehillimReader() {
     const onScroll = () => {
       clearTimeout(t);
       t = setTimeout(() => {
-        saveLS({ scroll: { key: selKey(selRef.current), y: window.scrollY } });
+        saveLS({
+          scroll: {
+            key: selKey(selRef.current, todayKeyRef.current),
+            y: window.scrollY,
+          },
+        });
       }, 250);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
