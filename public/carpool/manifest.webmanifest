@@ -1,0 +1,18 @@
+{
+  "name": "Carpool — live pickup",
+  "short_name": "Carpool",
+  "description": "See where the carpool driver is, and get a buzz a minute before they reach your door.",
+  "lang": "en",
+  "start_url": "/carpool",
+  "scope": "/carpool",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    { "src": "/carpool/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/carpool/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/carpool/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/carpool/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -104,4 +104,50 @@ git push -u origin main
   /about, /contact, /appointments, /insights, /insights/:slug, which match.
 
 
+## Carpool (`/carpool`)
+
+A standalone installable web app for a school carpool: parents sign in, the
+person driving shares their live position, and everyone else sees the car move
+and gets a notification about a minute before it reaches their door.
+
+**Setup**
+
+1. Run `supabase/migrations/0003_carpool.sql` (`supabase db push`, or paste it
+   into the SQL editor). It creates the tables, the RLS policies, the
+   join-by-code RPCs, and adds the live tables to the `supabase_realtime`
+   publication.
+2. Generate push keys — `npx web-push generate-vapid-keys` — and set
+   `VAPID_PUBLIC_KEY`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY` (same value),
+   `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT`. Without them the app still works;
+   pings just appear in-app instead of on the lock screen.
+3. Confirm Supabase Auth has email magic links enabled and that
+   `https://aventary.com/auth/callback` is an allowed redirect URL.
+4. First parent opens `/carpool`, signs in, and taps **Start a new one**. The
+   six-character join code it hands back is what everyone else enters.
+
+**How it fits together**
+
+- `app/carpool/*` — the client app (screens, state, tile map, ETA display).
+- `lib/carpool/geo.ts` — distance, ETA and Web Mercator maths, no dependencies.
+- `lib/carpool/push.ts` — Web Push (VAPID + aes128gcm) on Web Crypto only, so
+  it runs on Cloudflare Workers where `web-push` can't.
+- `app/api/carpool/*` — ping fan-out, push subscriptions, address lookup.
+- Live positions ride Supabase Realtime; RLS scopes every table to the groups
+  you belong to.
+
+**Known limits — worth telling the parents**
+
+- **Location only reports while the app is open and on screen.** Browsers stop
+  the GPS watch when the tab is backgrounded or the phone locks. The driver
+  needs the phone awake with `/carpool` in front (the app takes a screen wake
+  lock to help). True background tracking needs a native app.
+- **iPhone push requires installing the app**: Share → Add to Home Screen, open
+  it from the icon, then turn notifications on in Settings (iOS 16.4+).
+- Positions are last-known only — stopping sharing deletes the row, and no
+  history of anyone's driving is kept.
+- Map tiles come from OpenStreetMap's public servers. Fine at family scale;
+  point `NEXT_PUBLIC_CARPOOL_TILE_URL` at your own tile provider if it grows.
+- ETAs are straight-line distance with a detour factor, not routed directions.
+
+
 <!-- Note: NEXT_PUBLIC_* env vars are inlined at build time. After changing them in Cloudflare, trigger a rebuild. -->

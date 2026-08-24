@@ -1,0 +1,511 @@
+/* Carpool — a standalone mobile app surface. Scoped to .cp-* so it never
+   touches the marketing site's Tailwind styles. Built thumb-first: big
+   targets, one column, readable at arm's length on a car mount. */
+
+.cp-page {
+  --cp-bg: #0f172a;
+  --cp-card: #1e293b;
+  --cp-card-2: #273449;
+  --cp-line: #334155;
+  --cp-text: #f1f5f9;
+  --cp-muted: #94a3b8;
+  --cp-accent: #38bdf8;
+  --cp-go: #22c55e;
+  --cp-warn: #f59e0b;
+  --cp-hot: #f43f5e;
+
+  min-height: 100dvh;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: var(--font-body), system-ui, -apple-system, sans-serif;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
+.cp-page * {
+  box-sizing: border-box;
+}
+
+.cp-shell,
+.cp-gate {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 16px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cp-gate {
+  min-height: 100dvh;
+  justify-content: center;
+}
+
+.cp-gate h1 {
+  font-family: var(--font-headline), Georgia, serif;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.cp-loading {
+  color: var(--cp-muted);
+}
+
+/* ---------- header ---------- */
+.cp-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cp-header h1 {
+  font-family: var(--font-headline), Georgia, serif;
+  font-size: 1.35rem;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.cp-header-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.cp-sub {
+  color: var(--cp-muted);
+  font-size: 0.85rem;
+  margin: 2px 0 0;
+}
+
+.cp-addr {
+  display: block;
+}
+
+.cp-fineprint {
+  color: var(--cp-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* ---------- the headline answer ---------- */
+.cp-status {
+  background: var(--cp-card);
+  border: 1px solid var(--cp-line);
+  border-radius: 16px;
+  padding: 18px;
+  text-align: center;
+}
+
+.cp-status-who {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.cp-status-idle {
+  margin: 0;
+  color: var(--cp-muted);
+}
+
+.cp-eta {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 4px 0 0;
+  letter-spacing: -0.02em;
+}
+
+.cp-eta-now {
+  color: var(--cp-go);
+  animation: cp-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes cp-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-eta-now {
+    animation: none;
+  }
+}
+
+/* ---------- map ---------- */
+.cp-map {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid var(--cp-line);
+  background: #1a2436;
+}
+
+.cp-map-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: var(--cp-muted);
+  text-align: center;
+}
+
+.cp-map-tiles img {
+  position: absolute;
+  width: 256px;
+  height: 256px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.cp-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+.cp-pin-dot {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.cp-pin-label {
+  background: rgba(15, 23, 42, 0.86);
+  color: var(--cp-text);
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cp-pin-driver .cp-pin-label {
+  background: var(--cp-accent);
+  color: #06283a;
+  font-weight: 600;
+}
+
+.cp-pin-me .cp-pin-label {
+  background: var(--cp-go);
+  color: #05230f;
+  font-weight: 600;
+}
+
+.cp-pin-dim {
+  opacity: 0.75;
+}
+
+.cp-map-zoom {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cp-map-zoom button {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--cp-line);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--cp-text);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.cp-map-credit {
+  position: absolute;
+  right: 4px;
+  bottom: 2px;
+  font-size: 0.62rem;
+  color: #cbd5e1;
+  background: rgba(15, 23, 42, 0.7);
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+/* ---------- driver controls ---------- */
+.cp-drive {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cp-driving-flag {
+  margin: 0;
+  color: var(--cp-go);
+  font-weight: 600;
+}
+
+.cp-seg {
+  display: flex;
+  background: var(--cp-card);
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.cp-seg button {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: var(--cp-muted);
+  padding: 10px;
+  border-radius: 9px;
+  font-size: 0.95rem;
+}
+
+.cp-seg button.on {
+  background: var(--cp-card-2);
+  color: var(--cp-text);
+  font-weight: 600;
+}
+
+/* ---------- buttons and inputs ---------- */
+.cp-page button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 12px;
+  border: 1px solid var(--cp-line);
+  background: var(--cp-card);
+  color: var(--cp-text);
+  padding: 10px 14px;
+  min-height: 44px;
+}
+
+.cp-page button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.cp-primary {
+  background: var(--cp-accent) !important;
+  border-color: var(--cp-accent) !important;
+  color: #062132 !important;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 15px !important;
+}
+
+.cp-secondary {
+  background: transparent !important;
+  border-color: var(--cp-hot) !important;
+  color: var(--cp-hot) !important;
+}
+
+.cp-page label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--cp-muted);
+}
+
+.cp-page input,
+.cp-page select {
+  font: inherit;
+  font-size: 16px; /* keeps iOS from zooming on focus */
+  color: var(--cp-text);
+  background: var(--cp-card);
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 46px;
+}
+
+.cp-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cp-row button {
+  flex: 1;
+}
+
+/* ---------- lists ---------- */
+.cp-stops h2,
+.cp-feed h2 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cp-muted);
+  margin: 0 0 8px;
+}
+
+.cp-stops ul,
+.cp-feed ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cp-stops li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--cp-card);
+  border: 1px solid var(--cp-line);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.cp-stops li.done {
+  opacity: 0.5;
+}
+
+.cp-stop-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cp-stop-label {
+  font-weight: 600;
+}
+
+.cp-stop-side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.cp-stop-eta {
+  color: var(--cp-muted);
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+.cp-stop-eta.soon {
+  color: var(--cp-go);
+  font-weight: 700;
+}
+
+.cp-feed li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--cp-line);
+  padding-bottom: 6px;
+}
+
+.cp-feed li:last-child {
+  border-bottom: 0;
+}
+
+/* ---------- notices and banners ---------- */
+.cp-notice {
+  background: var(--cp-card-2);
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.cp-notice-warn {
+  border-color: var(--cp-warn);
+  color: #fde68a;
+}
+
+.cp-banner {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  background: var(--cp-accent);
+  color: #06283a;
+  cursor: pointer;
+}
+
+.cp-banner .cp-sub {
+  color: #075985;
+}
+
+.cp-banner-one_minute,
+.cp-banner-arrived {
+  background: var(--cp-go);
+  color: #04220f;
+}
+
+.cp-banner-one_minute .cp-sub,
+.cp-banner-arrived .cp-sub {
+  color: #14532d;
+}
+
+/* ---------- sheets ---------- */
+.cp-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(2, 6, 23, 0.7);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.cp-sheet {
+  width: 100%;
+  max-width: 640px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  background: var(--cp-bg);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border: 1px solid var(--cp-line);
+  padding: 18px 16px calc(24px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cp-sheet header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cp-sheet h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.cp-sheet h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.cp-sheet hr {
+  border: 0;
+  border-top: 1px solid var(--cp-line);
+  margin: 2px 0;
+  width: 100%;
+}
+
+@media (min-width: 700px) {
+  .cp-sheet-backdrop {
+    align-items: center;
+  }
+  .cp-sheet {
+    border-radius: 20px;
+  }
+}
