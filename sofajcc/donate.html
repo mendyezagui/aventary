@@ -60,7 +60,7 @@
 <div class="text-left bg-secondary-fixed/50 border border-secondary/30 rounded-xl px-4 py-4 max-w-[600px] mx-auto">
 <p class="font-button text-button text-primary uppercase tracking-wide flex items-center gap-2 mb-1"><span class="material-symbols-outlined text-secondary text-[20px]">savings</span>Give 100% to the SoFa</p>
 <p class="text-red-600 font-extrabold uppercase tracking-wide text-base leading-tight mb-2">🐢 ADHD people — read this slowly</p>
-<p class="font-body-md text-sm text-on-surface-variant mb-3">On the last step (<strong class="text-primary">&ldquo;Summary&rdquo;</strong>), Zeffy adds an optional line — <strong class="text-primary">&ldquo;Help keep Zeffy free for SoFa JCC&rdquo;</strong> — pre-set to about <strong class="text-primary">15%</strong>. To give your <strong class="text-primary">full amount with nothing added</strong>, set it like this:</p>
+<p class="font-body-md text-sm text-on-surface-variant mb-3" data-bionic>On the last step (&ldquo;Summary&rdquo;), Zeffy adds an optional line — &ldquo;Help keep Zeffy free for SoFa JCC&rdquo; — pre-set to about 15%. To give your full amount with nothing added, set it like this:</p>
 <div class="bg-white border border-outline-variant/50 rounded-lg p-4">
 <p class="text-[13px] font-semibold text-primary mb-3">Help keep Zeffy free for SoFa JCC 💜 <span class="text-on-surface-variant font-normal text-xs">(optional)</span></p>
 <div class="flex flex-wrap items-start gap-5">
@@ -182,6 +182,35 @@
 <p class="font-body-md text-on-surface-variant text-sm">Tax-deductible &middot; EIN 41-2361116</p>
 </div>
 </footer>
+<script>
+// Bionic reading: bold the leading chunk of each word inside [data-bionic]
+(function () {
+  function bionic(root) {
+    var nodes = [], w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    while (w.nextNode()) nodes.push(w.currentNode);
+    nodes.forEach(function (node) {
+      if (!node.textContent.trim() || node.parentNode.tagName === 'B') return;
+      var frag = document.createDocumentFragment();
+      node.textContent.split(/(\s+)/).forEach(function (tok) {
+        if (tok === '') return;
+        if (/^\s+$/.test(tok)) { frag.appendChild(document.createTextNode(tok)); return; }
+        var m = tok.match(/^([^A-Za-z]*)([A-Za-z]+)([\s\S]*)$/);
+        if (!m) { frag.appendChild(document.createTextNode(tok)); return; }
+        var pre = m[1], word = m[2], post = m[3];
+        var n = Math.max(1, Math.round(word.length * 0.42));
+        if (pre) frag.appendChild(document.createTextNode(pre));
+        var b = document.createElement('b');
+        b.style.fontWeight = '700';
+        b.textContent = word.slice(0, n);
+        frag.appendChild(b);
+        frag.appendChild(document.createTextNode(word.slice(n) + post));
+      });
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+  document.querySelectorAll('[data-bionic]').forEach(bionic);
+})();
+</script>
 <script src="/assets/nav.js?v=10"></script>
 </body>
 </html>
