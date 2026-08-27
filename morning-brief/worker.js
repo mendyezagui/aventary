@@ -373,6 +373,7 @@ RANKING CRITERIA:
 4. Specificity — numbers, real examples, concrete findings
 5. Coverage — top5 MUST include at least 1 item with category "Revenue Operations". This is a hard constraint, not a preference. If no fresh RevOps post exists in PART A or PART B for this window, surface the strongest available RevOps voice (any platform, lookback up to 7 days) and write bullets that frame why their current posture matters — never omit RevOps to make room for a 5th AI/Salesforce item.
 6. ICP fit — Aventary's audience is non-tech companies deploying AI + RevOps systems. When two items have comparable merit on criteria 1–4, prefer the one where AI is being APPLIED to revenue operations (lead routing, sales agent deployment, outbound at scale, pipeline data alignment, marketing automation, RevOps tooling at non-tech operators) over pure AI research, model release coverage, or AI-tech-news. A practical AI×RevOps signal an operator can deploy this quarter ranks above a more headline-grabbing pure-AI story when both are otherwise equivalent.
+7. One voice per brief — each of the 5 slots MUST be a different voice/source. Never select more than one item from the same person or publication in a single brief, even if they published several strong pieces; choose their single best and give the remaining slots to other voices.
 
 Write each card for a business executive who has 10 seconds to decide if it's worth reading:
 - 3 bullets max, tight, no fluff
@@ -406,6 +407,25 @@ Return ONLY valid JSON. No markdown. No preamble:
   const match = stripped.match(/\{[\s\S]*\}/);
   if (!match) throw new Error("No JSON found in response");
   const result = JSON.parse(match[0]);
+
+  // Enforce one-voice-per-brief (belt-and-suspenders behind the prompt rule):
+  // keep each voice's highest-ranked item, drop any later duplicates, renumber.
+  if (Array.isArray(result.top5)) {
+    const seenVoices = new Set();
+    const before = result.top5.length;
+    result.top5 = result.top5
+      .filter((it) => {
+        const key = (it && it.name ? String(it.name) : "").trim().toLowerCase();
+        if (!key) return true;
+        if (seenVoices.has(key)) return false;
+        seenVoices.add(key);
+        return true;
+      })
+      .map((it, i) => ({ ...it, rank: i + 1 }));
+    if (result.top5.length < before) {
+      console.log(`[Morning Brief] one-voice-per-brief: dropped ${before - result.top5.length} duplicate-voice item(s)`);
+    }
+  }
 
   // Coverage safety check — flag (but don't block) briefs missing RevOps.
   // The prompt enforces a hard constraint that top5 must include a Revenue
