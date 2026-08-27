@@ -6,9 +6,9 @@ import { type Project, INDUSTRIES, INDUSTRY_BY_SLUG } from "@/lib/work";
 type Capability = { key: string; label: string; icon: string };
 
 const GROUPS: { key: Project["category"]; label: string }[] = [
-  { key: "product", label: "Products I own and run" },
   { key: "engagement", label: "Client engagements" },
   { key: "poc", label: "Enterprise POCs & AI systems" },
+  { key: "product", label: "Products I own and run" },
 ];
 
 export default function WorkExplorer({
