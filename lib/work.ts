@@ -125,7 +125,7 @@ export const PROJECTS: Project[] = [
     category: "engagement",
     ownership: "Client engagement",
     client: "Trimble",
-    via: "via Toptal",
+    via: "via PwC",
     featured: true,
     status: "Delivered",
     tags: ["ai-agents", "salesforce", "data"],
