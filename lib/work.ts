@@ -7,8 +7,12 @@
 //
 // GROUND RULES (kept deliberately honest):
 //   • `receipts` are factual, defensible proof points only — never invented.
-//   • Client work is ANONYMIZED (no NDA-sensitive names). Own products are named.
+//   • Clients are NAMED where the work is public/authorized (Trimble, Fundingo,
+//     Rapid Fulfillment) and ANONYMIZED otherwise (HOA platform, clinician, etc.).
 //   • `metrics` are OMITTED unless a real number exists. See TODO(you) below.
+//   • `video` is optional — add a URL or /work/<slug>.mp4 and a "Watch demo"
+//     button appears; with no live link and no video, the card shows a tasteful
+//     "Walkthrough available on request" that points to the booking page.
 //
 // TODO(you) — to make this even stronger, hand me (or drop in) the real numbers
 // and I'll wire them into the `metrics` field per project. Good candidates:
@@ -32,13 +36,23 @@ export type Project = {
   /** One-line positioning. */
   tagline: string;
   category: WorkCategory;
-  /** "own product" vs anonymized client work. */
+  /** "own product" vs client work. */
   ownership: "Aventary product" | "Client engagement";
-  status: "Live" | "In production" | "Private / gated" | "Deployed POC";
+  /** Named client, when it can be shown publicly (e.g. Trimble, Fundingo). */
+  client?: string;
+  /** How the engagement was delivered, e.g. "via Toptal". */
+  via?: string;
+  /** Pin to a featured spotlight at the top of the catalog. */
+  featured?: boolean;
+  status: "Live" | "In production" | "Private / gated" | "Deployed POC" | "Delivered";
   /** Live public URL, when there is one to show. */
   liveUrl?: string;
   /** Label for the primary link/button. */
   liveLabel?: string;
+  /** Optional demo video (URL or /work/<slug>.mp4). Renders a "Watch demo" button. */
+  video?: string;
+  /** Label for the video button. */
+  videoLabel?: string;
   /** Capability tags — drive the "many use cases" filtering/grouping. */
   tags: string[];
   /** The narrative: problem -> build -> result. */
@@ -71,7 +85,82 @@ export const CAPABILITIES: { key: string; label: string; icon: string }[] = [
   { key: "compliance", label: "Compliance-grade builds", icon: "verified_user" },
 ];
 
+// The vertical lens — buyers self-identify by industry ("have you done mine?").
+export const INDUSTRIES: { key: string; label: string; icon: string }[] = [
+  { key: "financial", label: "Financial services & lending", icon: "account_balance" },
+  { key: "operators", label: "Founders & operators", icon: "rocket_launch" },
+  { key: "healthcare", label: "Healthcare & accessibility", icon: "health_and_safety" },
+  { key: "logistics", label: "Logistics & transportation", icon: "local_shipping" },
+  { key: "property", label: "Property management", icon: "apartment" },
+  { key: "enterprise", label: "Enterprise & B2B tech", icon: "corporate_fare" },
+  { key: "retail", label: "Retail & events", icon: "storefront" },
+  { key: "consumer", label: "Consumer", icon: "groups" },
+];
+
+// Primary industry per project (by slug) — one vertical each.
+export const INDUSTRY_BY_SLUG: Record<string, string> = {
+  "trimble-ai-sdr": "enterprise",
+  voitra: "logistics",
+  "second-brain": "operators",
+  "second-brain-platform": "operators",
+  "carpool-circle": "consumer",
+  talkboard: "healthcare",
+  "aventary-intelligence": "operators",
+  "hoa-mcp": "property",
+  "fulfillment-os": "logistics",
+  "telephony-scheduler": "logistics",
+  "clinical-logging": "healthcare",
+  "haus-of-lark": "retail",
+  "credit-policy-intelligence": "financial",
+  "credit-memo-intelligence": "financial",
+  "agentforce-decision-desk": "financial",
+};
+
 export const PROJECTS: Project[] = [
+  // ---------------------------------------------------------------- FEATURED
+  {
+    slug: "trimble-ai-sdr",
+    name: "Trimble — AI SDR & lead-to-opportunity engine",
+    tagline: "An AI SDR that turned a stalled lead backlog into booked sales conversations.",
+    category: "engagement",
+    ownership: "Client engagement",
+    client: "Trimble",
+    via: "via Toptal",
+    featured: true,
+    status: "Delivered",
+    tags: ["ai-agents", "salesforce", "data"],
+    problem:
+      "Leads were prioritized and routed by hand — engagement was slow, inconsistent, and reactive, with no unified system for classifying and scoring them. Reps spent time on stale or unqualified prospects while real ones went cold. It wasn't a pipeline problem; it was a process problem.",
+    build:
+      "A six-point AI toolkit across the lead-to-opportunity lifecycle: (1) lead classification to strip out spam and support, (2) propensity scoring, (3) autonomous 24/7 agentic engagement over email and chat, (4) BANT qualification scored 0–12 from the CRM, (5) human-in-the-loop escalation to preserve hot leads, and (6) AI-to-AI coordination for handoffs between systems. When a lead's BANT score crosses the threshold, it converts and books a session automatically; when a human touch matters, it escalates.",
+    result:
+      "Lead assignment dropped from days to about a minute, first engagement from days to a couple of hours, and a 2,500-lead backlog was worked down to zero — while SDRs focused on the conversations where a human actually moves the deal.",
+    receipts: [
+      "Six-point AI toolkit: classification, scoring, agentic engagement, BANT qualification, human-in-the-loop, AI-to-AI coordination",
+      "Autonomous 24/7 email + chat engagement with BANT scoring (0–12); auto-converts and books a session above threshold",
+      "Human-in-the-loop escalation keeps hot leads from dropping",
+      "Engaged hundreds of leads that were previously untouched",
+      "Published as a use case on LinkedIn and on Toptal",
+    ],
+    metrics: [
+      { label: "Lead assignment", value: "Days → 1 min" },
+      { label: "First engagement", value: "Days → ~2.5 hrs" },
+      { label: "Lead throughput", value: "2×" },
+      { label: "Lead leakage", value: "−25%" },
+      { label: "Backlog cleared", value: "2.5K → 0" },
+    ],
+    stack: [
+      "AI agents",
+      "LLM classification & scoring",
+      "CRM / RevOps (lead-to-opportunity)",
+      "Email + chat automation",
+      "BANT qualification",
+      "Human-in-the-loop",
+    ],
+    proves:
+      "Can design an end-to-end AI SDR a global enterprise runs on — lead to booked meeting — with humans kept on the calls that matter.",
+    icon: "support_agent",
+  },
   // ------------------------------------------------------------------ PRODUCTS
   {
     slug: "voitra",
@@ -122,6 +211,34 @@ export const PROJECTS: Project[] = [
     stack: ["React", "Supabase", "Cloudflare Pages", "MCP", "Anthropic API"],
     proves: "Can design and ship a stateful, multi-surface app — and demand-test the business around it.",
     icon: "network_intelligence",
+  },
+  {
+    slug: "second-brain-platform",
+    name: "Second Brain OS",
+    tagline: "The personal operator tool, productized into a multi-tenant platform.",
+    category: "product",
+    ownership: "Aventary product",
+    status: "Live",
+    liveUrl: "https://secondbrain-os.pages.dev",
+    liveLabel: "See the product",
+    tags: ["ai-agents", "data", "compliance"],
+    problem:
+      "Solo operators run their business across a dozen tools with no system of record. The hard part isn't building one for yourself — it's turning that personal tool into a product other operators can run inside, without their data ever touching each other's.",
+    build:
+      "Re-architected the single-user app into a multi-tenant platform with row-level tenant isolation, then onboarded the first external tenant onto its own gated instance and subdomain. Each client gets a modular set of control surfaces — telephony queue routing, property/HOA data, team-chat operations, custom evidence trackers — switched on per account. Added per-tenant usage analytics, an owner-only cross-tenant admin, one-click self-serve connections (MCP-to-AI and Gmail), and an AI knowledge graph that reads a tenant's own notes and records and maps how everything connects.",
+    result:
+      "One codebase now serves multiple isolated operator instances live, each on its own domain, with per-client capabilities and self-serve setup — a repeatable product motion, not just a personal tool.",
+    receipts: [
+      "Multi-tenant with row-level data isolation — no tenant can see another's data",
+      "First external tenant live on its own gated subdomain",
+      "Modular per-client control surfaces, toggled per account",
+      "Per-tenant usage analytics + owner-only cross-tenant admin",
+      "Self-serve MCP-to-AI and Gmail connections, per tenant",
+      "AI knowledge graph that extracts entities + relationships from a tenant's own data",
+    ],
+    stack: ["React", "Supabase (RLS multi-tenant)", "Cloudflare Pages + Functions", "Supabase Edge Functions", "MCP", "Anthropic API"],
+    proves: "Can take a personal tool and engineer it into a real multi-tenant SaaS — isolation, per-client modularity, and self-serve onboarding included.",
+    icon: "hub",
   },
   {
     slug: "carpool-circle",
@@ -217,7 +334,7 @@ export const PROJECTS: Project[] = [
     tagline: "A production MCP + monitoring layer over an HOA management platform's API.",
     category: "engagement",
     ownership: "Client engagement",
-    status: "In production",
+    status: "Live",
     tags: ["ai-agents", "data"],
     problem:
       "Property managers needed programmatic and AI-driven access to an HOA/community-management system of record — safely, without runaway automations quietly hammering the API.",
@@ -229,6 +346,7 @@ export const PROJECTS: Project[] = [
       "MCP server running in production behind a secure tunnel",
       "Runaway-loop monitoring wired to Datadog and surfaced in an ops dashboard",
       "Connected to workflow automation and an AI assistant connector",
+      "One of multiple MCP servers shipped and running live across engagements",
     ],
     stack: ["MCP", "Node.js", "DigitalOcean", "Cloudflare Tunnel", "Datadog", "n8n"],
     proves: "Can put AI on top of an enterprise system of record with real governance.",
@@ -236,11 +354,12 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: "fulfillment-os",
-    name: "Medical-logistics operator — Fulfillment operating system",
+    name: "Rapid Fulfillment — order orchestration & fulfillment OS",
     tagline: "A warehouse-aware Salesforce operating system — from supply request through shipment.",
     category: "engagement",
     ownership: "Client engagement",
-    status: "In production",
+    client: "Rapid Fulfillment",
+    status: "Live",
     tags: ["salesforce", "data"],
     problem:
       "Inventory, driver kits, allocation, picking, receiving, and shipping operated across disconnected Salesforce records and interfaces, with limited shortage visibility and risky production changes.",
@@ -267,7 +386,7 @@ export const PROJECTS: Project[] = [
     tagline: "Operator-controlled scheduling for enterprise telephony, with a reliability harness.",
     category: "engagement",
     ownership: "Client engagement",
-    status: "In production",
+    status: "Live",
     tags: ["ai-agents", "voice", "data"],
     problem:
       "A medical-transport operator routes inbound calls between live queues and an AI voice agent across several business lines — and was flipping that routing by hand, line by line, every day. Easy to forget, easy to leave a line on the AI overnight, and invisible once it had drifted.",
@@ -293,7 +412,7 @@ export const PROJECTS: Project[] = [
     tagline: "A compliance-grade session-logging PWA for a healthcare practice.",
     category: "engagement",
     ownership: "Client engagement",
-    status: "Private / gated",
+    status: "Live",
     tags: ["compliance", "mobile", "data"],
     problem:
       "A solo speech-language pathologist needed to log sessions on a phone or laptop while staying aligned with HIPAA — without an enterprise EHR's cost or overhead.",
@@ -339,10 +458,11 @@ export const PROJECTS: Project[] = [
   // ------------------------------------------------ ENTERPRISE POCs & AI SYSTEMS
   {
     slug: "credit-policy-intelligence",
-    name: "Commercial-lending platform — Credit Policy Intelligence",
+    name: "Fundingo — Credit Policy Intelligence",
     tagline: "Salesforce-native policy intelligence that translates lending policy into clear application guidance.",
     category: "poc",
     ownership: "Client engagement",
+    client: "Fundingo",
     status: "Deployed POC",
     tags: ["salesforce", "ai-agents", "compliance"],
     problem:
@@ -364,10 +484,11 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: "credit-memo-intelligence",
-    name: "Commercial-lending platform — Credit Memo Intelligence",
+    name: "Fundingo — Credit Memo Intelligence",
     tagline: "Program-specific credit memo generation from Salesforce application and underwriting evidence.",
     category: "poc",
     ownership: "Client engagement",
+    client: "Fundingo",
     status: "Deployed POC",
     tags: ["salesforce", "data", "compliance"],
     problem:
@@ -390,10 +511,11 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: "agentforce-decision-desk",
-    name: "Commercial-lending platform — Agentforce decision desk",
+    name: "Fundingo — Agentforce decision desk",
     tagline: "A real-time broker-submission decisioning agent that keeps the human on the risk call.",
     category: "poc",
     ownership: "Client engagement",
+    client: "Fundingo",
     status: "Deployed POC",
     tags: ["ai-agents", "salesforce", "compliance"],
     problem:
