@@ -235,27 +235,31 @@ export const PROJECTS: Project[] = [
     icon: "monitoring",
   },
   {
-    slug: "salesforce-tooling",
-    name: "Medical-logistics operator — Salesforce tooling",
-    tagline: "Safe, fast CLI + tooling for a production Salesforce org.",
+    slug: "fulfillment-os",
+    name: "Medical-logistics operator — Fulfillment operating system",
+    tagline: "A warehouse-aware Salesforce operating system — from supply request through shipment.",
     category: "engagement",
     ownership: "Client engagement",
     status: "In production",
     tags: ["salesforce", "data"],
     problem:
-      "A national medical-logistics operator needed rapid, programmatic access to a production Salesforce org without the foot-guns that make direct prod access dangerous.",
+      "Inventory, driver kits, allocation, picking, receiving, and shipping operated across disconnected Salesforce records and interfaces, with limited shortage visibility and risky production changes.",
     build:
-      "An SFDX project aliased to the production org with query/describe helpers and a guarded write path that requires typed confirmation before any change touches production data.",
+      "A complete fulfillment lifecycle connecting Contacts, kits, Supply Requests, warehouse inventory, automatic allocation, shortage replacement, receipts, pick slips, UPS rates, Work Orders, labels, tracking, and exception dashboards — released through a guarded nine-stage deployment.",
     result:
-      "Operator-grade Salesforce tooling: fast reads and describes, with a deliberate seatbelt on every write.",
+      "Fulfillment teams can move an order from request to shipment inside one traceable Salesforce workflow, while preserving allocation history and production-only capabilities.",
     receipts: [
-      "SFDX project wired to a production org via the sf CLI",
-      "Read/describe/SOQL helpers for fast investigation",
-      "Guarded writes that require an explicit typed confirmation",
+      "Warehouse-level inventory, adjustments, receipts, thresholds, and allocation",
+      "Bulk and individual pick-slip generation",
+      "Partial-allocation visibility and unavailable-item replacement",
+      "UPS rates, labels, tracking, carrier, and service level returned to the request",
+      "Cancellation releases inventory without deleting allocation history",
+      "Nine-stage production rollout with focused validation",
+      "22 historical shipping-label links repaired",
     ],
-    stack: ["Salesforce", "SFDX", "sf CLI", "SOQL"],
-    proves: "Enterprise Salesforce fluency — with production safety built into the workflow.",
-    icon: "hub",
+    stack: ["Salesforce", "Apex", "LWC", "Flow", "Experience Cloud", "UPS API", "SFDX", "GitHub"],
+    proves: "Can redesign and safely deploy an operational Salesforce system — not merely customize screens.",
+    icon: "local_shipping",
   },
   {
     slug: "telephony-scheduler",
@@ -305,5 +309,107 @@ export const PROJECTS: Project[] = [
     stack: ["PWA", "Self-hosted Supabase", "AWS", "CI/CD"],
     proves: "Can build to a regulatory bar and hold the line on compliance before go-live.",
     icon: "verified_user",
+  },
+  {
+    slug: "haus-of-lark",
+    name: "Haus of Lark",
+    tagline: "An editorial Shopify rental experience built around quoting — not checkout.",
+    category: "engagement",
+    ownership: "Client engagement",
+    status: "Private / gated",
+    tags: ["commerce", "data"],
+    problem:
+      "An event-rental business needed more than a standard storefront. Customers had to explore a large visual inventory, assemble coordinated looks, and request a quote without the experience feeling like retail checkout.",
+    build:
+      "A custom-branded Shopify experience with curated rental collections, shoppable lookbooks, product recommendations, quote-request workflows, hidden public pricing, and operational tooling for managing catalog content, inventory structure, policies, and rental agreements.",
+    result:
+      "A cohesive digital showroom that turns inspiration into a structured rental inquiry, with a maintainable Shopify operating system behind it.",
+    receipts: [
+      "Custom Shopify theme and responsive editorial homepage",
+      "Catalog model covering 42 rental products across 8 collections",
+      "Metaobject-powered lookbook connecting styled scenes to quoteable products",
+      "Request-a-quote flow in place of conventional checkout",
+      "Catalog publishing, cleanup, collection, and recommendation automation",
+      "Six branded delivery, pickup, and vehicle-use agreement PDFs",
+    ],
+    stack: ["Shopify", "Liquid", "JavaScript", "GraphQL", "Metaobjects", "Dropbox Sign"],
+    proves: "Can translate a service-heavy, visually led business into a maintainable commerce workflow without forcing it into a conventional shopping-cart model.",
+    icon: "shopping_bag",
+  },
+  // ------------------------------------------------ ENTERPRISE POCs & AI SYSTEMS
+  {
+    slug: "credit-policy-intelligence",
+    name: "Commercial-lending platform — Credit Policy Intelligence",
+    tagline: "Salesforce-native policy intelligence that translates lending policy into clear application guidance.",
+    category: "poc",
+    ownership: "Client engagement",
+    status: "Deployed POC",
+    tags: ["salesforce", "ai-agents", "compliance"],
+    problem:
+      "Lending policies live in long documents containing hard eligibility rules, exceptions, risk tolerances, institutional priorities, and mission-level guidance. Underwriters must interpret those policies consistently for every application.",
+    build:
+      "A Salesforce-native workspace where administrators upload and activate credit policies, review extracted policy interpretations, and evaluate applications against the active policy. Results include pass, attention, and outside-policy findings, policy citations, concise guidance, missing evidence, and recommended next actions.",
+    result:
+      "A governed underwriting-assistance experience embedded directly in Salesforce, with policy versions, evidence provenance, human review, and repeatable application analysis.",
+    receipts: [
+      "Policy-document upload and activation workflow deployed in Salesforce",
+      "Application analysis available through both a record action and embedded workspace",
+      "Findings include policy references, missing evidence, and human-readable guidance",
+      "Permission-controlled access and Salesforce-native record storage",
+      "Active-policy provenance preserved with every analysis",
+    ],
+    stack: ["Salesforce", "Apex", "Lightning Web Components", "Salesforce Files", "Flow-ready architecture"],
+    proves: "Can transform institutional policy into governed, explainable decision support without turning AI guidance into an uncontrolled credit decision.",
+    icon: "policy",
+  },
+  {
+    slug: "credit-memo-intelligence",
+    name: "Commercial-lending platform — Credit Memo Intelligence",
+    tagline: "Program-specific credit memo generation from Salesforce application and underwriting evidence.",
+    category: "poc",
+    ownership: "Client engagement",
+    status: "Deployed POC",
+    tags: ["salesforce", "data", "compliance"],
+    problem:
+      "Credit memos are not one-size-fits-all. A construction loan requires project budgets, timelines, collateral, leverage, completion risk, and exit analysis. A working-capital facility requires bank activity, cash flow, DSCR, leverage, and repayment-capacity analysis.",
+    build:
+      "A Salesforce-native Credit Memo generator with governed configurations for different loan programs. Users select the program, generate an editable draft from available application and policy evidence, review missing information, refine every section, and generate a formatted PDF stored in Salesforce Files.",
+    result:
+      "A repeatable memo-generation workflow that adapts document structure and evidence requirements to the selected loan program while preserving configuration, policy, and source provenance.",
+    receipts: [
+      "Working Capital and Construction memo configurations deployed",
+      "Program-specific document sections and evidence requirements",
+      "Editable Salesforce Credit Memo records with complete Details pages",
+      "PDF generation with automatic Salesforce Files storage",
+      "Configuration version, policy version, and evidence provenance recorded",
+      "Permission-controlled administration and user access",
+    ],
+    stack: ["Salesforce", "Apex", "Lightning Web Components", "Visualforce PDF", "Salesforce Files"],
+    proves: "Can turn structured lending data and governed underwriting rules into reviewable, program-specific credit documentation inside the system of record.",
+    icon: "description",
+  },
+  {
+    slug: "agentforce-decision-desk",
+    name: "Commercial-lending platform — Agentforce decision desk",
+    tagline: "A real-time broker-submission decisioning agent that keeps the human on the risk call.",
+    category: "poc",
+    ownership: "Client engagement",
+    status: "Deployed POC",
+    tags: ["ai-agents", "salesforce", "compliance"],
+    problem:
+      "A broker submission normally kicks off days of back-and-forth — pull the file, check it against the credit box, go back for clarification, wait on an underwriter — before anyone can give the broker an answer.",
+    build:
+      "An Agentforce decision desk that reads the submission and returns a first-pass call on the spot: approve or decline, a confidence score, and the maximum amount it would approve, all grounded in the real underwriting criteria. Change an input — time in business, credit score, monthly revenue — and it re-runs the decision live; the broker can ask follow-up questions and pull up the underwriter analysis behind the number.",
+    result:
+      "Seconds-not-days first-pass decisions in front of the broker — with a hard line: when an input crosses into risk (a low-enough credit score), the agent flags the submission for human review instead of rubber-stamping it.",
+    receipts: [
+      "Reads a broker submission and returns approve/decline + confidence score + max approvable amount",
+      "Live re-run when inputs change, with follow-up Q&A and drill-down to the underwriter analysis",
+      "Every call grounded in the actual underwriting criteria",
+      "Risk-crossing submissions flagged for human review, never auto-finalized",
+    ],
+    stack: ["Salesforce", "Agentforce", "Apex", "Lightning Web Components"],
+    proves: "Puts an agent on the assembly and first-pass call in seconds while the human still owns the decision that carries the risk.",
+    icon: "balance",
   },
 ];
