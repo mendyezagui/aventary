@@ -101,7 +101,6 @@ export const INDUSTRIES: { key: string; label: string; icon: string }[] = [
 export const INDUSTRY_BY_SLUG: Record<string, string> = {
   "trimble-ai-sdr": "enterprise",
   voitra: "logistics",
-  "second-brain": "operators",
   "second-brain-platform": "operators",
   "carpool-circle": "consumer",
   talkboard: "healthcare",
@@ -186,31 +185,6 @@ export const PROJECTS: Project[] = [
     stack: ["Next.js", "Cloudflare Workers", "Retell voice AI", "Supabase"],
     proves: "Can take an AI product from concept to a live, callable, self-serve demo.",
     icon: "graphic_eq",
-  },
-  {
-    slug: "second-brain",
-    name: "Second Brain",
-    tagline: "An operating system for solo founders and operators.",
-    category: "product",
-    ownership: "Aventary product",
-    status: "Live",
-    liveUrl: "https://secondbrain-os.pages.dev",
-    liveLabel: "See the product",
-    tags: ["ai-agents", "data"],
-    problem:
-      "Solo operators run their whole business across a dozen tools with no system of record — context, tasks, and decisions leak everywhere and nothing compounds.",
-    build:
-      "A modular operator OS: a morning intelligence sweep, agent activity logs, a voice lab that records and transcribes, and control surfaces for connected systems — backed by Supabase, with a validate-first landing page and waitlist to demand-test the productized version.",
-    result:
-      "A daily-driver app plus a live productization test that turns a personal tool into a repeatable product motion.",
-    receipts: [
-      "Live app used as a daily driver, refactored from a single file into modular views",
-      "Productization demand-test live with an insert-only waitlist",
-      "Morning sweep + agent logs running against a real Supabase backend",
-    ],
-    stack: ["React", "Supabase", "Cloudflare Pages", "MCP", "Anthropic API"],
-    proves: "Can design and ship a stateful, multi-surface app — and demand-test the business around it.",
-    icon: "network_intelligence",
   },
   {
     slug: "second-brain-platform",
