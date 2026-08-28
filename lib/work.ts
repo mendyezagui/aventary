@@ -115,6 +115,21 @@ export const INDUSTRY_BY_SLUG: Record<string, string> = {
   "agentforce-decision-desk": "financial",
 };
 
+export type ResultStat = { value: string; label: string; source: string };
+
+// The "just results" band. Every figure is real and traceable to a specific
+// project's receipts below — no aggregates, no rounding up, nothing invented.
+export const RESULTS: ResultStat[] = [
+  { value: "2,500 → 0", label: "Sales-lead backlog cleared", source: "Trimble — AI SDR" },
+  { value: "Days → 1 min", label: "Lead assignment time", source: "Trimble — AI SDR" },
+  { value: "2×", label: "Lead throughput", source: "Trimble — AI SDR" },
+  { value: "−25%", label: "Lead leakage", source: "Trimble — AI SDR" },
+  { value: "9-stage", label: "Guarded order-to-shipment rollout", source: "Rapid Fulfillment" },
+  { value: "3", label: "Deployed underwriting POCs", source: "Fundingo" },
+  { value: "42", label: "Rental products across 8 collections", source: "Haus of Lark" },
+  { value: "5", label: "Families in daily use, every school run", source: "Carpool Circle" },
+];
+
 export const PROJECTS: Project[] = [
   // ---------------------------------------------------------------- FEATURED
   {

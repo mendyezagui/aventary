@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PROJECTS, CAPABILITIES } from "@/lib/work";
+import { PROJECTS, CAPABILITIES, RESULTS } from "@/lib/work";
 import WorkExplorer from "@/components/WorkExplorer";
 
 export const revalidate = 3600;
@@ -62,6 +62,34 @@ export default function WorkPage() {
               See the method
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* RESULTS — just the numbers, every one traceable to a project below */}
+      <section className="px-8 py-16 bg-ink text-inverse-on-surface">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
+            Results, by the numbers
+          </div>
+          <h2 className="font-headline text-3xl md:text-4xl font-bold leading-[1.1] mb-10 max-w-3xl">
+            Real outcomes in production<span className="text-primary italic">.</span>
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10">
+            {RESULTS.map((r) => (
+              <div key={`${r.source}-${r.label}`}>
+                <div className="font-headline text-3xl md:text-4xl font-bold text-primary leading-none">
+                  {r.value}
+                </div>
+                <div className="text-white/80 text-sm mt-2 leading-snug">{r.label}</div>
+                <div className="font-label text-[10px] tracking-[0.16em] uppercase text-white/40 mt-2">
+                  {r.source}
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-white/40 text-xs mt-10 max-w-2xl">
+            Every figure ties to a specific engagement below — no aggregates, no rounding up.
+          </p>
         </div>
       </section>
 
