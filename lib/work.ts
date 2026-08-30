@@ -110,6 +110,7 @@ export const INDUSTRY_BY_SLUG: Record<string, string> = {
   "telephony-scheduler": "logistics",
   "clinical-logging": "healthcare",
   "haus-of-lark": "retail",
+  "fundingo-underwriting-suite": "financial",
   "credit-policy-intelligence": "financial",
   "credit-memo-intelligence": "financial",
   "agentforce-decision-desk": "financial",
@@ -125,8 +126,8 @@ export const RESULTS: ResultStat[] = [
   { value: "2×", label: "Lead throughput", source: "Trimble — AI SDR" },
   { value: "−25%", label: "Lead leakage", source: "Trimble — AI SDR" },
   { value: "9-stage", label: "Guarded order-to-shipment rollout", source: "Rapid Fulfillment" },
-  { value: "3", label: "Deployed underwriting POCs", source: "Fundingo" },
-  { value: "42", label: "Rental products across 8 collections", source: "Haus of Lark" },
+  { value: "5", label: "Underwriting POCs, each in < 1 week", source: "Fundingo" },
+  { value: "42", label: "Rental products structured for quoting", source: "Haus of Lark" },
   { value: "5", label: "Families in daily use, every school run", source: "Carpool Circle" },
 ];
 
@@ -431,20 +432,57 @@ export const PROJECTS: Project[] = [
     build:
       "A custom-branded Shopify experience with curated rental collections, shoppable lookbooks, product recommendations, quote-request workflows, hidden public pricing, and operational tooling for managing catalog content, inventory structure, policies, and rental agreements.",
     result:
-      "A cohesive digital showroom that turns inspiration into a structured rental inquiry, with a maintainable Shopify operating system behind it.",
+      "Converted a service-heavy event-rental operation into one structured digital workflow — from visual discovery and product selection through quote submission and signed rental documentation.",
     receipts: [
-      "Custom Shopify theme and responsive editorial homepage",
-      "Catalog model covering 42 rental products across 8 collections",
-      "Metaobject-powered lookbook connecting styled scenes to quoteable products",
-      "Request-a-quote flow in place of conventional checkout",
-      "Catalog publishing, cleanup, collection, and recommendation automation",
-      "Six branded delivery, pickup, and vehicle-use agreement PDFs",
+      "42 rental products organized into 8 customer-facing collections, turning an unstructured inventory into a browsable catalog",
+      "4 shoppable looks connect visual inspiration directly to quote-ready product selections",
+      "1 unified quote journey replaces disconnected product inquiries and conventional buy-now checkout",
+      "6 branded agreements standardize delivery, will-call pickup, and vehicle-use handoffs across two rental brands",
+      "Catalog publishing, cleanup, collection assignment, and product recommendations converted into repeatable automation",
+    ],
+    metrics: [
+      { label: "Rental products", value: "42" },
+      { label: "Collections", value: "8" },
+      { label: "Shoppable looks", value: "4" },
+      { label: "Branded agreements", value: "6" },
+      { label: "Quote journey", value: "1 unified" },
     ],
     stack: ["Shopify", "Liquid", "JavaScript", "GraphQL", "Metaobjects", "Dropbox Sign"],
     proves: "Can translate a service-heavy, visually led business into a maintainable commerce workflow without forcing it into a conventional shopping-cart model.",
     icon: "shopping_bag",
   },
   // ------------------------------------------------ ENTERPRISE POCs & AI SYSTEMS
+  {
+    slug: "fundingo-underwriting-suite",
+    name: "Fundingo — AI underwriting POC suite + enablement",
+    tagline:
+      "Five fully-functional underwriting POCs, each shipped in under a week — packaged so sales and marketing can self-serve.",
+    category: "poc",
+    ownership: "Client engagement",
+    client: "Fundingo",
+    status: "Deployed POC",
+    tags: ["salesforce", "ai-agents", "compliance"],
+    problem:
+      "Go-to-market needed to show credible, working AI underwriting across several lending motions — fast, and without pulling engineering into every demo or waiting on long build cycles.",
+    build:
+      "Five fully-functional, production-grade underwriting POCs — policy intelligence, credit-memo generation, real-time broker decisioning, and more — each delivered in under a week, then rolled into a navigable capability catalog and an enablement package so sales and marketing can walk a prospect through the right one on their own.",
+    result:
+      "A self-serve catalog of robust underwriting POCs the go-to-market team drives without engineering in the loop — three of the five are detailed below.",
+    receipts: [
+      "5 fully-functional underwriting POCs delivered — each in under a week",
+      "Robust, production-grade builds — not throwaway prototypes",
+      "Packaged into a navigable capability catalog for sales & marketing",
+      "Enablement package so GTM can self-serve without engineering",
+    ],
+    metrics: [
+      { label: "POCs delivered", value: "5" },
+      { label: "Each, build to demo", value: "< 1 wk" },
+    ],
+    stack: ["Salesforce", "Apex", "Lightning Web Components", "Agentforce", "Salesforce Files"],
+    proves:
+      "Can stand up multiple production-grade AI POCs at extreme speed and package them so a GTM team can sell without engineering.",
+    icon: "auto_awesome_motion",
+  },
   {
     slug: "credit-policy-intelligence",
     name: "Fundingo — Credit Policy Intelligence",
@@ -466,6 +504,7 @@ export const PROJECTS: Project[] = [
       "Findings include policy references, missing evidence, and human-readable guidance",
       "Permission-controlled access and Salesforce-native record storage",
       "Active-policy provenance preserved with every analysis",
+      "Fully functional and robust — delivered in under a week, not a throwaway prototype",
     ],
     stack: ["Salesforce", "Apex", "Lightning Web Components", "Salesforce Files", "Flow-ready architecture"],
     proves: "Can transform institutional policy into governed, explainable decision support without turning AI guidance into an uncontrolled credit decision.",
@@ -493,6 +532,7 @@ export const PROJECTS: Project[] = [
       "PDF generation with automatic Salesforce Files storage",
       "Configuration version, policy version, and evidence provenance recorded",
       "Permission-controlled administration and user access",
+      "Fully functional and robust — delivered in under a week, not a throwaway prototype",
     ],
     stack: ["Salesforce", "Apex", "Lightning Web Components", "Visualforce PDF", "Salesforce Files"],
     proves: "Can turn structured lending data and governed underwriting rules into reviewable, program-specific credit documentation inside the system of record.",
@@ -518,6 +558,7 @@ export const PROJECTS: Project[] = [
       "Live re-run when inputs change, with follow-up Q&A and drill-down to the underwriter analysis",
       "Every call grounded in the actual underwriting criteria",
       "Risk-crossing submissions flagged for human review, never auto-finalized",
+      "Fully functional and robust — delivered in under a week, not a throwaway prototype",
     ],
     stack: ["Salesforce", "Agentforce", "Apex", "Lightning Web Components"],
     proves: "Puts an agent on the assembly and first-pass call in seconds while the human still owns the decision that carries the risk.",
