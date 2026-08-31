@@ -15,6 +15,15 @@ import {
   setSaved as writeSaved,
   type Saved,
 } from "./store";
+import {
+  getUser,
+  signIn,
+  signOut,
+  syncOnLoad,
+  setSyncUser,
+  startSyncLoop,
+  queueSync,
+} from "./account";
 
 type Theme = "light" | "dark";
 type Addition = "none" | "kera" | "neshama";
@@ -36,6 +45,12 @@ export default function HomeTehillim() {
   const [picking, setPicking] = useState(false);
   const [pick, setPick] = useState<Set<number>>(new Set());
   const [reordering, setReordering] = useState(false);
+  const [account, setAccount] = useState<{ email?: string } | null>(null);
+  const [handle, setHandle] = useState("");
+  const [email, setEmail] = useState("");
+  const [linkSent, setLinkSent] = useState(false);
+  const [authErr, setAuthErr] = useState<string | null>(null);
+  const [acctOpen, setAcctOpen] = useState(false);
 
   useEffect(() => {
     const now = new Date();
@@ -68,6 +83,48 @@ export default function HomeTehillim() {
     setReady(true);
   }, []);
 
+  // Account / cross-device sync
+  useEffect(() => {
+    let stop: (() => void) | undefined;
+    (async () => {
+      const u = await getUser();
+      if (!u) return;
+      setAccount(u);
+      setSyncUser(u.id);
+      try {
+        const prof = await syncOnLoad();
+        if (prof) {
+          setHandle(prof.handle);
+          setSaved(getSaved());
+          const t = (prof.settings as { theme?: Theme }).theme;
+          if (t === "light" || t === "dark") {
+            setTheme(t);
+            document.documentElement.setAttribute("data-theme", t);
+          }
+        }
+      } catch {
+        /* offline / error — stay on local */
+      }
+      stop = startSyncLoop();
+    })();
+    return () => stop?.();
+  }, []);
+
+  async function submitEmail(e: React.FormEvent) {
+    e.preventDefault();
+    setAuthErr(null);
+    const { error } = await signIn(email.trim());
+    if (error) setAuthErr(error.message);
+    else setLinkSent(true);
+  }
+  async function doSignOut() {
+    await signOut();
+    setSyncUser(null);
+    setAccount(null);
+    setHandle("");
+    setLinkSent(false);
+  }
+
   function toggleTheme() {
     const t: Theme = theme === "dark" ? "light" : "dark";
     setTheme(t);
@@ -97,6 +154,7 @@ export default function HomeTehillim() {
 
   function removeOne(ch: number) {
     setSaved(removeSaved(ch));
+    queueSync();
   }
 
   // ---- multi-select picker ----
@@ -123,10 +181,12 @@ export default function HomeTehillim() {
     writeSaved(list);
     setSaved(list);
     setPicking(false);
+    queueSync();
   }
 
   function move(ch: number, dir: -1 | 1) {
     setSaved(moveSaved(ch, dir));
+    queueSync();
   }
 
   return (
@@ -138,16 +198,74 @@ export default function HomeTehillim() {
           </h1>
           <p className="home-sub">{ready && dateLabel ? dateLabel : "Tehillim"}</p>
         </div>
-        <button
-          type="button"
-          className="btn-theme"
-          onClick={toggleTheme}
-          title="Day / night"
-          aria-label="Toggle day / night"
-        >
-          {theme === "dark" ? "☀" : "☾"}
-        </button>
+        <div className="home-head-btns">
+          <button
+            type="button"
+            className={`btn-theme acct-btn ${account ? "on" : ""}`}
+            onClick={() => setAcctOpen((o) => !o)}
+            title={account ? "Your account" : "Sync across devices (optional)"}
+            aria-label="Sync account"
+            aria-expanded={acctOpen}
+          >
+            ☁
+          </button>
+          <button
+            type="button"
+            className="btn-theme"
+            onClick={toggleTheme}
+            title="Day / night"
+            aria-label="Toggle day / night"
+          >
+            {theme === "dark" ? "☀" : "☾"}
+          </button>
+        </div>
       </header>
+
+      {acctOpen && (
+        <div className="acct-panel">
+          {account ? (
+            <>
+              <span className="acct-line">
+                Signed in as <b>{account.email}</b> — saved Psalms &amp; settings
+                sync across your devices.
+              </span>
+              <span className="acct-line">
+                Handle: <code className="handle">{handle || "…"}</code>
+              </span>
+              <button type="button" className="cta cta-quiet" onClick={doSignOut}>
+                Sign out
+              </button>
+            </>
+          ) : linkSent ? (
+            <span className="acct-line">
+              Check your inbox for a sign‑in link, then open it on any device.
+            </span>
+          ) : (
+            <form className="acct-form" onSubmit={submitEmail}>
+              <span className="acct-line">
+                Optional — sign in with your email to sync saved Psalms across
+                devices. No password.
+              </span>
+              <div className="acct-row">
+                <input
+                  className="emailinput"
+                  type="email"
+                  required
+                  inputMode="email"
+                  placeholder="you@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  aria-label="Email address"
+                />
+                <button type="submit" className="cta" disabled={!email.trim()}>
+                  Send link
+                </button>
+              </div>
+              {authErr && <span className="auth-err">{authErr}</span>}
+            </form>
+          )}
+        </div>
+      )}
 
       {/* 1 — Daily Tehillim */}
       <a className="card card-primary" href="/tehillim/read?mode=today">
