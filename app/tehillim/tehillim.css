@@ -1117,6 +1117,11 @@ a.card:hover {
   color: var(--accent);
   background: var(--accent-soft);
 }
+.acct-ic {
+  width: 19px;
+  height: 19px;
+  display: block;
+}
 .acct-panel {
   margin: -4px 0 14px;
   padding: 14px;

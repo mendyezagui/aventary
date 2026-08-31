@@ -203,11 +203,23 @@ export default function HomeTehillim() {
             type="button"
             className={`btn-theme acct-btn ${account ? "on" : ""}`}
             onClick={() => setAcctOpen((o) => !o)}
-            title={account ? "Your account" : "Sync across devices (optional)"}
-            aria-label="Sync account"
+            title={account ? "Your account" : "Sign in to sync (optional)"}
+            aria-label={account ? "Your account" : "Sign in"}
             aria-expanded={acctOpen}
           >
-            ☁
+            <svg
+              className="acct-ic"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="8" r="3.4" />
+              <path d="M5.5 19.5a6.5 6.5 0 0 1 13 0" />
+            </svg>
           </button>
           <button
             type="button"
