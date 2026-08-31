@@ -40,12 +40,18 @@ type HebToday = {
 type Group = { title?: string; note?: string; segments: Segment[] };
 
 const LS = "tehillim.v1";
-const SPEED_MIN = 0.4;
-const SPEED_MAX = 6;
-const SPEED_STEP = 0.4;
+const SPEED_MIN = 0.4; // px/frame at 0%
+const SPEED_MAX = 6; // px/frame at 100%
+const PCT_STEP = 2; // finer nudges than before (was ~7%)
 const FONT_MIN = 0.8;
 const FONT_MAX = 2;
 const FONT_STEP = 0.1;
+const FPS = 60; // for the read-time estimate
+
+const pctToSpeed = (pct: number) =>
+  SPEED_MIN + (Math.max(0, Math.min(100, pct)) / 100) * (SPEED_MAX - SPEED_MIN);
+const speedToPct = (s: number) =>
+  Math.round(((s - SPEED_MIN) / (SPEED_MAX - SPEED_MIN)) * 100);
 
 type Persisted = {
   speed?: number;
@@ -135,7 +141,9 @@ export default function TehillimReader() {
   const [theme, setTheme] = useState<Theme | null>(null);
   const [barOpen, setBarOpenState] = useState(true);
   const [enhance, setEnhanceState] = useState(false);
+  const [readMin, setReadMin] = useState<number | null>(null);
 
+  const wakeRef = useRef<WakeLockSentinel | null>(null);
   const selRef = useRef(sel);
   selRef.current = sel;
   const pendingScroll = useRef<number | null>(null);
@@ -384,10 +392,17 @@ export default function TehillimReader() {
   }, [ready]);
 
   const setSpeed = useCallback((v: number) => {
-    const s = Math.max(SPEED_MIN, Math.min(SPEED_MAX, +v.toFixed(2)));
+    const s = Math.max(SPEED_MIN, Math.min(SPEED_MAX, +v.toFixed(3)));
     setSpeedState(s);
     saveLS({ speed: s });
   }, []);
+  const setSpeedPct = useCallback(
+    (pct: number) => {
+      if (!Number.isFinite(pct)) return;
+      setSpeed(pctToSpeed(pct));
+    },
+    [setSpeed]
+  );
   const setFont = useCallback((v: number) => {
     const f = Math.max(FONT_MIN, Math.min(FONT_MAX, +v.toFixed(2)));
     setFontState(f);
@@ -412,10 +427,10 @@ export default function TehillimReader() {
         setPlaying((p) => !p);
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        setSpeed(speed + SPEED_STEP);
+        setSpeedPct(speedToPct(speed) + PCT_STEP);
       } else if (e.key === "ArrowDown") {
         e.preventDefault();
-        setSpeed(speed - SPEED_STEP);
+        setSpeedPct(speedToPct(speed) - PCT_STEP);
       } else if (e.key === "+" || e.key === "=") {
         e.preventDefault();
         setFont(font + FONT_STEP);
@@ -426,9 +441,59 @@ export default function TehillimReader() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [speed, font, setSpeed, setFont]);
+  }, [speed, font, setSpeedPct, setFont]);
 
-  const speedPct = Math.round(((speed - SPEED_MIN) / (SPEED_MAX - SPEED_MIN)) * 100);
+  const speedPct = speedToPct(speed);
+
+  // ---- Read-time estimate (like Substack): time to auto-scroll top→bottom ----
+  useEffect(() => {
+    if (!ready) return;
+    const id = requestAnimationFrame(() => {
+      const scrollable =
+        document.documentElement.scrollHeight - window.innerHeight;
+      if (scrollable <= 4) {
+        setReadMin(null);
+        return;
+      }
+      const seconds = scrollable / (speed * FPS);
+      setReadMin(seconds / 60);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [ready, sel, font, groups, speed]);
+
+  // ---- Keep the screen awake while auto-scrolling ----
+  useEffect(() => {
+    let cancelled = false;
+    const acquire = async () => {
+      try {
+        if ("wakeLock" in navigator && playing && !cancelled) {
+          wakeRef.current = await navigator.wakeLock.request("screen");
+        }
+      } catch {
+        /* not supported / denied — ignore */
+      }
+    };
+    const release = () => {
+      try {
+        wakeRef.current?.release();
+      } catch {
+        /* ignore */
+      }
+      wakeRef.current = null;
+    };
+    if (playing) acquire();
+    else release();
+    // Re-acquire when returning to the tab (the lock drops when hidden).
+    const onVis = () => {
+      if (document.visibilityState === "visible" && playing) acquire();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", onVis);
+      release();
+    };
+  }, [playing]);
 
   const overallHeading = (() => {
     switch (sel.type) {
@@ -704,23 +769,42 @@ export default function TehillimReader() {
             {enhance ? "Enhanced" : "Enhance"}
           </span>
         </button>
+        {readMin != null && (
+          <span className="fab-time" title="Estimated time at this speed">
+            ~{readMin < 1 ? "<1" : Math.round(readMin)} min
+          </span>
+        )}
         <div className="fab-speed">
           <button
             type="button"
             className="fab-step"
-            onClick={() => setSpeed(speed - SPEED_STEP)}
+            onClick={() => setSpeedPct(speedPct - PCT_STEP)}
             title="Slower"
             aria-label="Slower"
           >
             −
           </button>
-          <span className="fab-pct" title="Auto-scroll speed">
-            {speedPct}%
+          <span className="fab-pctwrap">
+            <input
+              className="fab-pct"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={100}
+              value={speedPct}
+              onChange={(e) => {
+                if (e.target.value === "") return;
+                setSpeedPct(Number(e.target.value));
+              }}
+              aria-label="Auto-scroll speed percent"
+              title="Type an exact speed (0–100%)"
+            />
+            <span className="fab-pctsign">%</span>
           </span>
           <button
             type="button"
             className="fab-step"
-            onClick={() => setSpeed(speed + SPEED_STEP)}
+            onClick={() => setSpeedPct(speedPct + PCT_STEP)}
             title="Faster"
             aria-label="Faster"
           >

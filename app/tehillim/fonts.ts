@@ -1,9 +1,10 @@
-import { Frank_Ruhl_Libre } from "next/font/google";
+import { Noto_Serif_Hebrew } from "next/font/google";
 
-// The classic printed-Tehillim Hebrew serif, shared by the home hub and the reader.
-export const hebrew = Frank_Ruhl_Libre({
+// Clean, well-hinted Hebrew serif with full nikkud + cantillation and heavy
+// weights — thicker and crisper than the previous face for easier reading.
+export const hebrew = Noto_Serif_Hebrew({
   subsets: ["hebrew"],
-  weight: ["400", "500", "700"],
+  weight: ["500", "600", "700", "800"],
   variable: "--font-hebrew",
   display: "swap",
 });
