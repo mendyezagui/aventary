@@ -18,6 +18,13 @@ import {
   type Segment,
 } from "./data";
 import { getSaved, isSaved, toggleSaved, type Saved } from "./store";
+import {
+  getUser,
+  syncOnLoad,
+  setSyncUser,
+  startSyncLoop,
+  queueSync,
+} from "./account";
 
 type Addition = "kera" | "neshama" | "none";
 type Selection =
@@ -204,7 +211,34 @@ export default function TehillimReader() {
     if (!theme) return;
     document.documentElement.setAttribute("data-theme", theme);
     saveLS({ theme });
+    queueSync();
   }, [theme]);
+
+  // ---- Account sync: pull the account's saved + settings when signed in ----
+  useEffect(() => {
+    if (!ready) return;
+    let stop: (() => void) | undefined;
+    (async () => {
+      const u = await getUser();
+      if (!u) return;
+      setSyncUser(u.id);
+      try {
+        await syncOnLoad();
+      } catch {
+        /* offline — keep local */
+      }
+      setSavedState(getSaved());
+      const s = loadLS();
+      if (typeof s.speed === "number") setSpeedState(s.speed);
+      if (typeof s.font === "number") setFontState(s.font);
+      if (typeof s.barOpen === "boolean") setBarOpenState(s.barOpen);
+      if (typeof s.enhance === "boolean") setEnhanceState(s.enhance);
+      if (s.theme === "light" || s.theme === "dark") setTheme(s.theme);
+      stop = startSyncLoop();
+    })();
+    return () => stop?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
 
   // ---- Build the groups to render for the current selection ----
   const groups = useMemo<Group[]>(() => {
@@ -395,6 +429,7 @@ export default function TehillimReader() {
     const s = Math.max(SPEED_MIN, Math.min(SPEED_MAX, +v.toFixed(3)));
     setSpeedState(s);
     saveLS({ speed: s });
+    queueSync();
   }, []);
   const setSpeedPct = useCallback(
     (pct: number) => {
@@ -407,17 +442,21 @@ export default function TehillimReader() {
     const f = Math.max(FONT_MIN, Math.min(FONT_MAX, +v.toFixed(2)));
     setFontState(f);
     saveLS({ font: f });
+    queueSync();
   }, []);
   const setBarOpen = useCallback((v: boolean) => {
     setBarOpenState(v);
     saveLS({ barOpen: v });
+    queueSync();
   }, []);
   const onToggleSave = useCallback((ch: number) => {
     setSavedState(toggleSaved(ch));
+    queueSync();
   }, []);
   const setEnhance = useCallback((v: boolean) => {
     setEnhanceState(v);
     saveLS({ enhance: v });
+    queueSync();
   }, []);
 
   useEffect(() => {
