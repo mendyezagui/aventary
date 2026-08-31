@@ -11,6 +11,7 @@ import {
 import {
   getSaved,
   removeSaved,
+  moveSaved,
   setSaved as writeSaved,
   type Saved,
 } from "./store";
@@ -34,6 +35,7 @@ export default function HomeTehillim() {
   const [theme, setTheme] = useState<Theme>("light");
   const [picking, setPicking] = useState(false);
   const [pick, setPick] = useState<Set<number>>(new Set());
+  const [reordering, setReordering] = useState(false);
 
   useEffect(() => {
     const now = new Date();
@@ -111,13 +113,20 @@ export default function HomeTehillim() {
     });
   }
   function commitPicker() {
-    const existing = new Map(saved.map((s) => [s.ch, s]));
-    const list: Saved[] = [...pick]
+    // Keep the user's existing order; append newly-chosen chapters at the end.
+    const kept = saved.filter((s) => pick.has(s.ch));
+    const added: Saved[] = [...pick]
+      .filter((ch) => !saved.some((s) => s.ch === ch))
       .sort((a, b) => a - b)
-      .map((ch) => existing.get(ch) ?? { ch });
+      .map((ch) => ({ ch }));
+    const list = [...kept, ...added];
     writeSaved(list);
     setSaved(list);
     setPicking(false);
+  }
+
+  function move(ch: number, dir: -1 | 1) {
+    setSaved(moveSaved(ch, dir));
   }
 
   return (
@@ -173,6 +182,47 @@ export default function HomeTehillim() {
               None yet — tap <b>Add Psalms</b> to pick a few, or the ☆ while reading.
               They join your Daily Tehillim.
             </span>
+          ) : reordering ? (
+            <div className="saved-list">
+              {saved.map((s, i) => (
+                <div className="saved-row" key={s.ch}>
+                  <span className="saved-row-label">
+                    <b lang="he" dir="rtl">
+                      {hebNumberPunct(s.ch)}
+                    </b>
+                    <small>Psalm {s.ch}</small>
+                  </span>
+                  <div className="saved-row-btns">
+                    <button
+                      type="button"
+                      className="move-btn"
+                      disabled={i === 0}
+                      onClick={() => move(s.ch, -1)}
+                      aria-label={`Move Psalm ${s.ch} up`}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      className="move-btn"
+                      disabled={i === saved.length - 1}
+                      onClick={() => move(s.ch, 1)}
+                      aria-label={`Move Psalm ${s.ch} down`}
+                    >
+                      ↓
+                    </button>
+                    <button
+                      type="button"
+                      className="savedx savedx-row"
+                      onClick={() => removeOne(s.ch)}
+                      aria-label={`Remove Psalm ${s.ch}`}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="savedchips">
               {saved.map((s) => (
@@ -198,13 +248,37 @@ export default function HomeTehillim() {
           )}
 
           <div className="saved-actions">
-            <button type="button" className="cta cta-quiet" onClick={openPicker}>
-              ＋ Add Psalms
-            </button>
-            {saved.length > 0 && (
-              <a className="cta cta-quiet" href="/tehillim/read?mode=saved">
-                Read all →
-              </a>
+            {reordering ? (
+              <button
+                type="button"
+                className="cta cta-quiet"
+                onClick={() => setReordering(false)}
+              >
+                ✓ Done
+              </button>
+            ) : (
+              <>
+                <button type="button" className="cta cta-quiet" onClick={openPicker}>
+                  ＋ Add Psalms
+                </button>
+                {saved.length > 1 && (
+                  <button
+                    type="button"
+                    className="cta cta-quiet"
+                    onClick={() => {
+                      setPicking(false);
+                      setReordering(true);
+                    }}
+                  >
+                    ↕ Reorder
+                  </button>
+                )}
+                {saved.length > 0 && (
+                  <a className="cta cta-quiet" href="/tehillim/read?mode=saved">
+                    Read all →
+                  </a>
+                )}
+              </>
             )}
           </div>
 

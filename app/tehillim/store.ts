@@ -26,13 +26,24 @@ export function isSaved(list: Saved[], ch: number): boolean {
   return list.some((s) => s.ch === ch);
 }
 
-// Toggle a chapter and return the new list (sorted by chapter).
+// Toggle a chapter and return the new list. New chapters are appended at the
+// end so the user's custom order is preserved (no re-sorting).
 export function toggleSaved(ch: number): Saved[] {
   const list = getSaved();
   const i = list.findIndex((s) => s.ch === ch);
   if (i >= 0) list.splice(i, 1);
   else list.push({ ch });
-  list.sort((a, b) => a.ch - b.ch);
+  setSaved(list);
+  return list;
+}
+
+// Move a saved chapter one place earlier (-1) or later (+1); returns the list.
+export function moveSaved(ch: number, dir: -1 | 1): Saved[] {
+  const list = getSaved();
+  const i = list.findIndex((s) => s.ch === ch);
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= list.length) return list;
+  [list[i], list[j]] = [list[j], list[i]];
   setSaved(list);
   return list;
 }

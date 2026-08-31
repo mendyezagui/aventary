@@ -317,11 +317,42 @@
   border-color: var(--accent);
   color: var(--accent);
 }
+.fab-pctwrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
 .fab-pct {
-  font: 600 0.78rem/1 var(--font-body, ui-sans-serif, system-ui, sans-serif);
+  width: 34px;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font: 700 0.85rem/1 var(--font-body, ui-sans-serif, system-ui, sans-serif);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.fab-pct::-webkit-outer-spin-button,
+.fab-pct::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.fab-pct:focus {
+  outline: none;
+}
+.fab-pctsign {
+  font: 700 0.8rem/1 var(--font-body, ui-sans-serif, system-ui, sans-serif);
   color: var(--muted);
-  min-width: 36px;
-  text-align: center;
+}
+.fab-time {
+  font: 700 0.72rem/1 var(--font-body, ui-sans-serif, system-ui, sans-serif);
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 4px 10px;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   font-variant-numeric: tabular-nums;
 }
 .fab-play {
@@ -360,14 +391,14 @@
   max-width: 760px;
   margin: 0 auto;
   padding: 28px 22px 55vh; /* deep bottom padding so the last verses can reach mid-screen */
-  font-family: var(--font-hebrew), "Frank Ruhl Libre", "David Libre", Georgia, serif;
+  font-family: var(--font-hebrew), "Noto Serif Hebrew", "David Libre", Georgia, serif;
 }
 
 .selheading {
   text-align: center;
-  font-size: 1.05rem;
+  font-size: 1.35rem;
   color: var(--accent);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.02em;
   margin-bottom: 18px;
 }
@@ -385,23 +416,24 @@
   border-bottom: 1px solid var(--line);
 }
 .chapter-word {
-  font-size: calc(1.3rem * var(--fs));
-  font-weight: 500;
+  font-size: calc(1.5rem * var(--fs));
+  font-weight: 600;
   color: var(--muted);
 }
 .chapter-num {
-  font-size: calc(1.85rem * var(--fs));
-  font-weight: 700;
+  font-size: calc(2.35rem * var(--fs));
+  font-weight: 800;
   color: var(--accent);
 }
 .chapter-range {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   color: var(--gold);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .verses {
-  font-size: calc(clamp(1.35rem, 1.1rem + 1vw, 1.72rem) * var(--fs));
+  font-size: calc(clamp(1.4rem, 1.15rem + 1vw, 1.78rem) * var(--fs));
+  font-weight: 600;
   line-height: 2.15;
 }
 .verse {
@@ -489,9 +521,9 @@
   border-bottom: 1px solid var(--line);
 }
 .group-title {
-  font-family: var(--font-hebrew), "Frank Ruhl Libre", serif;
-  font-size: 1.45rem;
-  font-weight: 700;
+  font-family: var(--font-hebrew), "Noto Serif Hebrew", serif;
+  font-size: 1.75rem;
+  font-weight: 800;
   color: var(--accent);
   text-align: center;
 }
@@ -546,7 +578,7 @@
   margin-bottom: 4px;
 }
 .home-title {
-  font-family: var(--font-hebrew), "Frank Ruhl Libre", serif;
+  font-family: var(--font-hebrew), "Noto Serif Hebrew", serif;
   font-size: 2.6rem;
   font-weight: 700;
   color: var(--accent);
@@ -649,7 +681,7 @@ a.card:hover {
   margin-top: 12px;
 }
 .nameinput {
-  font-family: var(--font-hebrew), "Frank Ruhl Libre", serif;
+  font-family: var(--font-hebrew), "Noto Serif Hebrew", serif;
   font-size: 1.5rem;
   padding: 10px 14px;
   border-radius: 12px;
@@ -747,7 +779,7 @@ a.card:hover {
   background: var(--accent-soft);
 }
 .savedchip b {
-  font-family: var(--font-hebrew), "Frank Ruhl Libre", serif;
+  font-family: var(--font-hebrew), "Noto Serif Hebrew", serif;
   font-size: 1.1rem;
   color: var(--accent);
   font-weight: 700;
@@ -875,6 +907,80 @@ a.card:hover {
   background: var(--gold);
   border-color: var(--gold);
   color: #fff;
+}
+
+/* ---------- Reorder saved list ---------- */
+.saved-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+.saved-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+}
+.saved-row-label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.saved-row-label b {
+  font-family: var(--font-hebrew), "Noto Serif Hebrew", serif;
+  font-size: 1.2rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+.saved-row-label small {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.saved-row-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.move-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.move-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.move-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.savedx-row {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.savedx-row:hover {
+  color: var(--stop);
+  border-color: var(--stop);
+  background: var(--card);
 }
 
 /* ---------- Scroll progress indicator ---------- */
