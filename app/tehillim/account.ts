@@ -119,6 +119,37 @@ async function loadOrCreate(userId: string): Promise<Profile> {
   throw new Error("Could not create your account. Please try again.");
 }
 
+// ---- send saved Psalms to another user's handle ----
+// Appends chapters to the target handle's saved list via a SECURITY DEFINER
+// RPC (owner-only RLS won't let the browser write another row directly). The
+// sender must be signed in. Returns why it did / didn't go through so the UI
+// can speak plainly.
+export type SendResult =
+  | "ok"
+  | "not_found"
+  | "unauthenticated"
+  | "unconfigured"
+  | "error";
+
+export async function sendSavedToHandle(
+  handle: string,
+  saved: Saved[]
+): Promise<SendResult> {
+  if (!hasSupabase()) return "unconfigured";
+  const user = await getUser();
+  if (!user) return "unauthenticated";
+  try {
+    const { data, error } = await sb().rpc("tehillim_add_saved_by_handle", {
+      target_handle: handle.trim().toLowerCase(),
+      add_saved: saved,
+    });
+    if (error) return "error";
+    return data ? "ok" : "not_found";
+  } catch {
+    return "error";
+  }
+}
+
 export async function pushProfile(userId: string) {
   const saved = getSaved();
   const settings = localSettings();

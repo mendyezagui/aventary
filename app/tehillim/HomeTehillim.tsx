@@ -23,6 +23,7 @@ import {
   setSyncUser,
   startSyncLoop,
   queueSync,
+  sendSavedToHandle,
 } from "./account";
 
 type Theme = "light" | "dark";
@@ -41,6 +42,11 @@ export default function HomeTehillim() {
   const [saved, setSaved] = useState<Saved[]>([]);
   const [name, setName] = useState("");
   const [add, setAdd] = useState<Addition>("kera");
+  const [sendOpen, setSendOpen] = useState(false);
+  const [sendHandle, setSendHandle] = useState("");
+  const [sendState, setSendState] = useState<
+    "idle" | "sending" | "ok" | "not_found" | "unauthenticated" | "unconfigured" | "error"
+  >("idle");
   const [theme, setTheme] = useState<Theme>("light");
   const [seasonalOn, setSeasonalOnState] = useState(true);
   const [picking, setPicking] = useState(false);
@@ -165,6 +171,16 @@ export default function HomeTehillim() {
     if (!nameOk) return;
     const q = new URLSearchParams({ mode: "name", name: name.trim(), add });
     router.push(`/tehillim/read?${q.toString()}`);
+  }
+
+  async function doSend() {
+    const h = sendHandle.trim();
+    if (!nameOk || !h) return;
+    setSendState("sending");
+    // Send Psalm 119 tagged with the typed name, so it lands in the
+    // recipient's Saved Psalms as their Tehillim for that person.
+    const res = await sendSavedToHandle(h, [{ ch: 119, note: name.trim() }]);
+    setSendState(res);
   }
 
   function removeOne(ch: number) {
@@ -533,6 +549,81 @@ export default function HomeTehillim() {
                 : "Type a Hebrew name"}
             </button>
           </form>
+
+          <div className="sendline">
+            {!sendOpen ? (
+              <button
+                type="button"
+                className="sendtoggle"
+                onClick={() => {
+                  setSendOpen(true);
+                  setSendState("idle");
+                }}
+                title="Send this name's Psalm 119 to someone by their handle"
+              >
+                ＋ Send to a handle
+              </button>
+            ) : (
+              <div className="sendbox">
+                <div className="sendrow">
+                  <input
+                    className="handleinput"
+                    inputMode="text"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    placeholder="their-handle"
+                    value={sendHandle}
+                    onChange={(e) => {
+                      setSendHandle(e.target.value);
+                      if (sendState !== "sending") setSendState("idle");
+                    }}
+                    aria-label="Recipient handle"
+                  />
+                  <button
+                    type="button"
+                    className="cta sendbtn"
+                    disabled={
+                      !nameOk || !sendHandle.trim() || sendState === "sending"
+                    }
+                    onClick={doSend}
+                  >
+                    {sendState === "sending" ? "Sending…" : "Save"}
+                  </button>
+                  <button
+                    type="button"
+                    className="picker-cancel"
+                    onClick={() => setSendOpen(false)}
+                  >
+                    Close
+                  </button>
+                </div>
+                <span
+                  className={`sendhint ${
+                    sendState === "ok"
+                      ? "ok"
+                      : sendState === "idle" || sendState === "sending"
+                        ? ""
+                        : "err"
+                  }`}
+                >
+                  {!nameOk
+                    ? "Type a Hebrew name above first — that's what gets sent."
+                    : sendState === "ok"
+                      ? `Sent to ${sendHandle.trim().toLowerCase()} — Psalm 119 will show in their Saved Psalms next time they open Tehillim.`
+                      : sendState === "not_found"
+                        ? "No account with that handle. Check the spelling."
+                        : sendState === "unauthenticated"
+                          ? "Sign in (top-right) to send to a handle."
+                          : sendState === "unconfigured"
+                            ? "Sync isn't set up yet, so sending is unavailable."
+                            : sendState === "error"
+                              ? "Couldn't send just now — try again."
+                              : `Sends Psalm 119 for ${name.trim()} to their Saved Psalms.`}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
