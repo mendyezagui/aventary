@@ -42,6 +42,7 @@ export default function HomeTehillim() {
   const [name, setName] = useState("");
   const [add, setAdd] = useState<Addition>("kera");
   const [theme, setTheme] = useState<Theme>("light");
+  const [seasonalOn, setSeasonalOnState] = useState(true);
   const [picking, setPicking] = useState(false);
   const [pick, setPick] = useState<Set<number>>(new Set());
   const [reordering, setReordering] = useState(false);
@@ -77,6 +78,7 @@ export default function HomeTehillim() {
         (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       setTheme(t);
       document.documentElement.setAttribute("data-theme", t);
+      if (typeof s.seasonalOn === "boolean") setSeasonalOnState(s.seasonalOn);
     } catch {
       /* ignore */
     }
@@ -101,6 +103,8 @@ export default function HomeTehillim() {
             setTheme(t);
             document.documentElement.setAttribute("data-theme", t);
           }
+          const so = (prof.settings as { seasonalOn?: boolean }).seasonalOn;
+          if (typeof so === "boolean") setSeasonalOnState(so);
         }
       } catch {
         /* offline / error — stay on local */
@@ -135,6 +139,17 @@ export default function HomeTehillim() {
     } catch {
       /* ignore */
     }
+  }
+
+  function setSeasonalOn(v: boolean) {
+    setSeasonalOnState(v);
+    try {
+      const s = JSON.parse(localStorage.getItem(LS) || "{}");
+      localStorage.setItem(LS, JSON.stringify({ ...s, seasonalOn: v }));
+    } catch {
+      /* ignore */
+    }
+    queueSync();
   }
 
   const season = useMemo(
@@ -280,26 +295,47 @@ export default function HomeTehillim() {
       )}
 
       {/* 1 — Daily Tehillim */}
-      <a className="card card-primary" href="/tehillim/read?mode=today">
-        <div className="card-main">
-          <span className="card-kicker">Every day</span>
-          <span className="card-title">Daily Tehillim</span>
-          <span className="card-desc">
-            Today&rsquo;s portion by the Hebrew day of the month
-            {ready && today ? ` · day ${today.day}` : ""}.
+      <section className="card card-primary daily-card">
+        <a className="daily-link" href="/tehillim/read?mode=today">
+          <div className="card-main">
+            <span className="card-kicker">Every day</span>
+            <span className="card-title">Daily Tehillim</span>
+            <span className="card-desc">
+              Today&rsquo;s portion by the Hebrew day of the month
+              {ready && today ? ` · day ${today.day}` : ""}.
+            </span>
+          </div>
+          <span className="card-arrow" aria-hidden>
+            →
           </span>
-          {season && (
-            <span className={`badge badge-${season.kind}`}>
+        </a>
+        {season && (
+          <label
+            className={`badge-toggle badge-${season.kind} ${
+              seasonalOn ? "on" : "off"
+            }`}
+            title={
+              seasonalOn
+                ? "Included in today's reading — tap to leave it out"
+                : "Not included — tap to add it back"
+            }
+          >
+            <input
+              type="checkbox"
+              checked={seasonalOn}
+              onChange={(e) => setSeasonalOn(e.target.checked)}
+            />
+            <span className="badge-toggle-box" aria-hidden>
+              {seasonalOn ? "✓" : ""}
+            </span>
+            <span className="badge-toggle-text">
               {season.kind === "yomkippur"
                 ? "Yom Kippur — completes the Tehillim (115–150)"
-                : `+ ${season.kind === "elul" ? "Elul" : "Ten Days"} chapters ${season.chapters[0]}–${season.chapters[season.chapters.length - 1]}`}
+                : `${season.kind === "elul" ? "Elul" : "Ten Days"} chapters ${season.chapters[0]}–${season.chapters[season.chapters.length - 1]}`}
             </span>
-          )}
-        </div>
-        <span className="card-arrow" aria-hidden>
-          →
-        </span>
-      </a>
+          </label>
+        )}
+      </section>
 
       {/* 2 — Saved Psalms */}
       <section className="card">

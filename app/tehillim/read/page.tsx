@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { hebrew } from "../fonts";
+import { fontVars } from "../fonts";
 import TehillimReader from "../TehillimReader";
 import "../tehillim.css";
 
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function TehillimReadPage() {
   return (
-    <div className={`tehillim-page ${hebrew.variable}`}>
+    <div className={`tehillim-page ${fontVars}`}>
       <Suspense fallback={<div className="scroll-area" />}>
         <TehillimReader />
       </Suspense>
