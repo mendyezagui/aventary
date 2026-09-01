@@ -35,6 +35,14 @@ type Selection =
   | { type: "saved" };
 
 type Theme = "light" | "dark";
+type FontFace = "serif" | "sans";
+
+// The two reading faces the user can switch between. `serif` is Frank Ruhl Libre
+// (the classic Hebrew book serif); `sans` is Assistant (a crisp on-screen sans).
+const FONT_STACKS: Record<FontFace, string> = {
+  serif: 'var(--font-hebrew), "Frank Ruhl Libre", "David Libre", Georgia, serif',
+  sans: 'var(--font-sans-hebrew), "Assistant", ui-sans-serif, system-ui, sans-serif',
+};
 
 type HebToday = {
   day: number;
@@ -63,9 +71,11 @@ const speedToPct = (s: number) =>
 type Persisted = {
   speed?: number;
   font?: number;
+  fontFace?: FontFace;
   theme?: Theme;
   barOpen?: boolean;
   enhance?: boolean;
+  seasonalOn?: boolean;
   scroll?: { key: string; y: number };
 };
 
@@ -145,9 +155,11 @@ export default function TehillimReader() {
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeedState] = useState(1.6);
   const [font, setFontState] = useState(1);
+  const [fontFace, setFontFaceState] = useState<FontFace>("serif");
   const [theme, setTheme] = useState<Theme | null>(null);
   const [barOpen, setBarOpenState] = useState(false);
   const [enhance, setEnhanceState] = useState(false);
+  const [seasonalOn, setSeasonalOnState] = useState(true);
   const [readMin, setReadMin] = useState<number | null>(null);
 
   const wakeRef = useRef<WakeLockSentinel | null>(null);
@@ -194,8 +206,10 @@ export default function TehillimReader() {
     const s = loadLS();
     if (typeof s.speed === "number") setSpeedState(s.speed);
     if (typeof s.font === "number") setFontState(s.font);
+    if (s.fontFace === "serif" || s.fontFace === "sans") setFontFaceState(s.fontFace);
     if (typeof s.barOpen === "boolean") setBarOpenState(s.barOpen);
     if (typeof s.enhance === "boolean") setEnhanceState(s.enhance);
+    if (typeof s.seasonalOn === "boolean") setSeasonalOnState(s.seasonalOn);
     setTheme(
       s.theme ||
         (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
@@ -231,8 +245,10 @@ export default function TehillimReader() {
       const s = loadLS();
       if (typeof s.speed === "number") setSpeedState(s.speed);
       if (typeof s.font === "number") setFontState(s.font);
+      if (s.fontFace === "serif" || s.fontFace === "sans") setFontFaceState(s.fontFace);
       if (typeof s.barOpen === "boolean") setBarOpenState(s.barOpen);
       if (typeof s.enhance === "boolean") setEnhanceState(s.enhance);
+      if (typeof s.seasonalOn === "boolean") setSeasonalOnState(s.seasonalOn);
       if (s.theme === "light" || s.theme === "dark") setTheme(s.theme);
       stop = startSyncLoop();
     })();
@@ -273,7 +289,7 @@ export default function TehillimReader() {
     const combine = hebToday?.combine ?? false;
     const day = hebToday?.day ?? 1;
     const out: Group[] = [{ segments: segmentsForDay(day, combine) }];
-    if (hebToday) {
+    if (hebToday && seasonalOn) {
       const add = seasonalAddition(hebToday.month, hebToday.day);
       if (add) {
         out.push({
@@ -291,7 +307,7 @@ export default function TehillimReader() {
       });
     }
     return out;
-  }, [sel, hebToday, saved]);
+  }, [sel, hebToday, saved, seasonalOn]);
 
   // Stop scrolling on selection change; restore saved position on first load only.
   useEffect(() => {
@@ -442,6 +458,11 @@ export default function TehillimReader() {
     const f = Math.max(FONT_MIN, Math.min(FONT_MAX, +v.toFixed(2)));
     setFontState(f);
     saveLS({ font: f });
+    queueSync();
+  }, []);
+  const setFontFace = useCallback((v: FontFace) => {
+    setFontFaceState(v);
+    saveLS({ fontFace: v });
     queueSync();
   }, []);
   const setBarOpen = useCallback((v: boolean) => {
@@ -607,6 +628,18 @@ export default function TehillimReader() {
 
           <div className="spacer" />
 
+          <label className="jump fontface">
+            <span className="jump-label">Font</span>
+            <select
+              value={fontFace}
+              onChange={(e) => setFontFace(e.target.value as FontFace)}
+              title="Reading font"
+            >
+              <option value="serif">Traditional</option>
+              <option value="sans">Clean</option>
+            </select>
+          </label>
+
           <div className="fontsz">
             <button
               type="button"
@@ -652,7 +685,12 @@ export default function TehillimReader() {
 
       <main
         className="scroll-area"
-        style={{ ["--fs" as string]: font } as React.CSSProperties}
+        style={
+          {
+            ["--fs" as string]: font,
+            fontFamily: FONT_STACKS[fontFace],
+          } as React.CSSProperties
+        }
       >
         {ready && (
           <>

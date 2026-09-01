@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { hebrew } from "./fonts";
+import { fontVars } from "./fonts";
 import HomeTehillim from "./HomeTehillim";
 import "./tehillim.css";
 
@@ -32,7 +32,7 @@ export const viewport: Viewport = {
 
 export default function TehillimHome() {
   return (
-    <div className={`tehillim-page ${hebrew.variable}`}>
+    <div className={`tehillim-page ${fontVars}`}>
       <HomeTehillim />
     </div>
   );
