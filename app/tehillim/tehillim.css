@@ -850,6 +850,66 @@ a.card:hover {
   background: var(--accent-soft);
 }
 
+/* ---------- Send a name's Psalm to a handle ---------- */
+.sendline {
+  margin-top: 12px;
+}
+.sendtoggle {
+  align-self: flex-start;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 0;
+}
+.sendtoggle:hover {
+  color: var(--accent);
+}
+.sendbox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sendrow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.handleinput {
+  flex: 1 1 160px;
+  min-width: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+}
+.handleinput:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+.sendbtn.cta {
+  margin-top: 0;
+  padding: 9px 16px;
+}
+.sendhint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.sendhint.ok {
+  color: var(--accent);
+}
+.sendhint.err {
+  color: var(--stop);
+}
+
 .savedchips {
   display: flex;
   flex-wrap: wrap;
