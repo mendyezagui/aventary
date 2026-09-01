@@ -1,6 +1,8 @@
 import raw from "./tehillim.json";
 
-// Full Hebrew text of Tehillim (Psalms 1–150), Masoretic (MAM, via Sefaria, CC-BY-SA).
+// Full Hebrew text of Tehillim (Psalms 1–150): the Masoretic text with nikkud and
+// no cantillation (te'amim) — matching the Tehillim people read from (Chabad /
+// Tehillat Hashem style). Source: Sefaria "Tanach with Nikkud" (Public Domain).
 // Shape: { "1": ["verse1", "verse2", ...], ... , "150": [...] }
 export const TEXT = raw as Record<string, string[]>;
 

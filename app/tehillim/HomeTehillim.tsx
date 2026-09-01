@@ -512,7 +512,7 @@ export default function HomeTehillim() {
       </a>
 
       <footer className="home-foot">
-        Hebrew text: Miqra according to the Masorah (public domain). Saved Psalms are
+        Hebrew text: Masoretic, with nikkud (public domain). Saved Psalms are
         kept on this device.
       </footer>
     </div>
