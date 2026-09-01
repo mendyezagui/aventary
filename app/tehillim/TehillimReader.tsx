@@ -146,7 +146,7 @@ export default function TehillimReader() {
   const [speed, setSpeedState] = useState(1.6);
   const [font, setFontState] = useState(1);
   const [theme, setTheme] = useState<Theme | null>(null);
-  const [barOpen, setBarOpenState] = useState(true);
+  const [barOpen, setBarOpenState] = useState(false);
   const [enhance, setEnhanceState] = useState(false);
   const [readMin, setReadMin] = useState<number | null>(null);
 
@@ -549,7 +549,6 @@ export default function TehillimReader() {
     }
   })();
 
-  const showDayChips = sel.type === "today" || sel.type === "day";
   const totalSegments = groups.reduce((n, g) => n + g.segments.length, 0);
 
   return (
@@ -605,22 +604,6 @@ export default function TehillimReader() {
               ))}
             </select>
           </label>
-
-          {showDayChips && (
-            <div className="daychips">
-              {Array.from({ length: 30 }, (_, i) => i + 1).map((d) => (
-                <button
-                  key={d}
-                  type="button"
-                  className={`chip ${sel.type === "day" && sel.day === d ? "chip-on" : ""}`}
-                  onClick={() => setSel({ type: "day", day: d })}
-                  title={`Day ${d}`}
-                >
-                  {d}
-                </button>
-              ))}
-            </div>
-          )}
 
           <div className="spacer" />
 
