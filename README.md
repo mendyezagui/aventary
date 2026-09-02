@@ -155,8 +155,16 @@ Elokai Neshamah, the fifteen in the order of the nusach, then `ויהי רצון
 four were added after the first pass — without them the morning blessed the
 learning of Torah and then didn't learn any. `שתצילני` differs materially by
 nusach: Ashkenaz (Metsudah) prints the short list, Ari and Sefard the long one,
-and Sefard alone adds `מיצר רע`. No distinct Nusach Sefard printing of Birkat
-Kohanim or `אלו דברים` was found, so those use the shared text.
+and Sefard alone adds `מיצר רע`.
+
+Birkat Kohanim is the full passage, Bamidbar 6:22–27, where the nusach prints it
+that way — the framing verses and the closing `ושמו את שמי על בני ישראל ואני
+אברכם` included. Metsudah (Ashkenaz) prints only 24–26. No printed Nusach Sefard
+text of this passage or of `אלו דברים` could be found: Sefard follows the Ari on
+Birkat Kohanim and the shared text on `אלו דברים`, both marked UNSOURCED in
+`blessings.ts` and flagged on the proof sheet rather than left as silent
+guesses. The verses are set with nikkud only; a siddur prints them with
+cantillation.
 
 ### Other settings that change the text
 

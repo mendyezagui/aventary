@@ -78,6 +78,15 @@ const NAMES = {
   reverent: { he: "ה׳", tr: "Hashem", en: "Hashem" },
 } as const;
 
+// The Name where an English sentence needs an article in front of it — a verse
+// that says "the Lord spoke", as against the blessing formula's vocative
+// "Blessed are You, Lord our God". Identical to {H} in Hebrew and in
+// transliteration; only the English differs.
+const NAMES_NARRATIVE = {
+  full: { he: "יְיָ", tr: "Adonai", en: "the Lord" },
+  reverent: { he: "ה׳", tr: "Hashem", en: "Hashem" },
+} as const;
+
 const OURGOD = {
   full: { he: "אֱלֹהֵינוּ", tr: "Eloheinu", en: "our God" },
   reverent: { he: "אֱלֹקֵינוּ", tr: "Elokeinu", en: "our God" },
@@ -109,6 +118,7 @@ function sanctify(s: string, pairs: [string, string][]): string {
 
 export function resolve(s: string, o: Opts, lang: "he" | "tr" | "en"): string {
   const out = s
+    .replace(/\{HN\}/g, NAMES_NARRATIVE[o.nameStyle][lang])
     .replace(/\{H\}/g, NAMES[o.nameStyle][lang])
     .replace(/\{E\}/g, OURGOD[o.nameStyle][lang]);
   if (o.nameStyle !== "reverent") return out;
@@ -179,7 +189,7 @@ type Raw = {
    * stations that only get questions from LAYER are asked at deep only.
    */
   prompts?: string[];
-  note?: string;
+  note?: ByNusach<string>;
   core?: boolean;
   long?: boolean;
 };
@@ -750,28 +760,68 @@ const CLOSERS: Raw[] = [
     heTitle: "בִּרְכַּת כֹּהֲנִים",
     theme: "Said over somebody else",
     long: true,
-    he: [
-      "יְבָרֶכְךָ {H} וְיִשְׁמְרֶךָ.",
-      "יָאֵר {H} פָּנָיו אֵלֶיךָ וִיחֻנֶּךָּ.",
-      "יִשָּׂא {H} פָּנָיו אֵלֶיךָ וְיָשֵׂם לְךָ שָׁלוֹם.",
-    ],
-    translit: [
-      "Y'varech'cha {H} v'yishm'recha.",
-      "Ya'er {H} panav elecha vichuneka.",
-      "Yisa {H} panav elecha v'yasem l'cha shalom.",
-    ],
-    en: [
-      "May {H} bless you and keep you.",
-      "May {H} shine His face toward you and be gracious to you.",
-      "May {H} lift His face toward you and give you peace.",
-    ],
-    note: "Learned straight after the Torah blessings — you bless, then you learn.",
+    // Siddur Torah Or prints the whole passage, Bamidbar 6:22–27 — the
+    // instruction to say it, the three verses, and the line that explains what
+    // saying it does. Metsudah (Ashkenaz) prints only the three verses.
+    //
+    // UNSOURCED: no printed Nusach Sefard text of this passage could be found.
+    // Sefard is given the full form on the grounds that the nusach descends
+    // from the Ari, and it is flagged on the proof sheet to be settled against
+    // a Sefard siddur rather than left as a silent guess.
+    he: {
+      ashkenaz: [
+        "יְבָרֶכְךָ {H} וְיִשְׁמְרֶךָ.",
+        "יָאֵר {H} פָּנָיו אֵלֶיךָ וִיחֻנֶּךָּ.",
+        "יִשָּׂא {H} פָּנָיו אֵלֶיךָ וְיָשֵׂם לְךָ שָׁלוֹם.",
+      ],
+      all: [
+        "וַיְדַבֵּר {H} אֶל מֹשֶׁה לֵּאמֹר. דַּבֵּר אֶל אַהֲרֹן וְאֶל בָּנָיו לֵאמֹר, כֹּה תְבָרֲכוּ אֶת בְּנֵי יִשְׂרָאֵל, אָמוֹר לָהֶם.",
+        "יְבָרֶכְךָ {H} וְיִשְׁמְרֶךָ.",
+        "יָאֵר {H} פָּנָיו אֵלֶיךָ וִיחֻנֶּךָּ.",
+        "יִשָּׂא {H} פָּנָיו אֵלֶיךָ וְיָשֵׂם לְךָ שָׁלוֹם.",
+        "וְשָׂמוּ אֶת שְׁמִי עַל בְּנֵי יִשְׂרָאֵל, וַאֲנִי אֲבָרֲכֵם.",
+      ],
+    },
+    translit: {
+      ashkenaz: [
+        "Y'varech'cha {H} v'yishm'recha.",
+        "Ya'er {H} panav elecha vichuneka.",
+        "Yisa {H} panav elecha v'yasem l'cha shalom.",
+      ],
+      all: [
+        "Vay'daber {H} el Moshe lemor. Daber el Aharon v'el banav lemor, koh t'varachu et b'nei Yisrael, amor lahem.",
+        "Y'varech'cha {H} v'yishm'recha.",
+        "Ya'er {H} panav elecha vichuneka.",
+        "Yisa {H} panav elecha v'yasem l'cha shalom.",
+        "V'samu et sh'mi al b'nei Yisrael, va'ani avarachem.",
+      ],
+    },
+    en: {
+      ashkenaz: [
+        "May {HN} bless you and keep you.",
+        "May {HN} shine His face toward you and be gracious to you.",
+        "May {HN} lift His face toward you and give you peace.",
+      ],
+      all: [
+        "Then {HN} spoke to Moses, saying: speak to Aaron and to his sons — this is how you shall bless the children of Israel. Say to them:",
+        "May {HN} bless you and keep you.",
+        "May {HN} shine His face toward you and be gracious to you.",
+        "May {HN} lift His face toward you and give you peace.",
+        "And they shall place My name upon the children of Israel, and I Myself will bless them.",
+      ],
+    },
+    note: {
+      ashkenaz:
+        "Learned straight after the Torah blessings — you bless, then you learn. Set here with nikkud only; a siddur prints these verses with cantillation.",
+      all: "Bamidbar 6:22–27 in full, as the siddur prints it. Set here with nikkud only; a siddur prints these verses with cantillation.",
+    },
     meditation:
-      "Three verses, and each is longer than the one before: three words, then five, then seven. The blessing widens as it goes — kept, then seen, then whole. It is the only thing in the whole morning that is not you talking about yourself.",
+      "Three verses, and each is longer than the one before: three words, then five, then seven. The blessing widens as it goes — kept, then seen, then whole. And it comes bracketed: an instruction before it to say this out loud to people, and a line after it explaining what saying it does.",
     cue: "Say it once for somebody else. Pick the person before you start.",
     prompts: [
       "Who needs this said over them today?",
       "Of the three — kept, seen, whole — which are you short on this week?",
+      "Whose name have you been meaning to say out loud, to them?",
     ],
   },
   {
@@ -1039,7 +1089,7 @@ const LAYER: Record<string, { deeper: string; prompts?: string[] }> = {
   },
   kohanim: {
     deeper:
-      "The first line asks for things — bless and guard. The second asks for attention: that a face be turned toward you, and be kind about it. The third asks for shalom, which in Hebrew is less the absence of conflict than the state of a thing being whole. Possessions, then being seen, then being whole. Most days get spent in exactly the reverse order.",
+      "The first line asks for things — bless and guard. The second asks for attention: that a face be turned toward you, and be kind about it. The third asks for shalom, which in Hebrew is less the absence of conflict than the state of a thing being whole. Possessions, then being seen, then being whole; most days get spent in exactly the reverse order. Then the closing verse resolves it, and it is the easiest line in the morning to read straight past: they shall place My name on the children of Israel, and I will bless them. The kohanim say words. God does the blessing. What one person can actually do for another is put a name on them — say out loud that they belong to something and are worth blessing — and that turns out to be the part that was being asked for.",
   },
   eiludevarim: {
     deeper:
@@ -1079,7 +1129,7 @@ export function buildStations(
       theme: r.theme,
       meditation: r.meditation,
       cue: r.cue,
-      note: r.note,
+      note: r.note ? pick(r.note, o.nusach) : undefined,
       core: r.core,
       long: r.long,
       // Offset by the station's position so two stations don't ask sibling

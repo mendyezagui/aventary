@@ -98,6 +98,17 @@ export default function About() {
           stations. Those last four used to be missing, which left the morning
           ending on a blessing over learning and then no learning.
         </p>
+        <p>
+          Birkat Kohanim is the whole passage, Bamidbar 6:22&ndash;27, in the
+          nusachim that print it that way — the instruction to say it, the three
+          verses, and the line that closes it:{" "}
+          <bdi className="he" lang="he">
+            וְשָׂמוּ אֶת שְׁמִי עַל בְּנֵי יִשְׂרָאֵל, וַאֲנִי אֲבָרֲכֵם
+          </bdi>
+          . Ashkenaz prints the three verses alone. No printed Nusach Sefard
+          text of this passage could be found, so Sefard follows the Ari here
+          and is flagged as the one open question on the proof sheet.
+        </p>
 
         <h2>Why the question is different every morning</h2>
         <p>
