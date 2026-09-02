@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CLOSING, STATION_LABELS } from "./blessings";
 import {
-  INTENTION,
+  CLOSING_KEYS,
+  intentionOf,
   deleteEntry,
   englishDateLabel,
   getJournal,
@@ -81,14 +82,22 @@ export default function Journal() {
             {keys.length === 0 ? (
               <p className="card-p">Sat with it, wrote nothing.</p>
             ) : (
-              keys.map((k) => (
-                <blockquote className="quote" key={k}>
-                  {e.notes[k]}
-                  <cite>
-                    {k === INTENTION ? CLOSING.title : STATION_LABELS[k]?.title || k}
-                  </cite>
-                </blockquote>
-              ))
+              <>
+                {keys
+                  .filter((k) => !CLOSING_KEYS.includes(k))
+                  .map((k) => (
+                    <blockquote className="quote" key={k}>
+                      {e.notes[k]}
+                      <cite>{STATION_LABELS[k]?.title || k}</cite>
+                    </blockquote>
+                  ))}
+                {intentionOf(e.notes) && (
+                  <blockquote className="quote">
+                    {intentionOf(e.notes)}
+                    <cite>{CLOSING.title}</cite>
+                  </blockquote>
+                )}
+              </>
             )}
 
             {confirming === e.date ? (

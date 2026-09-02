@@ -2,43 +2,66 @@
 // Birchot HaShachar — the morning blessings, arranged as a guided sit.
 //
 // Each station carries the liturgy (Hebrew / transliteration / plain English)
-// and, next to it, the introspection: what this blessing is actually noticing,
-// a one-line cue to do while you say it, and — on some — a question worth
-// answering in writing.
+// and, beside it, the introspection: what this blessing is noticing, one thing
+// to do while you say it, and — on some — a question worth answering in
+// writing.
 //
-// The Hebrew is the standard Ashkenaz arrangement. Where a rite or a speaker
-// genuinely differs (the three "shelo asani" blessings, מודה/מודה, the way the
-// Name is written) the difference is a setting, not a hidden assumption.
+// ---------------------------------------------------------------------------
+// TEXT SOURCES (all three nusachim transcribed from printed siddurim)
 //
-// PROOFREAD NOTE: the pointed Hebrew below was typed by hand. Check it against
-// your own siddur before leaning on it for davening.
+//   Ari (Chabad)  Siddur Torah Or (Schulzinger Bros. 1940), the Alter Rebbe's
+//                 siddur, via he.wikisource.org/wiki/סידור_תורה_אור/ברכות_השחר
+//                 and .../השכמת_הבוקר
+//   Ashkenaz      The Metsudah Siddur (1981), via Sefaria, "Siddur Ashkenaz,
+//                 Weekday, Shacharit, Preparatory Prayers"
+//   Sefard        he.wikisource.org/wiki/סידור/נוסח_ספרד/פתיחת_התפילה_-_שחרית
+//
+// The three differ in ORDER as well as wording. The big one: in Nusach Ari the
+// three blessings of identity (שלא עשני גוי / עבד / אשה) come near the END of
+// the sequence, right before המעביר שינה, while Ashkenaz and Sefard put them
+// second, straight after the blessing on the rooster. That is why the order is
+// data here and not a hard-coded array.
+//
+// Where a nusach is not given its own variant below, the sources agree and the
+// shared text is used. Ashkenaz and Sefard share the order of the fifteen; they
+// part on small wordings (גּוֹמֵל vs הַגּוֹמֵל at the end of Vihi Ratzon,
+// לַעֲסֹק בְּדִבְרֵי תוֹרָה vs עַל דִּבְרֵי תוֹרָה in the Torah blessings).
+//
+// PROOFREAD NOTE: the pointed Hebrew below was transcribed by hand from those
+// sources. Check it against your own siddur before leaning on it for davening.
 // ---------------------------------------------------------------------------
 
 export type Voice = "male" | "female";
-export type Form = "traditional" | "positive";
+export type Nusach = "ari" | "ashkenaz" | "sefard";
 export type NameStyle = "full" | "reverent";
 export type Length = "short" | "full";
 
 export type Opts = {
   voice: Voice;
-  form: Form;
+  nusach: Nusach;
   nameStyle: NameStyle;
 };
 
 export const DEFAULT_OPTS: Opts = {
   voice: "male",
-  form: "traditional",
+  nusach: "ari",
   nameStyle: "full",
+};
+
+export const NUSACH_LABEL: Record<Nusach, string> = {
+  ari: "Ari · Chabad",
+  ashkenaz: "Ashkenaz",
+  sefard: "Sefard",
 };
 
 // ---------------------------------------------------------------------------
 // The Name
 //
 // {H} is the Tetragrammaton, {E} is "our God". A siddur you daven from prints
-// them in full; a page you're only reading from is usually written with the
-// substitutions. That's the `nameStyle` setting — and it moves the
-// transliteration and the English along with the Hebrew, so the three columns
-// never disagree with each other.
+// them in full; a screen you are only reading from is usually written with the
+// substitutions. That is the `nameStyle` setting — and it moves the
+// transliteration and the English along with the Hebrew, so the three never
+// disagree with each other.
 // ---------------------------------------------------------------------------
 
 const NAMES = {
@@ -107,18 +130,43 @@ export type Station = {
   meditation: string;
   /** One thing to actually do while you say it. */
   cue: string;
-  /** A question worth answering in writing. Optional — most stations have none. */
+  /** Today's written question, drawn from a rotating set. */
   prompt?: string;
+  /** A halachic or practical note printed under the text. */
+  note?: string;
   /** In the short (about five minute) sit. */
   core?: boolean;
   /** Only in the full-text setting. */
   long?: boolean;
 };
 
-type Raw = Omit<Station, "he" | "translit" | "en"> & {
-  he: string[] | ((o: Opts) => string[]);
-  translit: string[] | ((o: Opts) => string[]);
-  en: string[] | ((o: Opts) => string[]);
+/** A value that may differ by nusach. Falls back to `all`. */
+type ByNusach<T> = T | Partial<Record<Nusach, T>> & { all?: T };
+
+function pick<T>(v: ByNusach<T>, n: Nusach): T {
+  if (v && typeof v === "object" && !Array.isArray(v)) {
+    const m = v as Partial<Record<Nusach, T>> & { all?: T };
+    if (n in m || "all" in m) return (m[n] ?? m.all) as T;
+  }
+  return v as T;
+}
+
+type Raw = {
+  id: string;
+  kicker: string;
+  title: string;
+  heTitle: ByNusach<string> | ((o: Opts) => string);
+  theme: string;
+  he: ByNusach<string[]> | ((o: Opts) => string[]);
+  translit: ByNusach<string[]> | ((o: Opts) => string[]);
+  en: ByNusach<string[]> | ((o: Opts) => string[]);
+  meditation: string;
+  cue: string;
+  /** Rotating set — one is chosen per day so the question doesn't go stale. */
+  prompts?: string[];
+  note?: string;
+  core?: boolean;
+  long?: boolean;
 };
 
 // The shared opening of every blessing.
@@ -127,100 +175,106 @@ const OPEN_TR = "Baruch atah {H}, {E}, melech ha'olam,";
 const OPEN_EN = "Blessed are You, {H}, {E}, King of the universe,";
 
 // ---------------------------------------------------------------------------
-// The fifteen blessings
+// The fifteen blessings — each is the shared opening plus its own seal.
 // ---------------------------------------------------------------------------
 
 type Seal = {
   id: string;
-  heTitle: string;
+  heTitle: ByNusach<string> | ((o: Opts) => string);
   title: string;
   theme: string;
-  he: string | ((o: Opts) => string);
-  tr: string | ((o: Opts) => string);
-  en: string | ((o: Opts) => string);
+  he: ByNusach<string> | ((o: Opts) => string);
+  tr: ByNusach<string> | ((o: Opts) => string);
+  en: ByNusach<string> | ((o: Opts) => string);
   meditation: string;
   cue: string;
-  prompt?: string;
+  prompts?: string[];
+  note?: string;
   core?: boolean;
 };
 
 const SEALS: Seal[] = [
   {
     id: "sechvi",
-    heTitle: "אֲשֶׁר נָתַן לַשֶּׂכְוִי בִינָה",
+    // Ari says הַנּוֹתֵן (present tense); Ashkenaz and Sefard say אֲשֶׁר נָתַן.
+    heTitle: { ari: "הַנּוֹתֵן לַשְּׂכְוִי בִינָה", all: "אֲשֶׁר נָתַן לַשֶּׂכְוִי בִינָה" },
     title: "The rooster's discernment",
     theme: "Telling night from morning",
-    he: "אֲשֶׁר נָתַן לַשֶּׂכְוִי בִינָה לְהַבְחִין בֵּין יוֹם וּבֵין לָיְלָה.",
-    tr: "asher natan lasechvi vinah l'havchin bein yom uvein lailah.",
-    en: "who gave the rooster the understanding to tell day from night.",
+    he: {
+      ari: "הַנּוֹתֵן לַשְּׂכְוִי בִינָה לְהַבְחִין בֵּין יוֹם וּבֵין לָיְלָה.",
+      all: "אֲשֶׁר נָתַן לַשֶּׂכְוִי בִינָה לְהַבְחִין בֵּין יוֹם וּבֵין לָיְלָה.",
+    },
+    tr: {
+      ari: "hanotein lasechvi vinah l'havchin bein yom uvein lailah.",
+      all: "asher natan lasechvi vinah l'havchin bein yom uvein lailah.",
+    },
+    en: {
+      ari: "who gives the rooster the understanding to tell day from night.",
+      all: "who gave the rooster the understanding to tell day from night.",
+    },
     meditation:
       "The sequence opens not with thanks but with discernment — that even a bird knows the night has ended. Gratitude has a prerequisite: you have to notice that something changed. Plenty of us walk into a morning still carrying the previous night's weather.",
     cue: "Look at the actual light in the room for a few seconds. Not the phone.",
-    prompt: "What are you still treating as night that has, in fact, already turned into morning?",
+    prompts: [
+      "What are you still treating as night that has, in fact, already turned into morning?",
+      "What changed in the last month that you haven't fully registered yet?",
+      "Name one thing you are worrying about today that was already settled yesterday.",
+    ],
   },
   {
     id: "yisrael",
-    heTitle: "שֶׁעָשַׂנִי יִשְׂרָאֵל",
+    heTitle: "שֶׁלֹּא עָשַׂנִי גּוֹי",
     title: "Born into the story",
     theme: "Belonging",
-    he: (o) => (o.form === "positive" ? "שֶׁעָשַׂנִי יִשְׂרָאֵל." : "שֶׁלֹּא עָשַׂנִי גּוֹי."),
-    tr: (o) => (o.form === "positive" ? "she'asani Yisrael." : "shelo asani goy."),
-    en: (o) =>
-      o.form === "positive" ? "who made me a Jew." : "who did not make me a gentile.",
+    he: "שֶׁלֹּא עָשַׂנִי גּוֹי.",
+    tr: "shelo asani goy.",
+    en: "who did not make me a gentile.",
     meditation:
       "The classical reading of this blessing is not about rank. It is about obligation — being handed, without asking, a set of duties that give a life its shape. You were born into a story already in progress, and it expects something of you.",
     cue: "Name one person in your own family line you are standing on top of this morning.",
+    prompts: [
+      "Which of your obligations, if you dropped it, would change who you are?",
+      "Name someone in your family line whose choices you are living inside of.",
+      "What did you inherit that you have not yet done anything with?",
+    ],
   },
   {
     id: "chorin",
-    heTitle: "שֶׁעָשַׂנִי בֶּן חוֹרִין",
+    heTitle: "שֶׁלֹּא עָשַׂנִי עָבֶד",
     title: "A free person",
     theme: "Freedom",
-    he: (o) =>
-      o.form === "positive"
-        ? o.voice === "female"
-          ? "שֶׁעָשַׂנִי בַּת חוֹרִין."
-          : "שֶׁעָשַׂנִי בֶּן חוֹרִין."
-        : "שֶׁלֹּא עָשַׂנִי עָבֶד.",
-    tr: (o) =>
-      o.form === "positive"
-        ? o.voice === "female"
-          ? "she'asani bat chorin."
-          : "she'asani ben chorin."
-        : "shelo asani aved.",
-    en: (o) =>
-      o.form === "positive" ? "who made me free." : "who did not make me a slave.",
+    he: "שֶׁלֹּא עָשַׂנִי עָבֶד.",
+    tr: "shelo asani aved.",
+    en: "who did not make me a slave.",
     meditation:
       "Free means the day is yours to point somewhere. That is a gift and a bill. Most of what actually runs a morning — the phone, the inbox, the mood you woke in — you never consented to. Freedom is the daily work of taking the wheel back.",
     cue: "Notice the first thing that reached for your attention today.",
-    prompt: "Where are you not free right now — and what is one inch of it you could take back today?",
+    prompts: [
+      "Where are you not free right now — and what is one inch of it you could take back today?",
+      "What runs your morning that you never chose?",
+      "If today were entirely yours to direct, what would you point it at?",
+    ],
     core: true,
   },
   {
     id: "kirtzono",
-    heTitle: "שֶׁעָשַׂנִי כִּרְצוֹנוֹ",
+    // A woman says שֶׁעָשַׂנִי כִּרְצוֹנוֹ in place of שֶׁלֹּא עָשַׂנִי אִשָּׁה —
+    // printed that way in all three of the source siddurim. (Some siddurim also
+    // print גּוֹיָה and שִׁפְחָה for the two blessings above when a woman says
+    // them; the sources used here do not, so this app leaves those as printed.)
+    heTitle: (o) =>
+      o.voice === "female" ? "שֶׁעָשַׂנִי כִּרְצוֹנוֹ" : "שֶׁלֹּא עָשַׂנִי אִשָּׁה",
     title: "Made on purpose",
     theme: "Being made deliberately",
     he: (o) =>
-      o.form === "positive"
-        ? "שֶׁעָשַׂנִי בְּצַלְמוֹ."
-        : o.voice === "female"
-          ? "שֶׁעָשַׂנִי כִּרְצוֹנוֹ."
-          : "שֶׁלֹּא עָשַׂנִי אִשָּׁה.",
-    tr: (o) =>
-      o.form === "positive"
-        ? "she'asani b'tzalmo."
-        : o.voice === "female"
-          ? "she'asani kirtzono."
-          : "shelo asani ishah.",
+      o.voice === "female" ? "שֶׁעָשַׂנִי כִּרְצוֹנוֹ." : "שֶׁלֹּא עָשַׂנִי אִשָּׁה.",
+    tr: (o) => (o.voice === "female" ? "she'asani kirtzono." : "shelo asani ishah."),
     en: (o) =>
-      o.form === "positive"
-        ? "who made me in His image."
-        : o.voice === "female"
-          ? "who made me according to His will."
-          : "who did not make me a woman.",
+      o.voice === "female"
+        ? "who made me according to His will."
+        : "who did not make me a woman.",
     meditation:
-      "However your rite words it, the classical commentators read this blessing as being about the particular obligations a person is handed — not about anyone's worth. Taken honestly it is a question rather than a claim: what are you actually doing with the duties that came with your life?",
+      "The classical commentators read this blessing as being about the particular obligations a person is handed — not about anyone's worth. Taken honestly it is a question rather than a claim: what are you actually doing with the duties that came with your life?",
     cue: "Sit with the word 'deliberately' for one breath.",
   },
   {
@@ -234,7 +288,11 @@ const SEALS: Seal[] = [
     meditation:
       "You opened your eyes and an entire world arrived, free of charge, before you had done anything to deserve it. Sight is the sense we notice least and would grieve most.",
     cue: "Pick one ordinary object in the room and look at it as if you'd been told you would lose your sight tonight.",
-    prompt: "Name one thing you saw this week that you're glad you got to see.",
+    prompts: [
+      "Name one thing you saw this week that you're glad you got to see.",
+      "Describe a face you saw yesterday — actually describe it.",
+      "What is in front of you right now that you have stopped seeing?",
+    ],
     core: true,
   },
   {
@@ -260,7 +318,11 @@ const SEALS: Seal[] = [
     meditation:
       "This was said in the moment of stretching — the body was bound all night and now it moves. There is a second reading, and everybody knows which one applies to them: we each carry something we are tied to. This is the sentence where you ask for it to loosen.",
     cue: "Stretch once, all the way, without hurrying it.",
-    prompt: "What are you bound to that you'd like loosened this year?",
+    prompts: [
+      "What are you bound to that you'd like loosened this year?",
+      "What have you been carrying this week that isn't yours to carry?",
+      "Name the knot. Just name it — you don't have to solve it this morning.",
+    ],
     core: true,
   },
   {
@@ -296,10 +358,16 @@ const SEALS: Seal[] = [
     he: "שֶׁעָשָׂה לִּי כָּל צָרְכִּי.",
     tr: "she'asah li kol tzorki.",
     en: "who has provided me my every need.",
+    // Printed in the Alter Rebbe's siddur at this blessing.
+    note: "Not said on Tishah B'Av or Yom Kippur.",
     meditation:
       "Traditionally said while putting on shoes — the last small thing you need before you can walk out the door. It is a blessing about sufficiency, said every morning inside a life that is otherwise organised entirely around wanting more.",
     cue: "Name one thing you already have that you once prayed for.",
-    prompt: "What do you have today that an earlier version of you was hoping for?",
+    prompts: [
+      "What do you have today that an earlier version of you was hoping for?",
+      "What would you miss first if this week took it away?",
+      "Name something small you own that does its job perfectly and gets no credit.",
+    ],
     core: true,
   },
   {
@@ -367,8 +435,8 @@ const SEALS: Seal[] = [
 ];
 
 function sealStation(s: Seal): Raw {
-  const pick = <T,>(v: T | ((o: Opts) => T), o: Opts): T =>
-    typeof v === "function" ? (v as (o: Opts) => T)(o) : v;
+  const one = <T,>(v: ByNusach<T> | ((o: Opts) => T), o: Opts): T =>
+    typeof v === "function" ? (v as (o: Opts) => T)(o) : pick(v, o.nusach);
   return {
     id: s.id,
     kicker: "Birchot HaShachar",
@@ -377,19 +445,20 @@ function sealStation(s: Seal): Raw {
     theme: s.theme,
     meditation: s.meditation,
     cue: s.cue,
-    prompt: s.prompt,
+    prompts: s.prompts,
+    note: s.note,
     core: s.core,
-    he: (o) => [`${OPEN_HE} ${pick(s.he, o)}`],
-    translit: (o) => [`${OPEN_TR} ${pick(s.tr, o)}`],
-    en: (o) => [`${OPEN_EN} ${pick(s.en, o)}`],
+    he: (o) => [`${OPEN_HE} ${one(s.he, o)}`],
+    translit: (o) => [`${OPEN_TR} ${one(s.tr, o)}`],
+    en: (o) => [`${OPEN_EN} ${one(s.en, o)}`],
   };
 }
 
 // ---------------------------------------------------------------------------
-// The full arrangement
+// The stations that aren't one of the fifteen
 // ---------------------------------------------------------------------------
 
-const RAW: Raw[] = [
+const OPENERS: Raw[] = [
   {
     id: "modeh",
     kicker: "Before you get out of bed",
@@ -398,18 +467,26 @@ const RAW: Raw[] = [
     theme: "Thanks, before anything else",
     core: true,
     he: (o) => [
-      `${o.voice === "female" ? "מוֹדָה" : "מוֹדֶה"} אֲנִי לְפָנֶיךָ, מֶלֶךְ חַי וְקַיָּם, שֶׁהֶחֱזַרְתָּ בִּי נִשְׁמָתִי בְּחֶמְלָה — רַבָּה אֱמוּנָתֶךָ.`,
+      `${o.voice === "female" ? "מוֹדָה" : "מוֹדֶה"} אֲנִי לְפָנֶיךָ, מֶלֶךְ חַי וְקַיָּם, שֶׁהֶחֱזַרְתָּ בִּי נִשְׁמָתִי בְּחֶמְלָה. רַבָּה אֱמוּנָתֶךָ.`,
     ],
     translit: (o) => [
-      `${o.voice === "female" ? "Modah" : "Modeh"} ani lefanecha, melech chai v'kayam, shehechezarta bi nishmati b'chemlah — rabah emunatecha.`,
+      `${o.voice === "female" ? "Modah" : "Modeh"} ani lefanecha, melech chai v'kayam, shehechezarta bi nishmati b'chemlah. Rabah emunatecha.`,
     ],
     en: [
-      "I give thanks before You, living and enduring King, for returning my soul to me with compassion — great is Your faithfulness.",
+      "I give thanks before You, living and enduring King, for returning my soul to me with compassion. Great is Your faithfulness.",
     ],
+    // Sourced: the Alter Rebbe's siddur explains that this sentence contains
+    // none of the seven Names, which is why it can be said before washing.
+    note: "Said in bed, before washing — the words contain none of the Divine Names, so unwashed hands are no obstacle.",
     meditation:
       "Before your name, before your work, before the news. The tradition puts this sentence first on purpose: gratitude offered before you have earned anything is the only kind that isn't a transaction. Your soul came back this morning, and nobody had guaranteed it would.",
     cue: "Say it slowly. Whatever else happens today, don't rush the first sentence of it.",
-    prompt: "What is one thing you woke up to today that you would genuinely miss if it were gone?",
+    prompts: [
+      "What is one thing you woke up to today that you would genuinely miss if it were gone?",
+      "Who is asleep under your roof, or a phone call away, that you are glad about?",
+      "Name one ordinary thing waiting for you today that you would grieve if it stopped.",
+      "What went right yesterday that you never acknowledged?",
+    ],
   },
   {
     id: "netilah",
@@ -419,7 +496,9 @@ const RAW: Raw[] = [
     theme: "A clean start",
     he: [`${OPEN_HE} אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל נְטִילַת יָדָיִם.`],
     translit: [`${OPEN_TR} asher kid'shanu b'mitzvotav v'tzivanu al netilat yadayim.`],
-    en: [`${OPEN_EN} who made us holy with His commandments and commanded us on the washing of hands.`],
+    en: [
+      `${OPEN_EN} who made us holy with His commandments and commanded us on the washing of hands.`,
+    ],
     meditation:
       "Water over the hands is the smallest possible ritual: two seconds that draw a line between last night and this morning. You are not continuing yesterday. You are starting.",
     cue: "Notice the temperature of the water. That's the whole practice here.",
@@ -431,25 +510,51 @@ const RAW: Raw[] = [
     heTitle: "אֲשֶׁר יָצַר",
     theme: "A body that held",
     core: true,
-    he: [
-      `${OPEN_HE} אֲשֶׁר יָצַר אֶת הָאָדָם בְּחָכְמָה, וּבָרָא בוֹ נְקָבִים נְקָבִים, חֲלוּלִים חֲלוּלִים.`,
-      "גָּלוּי וְיָדוּעַ לִפְנֵי כִסֵּא כְבוֹדֶךָ, שֶׁאִם יִפָּתֵחַ אֶחָד מֵהֶם, אוֹ יִסָּתֵם אֶחָד מֵהֶם, אִי אֶפְשַׁר לְהִתְקַיֵּם וְלַעֲמוֹד לְפָנֶיךָ אֲפִילוּ שָׁעָה אֶחָת.",
-      "בָּרוּךְ אַתָּה {H}, רוֹפֵא כָל בָּשָׂר וּמַפְלִיא לַעֲשׂוֹת.",
-    ],
-    translit: [
-      `${OPEN_TR} asher yatzar et ha'adam b'chochmah, uvara vo nekavim nekavim, chalulim chalulim.`,
-      "Galui v'yadua lifnei chisei ch'vodecha, she'im yipateach echad mehem, o yisatem echad mehem, i efshar l'hitkayem v'la'amod l'fanecha afilu sha'ah echat.",
-      "Baruch atah {H}, rofei chol basar umafli la'asot.",
-    ],
-    en: [
-      `${OPEN_EN} who formed a human being with wisdom, and made in him openings upon openings, hollows upon hollows.`,
-      "It is revealed and known before Your throne of glory that if one of them were to open, or one of them were to close, it would be impossible to survive and stand before You even for an hour.",
-      "Blessed are You, {H}, healer of all flesh, who does wonders.",
-    ],
+    he: {
+      // Ari: יִסָּתֵם comes first, and there is no וְלַעֲמוֹד לְפָנֶיךָ.
+      ari: [
+        `${OPEN_HE} אֲשֶׁר יָצַר אֶת הָאָדָם בְּחָכְמָה, וּבָרָא בוֹ נְקָבִים נְקָבִים, חֲלוּלִים חֲלוּלִים.`,
+        "גָּלוּי וְיָדוּעַ לִפְנֵי כִסֵּא כְבוֹדֶךָ, שֶׁאִם יִסָּתֵם אֶחָד מֵהֶם אוֹ אִם יִפָּתֵחַ אֶחָד מֵהֶם, אִי אֶפְשַׁר לְהִתְקַיֵּם אֲפִילוּ שָׁעָה אֶחָת.",
+        "בָּרוּךְ אַתָּה {H}, רוֹפֵא כָל בָּשָׂר וּמַפְלִיא לַעֲשׂוֹת.",
+      ],
+      all: [
+        `${OPEN_HE} אֲשֶׁר יָצַר אֶת הָאָדָם בְּחָכְמָה, וּבָרָא בוֹ נְקָבִים נְקָבִים, חֲלוּלִים חֲלוּלִים.`,
+        "גָּלוּי וְיָדוּעַ לִפְנֵי כִסֵּא כְבוֹדֶךָ, שֶׁאִם יִפָּתֵחַ אֶחָד מֵהֶם אוֹ יִסָּתֵם אֶחָד מֵהֶם, אִי אֶפְשַׁר לְהִתְקַיֵּם וְלַעֲמֹד לְפָנֶיךָ אֲפִילוּ שָׁעָה אֶחָת.",
+        "בָּרוּךְ אַתָּה {H}, רוֹפֵא כָל בָּשָׂר וּמַפְלִיא לַעֲשׂוֹת.",
+      ],
+    },
+    translit: {
+      ari: [
+        `${OPEN_TR} asher yatzar et ha'adam b'chochmah, uvara vo nekavim nekavim, chalulim chalulim.`,
+        "Galui v'yadua lifnei chisei ch'vodecha, she'im yisatem echad mehem o im yipateach echad mehem, i efshar l'hitkayem afilu sha'ah echat.",
+        "Baruch atah {H}, rofei chol basar umafli la'asot.",
+      ],
+      all: [
+        `${OPEN_TR} asher yatzar et ha'adam b'chochmah, uvara vo nekavim nekavim, chalulim chalulim.`,
+        "Galui v'yadua lifnei chisei ch'vodecha, she'im yipateach echad mehem o yisatem echad mehem, i efshar l'hitkayem v'la'amod l'fanecha afilu sha'ah echat.",
+        "Baruch atah {H}, rofei chol basar umafli la'asot.",
+      ],
+    },
+    en: {
+      ari: [
+        `${OPEN_EN} who formed a human being with wisdom, and made in him openings upon openings, hollows upon hollows.`,
+        "It is revealed and known before Your throne of glory that if one of them were to close, or one of them were to open, it would be impossible to survive even for an hour.",
+        "Blessed are You, {H}, healer of all flesh, who does wonders.",
+      ],
+      all: [
+        `${OPEN_EN} who formed a human being with wisdom, and made in him openings upon openings, hollows upon hollows.`,
+        "It is revealed and known before Your throne of glory that if one of them were to open, or one of them were to close, it would be impossible to survive and stand before You even for an hour.",
+        "Blessed are You, {H}, healer of all flesh, who does wonders.",
+      ],
+    },
     meditation:
       "Openings that stayed open and passages that stayed clear, for eight hours, with no supervision from you. The blessing states the plain fact that if a single valve had failed you would not be standing here. Most people only think about the body when it breaks; this is the practice of thinking about it while it works.",
     cue: "Take one full breath and follow it the whole way down and the whole way back out.",
-    prompt: "What is one thing your body did for you today that you never asked it to do?",
+    prompts: [
+      "What is one thing your body did for you today that you never asked it to do?",
+      "Where in your body is there no pain this morning? Start there.",
+      "What did you eat, lift, climb or carry yesterday without thinking about it?",
+    ],
   },
   {
     id: "neshamah",
@@ -460,24 +565,26 @@ const RAW: Raw[] = [
     core: true,
     he: (o) => [
       "אֱלֹהַי, נְשָׁמָה שֶׁנָּתַתָּ בִּי טְהוֹרָה הִיא. אַתָּה בְרָאתָהּ, אַתָּה יְצַרְתָּהּ, אַתָּה נְפַחְתָּהּ בִּי, וְאַתָּה מְשַׁמְּרָהּ בְּקִרְבִּי.",
-      `וְאַתָּה עָתִיד לִטְּלָהּ מִמֶּנִּי וּלְהַחֲזִירָהּ בִּי לֶעָתִיד לָבוֹא. כָּל זְמַן שֶׁהַנְּשָׁמָה בְקִרְבִּי, ${o.voice === "female" ? "מוֹדָה" : "מוֹדֶה"} אֲנִי לְפָנֶיךָ, {H} {E} וֵאלֹהֵי אֲבוֹתַי, רִבּוֹן כָּל הַמַּעֲשִׂים, אֲדוֹן כָּל הַנְּשָׁמוֹת.`,
+      `וְאַתָּה עָתִיד לִטְּלָהּ מִמֶּנִּי וּלְהַחֲזִירָהּ בִּי לֶעָתִיד לָבֹא. כָּל זְמַן שֶׁהַנְּשָׁמָה בְקִרְבִּי, ${o.voice === "female" ? "מוֹדָה" : "מוֹדֶה"} אֲנִי לְפָנֶיךָ, {H} אֱלֹהַי וֵאלֹהֵי אֲבוֹתַי, רִבּוֹן כָּל הַמַּעֲשִׂים, אֲדוֹן כָּל הַנְּשָׁמוֹת.`,
       "בָּרוּךְ אַתָּה {H}, הַמַּחֲזִיר נְשָׁמוֹת לִפְגָרִים מֵתִים.",
     ],
     translit: (o) => [
       "Elohai, neshamah shenatata bi t'horah hi. Atah v'ratah, atah y'tzartah, atah n'fachtah bi, v'atah m'shamrah b'kirbi.",
-      `V'atah atid lit'lah mimeni ul'hachazirah bi le'atid lavo. Kol z'man shehaneshamah v'kirbi, ${o.voice === "female" ? "modah" : "modeh"} ani lefanecha, {H} {E} vElohei avotai, ribon kol hama'asim, adon kol han'shamot.`,
+      `V'atah atid lit'lah mimeni ul'hachazirah bi le'atid lavo. Kol z'man shehaneshamah v'kirbi, ${o.voice === "female" ? "modah" : "modeh"} ani lefanecha, {H} Elohai vElohei avotai, ribon kol hama'asim, adon kol han'shamot.`,
       "Baruch atah {H}, hamachazir n'shamot lifgarim metim.",
     ],
     en: [
       "My God, the soul You placed in me is pure. You created it, You formed it, You breathed it into me, and You keep it safe inside me.",
-      "One day You will take it from me and return it to me in the time to come. For as long as the soul is within me I give thanks before You, {H}, {E} and God of my fathers, Master of all works, Lord of all souls.",
+      "One day You will take it from me and return it to me in the time to come. For as long as the soul is within me I give thanks before You, {H}, my God and God of my fathers, Master of all works, Lord of all souls.",
       "Blessed are You, {H}, who returns souls to the lifeless.",
     ],
     meditation:
       "“The soul You placed in me is pure.” Not was pure — is. Whatever yesterday held, whatever you said or failed to do, the core you were handed back this morning came back undamaged. This is the tradition's answer to shame, and it is said out loud before you have had a chance to argue with it.",
     cue: "Stop on the word pure for one breath before you move on.",
   },
-  ...SEALS.map(sealStation),
+];
+
+const CLOSERS: Raw[] = [
   {
     id: "yehiratzon",
     kicker: "The request that follows",
@@ -485,19 +592,33 @@ const RAW: Raw[] = [
     heTitle: "וִיהִי רָצוֹן",
     theme: "Asking for character, not for luck",
     long: true,
-    he: [
-      "וִיהִי רָצוֹן מִלְּפָנֶיךָ, {H} אֱלֹהַי וֵאלֹהֵי אֲבוֹתַי, שֶׁתַּרְגִּילֵנִי בְּתוֹרָתֶךָ וְדַבְּקֵנִי בְּמִצְוֹתֶיךָ, וְאַל תְּבִיאֵנִי לֹא לִידֵי חֵטְא, וְלֹא לִידֵי עֲבֵרָה וְעָוֹן, וְלֹא לִידֵי נִסָּיוֹן, וְלֹא לִידֵי בִזָּיוֹן, וְאַל תַּשְׁלֶט בִּי יֵצֶר הָרָע.",
-      "וְהַרְחִיקֵנִי מֵאָדָם רָע וּמֵחָבֵר רָע, וְדַבְּקֵנִי בְּיֵצֶר הַטּוֹב וּבְמַעֲשִׂים טוֹבִים, וְכוֹף אֶת יִצְרִי לְהִשְׁתַּעְבֶּד לָךְ, וּתְנֵנִי הַיּוֹם וּבְכָל יוֹם לְחֵן וּלְחֶסֶד וּלְרַחֲמִים בְּעֵינֶיךָ וּבְעֵינֵי כָל רוֹאָי, וְתִגְמְלֵנִי חֲסָדִים טוֹבִים.",
-      "בָּרוּךְ אַתָּה {H}, גּוֹמֵל חֲסָדִים טוֹבִים לְעַמּוֹ יִשְׂרָאֵל.",
-    ],
-    translit: [
-      "Vihi ratzon mil'fanecha, {H} Elohai vElohei avotai, shetargileni b'toratecha v'dab'keni b'mitzvotecha, v'al t'vi'eni lo lidei chet, v'lo lidei aveirah v'avon, v'lo lidei nisayon, v'lo lidei vizayon, v'al tashlet bi yetzer hara.",
-      "V'harchikeni me'adam ra umechaver ra, v'dab'keni b'yetzer hatov uv'ma'asim tovim, v'chof et yitzri l'hishta'bed lach, ut'neni hayom uv'chol yom l'chen ul'chesed ul'rachamim b'einecha uv'einei chol ro'ai, v'tigm'leni chasadim tovim.",
-      "Baruch atah {H}, gomel chasadim tovim l'amo Yisrael.",
-    ],
+    he: {
+      ari: [
+        "וִיהִי רָצוֹן מִלְּפָנֶיךָ, {H} {E} וֵאלֹהֵי אֲבוֹתֵינוּ, שֶׁתַּרְגִּילֵנוּ בְּתוֹרָתֶךָ וְתַדְבִּיקֵנוּ בְּמִצְוֹתֶיךָ, וְאַל תְּבִיאֵנוּ לֹא לִידֵי חֵטְא, וְלֹא לִידֵי עֲבֵרָה וְעָוֹן, וְלֹא לִידֵי נִסָּיוֹן, וְלֹא לִידֵי בִזָּיוֹן, וְאַל יִשְׁלוֹט בָּנוּ יֵצֶר הָרָע.",
+        "וְהַרְחִיקֵנוּ מֵאָדָם רָע וּמֵחָבֵר רָע, וְדַבְּקֵנוּ בְּיֵצֶר טוֹב וּבְמַעֲשִׂים טוֹבִים, וְכוֹף אֶת יִצְרֵנוּ לְהִשְׁתַּעְבֶּד לָךְ, וּתְנֵנוּ הַיּוֹם וּבְכָל יוֹם לְחֵן וּלְחֶסֶד וּלְרַחֲמִים בְּעֵינֶיךָ וּבְעֵינֵי כָל רוֹאֵינוּ, וְתִגְמְלֵנוּ חֲסָדִים טוֹבִים.",
+        "בָּרוּךְ אַתָּה {H}, הַגּוֹמֵל חֲסָדִים טוֹבִים לְעַמּוֹ יִשְׂרָאֵל.",
+      ],
+      all: [
+        "וִיהִי רָצוֹן מִלְּפָנֶיךָ, {H} {E} וֵאלֹהֵי אֲבוֹתֵינוּ, שֶׁתַּרְגִּילֵנוּ בְּתוֹרָתֶךָ וְדַבְּקֵנוּ בְּמִצְוֹתֶיךָ, וְאַל תְּבִיאֵנוּ לֹא לִידֵי חֵטְא, וְלֹא לִידֵי עֲבֵרָה וְעָוֹן, וְלֹא לִידֵי נִסָּיוֹן, וְלֹא לִידֵי בִזָּיוֹן, וְאַל יִשְׁלֹט בָּנוּ יֵצֶר הָרָע.",
+        "וְהַרְחִיקֵנוּ מֵאָדָם רָע וּמֵחָבֵר רָע, וְדַבְּקֵנוּ בְּיֵצֶר הַטּוֹב וּבְמַעֲשִׂים טוֹבִים, וְכוֹף אֶת יִצְרֵנוּ לְהִשְׁתַּעְבֶּד לָךְ, וּתְנֵנוּ הַיּוֹם וּבְכָל יוֹם לְחֵן וּלְחֶסֶד וּלְרַחֲמִים בְּעֵינֶיךָ וּבְעֵינֵי כָל רוֹאֵינוּ, וְתִגְמְלֵנוּ חֲסָדִים טוֹבִים.",
+        "בָּרוּךְ אַתָּה {H}, {SEAL} חֲסָדִים טוֹבִים לְעַמּוֹ יִשְׂרָאֵל.",
+      ],
+    },
+    translit: {
+      ari: [
+        "Vihi ratzon mil'fanecha, {H} {E} vElohei avoteinu, shetargileinu b'toratecha v'tadbikeinu b'mitzvotecha, v'al t'vi'einu lo lidei chet, v'lo lidei aveirah v'avon, v'lo lidei nisayon, v'lo lidei vizayon, v'al yishlot banu yetzer hara.",
+        "V'harchikeinu me'adam ra umechaver ra, v'dab'keinu b'yetzer tov uv'ma'asim tovim, v'chof et yitzreinu l'hishta'bed lach, ut'neinu hayom uv'chol yom l'chen ul'chesed ul'rachamim b'einecha uv'einei chol ro'einu, v'tigm'leinu chasadim tovim.",
+        "Baruch atah {H}, hagomel chasadim tovim l'amo Yisrael.",
+      ],
+      all: [
+        "Vihi ratzon mil'fanecha, {H} {E} vElohei avoteinu, shetargileinu b'toratecha v'dab'keinu b'mitzvotecha, v'al t'vi'einu lo lidei chet, v'lo lidei aveirah v'avon, v'lo lidei nisayon, v'lo lidei vizayon, v'al yishlot banu yetzer hara.",
+        "V'harchikeinu me'adam ra umechaver ra, v'dab'keinu b'yetzer hatov uv'ma'asim tovim, v'chof et yitzreinu l'hishta'bed lach, ut'neinu hayom uv'chol yom l'chen ul'chesed ul'rachamim b'einecha uv'einei chol ro'einu, v'tigm'leinu chasadim tovim.",
+        "Baruch atah {H}, {SEALTR} chasadim tovim l'amo Yisrael.",
+      ],
+    },
     en: [
-      "May it be Your will, {H}, my God and God of my fathers, to make me at home in Your Torah and attached to Your commandments; do not bring me into the hands of sin, of transgression, of trial, or of disgrace; and do not let the bad inclination rule me.",
-      "Keep me far from a bad person and a bad friend; bind me to the good inclination and to good deeds; bend my instinct to serve You; grant me today, and every day, favour, kindness and mercy in Your eyes and in the eyes of all who see me; and deal kindly with me.",
+      "May it be Your will, {H}, {E} and God of our fathers, to make us at home in Your Torah and attached to Your commandments; do not bring us into the hands of sin, of transgression, of trial, or of disgrace; and let the bad inclination not rule us.",
+      "Keep us far from a bad person and a bad friend; bind us to the good inclination and to good deeds; bend our instinct to serve You; and grant us today, and every day, favour, kindness and mercy in Your eyes and in the eyes of all who see us; and deal kindly with us.",
       "Blessed are You, {H}, who bestows good kindnesses on His people Israel.",
     ],
     meditation:
@@ -511,16 +632,37 @@ const RAW: Raw[] = [
     heTitle: "בִּרְכוֹת הַתּוֹרָה",
     theme: "The day gets an aim",
     long: true,
-    he: [
-      `${OPEN_HE} אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל דִּבְרֵי תוֹרָה.`,
-      "וְהַעֲרֶב נָא, {H} {E}, אֶת דִּבְרֵי תוֹרָתְךָ בְּפִינוּ וּבְפִי עַמְּךָ בֵּית יִשְׂרָאֵל, וְנִהְיֶה אֲנַחְנוּ וְצֶאֱצָאֵינוּ וְצֶאֱצָאֵי עַמְּךָ בֵּית יִשְׂרָאֵל, כֻּלָּנוּ יוֹדְעֵי שְׁמֶךָ וְלוֹמְדֵי תוֹרָתֶךָ לִשְׁמָהּ. בָּרוּךְ אַתָּה {H}, הַמְלַמֵּד תּוֹרָה לְעַמּוֹ יִשְׂרָאֵל.",
-      `${OPEN_HE} אֲשֶׁר בָּחַר בָּנוּ מִכָּל הָעַמִּים וְנָתַן לָנוּ אֶת תּוֹרָתוֹ. בָּרוּךְ אַתָּה {H}, נוֹתֵן הַתּוֹרָה.`,
-    ],
-    translit: [
-      `${OPEN_TR} asher kid'shanu b'mitzvotav v'tzivanu al divrei Torah.`,
-      "V'ha'arev na, {H} {E}, et divrei Toratcha b'finu uv'fi amcha beit Yisrael, v'nihyeh anachnu v'tze'etza'einu v'tze'etza'ei amcha beit Yisrael, kulanu yod'ei sh'mecha v'lomdei Toratecha lishmah. Baruch atah {H}, ham'lamed Torah l'amo Yisrael.",
-      `${OPEN_TR} asher bachar banu mikol ha'amim v'natan lanu et Torato. Baruch atah {H}, notein haTorah.`,
-    ],
+    he: {
+      // Ashkenaz: לַעֲסֹק בְּדִבְרֵי תוֹרָה. Ari and Sefard: עַל דִּבְרֵי תוֹרָה.
+      // Ari also reads בְּפִי כָל עַמְּךָ / וְצֶאֱצָאֵי כָל עַמְּךָ.
+      ashkenaz: [
+        `${OPEN_HE} אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לַעֲסֹק בְּדִבְרֵי תוֹרָה.`,
+        "וְהַעֲרֶב נָא, {H} {E}, אֶת דִּבְרֵי תוֹרָתְךָ בְּפִינוּ וּבְפִי עַמְּךָ בֵּית יִשְׂרָאֵל, וְנִהְיֶה אֲנַחְנוּ וְצֶאֱצָאֵינוּ וְצֶאֱצָאֵי עַמְּךָ בֵּית יִשְׂרָאֵל, כֻּלָּנוּ יוֹדְעֵי שְׁמֶךָ וְלוֹמְדֵי תוֹרָתֶךָ לִשְׁמָהּ. בָּרוּךְ אַתָּה {H}, הַמְלַמֵּד תּוֹרָה לְעַמּוֹ יִשְׂרָאֵל.",
+        `${OPEN_HE} אֲשֶׁר בָּחַר בָּנוּ מִכָּל הָעַמִּים וְנָתַן לָנוּ אֶת תּוֹרָתוֹ. בָּרוּךְ אַתָּה {H}, נוֹתֵן הַתּוֹרָה.`,
+      ],
+      ari: [
+        `${OPEN_HE} אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל דִּבְרֵי תוֹרָה.`,
+        "וְהַעֲרֶב נָא, {H} {E}, אֶת דִּבְרֵי תוֹרָתְךָ בְּפִינוּ וּבְפִי כָל עַמְּךָ בֵּית יִשְׂרָאֵל, וְנִהְיֶה אֲנַחְנוּ וְצֶאֱצָאֵינוּ וְצֶאֱצָאֵי כָל עַמְּךָ בֵּית יִשְׂרָאֵל, כֻּלָּנוּ יוֹדְעֵי שְׁמֶךָ וְלוֹמְדֵי תוֹרָתְךָ לִשְׁמָהּ. בָּרוּךְ אַתָּה {H}, הַמְלַמֵּד תּוֹרָה לְעַמּוֹ יִשְׂרָאֵל.",
+        `${OPEN_HE} אֲשֶׁר בָּחַר בָּנוּ מִכָּל הָעַמִּים וְנָתַן לָנוּ אֶת תּוֹרָתוֹ. בָּרוּךְ אַתָּה {H}, נוֹתֵן הַתּוֹרָה.`,
+      ],
+      sefard: [
+        `${OPEN_HE} אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל דִּבְרֵי תוֹרָה.`,
+        "וְהַעֲרֶב נָא, {H} {E}, אֶת דִּבְרֵי תוֹרָתְךָ בְּפִינוּ וּבְפִי עַמְּךָ בֵּית יִשְׂרָאֵל, וְנִהְיֶה אֲנַחְנוּ וְצֶאֱצָאֵינוּ וְצֶאֱצָאֵי עַמְּךָ בֵּית יִשְׂרָאֵל, כֻּלָּנוּ יוֹדְעֵי שְׁמֶךָ וְלוֹמְדֵי תוֹרָתֶךָ לִשְׁמָהּ. בָּרוּךְ אַתָּה {H}, הַמְלַמֵּד תּוֹרָה לְעַמּוֹ יִשְׂרָאֵל.",
+        `${OPEN_HE} אֲשֶׁר בָּחַר בָּנוּ מִכָּל הָעַמִּים וְנָתַן לָנוּ אֶת תּוֹרָתוֹ. בָּרוּךְ אַתָּה {H}, נוֹתֵן הַתּוֹרָה.`,
+      ],
+    },
+    translit: {
+      ashkenaz: [
+        `${OPEN_TR} asher kid'shanu b'mitzvotav v'tzivanu la'asok b'divrei Torah.`,
+        "V'ha'arev na, {H} {E}, et divrei Toratcha b'finu uv'fi amcha beit Yisrael, v'nihyeh anachnu v'tze'etza'einu v'tze'etza'ei amcha beit Yisrael, kulanu yod'ei sh'mecha v'lomdei Toratecha lishmah. Baruch atah {H}, ham'lamed Torah l'amo Yisrael.",
+        `${OPEN_TR} asher bachar banu mikol ha'amim v'natan lanu et Torato. Baruch atah {H}, notein haTorah.`,
+      ],
+      all: [
+        `${OPEN_TR} asher kid'shanu b'mitzvotav v'tzivanu al divrei Torah.`,
+        "V'ha'arev na, {H} {E}, et divrei Toratcha b'finu uv'fi amcha beit Yisrael, v'nihyeh anachnu v'tze'etza'einu v'tze'etza'ei amcha beit Yisrael, kulanu yod'ei sh'mecha v'lomdei Toratcha lishmah. Baruch atah {H}, ham'lamed Torah l'amo Yisrael.",
+        `${OPEN_TR} asher bachar banu mikol ha'amim v'natan lanu et Torato. Baruch atah {H}, notein haTorah.`,
+      ],
+    },
     en: [
       `${OPEN_EN} who made us holy with His commandments and commanded us concerning words of Torah.`,
       "Make the words of Your Torah sweet in our mouths, {H}, {E}, and in the mouths of Your people the house of Israel — that we, and our children, and the children of Your people, may all know Your name and learn Your Torah for its own sake. Blessed are You, {H}, who teaches Torah to His people Israel.",
@@ -532,52 +674,144 @@ const RAW: Raw[] = [
   },
 ];
 
+const ALL: Record<string, Raw> = Object.fromEntries(
+  [...OPENERS, ...SEALS.map(sealStation), ...CLOSERS].map((r) => [r.id, r])
+);
+
+// ---------------------------------------------------------------------------
+// Order — the part that actually differs between the nusachim
+// ---------------------------------------------------------------------------
+
+const AFTER_NESHAMAH: Record<Nusach, string[]> = {
+  // Siddur Torah Or: rooster, then the body blessings, and the three of
+  // identity come late — immediately before הַמַּעֲבִיר שֵׁנָה.
+  ari: [
+    "sechvi", "ivrim", "asurim", "kefufim", "arumim", "koach", "roka",
+    "mitzadei", "tzorki", "gevurah", "tifarah",
+    "yisrael", "chorin", "kirtzono",
+    "sheinah",
+  ],
+  // Metsudah (Ashkenaz) and the Nusach Sefard siddur agree here: the three of
+  // identity come second, right after the rooster.
+  ashkenaz: [
+    "sechvi", "yisrael", "chorin", "kirtzono",
+    "ivrim", "arumim", "asurim", "kefufim", "roka", "tzorki", "mitzadei",
+    "gevurah", "tifarah", "koach",
+    "sheinah",
+  ],
+  sefard: [
+    "sechvi", "yisrael", "chorin", "kirtzono",
+    "ivrim", "arumim", "asurim", "kefufim", "roka", "tzorki", "mitzadei",
+    "gevurah", "tifarah", "koach",
+    "sheinah",
+  ],
+};
+
+function orderFor(n: Nusach): string[] {
+  return [
+    "modeh", "netilah", "asheryatzar", "neshamah",
+    ...AFTER_NESHAMAH[n],
+    "yehiratzon", "torah",
+  ];
+}
+
 // ---------------------------------------------------------------------------
 // Building the sit
 // ---------------------------------------------------------------------------
 
+// Ashkenaz seals Vihi Ratzon with גּוֹמֵל, Sefard and Ari with הַגּוֹמֵל.
+function sealWord(n: Nusach, lang: "he" | "tr"): string {
+  const he = n === "ashkenaz" ? "גּוֹמֵל" : "הַגּוֹמֵל";
+  const tr = n === "ashkenaz" ? "gomel" : "hagomel";
+  return lang === "he" ? he : tr;
+}
+
 function lines(
-  v: string[] | ((o: Opts) => string[]),
+  v: ByNusach<string[]> | ((o: Opts) => string[]),
   o: Opts,
   lang: "he" | "tr" | "en"
 ): string[] {
-  const raw = typeof v === "function" ? v(o) : v;
-  return raw.map((s) => resolve(s, o, lang));
+  const raw = typeof v === "function" ? v(o) : pick(v, o.nusach);
+  return raw
+    .map((s) =>
+      s
+        .replace(/\{SEAL\}/g, sealWord(o.nusach, "he"))
+        .replace(/\{SEALTR\}/g, sealWord(o.nusach, "tr"))
+    )
+    .map((s) => resolve(s, o, lang));
 }
 
-export function buildStations(o: Opts, length: Length, longForm: boolean): Station[] {
-  return RAW.filter((r) => (r.long ? longForm : true))
+/**
+ * Days since the epoch, in local time — the index the rotating prompts turn on,
+ * so the question is stable for a whole morning and different tomorrow.
+ */
+export function dayIndex(d = new Date()): number {
+  return Math.floor(
+    new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() / 86400000
+  );
+}
+
+export function buildStations(
+  o: Opts,
+  length: Length,
+  longForm: boolean,
+  day = dayIndex()
+): Station[] {
+  return orderFor(o.nusach)
+    .map((id) => ALL[id])
+    .filter((r) => (r.long ? longForm : true))
     .filter((r) => (length === "short" ? !!r.core : true))
-    .map((r) => ({
-      ...r,
+    .map((r, i) => ({
+      id: r.id,
+      kicker: r.kicker,
+      title: r.title,
+      heTitle:
+        typeof r.heTitle === "function" ? r.heTitle(o) : pick(r.heTitle, o.nusach),
+      theme: r.theme,
+      meditation: r.meditation,
+      cue: r.cue,
+      note: r.note,
+      core: r.core,
+      long: r.long,
+      // Offset by the station's position so two stations don't ask sibling
+      // questions on the same morning.
+      prompt: r.prompts?.length
+        ? r.prompts[(((day + i) % r.prompts.length) + r.prompts.length) % r.prompts.length]
+        : undefined,
       he: lines(r.he, o, "he"),
       translit: lines(r.translit, o, "tr"),
       en: lines(r.en, o, "en"),
     }));
 }
 
-/** Every station id, in order — used to keep saved notes attached to a station. */
-export const ALL_IDS = RAW.map((r) => r.id);
-
 /** Rough minutes for a sit of n stations, at an unhurried pace. */
 export function estimateMinutes(n: number): number {
   return Math.max(2, Math.round((n * 35) / 60));
 }
 
+/**
+ * Station titles keyed by id — so the journal can label a line somebody wrote
+ * weeks ago without rebuilding a whole sit to find it.
+ */
+export const STATION_LABELS: Record<string, { title: string }> = Object.fromEntries(
+  Object.values(ALL).map((r) => [r.id, { title: r.title }])
+);
+
 // ---------------------------------------------------------------------------
 // The closing screen isn't a blessing, so it lives on its own.
+//
+// It asks for an if-then plan rather than a free-floating resolution, which is
+// the one design choice here taken straight from the research: Gollwitzer &
+// Sheeran's meta-analysis of 94 studies found naming the trigger alongside the
+// action roughly doubles follow-through compared with intention alone.
 // ---------------------------------------------------------------------------
 
 export const CLOSING = {
   title: "Take it with you",
   heTitle: "וְעַכְשָׁיו",
-  prompt: "One thing from these blessings you'll carry into the next twelve hours.",
-  note: "Every one of those blessings is about something that was already true before you said it. The only new thing in the room is that you noticed.",
+  whenLabel: "When this happens today…",
+  whenPlaceholder: "the first time someone tests my patience",
+  thenLabel: "…I will",
+  thenPlaceholder: "stop, breathe once, and answer slower",
+  note: "Naming the moment, not just the resolve, is what makes it stick.",
 };
-
-/**
- * Station titles and questions, keyed by id — so the journal can label a line
- * somebody wrote weeks ago without rebuilding a whole sit to find it.
- */
-export const STATION_LABELS: Record<string, { title: string; prompt?: string }> =
-  Object.fromEntries(RAW.map((r) => [r.id, { title: r.title, prompt: r.prompt }]));

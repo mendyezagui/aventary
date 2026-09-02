@@ -1,0 +1,139 @@
+"use client";
+
+import { useEffect } from "react";
+import Link from "next/link";
+import { getSettings } from "./store";
+import { applyTheme } from "./theme";
+
+export default function About() {
+  useEffect(() => {
+    applyTheme(getSettings().theme);
+  }, []);
+
+  return (
+    <div className="wrap">
+      <Link className="backlink" href="/modeh">
+        <span aria-hidden>←</span> Morning
+      </Link>
+
+      <header className="head">
+        <div className="head-l">
+          <p className="greet">How this was built</p>
+          <h1 className="brand">The text &amp; the questions</h1>
+        </div>
+      </header>
+
+      <div className="prose">
+        <h2>Where the Hebrew comes from</h2>
+        <p>
+          Nothing here is a paraphrase. Each nusach was transcribed from a
+          printed siddur:
+        </p>
+        <ul>
+          <li>
+            <b>Ari (Chabad)</b> — <i>Siddur Torah Or</i>, the Alter Rebbe&rsquo;s
+            siddur (Schulzinger Bros., 1940), via Hebrew Wikisource.
+          </li>
+          <li>
+            <b>Ashkenaz</b> — the <i>Metsudah Siddur</i> (1981), via Sefaria.
+          </li>
+          <li>
+            <b>Sefard</b> — the Nusach Sefard weekday shacharit on Hebrew
+            Wikisource.
+          </li>
+        </ul>
+        <p>
+          The pointed Hebrew was typed by hand from those sources, so check it
+          against your own siddur before you rely on it.
+        </p>
+
+        <h2>What actually changes between them</h2>
+        <p>
+          More than wording — the <b>order</b> moves. In Nusach Ari the three
+          blessings of identity come near the end, immediately before{" "}
+          <bdi className="he" lang="he">הַמַּעֲבִיר שֵׁנָה</bdi>. In Ashkenaz and
+          Sefard they come second, straight after the blessing on the rooster.
+          Ari also opens that blessing in the present tense —{" "}
+          <bdi className="he" lang="he">הַנּוֹתֵן לַשְּׂכְוִי</bdi> rather than{" "}
+          <bdi className="he" lang="he">אֲשֶׁר נָתַן לַשֶּׂכְוִי</bdi>. It words{" "}
+          <bdi className="he" lang="he">אֲשֶׁר יָצַר</bdi> differently, and seals{" "}
+          <bdi className="he" lang="he">וִיהִי רָצוֹן</bdi> with{" "}
+          <bdi className="he" lang="he">הַגּוֹמֵל</bdi> where Ashkenaz has{" "}
+          <bdi className="he" lang="he">גּוֹמֵל</bdi>. Ashkenaz and Sefard share
+          the order of the fifteen and part on smaller wordings.
+        </p>
+        <p>
+          Choosing <i>feminine</i> swaps{" "}
+          <bdi className="he" lang="he">מוֹדֶה</bdi> for{" "}
+          <bdi className="he" lang="he">מוֹדָה</bdi> and the third blessing of
+          identity for <bdi className="he" lang="he">שֶׁעָשַׂנִי כִּרְצוֹנוֹ</bdi>,
+          the way the source siddurim print it. Some siddurim also print{" "}
+          <bdi className="he" lang="he">גּוֹיָה</bdi> and{" "}
+          <bdi className="he" lang="he">שִׁפְחָה</bdi> in the two before it; the
+          sources used here do not, so this app leaves them as printed.
+        </p>
+
+        <h2>Why the question is different every morning</h2>
+        <p>
+          The liturgy repeats — that is the point of it. The written question
+          does not. Research from Sonja Lyubomirsky&rsquo;s lab found that people
+          who counted their blessings <i>once</i> a week ended up happier than
+          people who did the identical exercise three times a week; the more
+          frequent group showed no gain at all. The explanation is hedonic
+          adaptation: a prompt you have answered forty times stops making you
+          look. So each station holds a set of questions and rotates through
+          them, and two stations never draw sibling questions on the same
+          morning.
+        </p>
+
+        <h2>Why the last screen asks &ldquo;when&rdquo; before &ldquo;what&rdquo;</h2>
+        <p>
+          A resolution names what you want. An <i>if-then plan</i> names the
+          moment that will trigger it — &ldquo;when the first person tests my
+          patience, I will breathe once before answering.&rdquo; Gollwitzer and
+          Sheeran&rsquo;s meta-analysis of 94 studies and over 8,000 participants
+          put the effect of that small difference at around d&nbsp;=&nbsp;0.65 on
+          goal attainment: naming the trigger roughly doubles follow-through
+          compared with intention alone. That is the entire reason the closing
+          screen has two fields instead of one.
+        </p>
+
+        <h2>Why each blessing is one screen, one thought, one thing to do</h2>
+        <p>
+          That shape is borrowed from the daily-devotional form that works —
+          Mark Nepo&rsquo;s <i>The Book of Awakening</i> and Ryan Holiday&rsquo;s{" "}
+          <i>The Daily Stoic</i> both run short text, then a reflection, then one
+          concrete exercise. A blessing you can say in four seconds does not need
+          a page of commentary; it needs one true sentence and something to do
+          with your hands or your eyes while you say it.
+        </p>
+        <p className="src">
+          Worth reading on the blessings themselves: <i>Ohr HaShachar: Torah,
+          Kabbalah and Consciousness in the Daily Morning Blessings</i> by David
+          Bar-Cohn (Urim), and Sivan Rahav-Meir&rsquo;s <i>Birkhot HaShachar:
+          A Guide for the First Moments of the Day</i>. On the research:
+          Emmons &amp; McCullough, &ldquo;Counting Blessings Versus
+          Burdens&rdquo; (2003); Gollwitzer &amp; Sheeran (2006).
+        </p>
+        <p className="src">
+          Those studies are about journaling and goal-setting in general, not
+          about davening. They are here because they shaped how the app asks its
+          questions — not as a claim about what a blessing is.
+        </p>
+
+        <h2>Where what you write goes</h2>
+        <p>
+          Nowhere. Every setting and every line you write is kept in this
+          browser, on this device. There is no account and no server. Clearing
+          site data, or moving to a new phone, clears the journal with it.
+        </p>
+      </div>
+
+      <p className="foot">
+        <Link className="card-link" href="/modeh">
+          ← Back to the morning
+        </Link>
+      </p>
+    </div>
+  );
+}

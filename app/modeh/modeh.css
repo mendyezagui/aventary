@@ -82,7 +82,6 @@
   background:
     radial-gradient(120% 80% at 50% 0%, var(--dawn-2) 0%, transparent 62%),
     linear-gradient(180deg, var(--dawn-1) 0%, var(--dawn-3) 100%);
-  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-ui), ui-sans-serif, system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -833,4 +832,70 @@
   .brand { font-size: 2.15rem; }
   .text-he { font-size: 1.4rem; }
   .begin-he { font-size: 1.85rem; }
+}
+
+/* a halachic or practical note printed under the liturgy */
+.text-note {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-2);
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* the closing if-then plan */
+.note-in-one {
+  min-height: 0;
+  resize: none;
+}
+input.note-in {
+  height: 46px;
+}
+.note-q-2 {
+  margin-top: 14px;
+}
+.note-sentence {
+  margin: 14px 0 0;
+  padding-top: 13px;
+  border-top: 1px solid var(--line-2);
+  font-size: 1.02rem;
+  line-height: 1.6;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ---------- about ---------- */
+.prose h2 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 26px 0 8px;
+}
+.prose p {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  line-height: 1.68;
+  color: var(--ink-2);
+}
+.prose ul {
+  margin: 0 0 12px;
+  padding-left: 20px;
+}
+.prose li {
+  font-size: 0.95rem;
+  line-height: 1.68;
+  color: var(--ink-2);
+  margin-bottom: 7px;
+}
+.prose a {
+  color: var(--accent);
+}
+.prose cite {
+  font-style: normal;
+  color: var(--muted);
+}
+.src {
+  font-size: 0.88rem;
+  line-height: 1.6;
 }

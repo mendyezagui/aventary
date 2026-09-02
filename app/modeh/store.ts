@@ -3,14 +3,14 @@
 // the phone — which is the right default for a page where somebody writes down
 // what they're grateful for and what they're bound by.
 
-import { DEFAULT_OPTS, type Form, type Length, type NameStyle, type Voice } from "./blessings";
+import { DEFAULT_OPTS, type Length, type NameStyle, type Nusach, type Voice } from "./blessings";
 
 const SETTINGS_KEY = "modeh.settings.v1";
 const JOURNAL_KEY = "modeh.journal.v1";
 
 export type Settings = {
   voice: Voice;
-  form: Form;
+  nusach: Nusach;
   nameStyle: NameStyle;
   length: Length;
   longForm: boolean;
@@ -22,10 +22,10 @@ export type Settings = {
 
 export const DEFAULT_SETTINGS: Settings = {
   voice: DEFAULT_OPTS.voice,
-  form: DEFAULT_OPTS.form,
+  nusach: DEFAULT_OPTS.nusach,
   nameStyle: DEFAULT_OPTS.nameStyle,
   length: "full",
-  longForm: false,
+  longForm: true,
   showTranslit: true,
   showEnglish: true,
   breath: true,
@@ -71,7 +71,25 @@ export type Entry = {
   updatedAt: number;
 };
 
+/** Closing if-then plan: the trigger and the action, kept apart so the journal
+ *  can print them back as one sentence. `INTENTION` is the older single-field
+ *  form and is still read back for mornings written before the change. */
+export const WHEN = "_when";
+export const THEN = "_then";
 export const INTENTION = "_intention";
+
+/** The closing line for an entry, however it was written. */
+export function intentionOf(notes: Record<string, string>): string {
+  const w = notes[WHEN]?.trim();
+  const t = notes[THEN]?.trim();
+  if (w && t) return `When ${w}, I will ${t}.`;
+  if (t) return `I will ${t}.`;
+  if (w) return `When ${w}…`;
+  return notes[INTENTION]?.trim() || "";
+}
+
+/** Keys the journal should not label with a station title. */
+export const CLOSING_KEYS = [WHEN, THEN, INTENTION];
 
 export function todayKey(d = new Date()): string {
   // Local date, not UTC — a 6am sit must land on today, not yesterday.

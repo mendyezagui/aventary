@@ -101,25 +101,63 @@ git push -u origin main
 A second personal app hosted alongside `/tehillim`: Birchot HaShachar, the
 blessings said on waking, arranged as a morning sit. Each blessing gets its
 Hebrew, a transliteration and a plain English translation, plus what that
-blessing is actually noticing and one thing to do while you say it. A few carry
-a written question; the answers land in a journal with a streak count.
+blessing is noticing and one thing to do while you say it. Several carry a
+written question; the answers land in a journal with a streak count.
 
 - Routes: `/modeh` (home + settings), `/modeh/session` (the sit),
-  `/modeh/journal`.
-- Content lives in `app/modeh/blessings.ts`. **The pointed Hebrew there was
-  typed by hand — proofread it against a siddur before relying on it.**
-- Settings that change the text, not just the chrome: who is saying it
-  (מוֹדֶה / מוֹדָה), the traditional vs. positive wording of the three
-  "identity" blessings, and whether the Name is written in full or substituted
-  (`ה׳` / `אֱלֹקֵינוּ`) — the substitution moves the Hebrew, the transliteration
-  and the English together.
-- Everything is stored in `localStorage` (`modeh.settings.v1`,
-  `modeh.journal.v1`). No account, no server, nothing written leaves the device.
-  Switching phones loses the journal — that is the trade for not holding
-  somebody's private writing on a server.
+  `/modeh/journal`, `/modeh/about` (sources and method).
+- Content lives in `app/modeh/blessings.ts`.
+
+### Nusach
+
+Three, each transcribed from a printed siddur — the source is named in the file
+header and on `/modeh/about`:
+
+| | Source | Opening blessing | The three of identity |
+|---|---|---|---|
+| **Ari (Chabad)** — default | *Siddur Torah Or* (Schulzinger Bros., 1940) | `הנותן לשכוי` | late, before `המעביר שינה` |
+| **Ashkenaz** | *Metsudah Siddur* (1981), via Sefaria | `אשר נתן לשכוי` | second |
+| **Sefard** | Nusach Sefard weekday shacharit, he.wikisource | `אשר נתן לשכוי` | second |
+
+The order is data (`AFTER_NESHAMAH` in `blessings.ts`), not a hard-coded array,
+because Nusach Ari genuinely reorders the fifteen. Ari and Ashkenaz also differ
+inside `אשר יצר`, `ויהי רצון` and the Torah blessings; those are per-nusach
+variants on the station.
+
+**The pointed Hebrew was typed by hand from those sources — proofread it against
+a siddur before relying on it.**
+
+### Other settings that change the text
+
+- **Voice** — masculine/feminine sets `מודה` / `מודה` and automatically swaps the
+  third blessing of identity to `שעשני כרצונו`, printed that way in all three
+  sources. (Some siddurim also print `גויה` / `שפחה` in the two before it; the
+  sources used here do not, so the app leaves them as printed.)
+- **The Name** — full or substituted (`ה׳` / `אלקינו`). The substitution moves
+  the Hebrew, the transliteration and the English together, so a text is never
+  half-swapped.
+- **Length** — short sit (the core blessings) or the full morning, with Vihi
+  Ratzon and Birchot HaTorah on by default.
+
+### Why the questions rotate
+
+The liturgy repeats; the written question does not. Research from Lyubomirsky's
+lab found weekly gratitude journaling beat three-times-weekly — the frequent
+group gained nothing, because a prompt you have answered forty times stops
+making you look. So each station holds a set of prompts and rotates by day
+index, offset by station position. The closing screen asks for an if-then plan
+(trigger, then action) rather than a resolution, after Gollwitzer & Sheeran's
+meta-analysis of 94 studies. `/modeh/about` states all of this to the reader.
+
+### Storage and hosting
+
+- Everything is in `localStorage` (`modeh.settings.v1`, `modeh.journal.v1`). No
+  account, no server, nothing written leaves the device. Switching phones loses
+  the journal — that is the trade for not holding somebody's private writing on
+  a server.
 - Installable: `public/modeh/manifest.webmanifest` plus icons, scoped to
   `/modeh`, so "Add to Home Screen" gives a standalone app.
-- Kept out of search (`noindex`) and out of AI training crawlers
+- Kept out of search (`noindex`) and away from AI training crawlers
   (`app/robots.ts`), same as `/tehillim`.
 
 ## What's intentionally out of scope

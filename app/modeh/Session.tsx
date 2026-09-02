@@ -5,7 +5,9 @@ import Link from "next/link";
 import { buildStations, CLOSING, type Station } from "./blessings";
 import {
   DEFAULT_SETTINGS,
-  INTENTION,
+  WHEN,
+  THEN,
+  intentionOf,
   getEntry,
   getSettings,
   hebrewDateLabel,
@@ -32,7 +34,7 @@ export default function Session() {
     applyTheme(s.theme);
     setStations(
       buildStations(
-        { voice: s.voice, form: s.form, nameStyle: s.nameStyle },
+        { voice: s.voice, nusach: s.nusach, nameStyle: s.nameStyle },
         s.length,
         s.longForm
       )
@@ -183,8 +185,10 @@ export default function Session() {
           />
         ) : (
           <Closing
-            note={notes[INTENTION] || ""}
-            onNote={(t) => writeNote(INTENTION, t)}
+            when={notes[WHEN] || ""}
+            then={notes[THEN] || ""}
+            onWhen={(t) => writeNote(WHEN, t)}
+            onThen={(t) => writeNote(THEN, t)}
             written={written}
             saved={saved}
             minutes={Math.max(1, Math.round((Date.now() - startedAt.current) / 60000))}
@@ -264,6 +268,7 @@ function StationView({
               {p}
             </p>
           ))}
+        {station.note && <p className="text-note">{station.note}</p>}
       </section>
 
       {settings.breath && (
@@ -304,20 +309,25 @@ function StationView({
 }
 
 function Closing({
-  note,
-  onNote,
+  when,
+  then,
+  onWhen,
+  onThen,
   written,
   saved,
   minutes,
   count,
 }: {
-  note: string;
-  onNote: (t: string) => void;
+  when: string;
+  then: string;
+  onWhen: (t: string) => void;
+  onThen: (t: string) => void;
   written: { q: string; a: string }[];
   saved: boolean;
   minutes: number;
   count: number;
 }) {
+  const sentence = intentionOf({ _when: when, _then: then });
   return (
     <>
       <p className="done-he he" lang="he">
@@ -330,15 +340,27 @@ function Closing({
       </p>
 
       <section className="note">
-        <p className="note-q">{CLOSING.prompt}</p>
-        <textarea
-          className="note-in"
-          value={note}
-          onChange={(e) => onNote(e.target.value)}
-          placeholder="Name one thing."
-          aria-label={CLOSING.prompt}
+        <p className="note-q">{CLOSING.whenLabel}</p>
+        <input
+          className="note-in note-in-one"
+          value={when}
+          onChange={(e) => onWhen(e.target.value)}
+          placeholder={CLOSING.whenPlaceholder}
+          aria-label={CLOSING.whenLabel}
         />
-        <span className="note-hint">{CLOSING.note}</span>
+        <p className="note-q note-q-2">{CLOSING.thenLabel}</p>
+        <input
+          className="note-in note-in-one"
+          value={then}
+          onChange={(e) => onThen(e.target.value)}
+          placeholder={CLOSING.thenPlaceholder}
+          aria-label={CLOSING.thenLabel}
+        />
+        {sentence ? (
+          <p className="note-sentence">{sentence}</p>
+        ) : (
+          <span className="note-hint">{CLOSING.note}</span>
+        )}
       </section>
 
       {written.length > 0 && (

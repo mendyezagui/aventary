@@ -5,15 +5,14 @@ import Link from "next/link";
 import {
   buildStations,
   estimateMinutes,
+  NUSACH_LABEL,
   CLOSING,
   type Length,
-  type Form,
-  type NameStyle,
-  type Voice,
+  type Nusach,
 } from "./blessings";
 import {
   DEFAULT_SETTINGS,
-  INTENTION,
+  intentionOf,
   englishDateLabel,
   getJournal,
   getSettings,
@@ -63,7 +62,7 @@ export default function Home() {
   const stations = useMemo(
     () =>
       buildStations(
-        { voice: settings.voice, form: settings.form, nameStyle: settings.nameStyle },
+        { voice: settings.voice, nusach: settings.nusach, nameStyle: settings.nameStyle },
         settings.length,
         settings.longForm
       ),
@@ -78,7 +77,7 @@ export default function Home() {
     const out: { date: string; text: string }[] = [];
     for (const e of journal) {
       if (e.date === todayKey()) continue;
-      const line = e.notes[INTENTION] || e.notes.modeh || Object.values(e.notes)[0];
+      const line = intentionOf(e.notes) || e.notes.modeh || Object.values(e.notes)[0];
       if (line) out.push({ date: e.date, text: line });
       if (out.length === 2) break;
     }
@@ -197,9 +196,9 @@ export default function Home() {
               All of it →
             </Link>
           </div>
-          {today.notes[INTENTION] ? (
+          {intentionOf(today.notes) ? (
             <blockquote className="quote">
-              {today.notes[INTENTION]}
+              {intentionOf(today.notes)}
               <cite>{CLOSING.title}</cite>
             </blockquote>
           ) : (
@@ -236,6 +235,10 @@ export default function Home() {
         <br />
         Add it to your home screen — Share → Add to Home Screen on an iPhone,
         Install app on Android — and it opens like any other app.
+        <br />
+        <Link className="card-link" href="/modeh/about">
+          Where the text and the questions come from →
+        </Link>
       </p>
     </div>
   );
@@ -253,11 +256,33 @@ function SettingsPanel({
   return (
     <div className="settings">
       <Row
+        label="Nusach"
+        help={
+          <>
+            Sets both the wording and the order. Ari (Chabad) opens with{" "}
+            <He>הַנּוֹתֵן לַשְּׂכְוִי</He> and says the three blessings of
+            identity late, just before <He>הַמַּעֲבִיר שֵׁנָה</He>; Ashkenaz and
+            Sefard open with <He>אֲשֶׁר נָתַן לַשֶּׂכְוִי</He> and say them
+            second.
+          </>
+        }
+      >
+        <Chips
+          value={s.nusach}
+          onPick={(nusach) => patch({ nusach })}
+          options={(["ari", "ashkenaz", "sefard"] as Nusach[]).map((n) => [
+            n,
+            NUSACH_LABEL[n],
+          ])}
+        />
+      </Row>
+
+      <Row
         label="Who is saying it"
         help={
           <>
-            Sets <He>מוֹדֶה</He> / <He>מוֹדָה</He> and the wording of the third
-            blessing.
+            Sets <He>מוֹדֶה</He> / <He>מוֹדָה</He>, and swaps the third blessing
+            of identity to <He>שֶׁעָשַׂנִי כִּרְצוֹנוֹ</He> for a woman.
           </>
         }
       >
@@ -267,26 +292,6 @@ function SettingsPanel({
           options={[
             ["male", <><He>מוֹדֶה</He> — masculine</>],
             ["female", <><He>מוֹדָה</He> — feminine</>],
-          ]}
-        />
-      </Row>
-
-      <Row
-        label="The three blessings of identity"
-        help={
-          <>
-            Traditional keeps the classic wording, <He>שֶׁלֹּא עָשַׂנִי</He>…
-            Positive uses the form printed in many newer siddurim:{" "}
-            <He>שֶׁעָשַׂנִי יִשְׂרָאֵל, בֶּן חוֹרִין, בְּצַלְמוֹ</He>.
-          </>
-        }
-      >
-        <Chips
-          value={s.form}
-          onPick={(form) => patch({ form })}
-          options={[
-            ["traditional", "Traditional"],
-            ["positive", "Positive form"],
           ]}
         />
       </Row>
