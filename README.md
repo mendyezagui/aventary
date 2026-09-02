@@ -96,6 +96,32 @@ git push -u origin main
   on the site within 60s (ISR `revalidate = 60`).
 - **Submissions:** contact-form entries (last 200).
 
+## `/modeh` — the morning blessings
+
+A second personal app hosted alongside `/tehillim`: Birchot HaShachar, the
+blessings said on waking, arranged as a morning sit. Each blessing gets its
+Hebrew, a transliteration and a plain English translation, plus what that
+blessing is actually noticing and one thing to do while you say it. A few carry
+a written question; the answers land in a journal with a streak count.
+
+- Routes: `/modeh` (home + settings), `/modeh/session` (the sit),
+  `/modeh/journal`.
+- Content lives in `app/modeh/blessings.ts`. **The pointed Hebrew there was
+  typed by hand — proofread it against a siddur before relying on it.**
+- Settings that change the text, not just the chrome: who is saying it
+  (מוֹדֶה / מוֹדָה), the traditional vs. positive wording of the three
+  "identity" blessings, and whether the Name is written in full or substituted
+  (`ה׳` / `אֱלֹקֵינוּ`) — the substitution moves the Hebrew, the transliteration
+  and the English together.
+- Everything is stored in `localStorage` (`modeh.settings.v1`,
+  `modeh.journal.v1`). No account, no server, nothing written leaves the device.
+  Switching phones loses the journal — that is the trade for not holding
+  somebody's private writing on a server.
+- Installable: `public/modeh/manifest.webmanifest` plus icons, scoped to
+  `/modeh`, so "Add to Home Screen" gives a standalone app.
+- Kept out of search (`noindex`) and out of AI training crawlers
+  (`app/robots.ts`), same as `/tehillim`.
+
 ## What's intentionally out of scope
 
 - Image uploads for the CMS — add Supabase Storage later when you need it.

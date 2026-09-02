@@ -1,0 +1,19 @@
+{
+  "name": "Modeh Ani — Morning Blessings",
+  "short_name": "Modeh Ani",
+  "description": "Birchot HaShachar as a morning sit: the blessings said on waking, what each one is noticing, and a place to write down what you're grateful for.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/modeh",
+  "scope": "/modeh",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fdf6ec",
+  "theme_color": "#1f3a68",
+  "icons": [
+    { "src": "/modeh/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/modeh/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/modeh/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/modeh/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

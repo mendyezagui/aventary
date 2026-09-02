@@ -4,12 +4,13 @@ import type { MetadataRoute } from "next";
  * Search engines are welcome; AI training crawlers are welcome to the marketing
  * pages only.
  *
- * `/tehillim` is a personal Psalms reader that happens to be hosted here. It
- * already serves `noindex` so it stays out of search, but a `noindex` meta tag
- * is an instruction about *indexing* — training crawlers fetch pages without
- * necessarily honouring it. Disallowing the path is the part they do respect.
+ * `/tehillim` (a Psalms reader) and `/modeh` (the morning blessings) are
+ * personal apps that happen to be hosted here. Both already serve `noindex` so
+ * they stay out of search, but a `noindex` meta tag is an instruction about
+ * *indexing* — training crawlers fetch pages without necessarily honouring it.
+ * Disallowing the path is the part they do respect.
  *
- * Googlebot is deliberately NOT disallowed from `/tehillim`. A disallowed page
+ * Googlebot is deliberately NOT disallowed from either. A disallowed page
  * is never fetched, so its `noindex` is never read, and a URL somebody links to
  * can still surface as a bare result. Letting Google read the page is what
  * actually keeps it out.
@@ -35,7 +36,7 @@ const AI_CRAWLERS = [
   "Omgilibot",
 ];
 
-const PRIVATE_PATHS = ["/tehillim", "/admin", "/api/"];
+const PRIVATE_PATHS = ["/tehillim", "/modeh", "/admin", "/api/"];
 
 export default function robots(): MetadataRoute.Robots {
   return {
