@@ -127,10 +127,17 @@ variants on the station.
 **The pointed Hebrew was typed by hand from those sources — proofread it against
 a siddur before relying on it.**
 
-Punctuation follows print, which is not English punctuation: a sentence ends
-with a colon `:`, a Torah verse with a *sof pasuk* `׃`, and a paragraph that runs
-on into the next one ends with a comma. Periods appear only inside a sentence.
-The app originally used periods throughout; that was wrong in every line. For the Ari nusach the reference edition is the
+Punctuation is not English punctuation. A unit ends with a colon `:` and a Torah
+verse with a *sof pasuk* `׃` — that much is verified in all three sources, and
+the app originally used periods throughout, which was wrong in every line.
+
+Everything else is the app's own convention: comma where a paragraph runs on
+into the next, period only inside a sentence. It is deliberately not a
+reproduction of any edition, because **no two printed editions agree on
+punctuation** — Torah Or (1940), Metsudah (1981) and the Nusach Sefard text
+punctuate the same words three different ways, and the Weiss Edition a fourth.
+Review the letters and the nikkud; punctuation is a typographic choice made
+once, here. For the Ari nusach the reference edition is the
 *Weiss Edition Siddur Tehillat Hashem* (Kehot with Tzivos Hashem, 2017; compact
 edition 2024) — Chabad nusach, synopsis per tefillah, explanation blended into
 the translation, page cross-references to the Kehot Annotated Siddur. It is
