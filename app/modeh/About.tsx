@@ -44,7 +44,9 @@ export default function About() {
         </ul>
         <p>
           The pointed Hebrew was typed by hand from those sources, so check it
-          against your own siddur before you rely on it.
+          against your own siddur before you rely on it. For the Ari nusach the
+          reference edition is the <i>Weiss Edition Siddur Tehillat Hashem</i>
+          (Kehot / Tzivos Hashem) — see below.
         </p>
 
         <h2>What actually changes between them</h2>
@@ -107,12 +109,25 @@ export default function About() {
           a page of commentary; it needs one true sentence and something to do
           with your hands or your eyes while you say it.
         </p>
+        <h2>The siddur to keep next to this</h2>
+        <p>
+          For the Ari nusach, the <i>Weiss Edition Siddur Tehillat Hashem</i> —
+          Kehot with Tzivos Hashem, sponsored by Rabbi Moishe and Ruty Weiss,
+          released 2017 with a compact edition in 2024. It runs the Chabad
+          nusach with a synopsis before each tefillah, explanation blended into
+          the translation rather than footnoted under it, and page
+          cross-references to the Kehot Annotated Siddur. It is the edition to
+          check this app&rsquo;s Hebrew against, and it is print only — its
+          translation, synopses and insights are its own work and are not
+          reproduced here. Everything you read on these screens is written for
+          this app.
+        </p>
         <p className="src">
-          Worth reading on the blessings themselves: <i>Ohr HaShachar: Torah,
-          Kabbalah and Consciousness in the Daily Morning Blessings</i> by David
-          Bar-Cohn (Urim), and Sivan Rahav-Meir&rsquo;s <i>Birkhot HaShachar:
-          A Guide for the First Moments of the Day</i>. On the research:
-          Emmons &amp; McCullough, &ldquo;Counting Blessings Versus
+          Also worth reading on the blessings themselves: <i>Ohr HaShachar:
+          Torah, Kabbalah and Consciousness in the Daily Morning Blessings</i> by
+          David Bar-Cohn (Urim), and Sivan Rahav-Meir&rsquo;s <i>Birkhot
+          HaShachar: A Guide for the First Moments of the Day</i>. On the
+          research: Emmons &amp; McCullough, &ldquo;Counting Blessings Versus
           Burdens&rdquo; (2003); Gollwitzer &amp; Sheeran (2006).
         </p>
         <p className="src">

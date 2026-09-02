@@ -125,7 +125,12 @@ inside `אשר יצר`, `ויהי רצון` and the Torah blessings; those are p
 variants on the station.
 
 **The pointed Hebrew was typed by hand from those sources — proofread it against
-a siddur before relying on it.**
+a siddur before relying on it.** For the Ari nusach the reference edition is the
+*Weiss Edition Siddur Tehillat Hashem* (Kehot with Tzivos Hashem, 2017; compact
+edition 2024) — Chabad nusach, synopsis per tefillah, explanation blended into
+the translation, page cross-references to the Kehot Annotated Siddur. It is
+print only. Its translation, synopses and insights are **not** reproduced in
+this app; every English line here is written for the app.
 
 ### Other settings that change the text
 
