@@ -44,7 +44,10 @@ export default function About() {
         </ul>
         <p>
           The pointed Hebrew was typed by hand from those sources, so check it
-          against your own siddur before you rely on it. For the Ari nusach the
+          against your own siddur before you rely on it. Punctuation follows
+          print rather than English: a sentence closes with a colon, a Torah
+          verse with a <i>sof pasuk</i>, and a paragraph that runs on into the
+          next one closes with a comma. For the Ari nusach the
           reference edition is the <i>Weiss Edition Siddur Tehillat Hashem</i>
           (Kehot / Tzivos Hashem) — see below.
         </p>
