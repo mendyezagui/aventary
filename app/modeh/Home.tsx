@@ -7,6 +7,7 @@ import {
   estimateMinutes,
   NUSACH_LABEL,
   CLOSING,
+  type Depth,
   type Length,
   type Nusach,
 } from "./blessings";
@@ -26,6 +27,12 @@ import {
   type Stats,
 } from "./store";
 import { applyTheme, effectiveDark } from "./theme";
+
+const DEPTH_LABEL: Record<Depth, string> = {
+  quiet: "quiet",
+  guided: "guided",
+  deep: "deep",
+};
 
 export default function Home() {
   const [ready, setReady] = useState(false);
@@ -64,7 +71,8 @@ export default function Home() {
       buildStations(
         { voice: settings.voice, nusach: settings.nusach, nameStyle: settings.nameStyle },
         settings.length,
-        settings.longForm
+        settings.longForm,
+        settings.depth
       ),
     [settings]
   );
@@ -155,15 +163,18 @@ export default function Home() {
           {doneToday ? "Sit again" : "Begin this morning"}
         </p>
         <p className="begin-desc">
-          {settings.length === "short"
-            ? "The short sit — the blessings that name what your body and your night just did for you."
-            : "The morning blessings, one at a time, with room to notice what each one is actually pointing at."}
+          {settings.depth === "quiet"
+            ? "The words, and one thing to do while you say each one. Nothing else in the way."
+            : settings.length === "short"
+              ? "The short sit — the blessings that name what your body and your night just did for you."
+              : "The morning blessings, one at a time, with room to notice what each one is actually pointing at."}
         </p>
         <span className="begin-go">
           {doneToday ? "Open again" : "Start"} <span aria-hidden>→</span>
         </span>
         <p className="begin-meta">
-          {stations.length} blessings · about {estimateMinutes(stations.length)} minutes
+          {stations.length} blessings · about {estimateMinutes(stations.length)} minutes ·{" "}
+          {DEPTH_LABEL[settings.depth]}
           {doneToday ? " · done today ✓" : ""}
         </p>
       </Link>
@@ -313,6 +324,23 @@ function SettingsPanel({
             ["full", <>Full — <He>יְיָ</He></>],
             ["reverent", <>Substituted — <He>ה׳</He></>],
           ]}
+        />
+      </Row>
+
+      <Row
+        label="How far in"
+        help="Not levels of study — levels of noticing. Quiet gives you the words and one thing to do while you say them. Guided adds what the blessing is looking at. Deep goes a second pass on every blessing and asks you a question on each one."
+      >
+        <Chips
+          value={s.depth}
+          onPick={(depth) => patch({ depth })}
+          options={
+            [
+              ["quiet", "Quiet"],
+              ["guided", "Guided"],
+              ["deep", "Deep"],
+            ] as [Depth, string][]
+          }
         />
       </Row>
 

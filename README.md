@@ -132,6 +132,32 @@ the translation, page cross-references to the Kehot Annotated Siddur. It is
 print only. Its translation, synopses and insights are **not** reproduced in
 this app; every English line here is written for the app.
 
+### Levels
+
+`depth` in `store.ts`, `LAYER` in `blessings.ts`. Not levels of study — levels of
+how much room the reader is given to notice:
+
+- **quiet** — the Hebrew and one thing to do while saying it. No reflection
+  panel, no questions.
+- **guided** (default) — what the blessing is noticing, plus a written question
+  on the stations that declare their own `prompts`.
+- **deep** — a second paragraph on every station (`LAYER[id].deeper`) and a
+  question on every one; stations without their own `prompts` draw from
+  `LAYER[id].prompts`.
+
+The Hebrew is identical at all three levels.
+
+### What the sit covers
+
+24 stations on the full morning: Modeh Ani, netilat yadayim, Asher Yatzar,
+Elokai Neshamah, the fifteen in the order of the nusach, then `ויהי רצון`, the
+`יהי רצון ... שתצילני`, Birchot HaTorah, Birkat Kohanim and `אלו דברים`. The last
+four were added after the first pass — without them the morning blessed the
+learning of Torah and then didn't learn any. `שתצילני` differs materially by
+nusach: Ashkenaz (Metsudah) prints the short list, Ari and Sefard the long one,
+and Sefard alone adds `מיצר רע`. No distinct Nusach Sefard printing of Birkat
+Kohanim or `אלו דברים` was found, so those use the shared text.
+
 ### Other settings that change the text
 
 - **Voice** — masculine/feminine sets `מודה` / `מודה` and automatically swaps the

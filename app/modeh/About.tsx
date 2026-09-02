@@ -75,6 +75,30 @@ export default function About() {
           sources used here do not, so this app leaves them as printed.
         </p>
 
+        <h2>Three levels, and none of them is a study level</h2>
+        <p>
+          Nobody is being taught here. The levels are how much room you are given
+          to notice. <b>Quiet</b> is the words and one thing to do while you say
+          them — nothing between you and the blessing. <b>Guided</b> adds what
+          the blessing is actually looking at, and asks a written question on
+          about a third of them. <b>Deep</b> takes a second pass at every
+          blessing and asks you something on every one. The Hebrew is identical
+          at all three; only the amount of room changes.
+        </p>
+
+        <h2>What the sit covers</h2>
+        <p>
+          The full morning runs Modeh Ani, the washing, Asher Yatzar and Elokai
+          Neshamah; the fifteen blessings in the order of your nusach; then{" "}
+          <bdi className="he" lang="he">וִיהִי רָצוֹן</bdi>, the{" "}
+          <bdi className="he" lang="he">יְהִי רָצוֹן</bdi> that asks to be kept
+          from a bad day, the three Torah blessings, and the two passages you
+          learn straight after them — Birkat Kohanim and{" "}
+          <bdi className="he" lang="he">אֵלּוּ דְבָרִים</bdi>. Twenty-four
+          stations. Those last four used to be missing, which left the morning
+          ending on a blessing over learning and then no learning.
+        </p>
+
         <h2>Why the question is different every morning</h2>
         <p>
           The liturgy repeats — that is the point of it. The written question

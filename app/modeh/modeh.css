@@ -899,3 +899,25 @@ input.note-in {
   font-size: 0.88rem;
   line-height: 1.6;
 }
+
+/* the second pass, at the deep level */
+.reflect-deeper {
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid var(--line-2);
+  font-size: 0.96rem;
+  color: var(--ink-2);
+}
+/* at the quiet level the panel carries only the one thing to do */
+.reflect-quiet {
+  background: var(--card-2);
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+.reflect-quiet .reflect-cue {
+  margin: 0;
+  padding-top: 0;
+  border-top: 0;
+  font-size: 1rem;
+  color: var(--ink);
+}

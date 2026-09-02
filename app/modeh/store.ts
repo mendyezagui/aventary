@@ -3,7 +3,7 @@
 // the phone — which is the right default for a page where somebody writes down
 // what they're grateful for and what they're bound by.
 
-import { DEFAULT_OPTS, type Length, type NameStyle, type Nusach, type Voice } from "./blessings";
+import { DEFAULT_OPTS, type Depth, type Length, type NameStyle, type Nusach, type Voice } from "./blessings";
 
 const SETTINGS_KEY = "modeh.settings.v1";
 const JOURNAL_KEY = "modeh.journal.v1";
@@ -13,6 +13,7 @@ export type Settings = {
   nusach: Nusach;
   nameStyle: NameStyle;
   length: Length;
+  depth: Depth;
   longForm: boolean;
   showTranslit: boolean;
   showEnglish: boolean;
@@ -25,6 +26,7 @@ export const DEFAULT_SETTINGS: Settings = {
   nusach: DEFAULT_OPTS.nusach,
   nameStyle: DEFAULT_OPTS.nameStyle,
   length: "full",
+  depth: "guided",
   longForm: true,
   showTranslit: true,
   showEnglish: true,

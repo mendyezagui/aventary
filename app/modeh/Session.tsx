@@ -36,7 +36,8 @@ export default function Session() {
       buildStations(
         { voice: s.voice, nusach: s.nusach, nameStyle: s.nameStyle },
         s.length,
-        s.longForm
+        s.longForm,
+        s.depth
       )
     );
     setNotes(getEntry()?.notes || {});
@@ -280,14 +281,24 @@ function StationView({
         </div>
       )}
 
-      <section className="reflect">
-        <p className="reflect-theme">{station.theme}</p>
-        <p className="reflect-p">{station.meditation}</p>
-        <p className="reflect-cue">
-          <span aria-hidden>◆</span>
-          <span>{station.cue}</span>
-        </p>
-      </section>
+      {settings.depth === "quiet" ? (
+        <section className="reflect reflect-quiet">
+          <p className="reflect-cue">
+            <span aria-hidden>◆</span>
+            <span>{station.cue}</span>
+          </p>
+        </section>
+      ) : (
+        <section className="reflect">
+          <p className="reflect-theme">{station.theme}</p>
+          <p className="reflect-p">{station.meditation}</p>
+          {station.deeper && <p className="reflect-p reflect-deeper">{station.deeper}</p>}
+          <p className="reflect-cue">
+            <span aria-hidden>◆</span>
+            <span>{station.cue}</span>
+          </p>
+        </section>
+      )}
 
       {station.prompt && (
         <section className="note">

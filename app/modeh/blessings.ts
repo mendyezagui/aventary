@@ -36,6 +36,15 @@ export type Nusach = "ari" | "ashkenaz" | "sefard";
 export type NameStyle = "full" | "reverent";
 export type Length = "short" | "full";
 
+/**
+ * How far into each blessing the sit goes. This is not a scale of learning —
+ * nobody is being taught here. It is how much room you are given to notice.
+ *   quiet   the words and one thing to do while you say them
+ *   guided  what the blessing is noticing, and a question on some of them
+ *   deep    a second layer on every blessing, and a question on every one
+ */
+export type Depth = "quiet" | "guided" | "deep";
+
 export type Opts = {
   voice: Voice;
   nusach: Nusach;
@@ -132,6 +141,8 @@ export type Station = {
   cue: string;
   /** Today's written question, drawn from a rotating set. */
   prompt?: string;
+  /** A second pass at the same blessing. Only at the deep level. */
+  deeper?: string;
   /** A halachic or practical note printed under the text. */
   note?: string;
   /** In the short (about five minute) sit. */
@@ -162,7 +173,11 @@ type Raw = {
   en: ByNusach<string[]> | ((o: Opts) => string[]);
   meditation: string;
   cue: string;
-  /** Rotating set — one is chosen per day so the question doesn't go stale. */
+  /**
+   * Rotating set — one is chosen per day so the question doesn't go stale.
+   * A station that declares its own prompts asks at the guided level too;
+   * stations that only get questions from LAYER are asked at deep only.
+   */
   prompts?: string[];
   note?: string;
   core?: boolean;
@@ -626,6 +641,62 @@ const CLOSERS: Raw[] = [
     cue: "Pick the one line on that list you most need this week.",
   },
   {
+    id: "shetatzileini",
+    kicker: "And then, cover",
+    title: "Yehi Ratzon",
+    heTitle: "יְהִי רָצוֹן",
+    theme: "What you hope doesn't happen",
+    long: true,
+    he: {
+      ari: [
+        "יְהִי רָצוֹן מִלְּפָנֶיךָ, {H} אֱלֹהַי וֵאלֹהֵי אֲבוֹתַי, שֶׁתַּצִּילֵנִי הַיּוֹם וּבְכָל יוֹם מֵעַזֵּי פָנִים וּמֵעַזּוּת פָּנִים, מֵאָדָם רָע וּמֵחָבֵר רָע וּמִשָּׁכֵן רָע וּמִפֶּגַע רָע.",
+        "מֵעַיִן הָרָע, מִלָּשׁוֹן הָרָע, מִמַּלְשִׁינוּת, מֵעֵדוּת שֶׁקֶר, מִשִּׂנְאַת הַבְּרִיּוֹת, מֵעֲלִילָה, מִמִּיתָה מְשֻׁנָּה, מֵחֳלָיִם רָעִים וּמִמִּקְרִים רָעִים, וּמִשָּׂטָן הַמַּשְׁחִית, מִדִּין קָשֶׁה וּמִבַּעַל דִּין קָשֶׁה, בֵּין שֶׁהוּא בֶן בְּרִית וּבֵין שֶׁאֵינוֹ בֶן בְּרִית, וּמִדִּינָהּ שֶׁל גֵּיהִנֹּם.",
+      ],
+      sefard: [
+        "יְהִי רָצוֹן מִלְּפָנֶיךָ, {H} אֱלֹהַי וֵאלֹהֵי אֲבוֹתַי, שֶׁתַּצִּילֵנִי הַיּוֹם וּבְכָל יוֹם מֵעַזֵּי פָנִים וּמֵעַזּוּת פָּנִים, מֵאָדָם רָע, מִיֵּצֶר רָע, וּמֵחָבֵר רָע, וּמִשָּׁכֵן רָע, וּמִפֶּגַע רָע.",
+        "מֵעַיִן הָרָע, מִלָּשׁוֹן הָרָע, מִמַּלְשִׁינוּת, מֵעֵדוּת שֶׁקֶר, מִשִּׂנְאַת הַבְּרִיּוֹת, מֵעֲלִילָה, מִמִּיתָה מְשֻׁנָּה, מֵחֳלָיִם רָעִים, מִמִּקְרִים רָעִים, וּמִשָּׂטָן הַמַּשְׁחִית, מִדִּין קָשֶׁה וּמִבַּעַל דִּין קָשֶׁה, בֵּין שֶׁהוּא בֶן בְּרִית וּבֵין שֶׁאֵינוֹ בֶן בְּרִית, וּמִדִּינָהּ שֶׁל גֵּיהִנֹּם.",
+      ],
+      // Metsudah prints the shorter list — no evil eye, slander or Gehinnom.
+      ashkenaz: [
+        "יְהִי רָצוֹן מִלְּפָנֶיךָ, {H} אֱלֹהַי וֵאלֹהֵי אֲבוֹתַי, שֶׁתַּצִּילֵנִי הַיּוֹם וּבְכָל יוֹם מֵעַזֵּי פָנִים וּמֵעַזּוּת פָּנִים, מֵאָדָם רָע וּמֵחָבֵר רָע וּמִשָּׁכֵן רָע וּמִפֶּגַע רָע, וּמִשָּׂטָן הַמַּשְׁחִית, מִדִּין קָשֶׁה וּמִבַּעַל דִּין קָשֶׁה, בֵּין שֶׁהוּא בֶן בְּרִית וּבֵין שֶׁאֵינוֹ בֶן בְּרִית.",
+      ],
+    },
+    translit: {
+      ari: [
+        "Yehi ratzon mil'fanecha, {H} Elohai vElohei avotai, shetatzileini hayom uv'chol yom me'azei fanim ume'azut panim, me'adam ra umechaver ra umishachen ra umipega ra.",
+        "Me'ayin hara, milashon hara, mimalshinut, me'edut sheker, misinat hab'riyot, me'alilah, mimitah m'shunah, mecholayim ra'im umimikrim ra'im, umisatan hamashchit, midin kasheh umiba'al din kasheh, bein shehu ven brit uvein she'eino ven brit, umidinah shel geihinom.",
+      ],
+      sefard: [
+        "Yehi ratzon mil'fanecha, {H} Elohai vElohei avotai, shetatzileini hayom uv'chol yom me'azei fanim ume'azut panim, me'adam ra, miyetzer ra, umechaver ra, umishachen ra, umipega ra.",
+        "Me'ayin hara, milashon hara, mimalshinut, me'edut sheker, misinat hab'riyot, me'alilah, mimitah m'shunah, mecholayim ra'im, mimikrim ra'im, umisatan hamashchit, midin kasheh umiba'al din kasheh, bein shehu ven brit uvein she'eino ven brit, umidinah shel geihinom.",
+      ],
+      ashkenaz: [
+        "Yehi ratzon mil'fanecha, {H} Elohai vElohei avotai, shetatzileini hayom uv'chol yom me'azei fanim ume'azut panim, me'adam ra umechaver ra umishachen ra umipega ra, umisatan hamashchit, midin kasheh umiba'al din kasheh, bein shehu ven brit uvein she'eino ven brit.",
+      ],
+    },
+    en: {
+      ari: [
+        "May it be Your will, {H}, my God and God of my fathers, to save me today and every day from the brazen and from brazenness, from a bad person, a bad friend, a bad neighbour and a bad mishap.",
+        "From the evil eye, from an evil tongue, from informers, from false testimony, from people's hatred, from slander, from a strange death, from bad illnesses and bad events, from the destroying accuser, from a harsh judgment and a harsh opponent at law — whether he is a member of the covenant or not — and from the judgment of Gehinnom.",
+      ],
+      sefard: [
+        "May it be Your will, {H}, my God and God of my fathers, to save me today and every day from the brazen and from brazenness, from a bad person, from a bad instinct, from a bad friend, a bad neighbour and a bad mishap.",
+        "From the evil eye, from an evil tongue, from informers, from false testimony, from people's hatred, from slander, from a strange death, from bad illnesses, from bad events, from the destroying accuser, from a harsh judgment and a harsh opponent at law — whether he is a member of the covenant or not — and from the judgment of Gehinnom.",
+      ],
+      ashkenaz: [
+        "May it be Your will, {H}, my God and God of my fathers, to save me today and every day from the brazen and from brazenness, from a bad person, a bad friend, a bad neighbour and a bad mishap, from the destroying accuser, from a harsh judgment and a harsh opponent at law — whether he is a member of the covenant or not.",
+      ],
+    },
+    meditation:
+      "Straight after asking for character, the siddur asks for cover. Read what is actually on the list — a brazen person, a bad neighbour, an evil tongue, informers, false testimony, being hated, being blamed. Almost none of it is physical. It is a catalogue of the ways a day gets ruined by other people's mouths.",
+    cue: "Name, silently, the one thing you are hoping does not happen today.",
+    prompts: [
+      "What are you quietly hoping doesn't happen today?",
+      "Which item on that list have you been on the wrong side of lately?",
+      "Whose day could you damage today with one sentence?",
+    ],
+  },
+  {
     id: "torah",
     kicker: "Before you learn anything",
     title: "Birchot HaTorah",
@@ -672,6 +743,71 @@ const CLOSERS: Raw[] = [
       "The morning ends by giving the day an aim: learn one true thing, and hand it to someone else. Notice that the blessing asks for the learning to be sweet before it asks for it to be deep.",
     cue: "Decide now what one thing you'd like to understand better by tonight.",
   },
+  {
+    id: "kohanim",
+    kicker: "The first thing you learn",
+    title: "Birkat Kohanim",
+    heTitle: "בִּרְכַּת כֹּהֲנִים",
+    theme: "Said over somebody else",
+    long: true,
+    he: [
+      "יְבָרֶכְךָ {H} וְיִשְׁמְרֶךָ.",
+      "יָאֵר {H} פָּנָיו אֵלֶיךָ וִיחֻנֶּךָּ.",
+      "יִשָּׂא {H} פָּנָיו אֵלֶיךָ וְיָשֵׂם לְךָ שָׁלוֹם.",
+    ],
+    translit: [
+      "Y'varech'cha {H} v'yishm'recha.",
+      "Ya'er {H} panav elecha vichuneka.",
+      "Yisa {H} panav elecha v'yasem l'cha shalom.",
+    ],
+    en: [
+      "May {H} bless you and keep you.",
+      "May {H} shine His face toward you and be gracious to you.",
+      "May {H} lift His face toward you and give you peace.",
+    ],
+    note: "Learned straight after the Torah blessings — you bless, then you learn.",
+    meditation:
+      "Three verses, and each is longer than the one before: three words, then five, then seven. The blessing widens as it goes — kept, then seen, then whole. It is the only thing in the whole morning that is not you talking about yourself.",
+    cue: "Say it once for somebody else. Pick the person before you start.",
+    prompts: [
+      "Who needs this said over them today?",
+      "Of the three — kept, seen, whole — which are you short on this week?",
+    ],
+  },
+  {
+    id: "eiludevarim",
+    kicker: "The last thing before the day",
+    title: "Eilu Devarim",
+    heTitle: "אֵלּוּ דְבָרִים",
+    theme: "What actually counts",
+    long: true,
+    he: {
+      ari: [
+        "אֵלּוּ דְבָרִים שֶׁאֵין לָהֶם שִׁעוּר: הַפֵּאָה וְהַבִּכּוּרִים וְהָרְאָיוֹן וּגְמִילוּת חֲסָדִים וְתַלְמוּד תּוֹרָה.",
+        "אֵלּוּ דְבָרִים שֶׁאָדָם אוֹכֵל פֵּרוֹתֵיהֶם בָּעוֹלָם הַזֶּה וְהַקֶּרֶן קַיֶּמֶת לָעוֹלָם הַבָּא, וְאֵלּוּ הֵן: כִּבּוּד אָב וָאֵם, וּגְמִילוּת חֲסָדִים, וְהַשְׁכָּמַת בֵּית הַמִּדְרָשׁ שַׁחֲרִית וְעַרְבִית, וְהַכְנָסַת אוֹרְחִים, וּבִקּוּר חוֹלִים, וְהַכְנָסַת כַּלָּה, וְהַלְוָיַת הַמֵּת, וְעִיּוּן תְּפִלָּה, וַהֲבָאַת שָׁלוֹם שֶׁבֵּין אָדָם לַחֲבֵרוֹ וּבֵין אִישׁ לְאִשְׁתּוֹ, וְתַלְמוּד תּוֹרָה כְּנֶגֶד כֻּלָּם.",
+      ],
+      all: [
+        "אֵלּוּ דְבָרִים שֶׁאֵין לָהֶם שִׁעוּר: הַפֵּאָה וְהַבִּכּוּרִים וְהָרְאָיוֹן וּגְמִילוּת חֲסָדִים וְתַלְמוּד תּוֹרָה.",
+        "אֵלּוּ דְבָרִים שֶׁאָדָם אוֹכֵל פֵּרוֹתֵיהֶם בָּעוֹלָם הַזֶּה וְהַקֶּרֶן קַיֶּמֶת לָעוֹלָם הַבָּא, וְאֵלּוּ הֵן: כִּבּוּד אָב וָאֵם, וּגְמִילוּת חֲסָדִים, וְהַשְׁכָּמַת בֵּית הַמִּדְרָשׁ שַׁחֲרִית וְעַרְבִית, וְהַכְנָסַת אוֹרְחִים, וּבִקּוּר חוֹלִים, וְהַכְנָסַת כַּלָּה, וּלְוָיַת הַמֵּת, וְעִיּוּן תְּפִלָּה, וַהֲבָאַת שָׁלוֹם בֵּין אָדָם לַחֲבֵרוֹ וּבֵין אִישׁ לְאִשְׁתּוֹ, וְתַלְמוּד תּוֹרָה כְּנֶגֶד כֻּלָּם.",
+      ],
+    },
+    translit: [
+      "Eilu devarim she'ein lahem shiur: hapei'ah v'habikurim v'hara'ayon ug'milut chasadim v'talmud Torah.",
+      "Eilu devarim she'adam ochel peiroteihem ba'olam hazeh v'hakeren kayemet la'olam haba, v'eilu hen: kibud av va'em, ug'milut chasadim, v'hashkamat beit hamidrash shacharit v'arvit, v'hachnasat orchim, uvikur cholim, v'hachnasat kalah, ul'vayat hamet, v'iyun tefilah, vahava'at shalom bein adam lachavero uvein ish l'ishto, v'talmud Torah k'neged kulam.",
+    ],
+    en: [
+      "These are things that have no fixed measure: the corner of the field, the first fruits, the festival offering, acts of kindness, and the study of Torah.",
+      "These are things whose fruit a person eats in this world while the principal remains for the world to come: honouring a father and mother, acts of kindness, coming early to the study hall morning and evening, hosting guests, visiting the sick, helping a bride marry, escorting the dead, concentration in prayer, and making peace between a person and his fellow and between a man and his wife — and the study of Torah is equal to them all.",
+    ],
+    meditation:
+      "Every item is something you do with your body, for another person: honour your parents, do a kindness, show up early, host a guest, visit the sick, help a bride marry, walk a body to the grave, mean it when you pray, make peace between two people. This is the last thing the morning says to you before the day starts.",
+    cue: "Pick one from the list. You have until tonight.",
+    prompts: [
+      "Which one on that list are you doing today? Name the person.",
+      "Which one have you not done in a year?",
+      "Who did one of these for you and never got thanked?",
+    ],
+  },
 ];
 
 const ALL: Record<string, Raw> = Object.fromEntries(
@@ -711,7 +847,7 @@ function orderFor(n: Nusach): string[] {
   return [
     "modeh", "netilah", "asheryatzar", "neshamah",
     ...AFTER_NESHAMAH[n],
-    "yehiratzon", "torah",
+    "yehiratzon", "shetatzileini", "torah", "kohanim", "eiludevarim",
   ];
 }
 
@@ -751,10 +887,183 @@ export function dayIndex(d = new Date()): number {
   );
 }
 
+// ---------------------------------------------------------------------------
+// The deep level
+//
+// A second pass at each blessing, and a question for the stations that don't
+// carry one of their own. This is not commentary and not study — it is the same
+// noticing, gone one layer further in. It is kept apart from the liturgy above
+// so the text stays the text.
+// ---------------------------------------------------------------------------
+
+const LAYER: Record<string, { deeper: string; prompts?: string[] }> = {
+  modeh: {
+    deeper:
+      "Notice what the sentence does not say. It doesn't thank God for a good day ahead, or for anything you own. It thanks Him for the return of something you never knew was gone. Every night is a small rehearsal, and every morning is the answer to it — which is why it is said before your feet touch the floor, before the day has had a chance to make any claims on you.",
+  },
+  netilah: {
+    deeper:
+      "Ritual is how a body learns what the mind already knows. You can decide in your head that today starts clean; the water is how you tell your hands. Even at its plainest, this is the first thing you do all day that you chose rather than reacted to.",
+    prompts: [
+      "What from yesterday are you carrying that you would rather leave at the sink?",
+      "Name the first thing today you will choose rather than react to.",
+    ],
+  },
+  asheryatzar: {
+    deeper:
+      "The blessing ends on umafli la'asot — who does wonders. The commentators ask what the wonder actually is, and the answer they land on is not the plumbing: it is that a soul stays joined to a body at all. Read that way this is not a blessing about anatomy. It is about the improbability of being one thing, self and body together, for another day.",
+  },
+  neshamah: {
+    deeper:
+      "Look at the tenses: You created it, formed it, breathed it in, keep it, will take it, will return it. Past, present and future in one sentence — and every verb belongs to someone else. The one thing the prayer never says is that the soul is yours. It is on loan, it came back clean, and the day is what you do with it.",
+    prompts: [
+      "What would you do differently today if you fully believed nothing from yesterday had stained you?",
+      "Say the word pure about yourself. Notice what argues back.",
+    ],
+  },
+  sechvi: {
+    deeper:
+      "The word sechvi is rare enough that the commentators disagree about it — a rooster, or the heart, or the mind's own power to tell things apart. All three readings land in the same place: something in you knows dark from light before you have reasoned it out. The blessing thanks God for the instinct, not for the analysis.",
+  },
+  yisrael: {
+    deeper:
+      "It is worth being honest about the discomfort in this blessing, because the discomfort is part of it. It names something about you that you did not earn and cannot resign from. That is what an inheritance is — and the only question an inheritance ever puts to anyone is whether they will steward it or just sit on it.",
+  },
+  chorin: {
+    deeper:
+      "A slave's day is decided somewhere else. The test of freedom is not whether anybody owns you; it is whether, at the end of today, you could name one hour that went where you sent it. Most of us are freer in law than in practice — and this is said at the exact moment when the whole day is still unclaimed.",
+  },
+  kirtzono: {
+    deeper:
+      "According to His will is not a consolation prize. It is a claim that you are not a rough draft of somebody else — that the particular shape of your capacities, your obligations and your limits was intended. Which puts a question to you that a general blessing never could.",
+    prompts: [
+      "What can you do that is not easily replaceable — and are you actually spending it?",
+      "Where do you keep wishing you had been handed a different set of tools?",
+    ],
+  },
+  ivrim: {
+    deeper:
+      "Pokeach ivrim is present tense: who opens the eyes of the blind, now, continuously. Sight is not a possession handed over once. It is being given again this second, and again — and the blessing catches you in the act of receiving it.",
+  },
+  arumim: {
+    deeper:
+      "Notice who is being clothed in the blessing. Not me — the naked, plural, everybody. It is not a private thank-you for a wardrobe. It is a statement that covering people is what God does, which makes it fairly obvious what you are meant to do with the spare coat.",
+    prompts: [
+      "Whose dignity is in your hands today?",
+      "What do the clothes you just put on say you are about to do?",
+    ],
+  },
+  asurim: {
+    deeper:
+      "The Talmud attaches this to the moment the body unlocks after sleep. But asurim is the same word the prophets use for prisoners and the Psalms for people trapped by their circumstances. The blessing lets you say both at once, and never asks you to specify which one you meant.",
+  },
+  kefufim: {
+    deeper:
+      "Bent is a posture, then a habit, then a shape. And the blessing does not say the bent straighten themselves. It says they are straightened — worth sitting with if there is something you have been trying to fix by effort alone for longer than that has been working.",
+    prompts: [
+      "What have you been bent under long enough that it has started to feel normal?",
+      "Where do you need to be straightened rather than to straighten yourself?",
+    ],
+  },
+  roka: {
+    deeper:
+      "Land over water is a deliberately unstable picture. The ground here is not bedrock; it is something spread over something that moves. The blessing does not promise the water is gone. It says the ground holds anyway, today, and asks you to walk on it.",
+    prompts: [
+      "What in your life is solid ground that you long ago stopped thanking anyone for?",
+      "What are you standing on today that you do not actually control?",
+    ],
+  },
+  tzorki: {
+    deeper:
+      "Kol tzorki — my every need. Not my every want; the Hebrew is precise about it. Said at the shoes, the last thing between you and the door, it draws a line most of us never draw: this side is need, and it is already met; the other side is want, and the day is about to work very hard to blur the two.",
+  },
+  mitzadei: {
+    deeper:
+      "Mitzadei gaver — a person's steps, particular and specific, not humanity's in general. The claim is not that a plan exists somewhere. It is that today's route, including the detour you will resent at four in the afternoon, is being set with you. You still have to walk it.",
+    prompts: [
+      "Where is one place you will go today that you would rather not?",
+      "Where did an unplanned turn last year end up mattering?",
+    ],
+  },
+  gevurah: {
+    deeper:
+      "Gevurah in the tradition is not raw force — it is restraint, the strength to hold something back. Girding is what you do before work, and a belt is what keeps a person from coming apart in the middle of it. Ask what you will have to hold in today, not only what you will have to push through.",
+    prompts: [
+      "Where will you need to hold back today rather than push?",
+      "What will take more strength today than it looks like it should?",
+    ],
+  },
+  tifarah: {
+    deeper:
+      "Tiferet is beauty of a particular kind — the beauty of things in proportion. And a crown is not worn for the wearer; it is worn so other people can see who is coming. Whatever you carry out the door this morning, somebody will read it as evidence about the people who raised you.",
+    prompts: [
+      "Who will read you today as evidence about your family?",
+      "What would the person whose name you carry want seen this morning?",
+    ],
+  },
+  koach: {
+    deeper:
+      "Ya'ef — weary — is the word Isaiah uses for a nation that has run out. The blessing does not promise energy. It promises that strength gets given to the empty, which is a different claim and a far more useful one at six in the morning.",
+    prompts: [
+      "What are you tired of, as opposed to tired from?",
+      "What will you begin today without waiting to feel ready for it?",
+    ],
+  },
+  sheinah: {
+    deeper:
+      "Two nouns, sleep and slumber, and two places, the eyes and the eyelids. The liturgy is being oddly specific for a sentence about waking up. Read it as the difference between being awake and being alert — plenty of people get the first every morning without ever getting the second.",
+    prompts: [
+      "You are awake. Are you alert? What would it take?",
+      "What did you sleep through this week that you should have noticed?",
+    ],
+  },
+  yehiratzon: {
+    deeper:
+      "Count the requests. Two are about learning, four are about staying out of trouble, two are about company, one is about your own instinct, and the last is about how you will be seen. Not one of them is about an outcome. This is a prayer about who you will be at three in the afternoon, not about what you will get.",
+    prompts: [
+      "Which line on that list do you most need this week?",
+      "Who is the bad friend the prayer asks to be kept from — and is it ever you?",
+    ],
+  },
+  shetatzileini: {
+    deeper:
+      "The list ends on a phrase that stops people: whether he is a member of the covenant or not. The prayer refuses to assume that harm only ever comes from outside. And notice the mirror — nearly every item you are asking to be spared is something one person does to another. The list reads both ways.",
+  },
+  torah: {
+    deeper:
+      "Three blessings for one act, which is unusual. The first is the ordinary blessing before a mitzvah. The second asks for the learning to be sweet. The third thanks God for having been given it at all. Wanting, enjoying and receiving — the tradition does not assume that doing the thing and loving the thing are the same thing.",
+    prompts: [
+      "What one thing would you like to understand better by tonight?",
+      "When did learning something last feel sweet rather than owed?",
+    ],
+  },
+  kohanim: {
+    deeper:
+      "The first line asks for things — bless and guard. The second asks for attention: that a face be turned toward you, and be kind about it. The third asks for shalom, which in Hebrew is less the absence of conflict than the state of a thing being whole. Possessions, then being seen, then being whole. Most days get spent in exactly the reverse order.",
+  },
+  eiludevarim: {
+    deeper:
+      "Read the two headings together: these are things with no fixed measure, and these are things whose fruit you eat now while the principal stays untouched. Both halves say the same thing from opposite ends — there is no amount of this that counts as finished, and none of it is ever wasted. It is a strange sort of comfort. The work has no ceiling and no drain.",
+  },
+};
+
+/**
+ * The question for this station this morning, if the level asks for one. A
+ * station's own `prompts` are its guided-level question; LAYER supplies one for
+ * every other station, which only the deep level draws on.
+ */
+function promptFor(r: Raw, depth: Depth, day: number, i: number): string | undefined {
+  if (depth === "quiet") return undefined;
+  const set = r.prompts?.length ? r.prompts : depth === "deep" ? LAYER[r.id]?.prompts : undefined;
+  if (!set?.length) return undefined;
+  return set[(((day + i) % set.length) + set.length) % set.length];
+}
+
 export function buildStations(
   o: Opts,
   length: Length,
   longForm: boolean,
+  depth: Depth = "guided",
   day = dayIndex()
 ): Station[] {
   return orderFor(o.nusach)
@@ -775,9 +1084,8 @@ export function buildStations(
       long: r.long,
       // Offset by the station's position so two stations don't ask sibling
       // questions on the same morning.
-      prompt: r.prompts?.length
-        ? r.prompts[(((day + i) % r.prompts.length) + r.prompts.length) % r.prompts.length]
-        : undefined,
+      prompt: promptFor(r, depth, day, i),
+      deeper: depth === "deep" ? LAYER[r.id]?.deeper : undefined,
       he: lines(r.he, o, "he"),
       translit: lines(r.translit, o, "tr"),
       en: lines(r.en, o, "en"),
