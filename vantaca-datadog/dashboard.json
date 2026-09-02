@@ -1,0 +1,236 @@
+{
+  "title": "Vantaca Slack Bot — Usage & Cost",
+  "description": "MCP / Slack / AI usage for the Vantaca bot. Source: vantaca.* metrics + vantaca logs (ddsource:vantaca). Import via Dashboards → New → Import dashboard JSON.",
+  "layout_type": "ordered",
+  "reflow_type": "fixed",
+  "template_variables": [
+    { "name": "env", "prefix": "env", "available_values": [], "default": "prod" },
+    { "name": "slack_user", "prefix": "slack_user", "available_values": [], "default": "*" }
+  ],
+  "widgets": [
+    {
+      "definition": {
+        "type": "query_value",
+        "title": "Cost today (USD)",
+        "requests": [
+          {
+            "response_format": "scalar",
+            "queries": [
+              {
+                "name": "q",
+                "data_source": "metrics",
+                "query": "sum:vantaca.request.cost_usd{service:vantaca-slack-bot,$env,$slack_user}.as_count()",
+                "aggregator": "sum"
+              }
+            ],
+            "formulas": [{ "formula": "q" }]
+          }
+        ],
+        "precision": 2,
+        "autoscale": true
+      },
+      "layout": { "x": 0, "y": 0, "width": 3, "height": 2 }
+    },
+    {
+      "definition": {
+        "type": "query_value",
+        "title": "Requests",
+        "requests": [
+          {
+            "response_format": "scalar",
+            "queries": [
+              {
+                "name": "q",
+                "data_source": "metrics",
+                "query": "sum:vantaca.request.count{service:vantaca-slack-bot,$env,$slack_user}.as_count()",
+                "aggregator": "sum"
+              }
+            ],
+            "formulas": [{ "formula": "q" }]
+          }
+        ],
+        "autoscale": true
+      },
+      "layout": { "x": 3, "y": 0, "width": 3, "height": 2 }
+    },
+    {
+      "definition": {
+        "type": "query_value",
+        "title": "Stopped / over-budget",
+        "requests": [
+          {
+            "response_format": "scalar",
+            "queries": [
+              {
+                "name": "q",
+                "data_source": "metrics",
+                "query": "sum:vantaca.request.stopped{service:vantaca-slack-bot,$env,$slack_user}.as_count()",
+                "aggregator": "sum"
+              }
+            ],
+            "formulas": [{ "formula": "q" }]
+          }
+        ],
+        "autoscale": true
+      },
+      "layout": { "x": 6, "y": 0, "width": 3, "height": 2 }
+    },
+    {
+      "definition": {
+        "type": "query_value",
+        "title": "Failed writes",
+        "requests": [
+          {
+            "response_format": "scalar",
+            "queries": [
+              {
+                "name": "q",
+                "data_source": "metrics",
+                "query": "sum:vantaca.write.failed{service:vantaca-slack-bot,$env,$slack_user}.as_count()",
+                "aggregator": "sum"
+              }
+            ],
+            "formulas": [{ "formula": "q" }]
+          }
+        ],
+        "autoscale": true
+      },
+      "layout": { "x": 9, "y": 0, "width": 3, "height": 2 }
+    },
+    {
+      "definition": {
+        "type": "timeseries",
+        "title": "Cost over time (USD)",
+        "requests": [
+          {
+            "response_format": "timeseries",
+            "queries": [
+              {
+                "name": "cost",
+                "data_source": "metrics",
+                "query": "sum:vantaca.request.cost_usd{service:vantaca-slack-bot,$env,$slack_user}.as_count()"
+              }
+            ],
+            "formulas": [{ "formula": "cost" }],
+            "display_type": "bars"
+          }
+        ]
+      },
+      "layout": { "x": 0, "y": 2, "width": 6, "height": 3 }
+    },
+    {
+      "definition": {
+        "type": "timeseries",
+        "title": "Requests by outcome",
+        "requests": [
+          {
+            "response_format": "timeseries",
+            "queries": [
+              {
+                "name": "byoutcome",
+                "data_source": "metrics",
+                "query": "sum:vantaca.request.count{service:vantaca-slack-bot,$env,$slack_user} by {outcome}.as_count()"
+              }
+            ],
+            "formulas": [{ "formula": "byoutcome" }],
+            "display_type": "bars"
+          }
+        ]
+      },
+      "layout": { "x": 6, "y": 2, "width": 6, "height": 3 }
+    },
+    {
+      "definition": {
+        "type": "timeseries",
+        "title": "Tokens (in / out / cache read)",
+        "requests": [
+          {
+            "response_format": "timeseries",
+            "queries": [
+              { "name": "in", "data_source": "metrics", "query": "sum:vantaca.tokens.input{service:vantaca-slack-bot,$env,$slack_user}.as_count()" },
+              { "name": "out", "data_source": "metrics", "query": "sum:vantaca.tokens.output{service:vantaca-slack-bot,$env,$slack_user}.as_count()" },
+              { "name": "cache", "data_source": "metrics", "query": "sum:vantaca.tokens.cache_read{service:vantaca-slack-bot,$env,$slack_user}.as_count()" }
+            ],
+            "formulas": [{ "formula": "in" }, { "formula": "out" }, { "formula": "cache" }],
+            "display_type": "line"
+          }
+        ]
+      },
+      "layout": { "x": 0, "y": 5, "width": 6, "height": 3 }
+    },
+    {
+      "definition": {
+        "type": "toplist",
+        "title": "Top MCP tools / endpoints called",
+        "requests": [
+          {
+            "response_format": "scalar",
+            "queries": [
+              {
+                "name": "tools",
+                "data_source": "metrics",
+                "query": "sum:vantaca.tool.calls{service:vantaca-slack-bot,$env,$slack_user} by {tool}.as_count()",
+                "aggregator": "sum"
+              }
+            ],
+            "formulas": [{ "formula": "tools", "limit": { "count": 15, "order": "desc" } }]
+          }
+        ]
+      },
+      "layout": { "x": 6, "y": 5, "width": 6, "height": 3 }
+    },
+    {
+      "definition": {
+        "type": "timeseries",
+        "title": "Request latency p50 / p95 (ms)",
+        "requests": [
+          {
+            "response_format": "timeseries",
+            "queries": [
+              { "name": "p50", "data_source": "metrics", "query": "avg:vantaca.request.duration_ms{service:vantaca-slack-bot,$env,$slack_user}" },
+              { "name": "p95", "data_source": "metrics", "query": "max:vantaca.request.duration_ms{service:vantaca-slack-bot,$env,$slack_user}" }
+            ],
+            "formulas": [{ "formula": "p50" }, { "formula": "p95" }],
+            "display_type": "line"
+          }
+        ]
+      },
+      "layout": { "x": 0, "y": 8, "width": 6, "height": 3 }
+    },
+    {
+      "definition": {
+        "type": "toplist",
+        "title": "Cost by Slack user (USD)",
+        "requests": [
+          {
+            "response_format": "scalar",
+            "queries": [
+              {
+                "name": "byuser",
+                "data_source": "metrics",
+                "query": "sum:vantaca.request.cost_usd{service:vantaca-slack-bot,$env} by {slack_user}.as_count()",
+                "aggregator": "sum"
+              }
+            ],
+            "formulas": [{ "formula": "byuser", "limit": { "count": 15, "order": "desc" } }]
+          }
+        ]
+      },
+      "layout": { "x": 6, "y": 8, "width": 6, "height": 3 }
+    },
+    {
+      "definition": {
+        "type": "log_stream",
+        "title": "Recent requests (logs)",
+        "query": "service:vantaca-slack-bot $env",
+        "indexes": [],
+        "columns": ["status", "@vantaca.slack_user", "@vantaca.cost_usd", "@vantaca.status", "@vantaca.tool_count"],
+        "show_date_column": true,
+        "show_message_column": true,
+        "message_display": "expanded-md",
+        "sort": { "column": "time", "order": "desc" }
+      },
+      "layout": { "x": 0, "y": 11, "width": 12, "height": 4 }
+    }
+  ]
+}
