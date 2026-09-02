@@ -72,7 +72,8 @@ export default function Home() {
         { voice: settings.voice, nusach: settings.nusach, nameStyle: settings.nameStyle },
         settings.length,
         settings.longForm,
-        settings.depth
+        settings.depth,
+        settings.explain
       ),
     [settings]
   );
@@ -370,6 +371,21 @@ function SettingsPanel({
         checked={s.showEnglish}
         onChange={(showEnglish) => patch({ showEnglish })}
       />
+      {s.showEnglish && (
+        <Row
+          label="Explain as you read"
+          help="On, the English carries the explanation inside the sentence, in a lighter tone, so you understand what you are saying while you say it. Off, it is a plain translation and nothing else."
+        >
+          <Chips
+            value={s.explain ? "on" : "off"}
+            onPick={(v) => patch({ explain: v === "on" })}
+            options={[
+              ["on", "Explained"],
+              ["off", "Plain"],
+            ]}
+          />
+        </Row>
+      )}
       <Toggle
         label="Breathing pacer"
         checked={s.breath}

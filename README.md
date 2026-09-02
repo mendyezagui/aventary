@@ -132,6 +132,21 @@ the translation, page cross-references to the Kehot Annotated Siddur. It is
 print only. Its translation, synopses and insights are **not** reproduced in
 this app; every English line here is written for the app.
 
+### The English
+
+Two registers from one source string. Explanatory words are written inline in
+the `en` arrays inside `⟪ ⟫`; `stripExplain()` removes them for the plain
+reading and `explainRuns()` splits them out for rendering in a lighter tone.
+One text, so the plain and explained readings cannot drift, and every nusach and
+voice variant gets the explanation for free. Toggled by `explain` in settings.
+
+Every English line is written for this app. The *approach* — explanation blended
+into the translation rather than footnoted under it — is the Weiss Edition's and
+is not protectable; its words are, and none of them are here. The Weiss Edition
+is print only: no ebook, no Kindle, no licensed digital text exists to draw
+from, so using its translation would require a licence from Kehot / Tzivos
+Hashem.
+
 ### Levels
 
 `depth` in `store.ts`, `LAYER` in `blessings.ts`. Not levels of study — levels of

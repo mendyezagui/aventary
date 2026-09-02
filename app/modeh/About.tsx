@@ -75,6 +75,23 @@ export default function About() {
           sources used here do not, so this app leaves them as printed.
         </p>
 
+        <h2>The English, and whose it is</h2>
+        <p>
+          Every English line here was written for this app. Set{" "}
+          <i>Explain as you read</i> on and the explanation is woven into the
+          sentence itself, in a lighter tone, so you understand what you are
+          saying while you are saying it rather than after; set it to{" "}
+          <i>Plain</i> and you get the translation alone. It is one text either
+          way — the explanatory words are marked inside the line and simply
+          dropped in plain mode, so the two readings can never drift apart.
+        </p>
+        <p>
+          The idea of a translation with the explanation blended in, rather than
+          footnoted underneath, is the Weiss Edition&rsquo;s, and it is a good
+          one. The words are not. Nothing from that siddur, or any other
+          published translation, is reproduced here.
+        </p>
+
         <h2>Three levels, and none of them is a study level</h2>
         <p>
           Nobody is being taught here. The levels are how much room you are given

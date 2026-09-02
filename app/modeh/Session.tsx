@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { buildStations, CLOSING, type Station } from "./blessings";
+import { buildStations, explainRuns, CLOSING, type Station } from "./blessings";
 import {
   DEFAULT_SETTINGS,
   WHEN,
@@ -37,7 +37,8 @@ export default function Session() {
         { voice: s.voice, nusach: s.nusach, nameStyle: s.nameStyle },
         s.length,
         s.longForm,
-        s.depth
+        s.depth,
+        s.explain
       )
     );
     setNotes(getEntry()?.notes || {});
@@ -266,7 +267,15 @@ function StationView({
         {settings.showEnglish &&
           station.en.map((p, n) => (
             <p className="text-en" key={`en${n}`}>
-              {p}
+              {explainRuns(p).map((run, k) =>
+                run.added ? (
+                  <span className="text-added" key={k}>
+                    {run.text}
+                  </span>
+                ) : (
+                  <span key={k}>{run.text}</span>
+                )
+              )}
             </p>
           ))}
         {station.note && <p className="text-note">{station.note}</p>}

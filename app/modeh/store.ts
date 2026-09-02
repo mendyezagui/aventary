@@ -17,6 +17,8 @@ export type Settings = {
   longForm: boolean;
   showTranslit: boolean;
   showEnglish: boolean;
+  /** Weave the explanation into the English rather than translating flat. */
+  explain: boolean;
   breath: boolean;
   theme: "light" | "dark" | "system";
 };
@@ -30,6 +32,7 @@ export const DEFAULT_SETTINGS: Settings = {
   longForm: true,
   showTranslit: true,
   showEnglish: true,
+  explain: true,
   breath: true,
   theme: "system",
 };

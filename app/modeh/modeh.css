@@ -921,3 +921,10 @@ input.note-in {
   font-size: 1rem;
   color: var(--ink);
 }
+
+/* words woven into the English that aren't in the Hebrew — lighter, so it is
+   always obvious which is the translation and which is the help */
+.text-added {
+  color: var(--muted);
+  font-style: italic;
+}

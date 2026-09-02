@@ -116,6 +116,37 @@ function sanctify(s: string, pairs: [string, string][]): string {
   return pairs.reduce((acc, [from, to]) => acc.split(from).join(to), s);
 }
 
+/**
+ * Explanatory words are written inline in the English, inside ⟪ ⟫. Plain mode
+ * strips them; explained mode keeps the markers and the reader's component
+ * renders what is inside them in a lighter tone.
+ *
+ * One source string rather than two translations: the plain reading and the
+ * explained one can never drift apart, and every nusach and voice variant gets
+ * the explanation for free.
+ */
+export const EXPLAIN_OPEN = "\u27ea";
+export const EXPLAIN_CLOSE = "\u27eb";
+
+export function stripExplain(s: string): string {
+  return s.replace(/\u27ea[^\u27eb]*\u27eb/g, "");
+}
+
+/** Split an English line into plain and explanatory runs, for rendering. */
+export function explainRuns(s: string): { text: string; added: boolean }[] {
+  const out: { text: string; added: boolean }[] = [];
+  const re = /\u27ea([^\u27eb]*)\u27eb/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(s))) {
+    if (m.index > last) out.push({ text: s.slice(last, m.index), added: false });
+    out.push({ text: m[1], added: true });
+    last = m.index + m[0].length;
+  }
+  if (last < s.length) out.push({ text: s.slice(last), added: false });
+  return out;
+}
+
 export function resolve(s: string, o: Opts, lang: "he" | "tr" | "en"): string {
   const out = s
     .replace(/\{HN\}/g, NAMES_NARRATIVE[o.nameStyle][lang])
@@ -234,8 +265,8 @@ const SEALS: Seal[] = [
       all: "asher natan lasechvi vinah l'havchin bein yom uvein lailah.",
     },
     en: {
-      ari: "who gives the rooster the understanding to tell day from night.",
-      all: "who gave the rooster the understanding to tell day from night.",
+      ari: "who gives the rooster the understanding to tell day from night⟪ — and gives me the same sense, to know when something has changed⟫.",
+      all: "who gave the rooster the understanding to tell day from night⟪ — and gave me the same sense, to know when something has changed⟫.",
     },
     meditation:
       "The sequence opens not with thanks but with discernment — that even a bird knows the night has ended. Gratitude has a prerequisite: you have to notice that something changed. Plenty of us walk into a morning still carrying the previous night's weather.",
@@ -253,7 +284,7 @@ const SEALS: Seal[] = [
     theme: "Belonging",
     he: "שֶׁלֹּא עָשַׂנִי גּוֹי.",
     tr: "shelo asani goy.",
-    en: "who did not make me a gentile.",
+    en: "who did not make me a gentile⟪, but gave me the commandments as my share of the work⟫.",
     meditation:
       "The classical reading of this blessing is not about rank. It is about obligation — being handed, without asking, a set of duties that give a life its shape. You were born into a story already in progress, and it expects something of you.",
     cue: "Name one person in your own family line you are standing on top of this morning.",
@@ -270,7 +301,7 @@ const SEALS: Seal[] = [
     theme: "Freedom",
     he: "שֶׁלֹּא עָשַׂנִי עָבֶד.",
     tr: "shelo asani aved.",
-    en: "who did not make me a slave.",
+    en: "who did not make me a slave⟪ — my day is mine to point somewhere, and mine to answer for⟫.",
     meditation:
       "Free means the day is yours to point somewhere. That is a gift and a bill. Most of what actually runs a morning — the phone, the inbox, the mood you woke in — you never consented to. Freedom is the daily work of taking the wheel back.",
     cue: "Notice the first thing that reached for your attention today.",
@@ -296,8 +327,8 @@ const SEALS: Seal[] = [
     tr: (o) => (o.voice === "female" ? "she'asani kirtzono." : "shelo asani ishah."),
     en: (o) =>
       o.voice === "female"
-        ? "who made me according to His will."
-        : "who did not make me a woman.",
+        ? "who made me according to His will⟪ — made deliberately, exactly as intended⟫."
+        : "who did not make me a woman⟪, and so am bound to the commandments that fall at fixed times⟫.",
     meditation:
       "The classical commentators read this blessing as being about the particular obligations a person is handed — not about anyone's worth. Taken honestly it is a question rather than a claim: what are you actually doing with the duties that came with your life?",
     cue: "Sit with the word 'deliberately' for one breath.",
@@ -309,7 +340,7 @@ const SEALS: Seal[] = [
     theme: "Seeing",
     he: "פּוֹקֵחַ עִוְרִים.",
     tr: "pokeach ivrim.",
-    en: "who gives sight to the blind.",
+    en: "who gives sight to the blind⟪ — who is opening my eyes again, this morning and every morning⟫.",
     meditation:
       "You opened your eyes and an entire world arrived, free of charge, before you had done anything to deserve it. Sight is the sense we notice least and would grieve most.",
     cue: "Pick one ordinary object in the room and look at it as if you'd been told you would lose your sight tonight.",
@@ -327,7 +358,7 @@ const SEALS: Seal[] = [
     theme: "Dignity",
     he: "מַלְבִּישׁ עֲרֻמִּים.",
     tr: "malbish arumim.",
-    en: "who clothes the naked.",
+    en: "who clothes the naked⟪ — the first thing God ever made for a person was dignity⟫.",
     meditation:
       "The first thing the Torah says God made for a human being was clothing. Not shelter, not tools — dignity. Getting dressed is a small daily act of being taken care of.",
     cue: "Feel the weight of the fabric on your shoulders.",
@@ -339,7 +370,7 @@ const SEALS: Seal[] = [
     theme: "Loosening",
     he: "מַתִּיר אֲסוּרִים.",
     tr: "matir asurim.",
-    en: "who frees the bound.",
+    en: "who frees the bound⟪ — the body that was locked in sleep, and whatever else in me is tied⟫.",
     meditation:
       "This was said in the moment of stretching — the body was bound all night and now it moves. There is a second reading, and everybody knows which one applies to them: we each carry something we are tied to. This is the sentence where you ask for it to loosen.",
     cue: "Stretch once, all the way, without hurrying it.",
@@ -357,7 +388,7 @@ const SEALS: Seal[] = [
     theme: "Standing up",
     he: "זוֹקֵף כְּפוּפִים.",
     tr: "zokef k'fufim.",
-    en: "who straightens the bent.",
+    en: "who straightens the bent⟪ — said in the act of sitting up⟫.",
     meditation:
       "Said, originally, in the act of sitting up in bed. The bent are made straight. Notice how much of this last year you have spent bent — over a screen, under a load, into a worry.",
     cue: "Sit or stand tall. Let the top of your head be the highest point of you.",
@@ -370,7 +401,7 @@ const SEALS: Seal[] = [
     theme: "Stability",
     he: "רוֹקַע הָאָרֶץ עַל הַמָּיִם.",
     tr: "roka ha'aretz al hamayim.",
-    en: "who spreads the earth over the waters.",
+    en: "who spreads the earth over the waters⟪ — ground that holds, and was never owed to me⟫.",
     meditation:
       "Land stretched over water — a picture of ground that is stable without being guaranteed. The floor holds this morning. That is not nothing, and it is not owed.",
     cue: "Press your feet into the floor and feel the floor push back.",
@@ -382,7 +413,7 @@ const SEALS: Seal[] = [
     theme: "Enough",
     he: "שֶׁעָשָׂה לִּי כָּל צָרְכִּי.",
     tr: "she'asah li kol tzorki.",
-    en: "who has provided me my every need.",
+    en: "who has provided me my every need⟪ — need, not want; said at the shoes, the last thing before the door⟫.",
     // Printed in the Alter Rebbe's siddur at this blessing.
     note: "Not said on Tishah B'Av or Yom Kippur.",
     meditation:
@@ -402,7 +433,7 @@ const SEALS: Seal[] = [
     theme: "Direction",
     he: "הַמֵּכִין מִצְעֲדֵי גָבֶר.",
     tr: "hameichin mitzadei gaver.",
-    en: "who steadies a person's steps.",
+    en: "who steadies a person's steps⟪ — the thousands I will take today having planned almost none of them⟫.",
     meditation:
       "You will take thousands of steps today and you will have planned almost none of them. The blessing suggests the route is being written with you, not only by you.",
     cue: "Picture the first place you will walk to today.",
@@ -414,7 +445,7 @@ const SEALS: Seal[] = [
     theme: "Strength",
     he: "אוֹזֵר יִשְׂרָאֵל בִּגְבוּרָה.",
     tr: "ozer Yisrael bigvurah.",
-    en: "who girds Israel with strength.",
+    en: "who girds Israel with strength⟪ — said at the belt: strength handed over each morning, to be spent well⟫.",
     meditation:
       "Said at the belt. Not strength you own — strength you are handed each morning and asked to spend well before the day is out.",
     cue: "Where, specifically, will you need strength today?",
@@ -426,7 +457,7 @@ const SEALS: Seal[] = [
     theme: "Whose name you carry",
     he: "עוֹטֵר יִשְׂרָאֵל בְּתִפְאָרָה.",
     tr: "oter Yisrael b'tifarah.",
-    en: "who crowns Israel with dignity.",
+    en: "who crowns Israel with dignity⟪ — said at the covering of the head: whose name I carry out the door⟫.",
     meditation:
       "Said at the covering of the head. A crown is a reminder of who you represent when you walk out — you are somebody's child, somebody's parent, somebody's neighbour, and they are all on your head today.",
     cue: "Whose name are you carrying out the door this morning?",
@@ -438,7 +469,7 @@ const SEALS: Seal[] = [
     theme: "Beginning tired",
     he: "הַנּוֹתֵן לַיָּעֵף כֹּחַ.",
     tr: "hanotein laya'ef koach.",
-    en: "who gives strength to the weary.",
+    en: "who gives strength to the weary⟪ — it does not say to the rested⟫.",
     meditation:
       "The most honest blessing in the set. It does not claim you woke up rested. It says strength is given to the weary — the tired is the condition it assumes you are in, and it is fine to be in it.",
     cue: "You don't have to feel ready. Begin anyway.",
@@ -451,7 +482,7 @@ const SEALS: Seal[] = [
     theme: "Awake",
     he: "הַמַּעֲבִיר שֵׁנָה מֵעֵינָי וּתְנוּמָה מֵעַפְעַפָּי.",
     tr: "hama'avir sheinah me'einai ut'numah me'af'apai.",
-    en: "who removes sleep from my eyes and slumber from my eyelids.",
+    en: "who removes sleep from my eyes and slumber from my eyelids⟪ — I am awake; now to be alert⟫.",
     meditation:
       "The plainest line of the sequence: you are awake now. What follows it in the siddur is a request — and notice that it doesn't ask for success, money or ease. It asks for character.",
     cue: "Close your eyes and open them once, deliberately.",
@@ -498,7 +529,7 @@ const OPENERS: Raw[] = [
       `${o.voice === "female" ? "Modah" : "Modeh"} ani lefanecha, melech chai v'kayam, shehechezarta bi nishmati b'chemlah. Rabah emunatecha.`,
     ],
     en: [
-      "I give thanks before You, living and enduring King, for returning my soul to me with compassion. Great is Your faithfulness.",
+      "I give thanks before You⟪ — before my name, before my work, before I have done anything to deserve it⟫, living and enduring King, for returning my soul to me with compassion⟪, which You were never obliged to show⟫. Great is Your faithfulness⟪ — You do this every morning without fail⟫.",
     ],
     // Sourced: the Alter Rebbe's siddur explains that this sentence contains
     // none of the seven Names, which is why it can be said before washing.
@@ -522,7 +553,7 @@ const OPENERS: Raw[] = [
     he: [`${OPEN_HE} אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל נְטִילַת יָדָיִם.`],
     translit: [`${OPEN_TR} asher kid'shanu b'mitzvotav v'tzivanu al netilat yadayim.`],
     en: [
-      `${OPEN_EN} who made us holy with His commandments and commanded us on the washing of hands.`,
+      `${OPEN_EN} who made us holy with His commandments and commanded us on the washing of hands⟪, the small act that draws a line between the night and the day⟫.`,
     ],
     meditation:
       "Water over the hands is the smallest possible ritual: two seconds that draw a line between last night and this morning. You are not continuing yesterday. You are starting.",
@@ -562,13 +593,13 @@ const OPENERS: Raw[] = [
     },
     en: {
       ari: [
-        `${OPEN_EN} who formed a human being with wisdom, and made in him openings upon openings, hollows upon hollows.`,
-        "It is revealed and known before Your throne of glory that if one of them were to close, or one of them were to open, it would be impossible to survive even for an hour.",
-        "Blessed are You, {H}, healer of all flesh, who does wonders.",
+        `${OPEN_EN} who formed a human being with wisdom⟪ — deliberately, not by accident⟫, and made in him openings upon openings, hollows upon hollows⟪: the passages and cavities a body needs in order to work⟫.`,
+        "It is revealed and known before Your throne of glory that if one of them were to close⟪ that should be open⟫, or one of them were to open⟪ that should be closed⟫, it would be impossible to survive even for an hour.",
+        "Blessed are You, {H}, healer of all flesh, who does wonders⟪ — holding body and soul together, which is the wonder⟫.",
       ],
       all: [
         `${OPEN_EN} who formed a human being with wisdom, and made in him openings upon openings, hollows upon hollows.`,
-        "It is revealed and known before Your throne of glory that if one of them were to open, or one of them were to close, it would be impossible to survive and stand before You even for an hour.",
+        "It is revealed and known before Your throne of glory that if one of them were to open⟪ that should be closed⟫, or one of them were to close⟪ that should be open⟫, it would be impossible to survive and stand before You even for an hour.",
         "Blessed are You, {H}, healer of all flesh, who does wonders.",
       ],
     },
@@ -599,9 +630,9 @@ const OPENERS: Raw[] = [
       "Baruch atah {H}, hamachazir n'shamot lifgarim metim.",
     ],
     en: [
-      "My God, the soul You placed in me is pure. You created it, You formed it, You breathed it into me, and You keep it safe inside me.",
-      "One day You will take it from me and return it to me in the time to come. For as long as the soul is within me I give thanks before You, {H}, my God and God of my fathers, Master of all works, Lord of all souls.",
-      "Blessed are You, {H}, who returns souls to the lifeless.",
+      "My God, the soul You placed in me is pure⟪ — is, not was; whatever yesterday held⟫. You created it, You formed it, You breathed it into me, and You keep it safe inside me.",
+      "One day You will take it from me and return it to me in the time to come⟪, at the resurrection⟫. For as long as the soul is within me⟪ — for as long as I have breath to say so⟫ I give thanks before You, {H}, my God and God of my fathers, Master of all works, Lord of all souls.",
+      "Blessed are You, {H}, who returns souls to the lifeless⟪ — as He did for me this morning⟫.",
     ],
     meditation:
       "“The soul You placed in me is pure.” Not was pure — is. Whatever yesterday held, whatever you said or failed to do, the core you were handed back this morning came back undamaged. This is the tradition's answer to shame, and it is said out loud before you have had a chance to argue with it.",
@@ -642,9 +673,9 @@ const CLOSERS: Raw[] = [
       ],
     },
     en: [
-      "May it be Your will, {H}, {E} and God of our fathers, to make us at home in Your Torah and attached to Your commandments; do not bring us into the hands of sin, of transgression, of trial, or of disgrace; and let the bad inclination not rule us.",
-      "Keep us far from a bad person and a bad friend; bind us to the good inclination and to good deeds; bend our instinct to serve You; and grant us today, and every day, favour, kindness and mercy in Your eyes and in the eyes of all who see us; and deal kindly with us.",
-      "Blessed are You, {H}, who bestows good kindnesses on His people Israel.",
+      "May it be Your will, {H}, {E} and God of our fathers, to make us at home in Your Torah⟪ — not merely to study it, but to be at ease in it⟫ and attached to Your commandments; do not bring us into the hands of sin, of transgression, of trial⟪ — of being tested past what we can hold⟫, or of disgrace; and let the bad inclination not rule us.",
+      "Keep us far from a bad person and a bad friend⟪ — the company we keep does the shaping⟫; bind us to the good inclination and to good deeds; bend our instinct to serve You; and grant us today, and every day, favour, kindness and mercy in Your eyes and in the eyes of all who see us⟪ — that we be judged generously by the people we meet⟫; and deal kindly with us.",
+      "Blessed are You, {H}, who bestows good kindnesses on His people Israel⟪ — kindnesses that are good for the one receiving them, which is not always the same thing⟫.",
     ],
     meditation:
       "Read the list of what is actually being asked for. Not money, not success, not an easy day. Not to be humiliated, not to be tested past what you can hold, to be kept away from the wrong company, and to be seen kindly by the people who will look at you today.",
@@ -686,12 +717,12 @@ const CLOSERS: Raw[] = [
     },
     en: {
       ari: [
-        "May it be Your will, {H}, my God and God of my fathers, to save me today and every day from the brazen and from brazenness, from a bad person, a bad friend, a bad neighbour and a bad mishap.",
-        "From the evil eye, from an evil tongue, from informers, from false testimony, from people's hatred, from slander, from a strange death, from bad illnesses and bad events, from the destroying accuser, from a harsh judgment and a harsh opponent at law — whether he is a member of the covenant or not — and from the judgment of Gehinnom.",
+        "May it be Your will, {H}, my God and God of my fathers, to save me today and every day from the brazen and from brazenness, from a bad person, a bad friend, a bad neighbour and a bad mishap⟪ — almost nothing on this list is physical; it is a catalogue of how a day gets ruined by other people⟫.",
+        "From the evil eye, from an evil tongue, from informers, from false testimony, from people's hatred, from slander, from a strange death, from bad illnesses and bad events, from the destroying accuser, from a harsh judgment and a harsh opponent at law — whether he is a member of the covenant or not⟪ — harm is not assumed to come only from outside⟫ — and from the judgment of Gehinnom.",
       ],
       sefard: [
-        "May it be Your will, {H}, my God and God of my fathers, to save me today and every day from the brazen and from brazenness, from a bad person, from a bad instinct, from a bad friend, a bad neighbour and a bad mishap.",
-        "From the evil eye, from an evil tongue, from informers, from false testimony, from people's hatred, from slander, from a strange death, from bad illnesses, from bad events, from the destroying accuser, from a harsh judgment and a harsh opponent at law — whether he is a member of the covenant or not — and from the judgment of Gehinnom.",
+        "May it be Your will, {H}, my God and God of my fathers, to save me today and every day from the brazen and from brazenness, from a bad person, from a bad instinct⟪ — Sefard alone puts one's own instinct on this list⟫, from a bad friend, a bad neighbour and a bad mishap.",
+        "From the evil eye, from an evil tongue, from informers, from false testimony, from people's hatred, from slander, from a strange death, from bad illnesses, from bad events, from the destroying accuser, from a harsh judgment and a harsh opponent at law — whether he is a member of the covenant or not⟪ — harm is not assumed to come only from outside⟫ — and from the judgment of Gehinnom.",
       ],
       ashkenaz: [
         "May it be Your will, {H}, my God and God of my fathers, to save me today and every day from the brazen and from brazenness, from a bad person, a bad friend, a bad neighbour and a bad mishap, from the destroying accuser, from a harsh judgment and a harsh opponent at law — whether he is a member of the covenant or not.",
@@ -745,9 +776,9 @@ const CLOSERS: Raw[] = [
       ],
     },
     en: [
-      `${OPEN_EN} who made us holy with His commandments and commanded us concerning words of Torah.`,
-      "Make the words of Your Torah sweet in our mouths, {H}, {E}, and in the mouths of Your people the house of Israel — that we, and our children, and the children of Your people, may all know Your name and learn Your Torah for its own sake. Blessed are You, {H}, who teaches Torah to His people Israel.",
-      `${OPEN_EN} who chose us from all the peoples and gave us His Torah. Blessed are You, {H}, giver of the Torah.`,
+      `${OPEN_EN} who made us holy with His commandments and commanded us concerning words of Torah⟪ — said before learning, the way a blessing is said before any mitzvah⟫.`,
+      "Make the words of Your Torah sweet in our mouths⟪ — sweet before deep; the asking is that we enjoy it⟫, {H}, {E}, and in the mouths of Your people the house of Israel — that we, and our children, and the children of Your people, may all know Your name and learn Your Torah for its own sake⟪, not for what it gets us⟫. Blessed are You, {H}, who teaches Torah to His people Israel.",
+      `${OPEN_EN} who chose us from all the peoples and gave us His Torah⟪ — chosen for the work of it⟫. Blessed are You, {H}, giver of the Torah⟪ — present tense: He is giving it now, this morning⟫.`,
     ],
     meditation:
       "The morning ends by giving the day an aim: learn one true thing, and hand it to someone else. Notice that the blessing asks for the learning to be sweet before it asks for it to be deep.",
@@ -803,11 +834,11 @@ const CLOSERS: Raw[] = [
         "May {HN} lift His face toward you and give you peace.",
       ],
       all: [
-        "Then {HN} spoke to Moses, saying: speak to Aaron and to his sons — this is how you shall bless the children of Israel. Say to them:",
+        "Then {HN} spoke to Moses, saying: speak to Aaron and to his sons — this is how you shall bless the children of Israel. Say to them⟪ — out loud, to their faces⟫:",
         "May {HN} bless you and keep you.",
         "May {HN} shine His face toward you and be gracious to you.",
         "May {HN} lift His face toward you and give you peace.",
-        "And they shall place My name upon the children of Israel, and I Myself will bless them.",
+        "And they shall place My name upon the children of Israel, and I Myself will bless them⟪ — the kohanim say the words; the blessing is God's. What one person can do for another is put a name on them⟫.",
       ],
     },
     note: {
@@ -846,8 +877,8 @@ const CLOSERS: Raw[] = [
       "Eilu devarim she'adam ochel peiroteihem ba'olam hazeh v'hakeren kayemet la'olam haba, v'eilu hen: kibud av va'em, ug'milut chasadim, v'hashkamat beit hamidrash shacharit v'arvit, v'hachnasat orchim, uvikur cholim, v'hachnasat kalah, ul'vayat hamet, v'iyun tefilah, vahava'at shalom bein adam lachavero uvein ish l'ishto, v'talmud Torah k'neged kulam.",
     ],
     en: [
-      "These are things that have no fixed measure: the corner of the field, the first fruits, the festival offering, acts of kindness, and the study of Torah.",
-      "These are things whose fruit a person eats in this world while the principal remains for the world to come: honouring a father and mother, acts of kindness, coming early to the study hall morning and evening, hosting guests, visiting the sick, helping a bride marry, escorting the dead, concentration in prayer, and making peace between a person and his fellow and between a man and his wife — and the study of Torah is equal to them all.",
+      "These are things that have no fixed measure: the corner of the field⟪ left standing for the poor to take⟫, the first fruits⟪ brought up to the Temple⟫, the festival offering⟪ brought on going up to Jerusalem⟫, acts of kindness, and the study of Torah⟪ — no amount of any of these counts as done⟫.",
+      "These are things whose fruit a person eats in this world while the principal remains for the world to come⟪ — you are paid now, and nothing is deducted⟫: honouring a father and mother, acts of kindness, coming early to the study hall morning and evening, hosting guests, visiting the sick, helping a bride marry, escorting the dead⟪ — a kindness that can never be repaid⟫, concentration in prayer, and making peace between a person and his fellow and between a man and his wife — and the study of Torah is equal to them all.",
     ],
     meditation:
       "Every item is something you do with your body, for another person: honour your parents, do a kindness, show up early, host a guest, visit the sick, help a bride marry, walk a body to the grave, mean it when you pray, make peace between two people. This is the last thing the morning says to you before the day starts.",
@@ -915,7 +946,8 @@ function sealWord(n: Nusach, lang: "he" | "tr"): string {
 function lines(
   v: ByNusach<string[]> | ((o: Opts) => string[]),
   o: Opts,
-  lang: "he" | "tr" | "en"
+  lang: "he" | "tr" | "en",
+  explain = false
 ): string[] {
   const raw = typeof v === "function" ? v(o) : pick(v, o.nusach);
   return raw
@@ -924,7 +956,8 @@ function lines(
         .replace(/\{SEAL\}/g, sealWord(o.nusach, "he"))
         .replace(/\{SEALTR\}/g, sealWord(o.nusach, "tr"))
     )
-    .map((s) => resolve(s, o, lang));
+    .map((s) => resolve(s, o, lang))
+    .map((s) => (lang === "en" && !explain ? stripExplain(s) : s));
 }
 
 /**
@@ -1114,6 +1147,7 @@ export function buildStations(
   length: Length,
   longForm: boolean,
   depth: Depth = "guided",
+  explain = false,
   day = dayIndex()
 ): Station[] {
   return orderFor(o.nusach)
@@ -1138,7 +1172,7 @@ export function buildStations(
       deeper: depth === "deep" ? LAYER[r.id]?.deeper : undefined,
       he: lines(r.he, o, "he"),
       translit: lines(r.translit, o, "tr"),
-      en: lines(r.en, o, "en"),
+      en: lines(r.en, o, "en", explain),
     }));
 }
 
