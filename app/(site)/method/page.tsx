@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Reveal } from "@/components/Reveal";
 
 export const revalidate = 3600;
 
@@ -203,19 +204,19 @@ const APPLIES = [
 export default function MethodPage() {
   return (
     <>
-      {/* HERO */}
-      <section className="px-8 pt-24 pb-12">
+      {/* HERO — kept static (no reveal) so the LCP headline paints instantly */}
+      <section className="px-6 md:px-8 pt-32 md:pt-44 pb-20 md:pb-28">
         <div className="max-w-7xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-primary-fixed text-on-primary-fixed font-label text-sm mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-primary-fixed text-on-primary-fixed font-label text-sm mb-10">
             <span className="material-symbols-outlined text-base">conversion_path</span>
             The Aventary Method
           </div>
-          <h1 className="font-headline text-4xl md:text-6xl font-bold editorial-gap leading-[1.08] mb-8 max-w-5xl">
+          <h1 className="font-headline text-5xl md:text-7xl lg:text-[5.5rem] font-bold editorial-gap leading-[1.02] mb-10 max-w-5xl">
             Make the work visible.{" "}
             <span className="text-primary italic">Make the failures measurable.</span> Build the
             next capability.
           </h1>
-          <p className="text-xl text-on-surface-variant max-w-3xl mb-10">
+          <p className="text-xl md:text-2xl text-on-surface-variant max-w-3xl mb-12 leading-relaxed">
             Before you buy another tool, look at how work actually moves through your company. It
             crosses teams, jumps between systems, and sheds context at every handoff. By the time a
             dashboard tells you something broke, the value already leaked out the side.
@@ -223,14 +224,14 @@ export default function MethodPage() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/diagnostic"
-              className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-full font-bold"
+              className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3.5 rounded-full font-bold"
             >
               Run the diagnostic
               <span className="material-symbols-outlined">arrow_forward</span>
             </Link>
             <Link
               href="/appointments"
-              className="inline-flex items-center gap-2 bg-surface-container-lowest text-on-surface px-6 py-3 rounded-full font-bold soft-lift"
+              className="inline-flex items-center gap-2 bg-surface-container-lowest text-on-surface px-6 py-3.5 rounded-full font-bold soft-lift"
             >
               Book a working session
             </Link>
@@ -238,37 +239,39 @@ export default function MethodPage() {
         </div>
       </section>
 
-      {/* PREMISE */}
-      <section className="px-8 pb-8">
-        <div className="max-w-3xl mx-auto">
-          <p className="font-headline text-2xl md:text-3xl font-bold leading-[1.25]">
+      {/* PREMISE — first scroll moment, large and clean */}
+      <section className="px-6 md:px-8 pb-24 md:pb-32">
+        <Reveal className="max-w-4xl mx-auto">
+          <p className="font-headline text-3xl md:text-4xl lg:text-5xl font-bold leading-[1.18]">
             That is an operating problem, not a technology problem. Aventary has a{" "}
             <span className="text-primary italic">six-step method</span> for finding it, proving it
             with evidence, and turning it into something you can build.
           </p>
-        </div>
+        </Reveal>
       </section>
 
       {/* THE METHOD RAIL */}
-      <section id="method" className="px-8 py-20">
+      <section id="method" className="px-6 md:px-8 py-24 md:py-32">
         <div className="max-w-6xl mx-auto">
-          <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">
-            The Method
-          </div>
-          <h2 className="font-headline text-4xl md:text-5xl font-bold leading-[1.1] mb-14">
-            Six steps, from the real work to the next build
-            <span className="text-primary italic">.</span>
-          </h2>
+          <Reveal>
+            <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">
+              The Method
+            </div>
+            <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.05] mb-16">
+              Six steps, from the real work to the next build
+              <span className="text-primary italic">.</span>
+            </h2>
+          </Reveal>
 
           <div className="space-y-6">
-            {METHOD.map((s) => (
+            {METHOD.map((s, i) => (
+              <Reveal key={s.num} delay={Math.min(i, 4) * 70}>
               <div
-                key={s.num}
-                className="bg-surface-container-lowest rounded-3xl soft-lift p-8 md:p-10 grid md:grid-cols-[7rem_1fr] gap-6 md:gap-10"
+                className="bg-surface-container-lowest rounded-3xl soft-lift p-8 md:p-12 grid md:grid-cols-[7rem_1fr] gap-6 md:gap-10"
               >
                 {/* Number + icon */}
                 <div className="flex md:flex-col items-center md:items-start gap-4">
-                  <div className="font-headline text-5xl md:text-6xl font-bold text-primary leading-none">
+                  <div className="font-headline text-6xl md:text-7xl font-bold text-primary leading-none">
                     {s.num}
                   </div>
                   <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary-container">
@@ -320,45 +323,50 @@ export default function MethodPage() {
                   </div>
                 </div>
               </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* DIFFERENTIATORS */}
-      <section className="px-8 py-24 bg-surface-container-lowest">
+      <section className="px-6 md:px-8 py-24 md:py-32 bg-surface-container-lowest">
         <div className="max-w-7xl mx-auto">
-          <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">
-            What Makes the Method Different
-          </div>
-          <h2 className="font-headline text-4xl md:text-5xl font-bold leading-[1.1] mb-14 max-w-3xl">
-            Most of the value is in the parts other people skip
-            <span className="text-primary italic">.</span>
-          </h2>
+          <Reveal>
+            <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">
+              What Makes the Method Different
+            </div>
+            <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.05] mb-16 max-w-3xl">
+              Most of the value is in the parts other people skip
+              <span className="text-primary italic">.</span>
+            </h2>
+          </Reveal>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {DIFF.map((d) => (
-              <div key={d.title} className="bg-surface p-8 rounded-3xl soft-lift">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary-container mb-5">
-                  <span className="material-symbols-outlined text-on-primary-container">
-                    {d.icon}
-                  </span>
+            {DIFF.map((d, i) => (
+              <Reveal key={d.title} delay={Math.min(i, 3) * 70} className="h-full">
+                <div className="bg-surface p-8 rounded-3xl soft-lift h-full">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary-container mb-5">
+                    <span className="material-symbols-outlined text-on-primary-container">
+                      {d.icon}
+                    </span>
+                  </div>
+                  <h3 className="font-headline text-xl font-bold mb-3">{d.title}</h3>
+                  <p className="text-on-surface-variant leading-relaxed text-[15px]">{d.body}</p>
                 </div>
-                <h3 className="font-headline text-xl font-bold mb-3">{d.title}</h3>
-                <p className="text-on-surface-variant leading-relaxed text-[15px]">{d.body}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* APPLIES */}
-      <section className="px-8 py-24">
-        <div className="max-w-5xl mx-auto text-center">
+      <section className="px-6 md:px-8 py-24 md:py-32">
+        <Reveal className="max-w-5xl mx-auto text-center">
           <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">
             Where Aventary Applies the Method
           </div>
-          <h2 className="font-headline text-4xl md:text-5xl font-bold leading-[1.1] mb-12">
+          <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.05] mb-12">
             One method, wherever the operation leaks
             <span className="text-primary italic">.</span>
           </h2>
@@ -373,20 +381,20 @@ export default function MethodPage() {
               </span>
             ))}
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* CTA */}
-      <section className="px-8 py-24 bg-ink text-inverse-on-surface">
-        <div className="max-w-3xl mx-auto text-center">
+      <section className="px-6 md:px-8 py-28 md:py-36 bg-ink text-inverse-on-surface">
+        <Reveal className="max-w-3xl mx-auto text-center">
           <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
             Start With One Conversation
           </div>
-          <h2 className="font-headline text-4xl md:text-5xl font-bold leading-[1.1] mb-6">
+          <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.05] mb-6">
             We map where your operating system is leaking
             <span className="text-primary italic">.</span>
           </h2>
-          <p className="text-xl text-white/70 mb-10">
+          <p className="text-xl md:text-2xl text-white/70 mb-10 leading-relaxed">
             Book a focused working session. No slides, no pitch. We find where value is leaking
             across outcomes, ownership, handoffs, system truth, exceptions, AI controls, and
             measurement, and we name the next step.
@@ -398,7 +406,7 @@ export default function MethodPage() {
             Book a Working Session
             <span className="material-symbols-outlined">arrow_forward</span>
           </Link>
-        </div>
+        </Reveal>
       </section>
     </>
   );
