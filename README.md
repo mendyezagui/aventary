@@ -159,6 +159,20 @@ is print only: no ebook, no Kindle, no licensed digital text exists to draw
 from, so using its translation would require a licence from Kehot / Tzivos
 Hashem.
 
+### Voice of the reflections
+
+Written from inside the tradition, not observing it. Where a reflection leans on
+a source it names one that was checked: **Berachos 60b** (the Gemara's list of a
+blessing for each motion of waking, which is the sequence the app walks) and
+**Menachos 43b** (Rabbi Meir's three blessings, and Rav Acha's exchange with his
+son, which is what establishes that the three count mitzvah obligation and
+nothing else). Both verified against Sefaria before being cited.
+
+`meditation` and `LAYER[id].deeper` may be a function of `Opts`, so a station
+can speak differently to whoever is saying it — used on the third of the three,
+where a woman saying `שעשני כרצונו` should not be reading a paragraph about a
+man's time-bound obligations.
+
 ### Levels
 
 `depth` in `store.ts`, `LAYER` in `blessings.ts`. Not levels of study — levels of

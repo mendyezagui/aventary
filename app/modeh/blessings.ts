@@ -212,7 +212,7 @@ type Raw = {
   he: ByNusach<string[]> | ((o: Opts) => string[]);
   translit: ByNusach<string[]> | ((o: Opts) => string[]);
   en: ByNusach<string[]> | ((o: Opts) => string[]);
-  meditation: string;
+  meditation: string | ((o: Opts) => string);
   cue: string;
   /**
    * Rotating set — one is chosen per day so the question doesn't go stale.
@@ -242,7 +242,7 @@ type Seal = {
   he: ByNusach<string> | ((o: Opts) => string);
   tr: ByNusach<string> | ((o: Opts) => string);
   en: ByNusach<string> | ((o: Opts) => string);
-  meditation: string;
+  meditation: string | ((o: Opts) => string);
   cue: string;
   prompts?: string[];
   note?: string;
@@ -286,7 +286,7 @@ const SEALS: Seal[] = [
     tr: "shelo asani goy.",
     en: "who did not make me a gentile⟪, but gave me the commandments as my share of the work⟫.",
     meditation:
-      "The classical reading of this blessing is not about rank. It is about obligation — being handed, without asking, a set of duties that give a life its shape. You were born into a story already in progress, and it expects something of you.",
+      "You were given the mitzvos. Not standing, not an easier life — a workload, arriving before you could ask for it or turn it down. The morning opens by naming that as the thing worth thanking for.",
     cue: "Name one person in your own family line you are standing on top of this morning.",
     prompts: [
       "Which of your obligations, if you dropped it, would change who you are?",
@@ -303,7 +303,7 @@ const SEALS: Seal[] = [
     tr: "shelo asani aved.",
     en: "who did not make me a slave⟪ — my day is mine to point somewhere, and mine to answer for⟫.",
     meditation:
-      "Free means the day is yours to point somewhere. That is a gift and a bill. Most of what actually runs a morning — the phone, the inbox, the mood you woke in — you never consented to. Freedom is the daily work of taking the wheel back.",
+      "A slave's day belongs to somebody else, and his obligations are cut down to match. Yours are not. The whole day is in front of you, unclaimed, and every hour of it is yours to answer for.",
     cue: "Notice the first thing that reached for your attention today.",
     prompts: [
       "Where are you not free right now — and what is one inch of it you could take back today?",
@@ -329,8 +329,10 @@ const SEALS: Seal[] = [
       o.voice === "female"
         ? "who made me according to His will⟪ — made deliberately, exactly as intended⟫."
         : "who did not make me a woman⟪, and so am bound to the commandments that fall at fixed times⟫.",
-    meditation:
-      "The classical commentators read this blessing as being about the particular obligations a person is handed — not about anyone's worth. Taken honestly it is a question rather than a claim: what are you actually doing with the duties that came with your life?",
+    meditation: (o) =>
+      o.voice === "female"
+        ? "Made as He wanted. Not an approximation of anyone else and not a lighter version of anything — made deliberately, in the shape that was intended, with the avodah that comes with that shape."
+        : "The mitzvos that fall at fixed times are on you: tefillin, krias shema, the three tefillos, the sukkah in its week. Nobody arranges your day around them. You arrange your day around them, and this blessing is where that gets counted.",
     cue: "Sit with the word 'deliberately' for one breath.",
   },
   {
@@ -635,7 +637,7 @@ const OPENERS: Raw[] = [
       "Blessed are You, {H}, who returns souls to the lifeless⟪ — as He did for me this morning⟫.",
     ],
     meditation:
-      "“The soul You placed in me is pure.” Not was pure — is. Whatever yesterday held, whatever you said or failed to do, the core you were handed back this morning came back undamaged. This is the tradition's answer to shame, and it is said out loud before you have had a chance to argue with it.",
+      "“The soul You placed in me is pure.” Not was pure — is. Whatever yesterday held, whatever you said or failed to do, what was handed back this morning came back clean. Berachos 60b puts the words in your mouth before you are properly awake, which is before you have had a chance to argue with them.",
     cue: "Stop on the word pure for one breath before you move on.",
   },
 ];
@@ -988,7 +990,10 @@ export function dayIndex(d = new Date()): number {
 // so the text stays the text.
 // ---------------------------------------------------------------------------
 
-const LAYER: Record<string, { deeper: string; prompts?: string[] }> = {
+const LAYER: Record<
+  string,
+  { deeper: string | ((o: Opts) => string); prompts?: string[] }
+> = {
   modeh: {
     deeper:
       "Notice what the sentence does not say. It doesn't thank God for a good day ahead, or for anything you own. It thanks Him for the return of something you never knew was gone. Every night is a small rehearsal, and every morning is the answer to it — which is why it is said before your feet touch the floor, before the day has had a chance to make any claims on you.",
@@ -1003,7 +1008,7 @@ const LAYER: Record<string, { deeper: string; prompts?: string[] }> = {
   },
   asheryatzar: {
     deeper:
-      "The blessing ends on umafli la'asot — who does wonders. The commentators ask what the wonder actually is, and the answer they land on is not the plumbing: it is that a soul stays joined to a body at all. Read that way this is not a blessing about anatomy. It is about the improbability of being one thing, self and body together, for another day.",
+      "The blessing ends on umafli la'asot — who does wonders. The commentators ask what the wonder actually is, and the answer most give is not the plumbing: it is that a soul stays joined to a body at all. Read that way this is not a blessing about anatomy. It is about the improbability of being one thing, self and body together, for another day.",
   },
   neshamah: {
     deeper:
@@ -1015,19 +1020,21 @@ const LAYER: Record<string, { deeper: string; prompts?: string[] }> = {
   },
   sechvi: {
     deeper:
-      "The word sechvi is rare enough that the commentators disagree about it — a rooster, or the heart, or the mind's own power to tell things apart. All three readings land in the same place: something in you knows dark from light before you have reasoned it out. The blessing thanks God for the instinct, not for the analysis.",
+      "In Berachos 60b this is the first of a list that walks a person through waking: at the sound of the rooster, then at opening the eyes, sitting up, dressing, standing, putting a foot to the ground, walking, tying shoes, fastening the belt, covering the head. A blessing for each motion, in the order the motions happen. And the word sechvi is rare enough that the commentators disagree about it — a rooster, or the heart, or the mind's own power to tell things apart. All three land in the same place: something in you knows dark from light before you have reasoned it out.",
   },
   yisrael: {
     deeper:
-      "It is worth being honest about the discomfort in this blessing, because the discomfort is part of it. It names something about you that you did not earn and cannot resign from. That is what an inheritance is — and the only question an inheritance ever puts to anyone is whether they will steward it or just sit on it.",
+      "Menachos 43b is where the three come from: Rabbi Meir taught that a person says three blessings every day. The Gemara there settles what they are counting almost by accident. Rav Acha bar Yaakov hears his son bless \u201cwho did not make me a boor\u201d, objects, and the son asks what he should say instead — \u201cwho did not make me a slave\u201d? He is answered: that is the same as a woman. Same obligations, so the blessing would be saying nothing new. The three are a tally of mitzvos and nothing else. An inheritance is not a compliment; it is work that arrived with your name already on it.",
   },
   chorin: {
     deeper:
-      "A slave's day is decided somewhere else. The test of freedom is not whether anybody owns you; it is whether, at the end of today, you could name one hour that went where you sent it. Most of us are freer in law than in practice — and this is said at the exact moment when the whole day is still unclaimed.",
+      "The Gemara's own objection is that a slave and a woman carry the same obligations, so two of these blessings would collapse into one. That is what is being measured here — not liberty in the modern sense, but how much of the Torah rests on you. Free means more is asked, and this is said at the hour when the whole day is still unclaimed.",
   },
   kirtzono: {
-    deeper:
-      "According to His will is not a consolation prize. It is a claim that you are not a rough draft of somebody else — that the particular shape of your capacities, your obligations and your limits was intended. Which puts a question to you that a general blessing never could.",
+    deeper: (o) =>
+      o.voice === "female"
+        ? "\u05e9\u05b6\u05c1\u05e2\u05b8\u05e9\u05b7\u05c2\u05e0\u05b4\u05d9 \u05db\u05b4\u05bc\u05e8\u05b0\u05e6\u05d5\u05b9\u05e0\u05d5\u05b9 is not the negative of the two before it. It is its own sentence, and \u05db\u05b4\u05bc\u05e8\u05b0\u05e6\u05d5\u05b9\u05e0\u05d5\u05b9 — according to His will — says the intention was exact. What you were given and what you were not were both meant, and the day is what you do inside that."
+        : "Rabbi Meir's third, and the count is the same as the other two. Notice that the Gemara never argues the principle; it argues the arithmetic — which of the blessings would double up with which. Say it as what it is, a receipt for a load, and then go and carry it.",
     prompts: [
       "What can you do that is not easily replaceable — and are you actually spending it?",
       "Where do you keep wishing you had been handed a different set of tools?",
@@ -1170,7 +1177,8 @@ export function buildStations(
       heTitle:
         typeof r.heTitle === "function" ? r.heTitle(o) : pick(r.heTitle, o.nusach),
       theme: r.theme,
-      meditation: r.meditation,
+      meditation:
+        typeof r.meditation === "function" ? r.meditation(o) : r.meditation,
       cue: r.cue,
       note: r.note ? pick(r.note, o.nusach) : undefined,
       core: r.core,
@@ -1178,7 +1186,13 @@ export function buildStations(
       // Offset by the station's position so two stations don't ask sibling
       // questions on the same morning.
       prompt: promptFor(r, depth, day, i),
-      deeper: depth === "deep" ? LAYER[r.id]?.deeper : undefined,
+      deeper:
+        depth === "deep"
+          ? (() => {
+              const d = LAYER[r.id]?.deeper;
+              return typeof d === "function" ? d(o) : d;
+            })()
+          : undefined,
       he: lines(r.he, o, "he"),
       translit: lines(r.translit, o, "tr"),
       en: lines(r.en, o, "en", explain),
