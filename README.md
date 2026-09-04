@@ -219,6 +219,18 @@ cantillation.
 - **Length** — short sit (the core blessings) or the full morning, with Vihi
   Ratzon and Birchot HaTorah on by default.
 
+### The questions
+
+All in `PROMPTS` in `blessings.ts`, one place rather than scattered through the
+station literals. Gratitude first, first person, and phrased as a stem to
+complete rather than a question to answer — at six in the morning that is easier
+to pick up. Each is mapped to the blessing it belongs to; the question and the
+bracha are meant to light each other up, so there is no general pool.
+
+`guided: true` marks the nine stations that ask on an ordinary morning. The
+other fifteen are only reached at the deep level. 53 questions across 24
+stations.
+
 ### Why the questions rotate
 
 The liturgy repeats; the written question does not. Research from Lyubomirsky's

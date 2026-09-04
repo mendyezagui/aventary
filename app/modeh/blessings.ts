@@ -214,12 +214,6 @@ type Raw = {
   en: ByNusach<string[]> | ((o: Opts) => string[]);
   meditation: string | ((o: Opts) => string);
   cue: string;
-  /**
-   * Rotating set — one is chosen per day so the question doesn't go stale.
-   * A station that declares its own prompts asks at the guided level too;
-   * stations that only get questions from LAYER are asked at deep only.
-   */
-  prompts?: string[];
   note?: ByNusach<string>;
   core?: boolean;
   long?: boolean;
@@ -244,7 +238,6 @@ type Seal = {
   en: ByNusach<string> | ((o: Opts) => string);
   meditation: string | ((o: Opts) => string);
   cue: string;
-  prompts?: string[];
   note?: string;
   core?: boolean;
 };
@@ -271,11 +264,6 @@ const SEALS: Seal[] = [
     meditation:
       "The sequence opens not with thanks but with discernment — that even a bird knows the night has ended. Gratitude has a prerequisite: you have to notice that something changed. Plenty of us walk into a morning still carrying the previous night's weather.",
     cue: "Look at the actual light in the room for a few seconds. Not the phone.",
-    prompts: [
-      "What are you still treating as night that has, in fact, already turned into morning?",
-      "What changed in the last month that you haven't fully registered yet?",
-      "Name one thing you are worrying about today that was already settled yesterday.",
-    ],
   },
   {
     id: "yisrael",
@@ -288,11 +276,6 @@ const SEALS: Seal[] = [
     meditation:
       "You were given the mitzvos. Not standing, not an easier life — a workload, arriving before you could ask for it or turn it down. The morning opens by naming that as the thing worth thanking for.",
     cue: "Name one person in your own family line you are standing on top of this morning.",
-    prompts: [
-      "Which of your obligations, if you dropped it, would change who you are?",
-      "Name someone in your family line whose choices you are living inside of.",
-      "What did you inherit that you have not yet done anything with?",
-    ],
   },
   {
     id: "chorin",
@@ -305,11 +288,6 @@ const SEALS: Seal[] = [
     meditation:
       "A slave's day belongs to somebody else, and his obligations are cut down to match. Yours are not. The whole day is in front of you, unclaimed, and every hour of it is yours to answer for.",
     cue: "Notice the first thing that reached for your attention today.",
-    prompts: [
-      "Where are you not free right now — and what is one inch of it you could take back today?",
-      "What runs your morning that you never chose?",
-      "If today were entirely yours to direct, what would you point it at?",
-    ],
     core: true,
   },
   {
@@ -346,11 +324,6 @@ const SEALS: Seal[] = [
     meditation:
       "You opened your eyes and an entire world arrived, free of charge, before you had done anything to deserve it. Sight is the sense we notice least and would grieve most.",
     cue: "Pick one ordinary object in the room and look at it as if you'd been told you would lose your sight tonight.",
-    prompts: [
-      "Name one thing you saw this week that you're glad you got to see.",
-      "Describe a face you saw yesterday — actually describe it.",
-      "What is in front of you right now that you have stopped seeing?",
-    ],
     core: true,
   },
   {
@@ -376,11 +349,6 @@ const SEALS: Seal[] = [
     meditation:
       "This was said in the moment of stretching — the body was bound all night and now it moves. There is a second reading, and everybody knows which one applies to them: we each carry something we are tied to. This is the sentence where you ask for it to loosen.",
     cue: "Stretch once, all the way, without hurrying it.",
-    prompts: [
-      "What are you bound to that you'd like loosened this year?",
-      "What have you been carrying this week that isn't yours to carry?",
-      "Name the knot. Just name it — you don't have to solve it this morning.",
-    ],
     core: true,
   },
   {
@@ -421,11 +389,6 @@ const SEALS: Seal[] = [
     meditation:
       "Traditionally said while putting on shoes — the last small thing you need before you can walk out the door. It is a blessing about sufficiency, said every morning inside a life that is otherwise organised entirely around wanting more.",
     cue: "Name one thing you already have that you once prayed for.",
-    prompts: [
-      "What do you have today that an earlier version of you was hoping for?",
-      "What would you miss first if this week took it away?",
-      "Name something small you own that does its job perfectly and gets no credit.",
-    ],
     core: true,
   },
   {
@@ -503,7 +466,6 @@ function sealStation(s: Seal): Raw {
     theme: s.theme,
     meditation: s.meditation,
     cue: s.cue,
-    prompts: s.prompts,
     note: s.note,
     core: s.core,
     he: (o) => [`${OPEN_HE} ${one(s.he, o)}`],
@@ -539,12 +501,6 @@ const OPENERS: Raw[] = [
     meditation:
       "Before your name, before your work, before the news. The tradition puts this sentence first on purpose: gratitude offered before you have earned anything is the only kind that isn't a transaction. Your soul came back this morning, and nobody had guaranteed it would.",
     cue: "Say it slowly. Whatever else happens today, don't rush the first sentence of it.",
-    prompts: [
-      "What is one thing you woke up to today that you would genuinely miss if it were gone?",
-      "Who is asleep under your roof, or a phone call away, that you are glad about?",
-      "Name one ordinary thing waiting for you today that you would grieve if it stopped.",
-      "What went right yesterday that you never acknowledged?",
-    ],
   },
   {
     id: "netilah",
@@ -608,11 +564,6 @@ const OPENERS: Raw[] = [
     meditation:
       "Openings that stayed open and passages that stayed clear, for eight hours, with no supervision from you. The blessing states the plain fact that if a single valve had failed you would not be standing here. Most people only think about the body when it breaks; this is the practice of thinking about it while it works.",
     cue: "Take one full breath and follow it the whole way down and the whole way back out.",
-    prompts: [
-      "What is one thing your body did for you today that you never asked it to do?",
-      "Where in your body is there no pain this morning? Start there.",
-      "What did you eat, lift, climb or carry yesterday without thinking about it?",
-    ],
   },
   {
     id: "neshamah",
@@ -733,11 +684,6 @@ const CLOSERS: Raw[] = [
     meditation:
       "Straight after asking for character, the siddur asks for cover. Read what is actually on the list — a brazen person, a bad neighbour, an evil tongue, informers, false testimony, being hated, being blamed. Almost none of it is physical. It is a catalogue of the ways a day gets ruined by other people's mouths.",
     cue: "Name, silently, the one thing you are hoping does not happen today.",
-    prompts: [
-      "What are you quietly hoping doesn't happen today?",
-      "Which item on that list have you been on the wrong side of lately?",
-      "Whose day could you damage today with one sentence?",
-    ],
   },
   {
     id: "torah",
@@ -851,11 +797,6 @@ const CLOSERS: Raw[] = [
     meditation:
       "Three verses, and each is longer than the one before: three words, then five, then seven. The blessing widens as it goes — kept, then seen, then whole. And it comes bracketed: an instruction before it to say this out loud to people, and a line after it explaining what saying it does.",
     cue: "Say it once for somebody else. Pick the person before you start.",
-    prompts: [
-      "Who needs this said over them today?",
-      "Of the three — kept, seen, whole — which are you short on this week?",
-      "Whose name have you been meaning to say out loud, to them?",
-    ],
   },
   {
     id: "eiludevarim",
@@ -885,11 +826,6 @@ const CLOSERS: Raw[] = [
     meditation:
       "Every item is something you do with your body, for another person: honour your parents, do a kindness, show up early, host a guest, visit the sick, help a bride marry, walk a body to the grave, mean it when you pray, make peace between two people. This is the last thing the morning says to you before the day starts.",
     cue: "Pick one from the list. You have until tonight.",
-    prompts: [
-      "Which one on that list are you doing today? Name the person.",
-      "Which one have you not done in a year?",
-      "Who did one of these for you and never got thanked?",
-    ],
   },
 ];
 
@@ -990,10 +926,7 @@ export function dayIndex(d = new Date()): number {
 // so the text stays the text.
 // ---------------------------------------------------------------------------
 
-const LAYER: Record<
-  string,
-  { deeper: string | ((o: Opts) => string); prompts?: string[] }
-> = {
+const LAYER: Record<string, { deeper: string | ((o: Opts) => string) }> = {
   modeh: {
     deeper:
       "Notice what the sentence does not say. It doesn't thank God for a good day ahead, or for anything you own. It thanks Him for the return of something you never knew was gone. Every night is a small rehearsal, and every morning is the answer to it — which is why it is said before your feet touch the floor, before the day has had a chance to make any claims on you.",
@@ -1001,10 +934,6 @@ const LAYER: Record<
   netilah: {
     deeper:
       "Ritual is how a body learns what the mind already knows. You can decide in your head that today starts clean; the water is how you tell your hands. Even at its plainest, this is the first thing you do all day that you chose rather than reacted to.",
-    prompts: [
-      "What from yesterday are you carrying that you would rather leave at the sink?",
-      "Name the first thing today you will choose rather than react to.",
-    ],
   },
   asheryatzar: {
     deeper:
@@ -1013,10 +942,6 @@ const LAYER: Record<
   neshamah: {
     deeper:
       "Look at the tenses: You created it, formed it, breathed it in, keep it, will take it, will return it. Past, present and future in one sentence — and every verb belongs to someone else. The one thing the prayer never says is that the soul is yours. It is on loan, it came back clean, and the day is what you do with it.",
-    prompts: [
-      "What would you do differently today if you fully believed nothing from yesterday had stained you?",
-      "Say the word pure about yourself. Notice what argues back.",
-    ],
   },
   sechvi: {
     deeper:
@@ -1035,10 +960,6 @@ const LAYER: Record<
       o.voice === "female"
         ? "\u05e9\u05b6\u05c1\u05e2\u05b8\u05e9\u05b7\u05c2\u05e0\u05b4\u05d9 \u05db\u05b4\u05bc\u05e8\u05b0\u05e6\u05d5\u05b9\u05e0\u05d5\u05b9 is not the negative of the two before it. It is its own sentence, and \u05db\u05b4\u05bc\u05e8\u05b0\u05e6\u05d5\u05b9\u05e0\u05d5\u05b9 — according to His will — says the intention was exact. What you were given and what you were not were both meant, and the day is what you do inside that."
         : "Rabbi Meir's third, and the count is the same as the other two. Notice that the Gemara never argues the principle; it argues the arithmetic — which of the blessings would double up with which. Say it as what it is, a receipt for a load, and then go and carry it.",
-    prompts: [
-      "What can you do that is not easily replaceable — and are you actually spending it?",
-      "Where do you keep wishing you had been handed a different set of tools?",
-    ],
   },
   ivrim: {
     deeper:
@@ -1047,10 +968,6 @@ const LAYER: Record<
   arumim: {
     deeper:
       "Notice who is being clothed in the blessing. Not me — the naked, plural, everybody. It is not a private thank-you for a wardrobe. It is a statement that covering people is what God does, which makes it fairly obvious what you are meant to do with the spare coat.",
-    prompts: [
-      "Whose dignity is in your hands today?",
-      "What do the clothes you just put on say you are about to do?",
-    ],
   },
   asurim: {
     deeper:
@@ -1059,18 +976,10 @@ const LAYER: Record<
   kefufim: {
     deeper:
       "Bent is a posture, then a habit, then a shape. And the blessing does not say the bent straighten themselves. It says they are straightened — worth sitting with if there is something you have been trying to fix by effort alone for longer than that has been working.",
-    prompts: [
-      "What have you been bent under long enough that it has started to feel normal?",
-      "Where do you need to be straightened rather than to straighten yourself?",
-    ],
   },
   roka: {
     deeper:
       "Land over water is a deliberately unstable picture. The ground here is not bedrock; it is something spread over something that moves. The blessing does not promise the water is gone. It says the ground holds anyway, today, and asks you to walk on it.",
-    prompts: [
-      "What in your life is solid ground that you long ago stopped thanking anyone for?",
-      "What are you standing on today that you do not actually control?",
-    ],
   },
   tzorki: {
     deeper:
@@ -1079,50 +988,26 @@ const LAYER: Record<
   mitzadei: {
     deeper:
       "Mitzadei gaver — a person's steps, particular and specific, not humanity's in general. The claim is not that a plan exists somewhere. It is that today's route, including the detour you will resent at four in the afternoon, is being set with you. You still have to walk it.",
-    prompts: [
-      "Where is one place you will go today that you would rather not?",
-      "Where did an unplanned turn last year end up mattering?",
-    ],
   },
   gevurah: {
     deeper:
       "Gevurah in the tradition is not raw force — it is restraint, the strength to hold something back. Girding is what you do before work, and a belt is what keeps a person from coming apart in the middle of it. Ask what you will have to hold in today, not only what you will have to push through.",
-    prompts: [
-      "Where will you need to hold back today rather than push?",
-      "What will take more strength today than it looks like it should?",
-    ],
   },
   tifarah: {
     deeper:
       "Tiferet is beauty of a particular kind — the beauty of things in proportion. And a crown is not worn for the wearer; it is worn so other people can see who is coming. Whatever you carry out the door this morning, somebody will read it as evidence about the people who raised you.",
-    prompts: [
-      "Who will read you today as evidence about your family?",
-      "What would the person whose name you carry want seen this morning?",
-    ],
   },
   koach: {
     deeper:
       "Ya'ef — weary — is the word Isaiah uses for a nation that has run out. The blessing does not promise energy. It promises that strength gets given to the empty, which is a different claim and a far more useful one at six in the morning.",
-    prompts: [
-      "What are you tired of, as opposed to tired from?",
-      "What will you begin today without waiting to feel ready for it?",
-    ],
   },
   sheinah: {
     deeper:
       "Two nouns, sleep and slumber, and two places, the eyes and the eyelids. The liturgy is being oddly specific for a sentence about waking up. Read it as the difference between being awake and being alert — plenty of people get the first every morning without ever getting the second.",
-    prompts: [
-      "You are awake. Are you alert? What would it take?",
-      "What did you sleep through this week that you should have noticed?",
-    ],
   },
   yehiratzon: {
     deeper:
       "Count the requests. Two are about learning, four are about staying out of trouble, two are about company, one is about your own instinct, and the last is about how you will be seen. Not one of them is about an outcome. This is a prayer about who you will be at three in the afternoon, not about what you will get.",
-    prompts: [
-      "Which line on that list do you most need this week?",
-      "Who is the bad friend the prayer asks to be kept from — and is it ever you?",
-    ],
   },
   shetatzileini: {
     deeper:
@@ -1131,10 +1016,6 @@ const LAYER: Record<
   torah: {
     deeper:
       "Three blessings for one act, which is unusual. The first is the ordinary blessing before a mitzvah. The second asks for the learning to be sweet. The third thanks God for having been given it at all. Wanting, enjoying and receiving — the tradition does not assume that doing the thing and loving the thing are the same thing.",
-    prompts: [
-      "What one thing would you like to understand better by tonight?",
-      "When did learning something last feel sweet rather than owed?",
-    ],
   },
   kohanim: {
     deeper:
@@ -1146,15 +1027,193 @@ const LAYER: Record<
   },
 };
 
+// ---------------------------------------------------------------------------
+// The written questions
+//
+// Gratitude first, in the first person, and phrased as something to complete
+// rather than something to answer — at six in the morning a stem is easier to
+// pick up than an interrogation. Each one still belongs to its blessing: the
+// question and the bracha are meant to light each other up, which is why these
+// are mapped per station and not drawn from one general pool.
+//
+// `guided: true` means the station asks at the guided level as well. The rest
+// are only reached at the deep level, so an ordinary morning is asked about
+// nine things rather than twenty-four.
+// ---------------------------------------------------------------------------
+
+const PROMPTS: Record<string, { guided?: boolean; set: string[] }> = {
+  modeh: {
+    guided: true,
+    set: [
+      "Something I wake up to that reminds me what a gift it is to be alive.",
+      "The greatest benefit of being alive right now.",
+      "What went right yesterday.",
+    ],
+  },
+  netilah: {
+    set: [
+      "What is going to go right today.",
+      "One beautiful reason to be happy right now.",
+    ],
+  },
+  asheryatzar: {
+    guided: true,
+    set: [
+      "An ability that I am fortunate to have.",
+      "A simple pleasure I value.",
+      "Something my body did for me today that I never asked it to do.",
+    ],
+  },
+  neshamah: {
+    guided: true,
+    set: [
+      "The moment I felt most alive and fully myself this week.",
+      "One reason to appreciate the person I have become.",
+      "A second chance I have been given.",
+    ],
+  },
+  sechvi: {
+    set: [
+      "What I appreciate most about this moment.",
+      "A time I felt I was in the right place at the right time.",
+    ],
+  },
+  ivrim: {
+    guided: true,
+    set: [
+      "A reason to smile right now.",
+      "Something I saw this week that I am glad I did not miss.",
+    ],
+  },
+  asurim: {
+    guided: true,
+    set: [
+      "A breakdown that led to a breakthrough.",
+      "A challenging experience that helped me grow into a better version of myself.",
+      "A valuable lesson I learned from a difficult situation.",
+    ],
+  },
+  kefufim: {
+    set: [
+      "Someone who has given me hope on a bad day.",
+      "A weight I have been carrying that feels lighter than it did.",
+    ],
+  },
+  arumim: {
+    set: [
+      "A little thing someone did that means a lot to me.",
+      "Something uplifting that someone said.",
+    ],
+  },
+  koach: {
+    set: [
+      "Something I believe in that gives me hope day to day.",
+      "A time I kept going when I did not feel like it.",
+    ],
+  },
+  roka: {
+    set: [
+      "A person, place, or thing that makes my life easier and happier.",
+      "A privilege I have that, until now, I have taken for granted.",
+    ],
+  },
+  mitzadei: {
+    set: [
+      "Something I get to do today that I have always wanted to do.",
+      "A place I get to go today.",
+    ],
+  },
+  tzorki: {
+    guided: true,
+    set: [
+      "A need I have that is being met today.",
+      "Something I currently have that I have always wanted.",
+      "One way I am already living the life I want.",
+    ],
+  },
+  gevurah: {
+    set: [
+      "A skill I have that benefits me in an important way.",
+      "A strength I have been given that today is going to ask for.",
+    ],
+  },
+  tifarah: {
+    set: [
+      "What I love most about my community.",
+      "A name I carry that I want to carry well today.",
+    ],
+  },
+  yisrael: {
+    set: [
+      "Something that gives my life meaning.",
+      "One reason I cherish this time of year.",
+    ],
+  },
+  chorin: {
+    guided: true,
+    set: [
+      "A choice I am grateful that I get to make.",
+      "A freedom I have that I rarely stop to think about.",
+    ],
+  },
+  kirtzono: {
+    set: [
+      "Something about myself I would never change.",
+      "One reason my life is already great.",
+    ],
+  },
+  sheinah: {
+    set: [
+      "The best part of today.",
+      "Something I am looking forward to in the next few hours.",
+    ],
+  },
+  yehiratzon: {
+    set: [
+      "A quality I want more of by tonight.",
+      "Someone whose good opinion of me I would like to earn today.",
+    ],
+  },
+  shetatzileini: {
+    set: [
+      "A trouble I was spared that I never thanked anyone for.",
+      "Someone I am glad is watching out for me.",
+    ],
+  },
+  torah: {
+    set: [
+      "Something I learned recently that I am still thinking about.",
+      "Something I would like to understand better by tonight.",
+    ],
+  },
+  kohanim: {
+    guided: true,
+    set: [
+      "Someone whose presence makes my life sweeter.",
+      "Someone I get to spend time with today.",
+    ],
+  },
+  eiludevarim: {
+    guided: true,
+    set: [
+      "Someone I do not want to miss an opportunity to say thank you to.",
+      "A kindness someone did for me that they will never be repaid for.",
+    ],
+  },
+};
+
 /**
- * The question for this station this morning, if the level asks for one. A
- * station's own `prompts` are its guided-level question; LAYER supplies one for
- * every other station, which only the deep level draws on.
+ * The question for this station this morning, if the level asks for one. Quiet
+ * asks nothing; guided asks only at the stations marked `guided`; deep asks
+ * everywhere. The set rotates by day so the same question does not come round
+ * every morning and stop making anyone look.
  */
 function promptFor(r: Raw, depth: Depth, day: number, i: number): string | undefined {
   if (depth === "quiet") return undefined;
-  const set = r.prompts?.length ? r.prompts : depth === "deep" ? LAYER[r.id]?.prompts : undefined;
-  if (!set?.length) return undefined;
+  const entry = PROMPTS[r.id];
+  if (!entry?.set.length) return undefined;
+  if (depth === "guided" && !entry.guided) return undefined;
+  const set = entry.set;
   return set[(((day + i) % set.length) + set.length) % set.length];
 }
 
