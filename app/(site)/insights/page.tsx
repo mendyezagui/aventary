@@ -1,5 +1,7 @@
 import InsightsFilter from "@/components/InsightsFilter";
+import VideoStrip from "@/components/VideoStrip";
 import { listPosts } from "@/lib/cms";
+import { listVideos } from "@/lib/videos";
 
 export const revalidate = 60;
 
@@ -52,7 +54,7 @@ const FALLBACK = [
 ];
 
 export default async function InsightsPage() {
-  const posts = await listPosts();
+  const [posts, videos] = await Promise.all([listPosts(), listVideos()]);
   const list: any[] = posts.length ? posts : FALLBACK;
 
   return (
@@ -71,6 +73,12 @@ export default async function InsightsPage() {
           </p>
         </div>
       </section>
+
+      <VideoStrip
+        videos={videos.slice(0, 8)}
+        heading="Watch"
+        subheading="The same thinking in ninety seconds. Every clip has a transcript."
+      />
 
       <InsightsFilter posts={list} />
     </>

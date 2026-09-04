@@ -49,6 +49,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: PRIVATE_PATHS,
       })),
     ],
-    sitemap: "https://aventary.com/sitemap.xml",
+    sitemap: ["https://aventary.com/sitemap.xml", "https://aventary.com/video-sitemap.xml"],
   };
 }

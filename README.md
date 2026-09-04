@@ -89,6 +89,66 @@ git push -u origin main
    *after* `www.aventary.com` is serving from Cloudflare (check with
    `dig www.aventary.com` or https://dnschecker.org).
 
+## Video
+
+Clips live in the `videos` table and are edited at `/admin/videos`. Run
+`supabase/migrations/0005_videos.sql` before using it.
+
+Three surfaces, one data source:
+
+| URL | What it is | Indexed |
+| --- | --- | --- |
+| `/videos` | The crawlable grid. Links to every watch page. | yes |
+| `/videos/<slug>` | One clip, server-rendered, with its transcript in the HTML and `VideoObject` structured data. | yes — this is the surface that earns search traffic |
+| `/videos/feed` | The phone scroll feed. A view over the same rows. | no (`noindex, follow`) |
+
+Why it's split that way: Google does not scroll. A feed is one URL with one
+video on it as far as a crawler is concerned, so the feed alone would get you
+nothing. Video results need a dedicated page per clip, server-rendered, with a
+thumbnail and structured data. The feed is the retention layer on top.
+
+**The transcript is the product.** AI answer engines don't watch video, they
+read text, and `app/robots.ts` already lets them read the marketing pages. A
+clip without a transcript is invisible to them. The admin editor lists what's
+missing on each clip before you publish it.
+
+### Hosting a clip
+
+`provider` picks how a clip is played:
+
+- **`cloudflare_stream`** — the default and the recommended one. `playback_id`
+  is the Stream video UID. Autoplays in the feed, auto-generates captions you
+  can paste into the transcript field, and the video is served from our own
+  domain so the indexing credit lands here.
+  Set `NEXT_PUBLIC_CLOUDFLARE_STREAM_SUBDOMAIN` to the first label of your
+  `customer-<code>.cloudflarestream.com` hostname; without it, URLs fall back to
+  `videodelivery.net`.
+- **`file`** — `source_url` points at an `.mp4` or `.m3u8` anywhere. Autoplays in
+  the feed. You must supply `thumbnail_url` yourself; there is nothing to derive
+  one from.
+- **`youtube`** — `playback_id` is the YouTube video ID. The watch page works,
+  but the clip can't autoplay in the feed (a third-party iframe needs a tap) and
+  Google credits the video itself to youtube.com. Use it to get a back catalogue
+  up quickly, not as the destination.
+
+A clip **needs a thumbnail**. Google treats it as required on both the
+structured data and the video sitemap, so a clip without one is dropped from
+both silently. Stream and YouTube clips derive one automatically; `file` clips
+don't.
+
+### Sitemaps
+
+`/sitemap.xml` lists the watch pages as ordinary pages. `/video-sitemap.xml`
+lists them again with the `video:` namespace Google needs. Both are announced in
+`robots.txt` — submit both in Search Console.
+
+### Chapters
+
+Long clips can take chapters, authored as `0:00 Title` lines. Each runs until
+the next one starts, and they become `Clip` structured data, which is what
+produces the "Key moments" jump-links under a Google video result. Worth doing
+on long form, skip on shorts.
+
 ## Admin
 
 - Go to `/admin/login`, enter your allowlisted email, click the magic link.
