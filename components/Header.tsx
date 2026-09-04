@@ -4,8 +4,8 @@ const nav = [
   { href: "/work", label: "Work" },
   { href: "/insights", label: "Insights" },
   { href: "/videos", label: "Watch" },
-  { href: "/intelligence", label: "Intelligence" },
-  { href: "/method", label: "Method" },
+  { href: "/intelligence", label: "Daily Brief" },
+  { href: "/method", label: "Our Method" },
   { href: "/diagnostic", label: "Diagnostic" }
 ];
 
