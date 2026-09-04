@@ -6,6 +6,7 @@ import {
   formatChapters,
   indexingGaps,
   parseChapters,
+  resolveVideoSource,
   type Video,
   type VideoChapter
 } from "@/lib/videos";
@@ -62,9 +63,15 @@ export default async function AdminEditVideo({ params }: { params: Promise<{ id:
     let slug = slugify(slugRaw || title);
     if (RESERVED_VIDEO_SLUGS.includes(slug)) slug = `${slug}-clip`;
 
-    const provider = String(formData.get("provider") ?? "cloudflare_stream");
+    const selected = String(formData.get("provider") ?? "cloudflare_stream");
     const playbackRaw = String(formData.get("playback_id") ?? "").trim();
     const sourceRaw = String(formData.get("source_url") ?? "").trim();
+    // Read whichever field the selected source owns, then let a pasted link
+    // override the selection — same rule as the create form.
+    const source = resolveVideoSource(
+      selected,
+      selected === "file" ? sourceRaw || playbackRaw : playbackRaw || sourceRaw
+    );
     const duration = intOrNull(formData.get("duration_seconds"));
     const postSlug = String(formData.get("post_slug") ?? "").trim() || null;
 
@@ -73,11 +80,10 @@ export default async function AdminEditVideo({ params }: { params: Promise<{ id:
       slug,
       description: String(formData.get("description") ?? "").trim() || null,
       transcript: String(formData.get("transcript") ?? "").trim() || null,
-      provider,
-      // The DB's videos_playable check enforces this pairing; clearing the unused
-      // column here keeps a provider switch from leaving a stale reference behind.
-      playback_id: provider === "file" ? null : playbackRaw || null,
-      source_url: provider === "file" ? sourceRaw || null : null,
+      // The DB's videos_playable check enforces this pairing; resolveVideoSource
+      // clears the unused column so a source switch can't leave a stale
+      // reference behind.
+      ...source,
       thumbnail_url: String(formData.get("thumbnail_url") ?? "").trim() || null,
       duration_seconds: duration,
       orientation: String(formData.get("orientation") ?? "vertical"),
@@ -227,6 +233,10 @@ export default async function AdminEditVideo({ params }: { params: Promise<{ id:
           <label className="block">
             <span className={label}>Stream UID / YouTube ID</span>
             <input name="playback_id" defaultValue={video.playback_id ?? ""} className={field} />
+            <span className="mt-1 block text-xs text-[color:var(--muted)]">
+              A pasted link wins over the Source dropdown — drop a YouTube URL or a
+              direct file URL in either field and the source is corrected on save.
+            </span>
           </label>
 
           <label className="block sm:col-span-2">
