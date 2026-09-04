@@ -36,7 +36,7 @@ export default function ContactForm({ source = "contact" }: { source?: string })
         <h3 className="font-headline text-2xl font-bold mb-2">We'll be in touch.</h3>
         <p className="text-on-surface-variant">
           We reply within 24 hours. In the meantime, feel free to{" "}
-          <a className="text-accent underline" href="/appointments">book a call</a>.
+          <a className="text-accent underline" href="#book">book a call</a>.
         </p>
       </div>
     );

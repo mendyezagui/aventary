@@ -112,7 +112,7 @@ export default function AskAventary() {
         setMessages((prev) =>
           prev.map((m) =>
             m.id === botMsg.id
-              ? { ...m, content: "Sorry — nothing came back. Try again, or book a call at /appointments." }
+              ? { ...m, content: "Sorry — nothing came back. Try again, or book a call at /contact#book." }
               : m
           )
         );
@@ -121,7 +121,7 @@ export default function AskAventary() {
       setMessages((prev) =>
         prev.map((m) =>
           m.id === botMsg.id
-            ? { ...m, content: "I couldn't reach the server. Try again in a moment, or book a call at /appointments." }
+            ? { ...m, content: "I couldn't reach the server. Try again in a moment, or book a call at /contact#book." }
             : m
         )
       );
@@ -228,7 +228,7 @@ export default function AskAventary() {
 
           <div className="px-4 pb-3 -mt-1 text-[10px] text-on-surface-variant/70 text-center shrink-0">
             AI answers may be imperfect. For anything specific,{" "}
-            <Link href="/appointments" className="underline">
+            <Link href="/contact#book" className="underline">
               book a working session
             </Link>
             .

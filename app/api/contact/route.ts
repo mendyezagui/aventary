@@ -111,7 +111,7 @@ TWO WAYS TO RUN IT:
 
 One thing: the X-Ray scores pipeline hygiene, not win-likelihood. And if your export is missing fields, it tells you exactly what you can't measure \u2014 that gap is usually the first finding.
 
-Want me to walk your team through what the number means once you've run it? Grab 20 minutes: https://aventary.com/appointments
+Want me to walk your team through what the number means once you've run it? Grab 20 minutes: https://aventary.com/contact#book
 
 Ciao,
 Mendy
@@ -131,7 +131,7 @@ Aventary`,
   <li><b>DIY</b> \u2014 if you run Claude or Codex, reply and I'll send you the skill files to drop in.</li>
 </ol>
 <p>One thing: the X-Ray scores pipeline <i>hygiene</i>, not win-likelihood. And if your export is missing fields, it tells you exactly what you can't measure \u2014 that gap is usually the first finding.</p>
-<p>Want me to walk your team through what the number means once you've run it? <a href="https://aventary.com/appointments">Grab 20 minutes here.</a></p>
+<p>Want me to walk your team through what the number means once you've run it? <a href="https://aventary.com/contact#book">Grab 20 minutes here.</a></p>
 <p style="margin-top:18px">Ciao,<br>Mendy<br><span style="color:#777">Aventary</span></p>
 </div>`
       });

@@ -230,7 +230,7 @@ export default function MethodPage() {
               <span className="material-symbols-outlined">arrow_forward</span>
             </Link>
             <Link
-              href="/appointments"
+              href="/contact#book"
               className="inline-flex items-center gap-2 bg-surface-container-lowest text-on-surface px-6 py-3.5 rounded-full font-bold soft-lift"
             >
               Book a working session
@@ -400,7 +400,7 @@ export default function MethodPage() {
             measurement, and we name the next step.
           </p>
           <Link
-            href="/appointments"
+            href="/contact#book"
             className="inline-flex items-center gap-2 bg-primary text-on-primary px-8 py-4 rounded-full font-bold text-lg"
           >
             Book a Working Session

@@ -142,7 +142,7 @@ export default function LeadToOppPage() {
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/appointments"
+              href="/contact#book"
               className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-full font-bold"
             >
               Book a 30-min walkthrough
@@ -324,7 +324,7 @@ export default function LeadToOppPage() {
             what would actually move the needle in the next quarter.
           </p>
           <Link
-            href="/appointments"
+            href="/contact#book"
             className="inline-flex items-center gap-2 bg-primary text-on-primary px-8 py-4 rounded-full font-bold text-lg"
           >
             Book a 30-min walkthrough

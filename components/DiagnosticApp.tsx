@@ -324,7 +324,7 @@ function Results({ result, onRestart }: { result: DiagnosticResult; onRestart: (
             The best place to start, given a score of {result.overall}.
           </p>
           <Link
-            href="/appointments"
+            href="/contact#book"
             className="mt-auto inline-flex items-center justify-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-full font-bold"
           >
             Book a Diagnostic Review

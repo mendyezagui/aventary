@@ -12,6 +12,19 @@ const nextConfig = {
         async redirects() {
                 return [
                     {
+                        // /about, /contact and /appointments merged into one page.
+                        // Permanent so the old URLs' search equity moves across;
+                        // the fragments land people on the right section.
+                        source: "/about",
+                        destination: "/contact#about",
+                        permanent: true
+                    },
+                    {
+                        source: "/appointments",
+                        destination: "/contact#book",
+                        permanent: true
+                    },
+                    {
                         // Canonical host: www.* → apex. Handled at the routing layer
                         // (runs before middleware, no function invocation), so it covers
                         // every path without billing serverless CPU. Replaces the old

@@ -22,8 +22,8 @@ export const SEED: Record<string, Page> = {
         headline: "30% of Your Leads Aren't Being",
         accent: "Contacted.",
         sub: "Aventary builds AI-first product strategies, fractional CPO/CTO leadership, and RevOps systems for non-tech companies — every lead contacted, every time.",
-        ctaLabel: "Book a Call", ctaHref: "/appointments",
-        secondaryLabel: "Our Approach", secondaryHref: "/about",
+        ctaLabel: "Book a Call", ctaHref: "/contact#book",
+        secondaryLabel: "Our Approach", secondaryHref: "/contact#about",
         image: { src: HERO_IMG, alt: "Strategic Leadership" },
         chip: { icon: "monitoring", title: "RevOps Insight",
                 body: "AI-driven lead routing keeps every inbound contacted within minutes." }
@@ -44,7 +44,7 @@ export const SEED: Record<string, Page> = {
           title: "AI Strategy & RevOps",
           body: "AI-driven revenue operations and lead routing systems. Every lead contacted. Every time.",
           icon: "neurology",
-          ctaLabel: "Build Your Pipeline", ctaHref: "/appointments"
+          ctaLabel: "Build Your Pipeline", ctaHref: "/contact#book"
         },
         tiles: [
           { eyebrow: "Salesforce + Agentforce", title: "Lead-to-Opportunity Framework",
@@ -91,7 +91,7 @@ export const SEED: Record<string, Page> = {
       { id: "c", type: "cta", position: 4, data: {
         headline: "Ready to fix your", accent: "lead pipeline?",
         sub: "Book a confidential strategy call. We reply within 24 hours.",
-        ctaLabel: "Book a Call Now", ctaHref: "/appointments"
+        ctaLabel: "Book a Call Now", ctaHref: "/contact#book"
       }}
     ]
   },

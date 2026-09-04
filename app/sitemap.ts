@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // here means crawlers hit the real page directly instead of eating an extra
   // redirect invocation on every indexed URL.
   const base = "https://aventary.com";
-  const statics = ["", "/about", "/contact", "/appointments", "/insights", "/videos", "/camp-letter"].map((p) => ({
+  const statics = ["", "/contact", "/insights", "/videos", "/camp-letter"].map((p) => ({
     url: base + p,
     changeFrequency: "weekly" as const,
     priority: p === "" ? 1 : 0.7
