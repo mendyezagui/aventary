@@ -71,16 +71,76 @@ export default async function InsightsPage() {
             Two tracks: original frameworks from our own engagements, and the signals we track
             from the wider field.
           </p>
+
+          {/* Watch or read — the two ways through this page, offered before either
+              starts. Plain anchors, so both bodies of content stay in the DOM for
+              crawlers rather than hiding behind a tab. */}
+          {videos.length ? (
+            <div className="mt-12 grid gap-4 sm:grid-cols-2 max-w-3xl">
+              <SwitchCard
+                href="#watch"
+                label="Watch"
+                count={`${videos.length} ${videos.length === 1 ? "clip" : "clips"}`}
+                blurb="Short takes, ninety seconds each."
+              />
+              <SwitchCard
+                href="#read"
+                label="Read"
+                count={`${list.length} ${list.length === 1 ? "article" : "articles"}`}
+                blurb="Long-form analysis from the work."
+              />
+            </div>
+          ) : null}
         </div>
       </section>
 
-      <VideoStrip
-        videos={videos.slice(0, 8)}
-        heading="Watch"
-        subheading="The same thinking in ninety seconds. Every clip has a transcript."
-      />
+      <div id="watch" className="scroll-mt-24">
+        <VideoStrip
+          videos={videos.slice(0, 8)}
+          heading="Watch"
+          subheading="The same thinking in ninety seconds. Every clip has a transcript."
+        />
+      </div>
 
-      <InsightsFilter posts={list} />
+      <div id="read" className="scroll-mt-24">
+        <InsightsFilter posts={list} />
+      </div>
     </>
+  );
+}
+
+/** One of the two "how do you want this" cards at the top of the page. */
+function SwitchCard({
+  href,
+  label,
+  count,
+  blurb
+}: {
+  href: string;
+  label: string;
+  count: string;
+  blurb: string;
+}) {
+  return (
+    <a
+      href={href}
+      className="group flex items-center justify-between gap-6 rounded-xl border border-outline-variant/40 bg-surface-container-lowest p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40"
+    >
+      <span className="min-w-0 flex-1">
+        <span className="block font-headline text-2xl font-semibold group-hover:text-primary transition-colors">
+          {label}
+        </span>
+        <span className="mt-1 block font-label text-[11px] font-semibold uppercase tracking-[0.22em] text-accent">
+          {count}
+        </span>
+        <span className="mt-2 block text-sm text-on-surface-variant">{blurb}</span>
+      </span>
+      <span
+        aria-hidden="true"
+        className="material-symbols-outlined shrink-0 text-on-surface-variant transition-transform group-hover:translate-y-1 group-hover:text-primary"
+      >
+        arrow_downward
+      </span>
+    </a>
   );
 }
