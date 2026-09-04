@@ -4,6 +4,8 @@ import { marked } from "marked";
 import { getPost } from "@/lib/cms";
 import { AuthorBio } from "@/components/AuthorBio";
 import { RichArticleReveals } from "@/components/RichArticleReveals";
+import VideoStrip from "@/components/VideoStrip";
+import { listVideosForPost } from "@/lib/videos";
 
 function formatDate(iso: string | null | undefined): string {
   if (!iso) return "";
@@ -77,6 +79,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const post = await loadPost(slug);
   if (!post) notFound();
 
+  const clips = await listVideosForPost(slug);
+
   // If the post ships rich HTML (designed page), render it full-bleed and skip
   // the standard light hero/cover/markdown layout. The rich HTML brings its own
   // hero, byline, sections, and CTA.
@@ -89,6 +93,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           dangerouslySetInnerHTML={{ __html: post.body_html }}
         />
         <RichArticleReveals />
+        <div className="pt-16 bg-surface">
+          <VideoStrip videos={clips} heading="Watch this piece" />
+        </div>
         <section className="px-8 py-16 bg-surface">
           <div className="max-w-3xl mx-auto">
             <AuthorBio />
@@ -146,7 +153,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         </section>
       ) : null}
 
-      <section className="px-8 pb-24">
+      <section className="px-8 pb-12">
         <article
           className="max-w-3xl mx-auto text-lg leading-relaxed text-on-surface [&_h2]:font-headline [&_h2]:text-2xl [&_h2]:md:text-3xl [&_h2]:font-bold [&_h2]:pt-8 [&_h2]:mb-3 [&_h3]:font-headline [&_h3]:text-xl [&_h3]:md:text-2xl [&_h3]:font-bold [&_h3]:pt-6 [&_h3]:mb-3 [&_p]:my-5 [&_a]:text-primary [&_a]:underline [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-5 [&_ul>li]:my-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-5 [&_ol>li]:my-2 [&_blockquote]:border-l-4 [&_blockquote]:border-primary [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:my-6 [&_code]:bg-black/5 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_pre]:bg-black/90 [&_pre]:text-white [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-6 [&_pre>code]:bg-transparent [&_pre>code]:p-0 [&_img]:rounded-2xl [&_img]:my-6 [&_img]:w-full [&_strong]:font-bold [&_em]:italic"
           dangerouslySetInnerHTML={{ __html: html }}
@@ -155,8 +162,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <div className="max-w-3xl mx-auto">
           <AuthorBio />
         </div>
+      </section>
 
-        <div className="max-w-3xl mx-auto pt-8">
+      <VideoStrip videos={clips} heading="Watch this piece" />
+
+      <section className="px-8 pb-24">
+        <div className="max-w-3xl mx-auto">
           <Link
             href="/contact"
             className="bg-primary text-on-primary px-8 py-4 rounded-full font-label font-bold hover:opacity-90 transition inline-flex items-center gap-2"

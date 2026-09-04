@@ -31,6 +31,11 @@ h1, h2, h3, h4, h5 {
 .editorial-gap { letter-spacing: -0.02em; }
 .soft-lift { box-shadow: 0px 20px 40px rgba(28, 27, 27, 0.06); }
 
+/* Scroll containers that own the whole viewport (the clip feed, the Insights
+   video strip) — the scrollbar is chrome we don't want over the video. */
+.av-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.av-no-scrollbar::-webkit-scrollbar { display: none; }
+
 /* Scroll-reveal, JS-opt-in via the <Reveal> component. Content is visible by
    default (SSR / no-JS / reduced-motion always see it); <Reveal> adds .av-reveal
    only when motion is allowed, then .is-in when the element scrolls into view. */
