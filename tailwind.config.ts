@@ -46,6 +46,7 @@ export default {
       },
       fontFamily: {
         headline: ["var(--font-headline)", "Fraunces", "Georgia", "serif"],
+        heading: ["var(--font-headline)", "Fraunces", "Georgia", "serif"],
         body: ["var(--font-body)", "Hanken Grotesk", "Inter", "sans-serif"],
         label: ["var(--font-body)", "Hanken Grotesk", "sans-serif"]
       },
