@@ -37,8 +37,6 @@ export default function Footer() {
             <li><Link className="text-white/55 hover:text-primary transition-colors" href="/diagnostics">Revenue Leak Kit</Link></li>
             <li><Link className="text-white/55 hover:text-primary transition-colors" href="/insights">Insights</Link></li>
             <li><Link className="text-white/55 hover:text-primary transition-colors" href="/intelligence">Intelligence</Link></li>
-            <li><Link className="text-white/55 hover:text-primary transition-colors" href="/about">About</Link></li>
-            <li><Link className="text-white/55 hover:text-primary transition-colors" href="/appointments">Book a call</Link></li>
           </ul>
         </div>
         <div className="flex flex-col gap-6">

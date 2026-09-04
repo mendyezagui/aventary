@@ -42,7 +42,14 @@ function loadCalendly(): Promise<void> {
  * the contact page. Colors are themed via embed params (gold primary); the
  * in-widget account brand color is set in Calendly's own settings.
  */
-export default function CalendlyEmbed({ url }: { url?: string }) {
+export default function CalendlyEmbed({
+  url,
+  messageHref = "/contact#message"
+}: {
+  url?: string;
+  /** Where "prefer email" sends people — an anchor when the form is on this page. */
+  messageHref?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const base = url || "https://calendly.com/mendy-aventary";
   const themed =
@@ -101,10 +108,10 @@ export default function CalendlyEmbed({ url }: { url?: string }) {
               Not ready to book? Send a note and we&apos;ll reply within one business day.
             </p>
             <Link
-              href="/contact"
+              href={messageHref}
               className="bg-ink text-inverse-on-surface px-6 py-3 rounded-[2px] font-label font-semibold text-xs tracking-[0.16em] uppercase inline-block hover:opacity-90 transition"
             >
-              Contact us
+              Send a message
             </Link>
           </div>
         </aside>

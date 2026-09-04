@@ -59,7 +59,7 @@ export default function DiagnosticPage() {
           </p>
           <p className="text-sm text-on-surface-variant mt-6">
             Prefer to skip ahead?{" "}
-            <Link href="/appointments" className="text-accent underline underline-offset-2">
+            <Link href="/contact#book" className="text-accent underline underline-offset-2">
               Book a diagnostic review
             </Link>{" "}
             or read{" "}

@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
     "unknown";
   if (rateLimited(ip)) {
-    return new Response("You've hit the limit for now. Book a working session at /appointments.", {
+    return new Response("You've hit the limit for now. Book a working session at /contact#book.", {
       status: 429
     });
   }
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
   if (!key) {
     // Graceful: the widget shows this as a normal assistant line.
     return new Response(
-      "Ask Aventary isn't switched on yet. In the meantime, run the free diagnostic at /diagnostic or book a working session at /appointments.",
+      "Ask Aventary isn't switched on yet. In the meantime, run the free diagnostic at /diagnostic or book a working session at /contact#book.",
       { status: 200, headers: { "Content-Type": "text/plain; charset=utf-8" } }
     );
   }
@@ -102,7 +102,7 @@ export async function POST(req: Request) {
         console.error("ask stream error", err);
         controller.enqueue(
           encoder.encode(
-            "\n\nSomething went wrong on my end. Try again, or book a working session at /appointments."
+            "\n\nSomething went wrong on my end. Try again, or book a working session at /contact#book."
           )
         );
       } finally {

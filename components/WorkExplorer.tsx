@@ -209,7 +209,7 @@ function CardActions({ project: p }: { project: Project }) {
   if (!hasLive && !hasVideo) {
     return (
       <a
-        href="/appointments"
+        href="/contact#book"
         className="inline-flex items-center gap-1.5 text-on-surface-variant hover:text-on-surface font-label font-semibold text-[11px] tracking-wide uppercase transition-colors"
       >
         <span className="material-symbols-outlined text-base">lock</span>

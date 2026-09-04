@@ -349,7 +349,7 @@ function FormAnchor({ source }: { source?: string }) {
               Skip the form and book a 30-minute strategy call directly.
             </p>
             <Link
-              href="/appointments"
+              href="/contact#book"
               className="bg-ink text-inverse-on-surface px-6 py-3 rounded-[2px] font-label font-semibold text-xs tracking-[0.16em] uppercase inline-block hover:opacity-90 transition"
             >
               Book now

@@ -6,9 +6,7 @@ const nav = [
   { href: "/videos", label: "Watch" },
   { href: "/intelligence", label: "Intelligence" },
   { href: "/method", label: "Method" },
-  { href: "/diagnostic", label: "Diagnostic" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" }
+  { href: "/diagnostic", label: "Diagnostic" }
 ];
 
 export default function Header() {
@@ -102,10 +100,10 @@ export default function Header() {
           </details>
 
           <Link
-            href="/appointments"
+            href="/contact"
             className="bg-primary text-on-primary px-5 md:px-7 py-3 rounded-[2px] font-label font-semibold text-xs tracking-[0.16em] uppercase hover:opacity-90 transition-opacity duration-300 whitespace-nowrap"
           >
-            Book a Call
+            Contact
           </Link>
         </div>
       </div>
