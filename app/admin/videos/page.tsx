@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin";
-import { RESERVED_VIDEO_SLUGS } from "@/lib/videos";
+import { RESERVED_VIDEO_SLUGS, resolveVideoSource } from "@/lib/videos";
 
 function slugify(s: string) {
   return s
@@ -26,22 +26,21 @@ export default async function AdminVideosIndex() {
     const title = String(formData.get("title") ?? "").trim();
     if (!title) return;
 
-    const provider = String(formData.get("provider") ?? "cloudflare_stream");
     const reference = String(formData.get("reference") ?? "").trim();
     if (!reference) return;
+
+    // A pasted link decides the source; the dropdown only settles a bare id.
+    const source = resolveVideoSource(
+      String(formData.get("provider") ?? "cloudflare_stream"),
+      reference
+    );
 
     let slug = slugify(String(formData.get("slug") ?? "") || title);
     if (RESERVED_VIDEO_SLUGS.includes(slug)) slug = `${slug}-clip`;
 
     const { data, error } = await supabase
       .from("videos")
-      .insert({
-        title,
-        slug,
-        provider,
-        playback_id: provider === "file" ? null : reference,
-        source_url: provider === "file" ? reference : null
-      })
+      .insert({ title, slug, ...source })
       .select("id")
       .single();
     if (error || !data) return;
@@ -75,22 +74,25 @@ export default async function AdminVideosIndex() {
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-sm font-medium">Source</span>
-          <select name="provider" defaultValue="cloudflare_stream" className="w-full border border-black/20 px-3 py-2">
-            <option value="cloudflare_stream">Cloudflare Stream (autoplays in the feed)</option>
-            <option value="file">Direct file URL — .mp4 or .m3u8 (autoplays in the feed)</option>
-            <option value="youtube">YouTube (tap to play; Google credits youtube.com)</option>
-          </select>
-        </label>
-
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium">Reference</span>
+          <span className="mb-1 block text-sm font-medium">Link or ID</span>
           <input
             name="reference"
             required
-            placeholder="Stream video UID, YouTube video ID, or a direct file URL"
+            placeholder="Paste a YouTube link, a direct .mp4 / .m3u8 URL, or a Cloudflare Stream UID"
             className="w-full border border-black/20 px-3 py-2"
           />
+          <span className="mt-1 block text-xs text-[color:var(--muted)]">
+            Paste a link and the source is worked out for you. The dropdown below only
+            matters for a bare id, where a Stream UID and a YouTube id look identical.
+          </span>
+        </label>
+
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium">If you pasted a bare id, it is a…</span>
+          <select name="provider" defaultValue="cloudflare_stream" className="w-full border border-black/20 px-3 py-2">
+            <option value="cloudflare_stream">Cloudflare Stream UID (autoplays in the feed)</option>
+            <option value="youtube">YouTube video ID (tap to play; Google credits youtube.com)</option>
+          </select>
         </label>
 
         <button className="btn btn-primary">Create draft</button>

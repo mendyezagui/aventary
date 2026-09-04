@@ -234,6 +234,79 @@ export function indexingGaps(video: Video): string[] {
 }
 
 // ---------------------------------------------------------------------------
+// Source resolution
+// ---------------------------------------------------------------------------
+
+export type VideoSourceFields = {
+  provider: VideoProvider;
+  playback_id: string | null;
+  source_url: string | null;
+};
+
+const YOUTUBE_ID = /^[A-Za-z0-9_-]{11}$/;
+
+/** The video id in any shape of YouTube link, or null if it isn't one. */
+export function parseYouTubeId(input: string): string | null {
+  const value = input.trim();
+  if (!/^https?:\/\//i.test(value)) return null;
+
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return null;
+  }
+
+  const host = url.hostname.replace(/^www\./, "").toLowerCase();
+
+  if (host === "youtu.be") {
+    const id = url.pathname.slice(1).split("/")[0];
+    return YOUTUBE_ID.test(id) ? id : null;
+  }
+
+  if (host === "youtube.com" || host === "m.youtube.com" || host === "youtube-nocookie.com") {
+    const v = url.searchParams.get("v");
+    if (v && YOUTUBE_ID.test(v)) return v;
+    const match = /^\/(?:shorts|embed|live|v)\/([A-Za-z0-9_-]{11})/.exec(url.pathname);
+    if (match) return match[1];
+  }
+
+  return null;
+}
+
+/**
+ * Decide how a clip is played from whatever was pasted into the admin, rather
+ * than trusting the Source dropdown.
+ *
+ * The dropdown defaults to Cloudflare Stream, so pasting a YouTube link or a
+ * file URL without changing it stored a URL in `playback_id`, where a bare
+ * Stream UID belongs. That produced a clip that saved cleanly, rendered a page,
+ * and played nothing — the worst kind of failure, because it looks fine.
+ *
+ * A link says what it is, so it decides. Only a bare id is ambiguous (a Stream
+ * UID and a YouTube id are both opaque tokens), and there the dropdown is a
+ * deliberate choice, so it wins.
+ */
+export function resolveVideoSource(selected: string, referenceRaw: string): VideoSourceFields {
+  const reference = referenceRaw.trim();
+
+  const youtubeId = parseYouTubeId(reference);
+  if (youtubeId) {
+    return { provider: "youtube", playback_id: youtubeId, source_url: null };
+  }
+
+  if (/^https?:\/\//i.test(reference)) {
+    return { provider: "file", playback_id: null, source_url: reference };
+  }
+
+  // Bare token: honour the dropdown. "file" without a URL is not playable, so
+  // fall back to the Stream reading rather than storing something unusable.
+  const provider: VideoProvider =
+    selected === "youtube" ? "youtube" : "cloudflare_stream";
+  return { provider, playback_id: reference || null, source_url: null };
+}
+
+// ---------------------------------------------------------------------------
 // Chapter authoring
 // ---------------------------------------------------------------------------
 
