@@ -1012,6 +1012,25 @@ a.card:hover {
   padding: 9px 16px;
   flex: 0 0 auto;
 }
+.vc-diag {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 8px 4px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.vc-diag b {
+  color: var(--ink);
+  font-weight: 700;
+}
+.vc-diag-err {
+  color: var(--stop);
+}
+.vc-diag-err b {
+  color: var(--stop);
+}
 
 .savedchips {
   display: flex;

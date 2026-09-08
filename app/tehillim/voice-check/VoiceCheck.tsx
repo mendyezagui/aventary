@@ -39,9 +39,9 @@ export default function VoiceCheck() {
   const [stripNikkud, setStripNikkud] = useState(false);
   const [sayHashem, setSayHashem] = useState(true);
   const [speakingKey, setSpeakingKey] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
   const speedRef = useRef(speed);
   speedRef.current = speed;
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load the device's voices. They can arrive asynchronously, so refresh on the
   // voiceschanged event as well as on mount.
@@ -54,9 +54,11 @@ export default function VoiceCheck() {
     const load = () => setVoices(window.speechSynthesis.getVoices());
     load();
     window.speechSynthesis.addEventListener("voiceschanged", load);
+    // Some desktop Chromium builds only populate voices after a beat.
+    const t = setTimeout(load, 250);
     return () => {
+      clearTimeout(t);
       window.speechSynthesis.removeEventListener("voiceschanged", load);
-      if (timerRef.current) clearTimeout(timerRef.current);
       window.speechSynthesis.cancel();
     };
   }, []);
@@ -64,10 +66,6 @@ export default function VoiceCheck() {
   const hebrew = voices.filter((v) => v.lang?.toLowerCase().startsWith("he"));
 
   const stop = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
     window.speechSynthesis.cancel();
     setSpeakingKey(null);
   }, []);
@@ -75,35 +73,40 @@ export default function VoiceCheck() {
   // Speak both sample verses in turn through one voice (or the default when
   // `voice` is null).
   //
-  // Two Web Speech quirks make a naive cancel()+speak() play only the first
-  // time: cancel() is asynchronous on Chrome/Safari, so speaking in the same
-  // tick gets swallowed by the pending cancel; and the engine can be left in a
-  // paused state after a run. So we cancel, then on a later tick resume() (to
-  // unstick) and queue the utterances. The pending timer is tracked so Stop
-  // (and unmount) can clear it, and so repeated taps never stack up.
+  // Speaking must happen synchronously inside the click handler: strict
+  // Chromium builds (Brave with Shields up) block speech that isn't tied to a
+  // user gesture, so we must NOT defer speak() into a timer. To play reliably
+  // on repeat we only cancel() when something is actually still speaking (a
+  // cancel + same-tick speak otherwise races and drops the utterance), and
+  // resume() first to unstick an engine left paused after a previous run.
+  // Any failure is surfaced to the page via onerror so Brave/OS issues are
+  // visible instead of silent.
   const speak = useCallback(
     (key: string, voice: SpeechSynthesisVoice | null) => {
       const synth = window.speechSynthesis;
-      if (timerRef.current) clearTimeout(timerRef.current);
-      synth.cancel();
+      setErr(null);
+      if (synth.speaking || synth.pending) synth.cancel();
+      synth.resume();
       setSpeakingKey(key);
-      timerRef.current = setTimeout(() => {
-        timerRef.current = null;
-        synth.resume();
-        SAMPLES.forEach((s, i) => {
-          const u = new SpeechSynthesisUtterance(
-            transform(s.text, stripNikkud, sayHashem)
-          );
-          if (voice) u.voice = voice;
-          u.lang = voice?.lang || "he-IL";
-          u.rate = speedRef.current;
-          if (i === SAMPLES.length - 1) {
-            u.onend = () => setSpeakingKey((k) => (k === key ? null : k));
-            u.onerror = () => setSpeakingKey((k) => (k === key ? null : k));
+      SAMPLES.forEach((s, i) => {
+        const u = new SpeechSynthesisUtterance(
+          transform(s.text, stripNikkud, sayHashem)
+        );
+        if (voice) u.voice = voice;
+        u.lang = voice?.lang || "he-IL";
+        u.rate = speedRef.current;
+        u.onerror = (e) => {
+          setSpeakingKey((k) => (k === key ? null : k));
+          const reason = (e as SpeechSynthesisErrorEvent).error;
+          if (reason && reason !== "interrupted" && reason !== "canceled") {
+            setErr(reason);
           }
-          synth.speak(u);
-        });
-      }, 130);
+        };
+        if (i === SAMPLES.length - 1) {
+          u.onend = () => setSpeakingKey((k) => (k === key ? null : k));
+        }
+        synth.speak(u);
+      });
     },
     [stripNikkud, sayHashem]
   );
@@ -185,6 +188,30 @@ export default function VoiceCheck() {
         </div>
       </section>
 
+      {/* Diagnostics — so "it doesn't work" becomes a specific answer */}
+      <div className="vc-diag">
+        <span>
+          Speech API:{" "}
+          <b>
+            {supported === null
+              ? "checking…"
+              : supported
+                ? "supported"
+                : "not available"}
+          </b>
+        </span>
+        {supported && (
+          <span>
+            Voices found: <b>{voices.length}</b> ({hebrew.length} Hebrew)
+          </span>
+        )}
+        {err && (
+          <span className="vc-diag-err">
+            Last speak error: <b>{err}</b>
+          </span>
+        )}
+      </div>
+
       {supported === false && (
         <section className="card">
           <div className="card-main">
@@ -200,12 +227,26 @@ export default function VoiceCheck() {
       {supported && hebrew.length === 0 && (
         <section className="card">
           <div className="card-main">
-            <span className="card-title">No Hebrew voice on this device</span>
+            <span className="card-title">No Hebrew voice available</span>
             <span className="card-desc">
-              On iPhone/iPad: <b>Settings → Accessibility → Spoken Content →
-              Voices → Hebrew</b> and download <b>Carmit</b>. On Android, install
-              the Hebrew language pack for Google Text-to-Speech. Then reopen
-              this page.
+              {voices.length === 0 ? (
+                <>
+                  This browser reports <b>zero voices</b>. On <b>Brave desktop</b>{" "}
+                  that&rsquo;s the privacy Shields blocking the Web Speech API —
+                  click the Brave <b>Shields</b> icon and turn it <b>down for this
+                  site</b>, or open the page in <b>Safari or Chrome</b>. On a Mac
+                  the good Hebrew voice (Carmit) lives in{" "}
+                  <b>System Settings → Accessibility → Spoken Content → System
+                  voice → Manage Voices → Hebrew</b>.
+                </>
+              ) : (
+                <>
+                  Your device has voices but no Hebrew one. On iPhone/iPad:{" "}
+                  <b>Settings → Accessibility → Spoken Content → Voices →
+                  Hebrew</b> (download <b>Carmit</b>). On Android, install the
+                  Hebrew pack for Google Text-to-Speech. Then reopen this page.
+                </>
+              )}
             </span>
             <button
               type="button"
