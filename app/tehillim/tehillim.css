@@ -388,6 +388,60 @@
   }
 }
 
+/* Read-aloud button (voice), sits beside the auto-scroll play button */
+.fab-plays {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fab-read {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  background: var(--gold);
+  color: #fff;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 8px 24px rgba(169, 121, 28, 0.28), 0 4px 10px rgba(0, 0, 0, 0.18);
+  transition: transform 0.12s, background 0.15s, box-shadow 0.15s;
+}
+.fab-read:hover {
+  transform: translateY(-2px);
+}
+.fab-read-on {
+  background: var(--stop);
+  border-color: var(--stop);
+  box-shadow: 0 8px 24px rgba(178, 59, 59, 0.3);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fab-read {
+    transition: none;
+  }
+}
+/* Speed pill tints gold while it's controlling the voice rate */
+.fab-speed.voice-mode {
+  border-color: var(--gold);
+}
+.fab-speed-ic {
+  font-size: 0.8rem;
+  line-height: 1;
+}
+.voicepick select {
+  max-width: 130px;
+}
+
+/* The verse the voice is currently reading */
+.verse.speaking {
+  background: var(--accent-soft);
+  border-radius: 6px;
+  box-shadow: 0 0 0 6px var(--accent-soft);
+  transition: background 0.2s;
+}
+
 /* ---------- Text ---------- */
 .scroll-area {
   --fs: 1;

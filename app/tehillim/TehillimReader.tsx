@@ -68,6 +68,29 @@ const pctToSpeed = (pct: number) =>
 const speedToPct = (s: number) =>
   Math.round(((s - SPEED_MIN) / (SPEED_MAX - SPEED_MIN)) * 100);
 
+// ---- Read-aloud (Web Speech) ----
+type NameStyle = "hashem" | "adonai"; // how the Divine Name is vocalized
+const VRATE_MIN = 0.5; // voice rate at 0%
+const VRATE_MAX = 1.3; // voice rate at 100%
+const pctToVRate = (pct: number) =>
+  VRATE_MIN + (Math.max(0, Math.min(100, pct)) / 100) * (VRATE_MAX - VRATE_MIN);
+const vRateToPct = (r: number) =>
+  Math.round(((r - VRATE_MIN) / (VRATE_MAX - VRATE_MIN)) * 100);
+
+const SHEM = /י[֑-ׇ]*ה[֑-ׇ]*ו[֑-ׇ]*ה/g; // Tetragrammaton, nikkud between letters
+// The Tetragrammaton carries Adonai's borrowed vowels, so a TTS engine sounds
+// it into garble. Always swap it for a word the voice can say — never the raw
+// letters — and turn the maqaf into a space so joined words read apart.
+function speakText(text: string, nameStyle: NameStyle): string {
+  return text
+    .replace(SHEM, nameStyle === "adonai" ? "אֲדֹנָי" : "הַשֵּׁם")
+    .replace(/־/g, " ")
+    .trim();
+}
+
+// Stable id for a rendered verse, matched by the read-aloud loop and the DOM.
+const readId = (gi: number, si: number, vn: number) => `rv-${gi}-${si}-${vn}`;
+
 type Persisted = {
   speed?: number;
   font?: number;
@@ -76,6 +99,9 @@ type Persisted = {
   barOpen?: boolean;
   enhance?: boolean;
   seasonalOn?: boolean;
+  voiceRate?: number;
+  voiceURI?: string;
+  nameStyle?: NameStyle;
   scroll?: { key: string; y: number };
 };
 
@@ -162,6 +188,15 @@ export default function TehillimReader() {
   const [seasonalOn, setSeasonalOnState] = useState(true);
   const [readMin, setReadMin] = useState<number | null>(null);
 
+  // ---- read-aloud (Web Speech) ----
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [voiceURI, setVoiceURIState] = useState<string>("");
+  const [voiceRate, setVoiceRateState] = useState(0.85);
+  const [nameStyle, setNameStyleState] = useState<NameStyle>("hashem");
+  const [reading, setReading] = useState(false);
+  const [activeMode, setActiveMode] = useState<"scroll" | "voice">("scroll");
+  const [currentReadId, setCurrentReadId] = useState<string | null>(null);
+
   const wakeRef = useRef<WakeLockSentinel | null>(null);
   const selRef = useRef(sel);
   selRef.current = sel;
@@ -175,6 +210,13 @@ export default function TehillimReader() {
   const enhBtnRef = useRef<HTMLButtonElement | null>(null);
   const enhLblRef = useRef<HTMLSpanElement | null>(null);
   const boostRef = useRef(false);
+  const readingRef = useRef(false);
+  const voiceRateRef = useRef(voiceRate);
+  voiceRateRef.current = voiceRate;
+  const nameStyleRef = useRef(nameStyle);
+  nameStyleRef.current = nameStyle;
+  const activeModeRef = useRef(activeMode);
+  activeModeRef.current = activeMode;
 
   // ---- One-time client init ----
   useEffect(() => {
@@ -210,6 +252,10 @@ export default function TehillimReader() {
     if (typeof s.barOpen === "boolean") setBarOpenState(s.barOpen);
     if (typeof s.enhance === "boolean") setEnhanceState(s.enhance);
     if (typeof s.seasonalOn === "boolean") setSeasonalOnState(s.seasonalOn);
+    if (typeof s.voiceRate === "number") setVoiceRateState(s.voiceRate);
+    if (typeof s.voiceURI === "string") setVoiceURIState(s.voiceURI);
+    if (s.nameStyle === "hashem" || s.nameStyle === "adonai")
+      setNameStyleState(s.nameStyle);
     setTheme(
       s.theme ||
         (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
@@ -249,6 +295,10 @@ export default function TehillimReader() {
       if (typeof s.barOpen === "boolean") setBarOpenState(s.barOpen);
       if (typeof s.enhance === "boolean") setEnhanceState(s.enhance);
       if (typeof s.seasonalOn === "boolean") setSeasonalOnState(s.seasonalOn);
+      if (typeof s.voiceRate === "number") setVoiceRateState(s.voiceRate);
+      if (typeof s.voiceURI === "string") setVoiceURIState(s.voiceURI);
+      if (s.nameStyle === "hashem" || s.nameStyle === "adonai")
+        setNameStyleState(s.nameStyle);
       if (s.theme === "light" || s.theme === "dark") setTheme(s.theme);
       stop = startSyncLoop();
     })();
@@ -309,17 +359,146 @@ export default function TehillimReader() {
     return out;
   }, [sel, hebToday, saved, seasonalOn]);
 
+  // Flat, ordered list of verses to read aloud — ids match the rendered DOM.
+  const readItems = useMemo(() => {
+    const items: { id: string; text: string }[] = [];
+    groups.forEach((g, gi) => {
+      g.segments.forEach((seg, si) => {
+        const verses = TEXT[String(seg.chapter)] ?? [];
+        const from = seg.from ?? 1;
+        const to = seg.to ?? verses.length;
+        verses.slice(from - 1, to).forEach((v, idx) => {
+          items.push({ id: readId(gi, si, from + idx), text: v });
+        });
+      });
+    });
+    return items;
+  }, [groups]);
+  const readItemsRef = useRef(readItems);
+  readItemsRef.current = readItems;
+
+  // ---- Voices: load the device's Hebrew voices (async on some browsers) ----
+  const speechOK =
+    typeof window !== "undefined" && "speechSynthesis" in window;
+  useEffect(() => {
+    if (!speechOK) return;
+    const load = () => setVoices(window.speechSynthesis.getVoices());
+    load();
+    window.speechSynthesis.addEventListener("voiceschanged", load);
+    const t = setTimeout(load, 250);
+    return () => {
+      clearTimeout(t);
+      window.speechSynthesis.removeEventListener("voiceschanged", load);
+    };
+  }, [speechOK]);
+
+  const hebrewVoices = useMemo(
+    () => voices.filter((v) => v.lang?.toLowerCase().startsWith("he")),
+    [voices]
+  );
+  // The voice we'll actually speak with: the saved choice, else an on-device
+  // one (Carmit et al.), else the first Hebrew voice.
+  const chosenVoice = useMemo(() => {
+    if (!hebrewVoices.length) return null;
+    return (
+      hebrewVoices.find((v) => v.voiceURI === voiceURI) ||
+      hebrewVoices.find((v) => v.localService) ||
+      hebrewVoices[0]
+    );
+  }, [hebrewVoices, voiceURI]);
+  const chosenVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
+  chosenVoiceRef.current = chosenVoice;
+
+  // Speak verse i, then chain to i+1 on end. Reads live values from refs so a
+  // stale closure (from a re-render mid-read) still uses the current voice/rate.
+  const speakFrom = useCallback((i: number) => {
+    const items = readItemsRef.current;
+    if (!readingRef.current || i >= items.length) {
+      readingRef.current = false;
+      setReading(false);
+      setCurrentReadId(null);
+      return;
+    }
+    const item = items[i];
+    const u = new SpeechSynthesisUtterance(
+      speakText(item.text, nameStyleRef.current)
+    );
+    const v = chosenVoiceRef.current;
+    if (v) u.voice = v;
+    u.lang = v?.lang || "he-IL";
+    u.rate = voiceRateRef.current;
+    u.onstart = () => {
+      setCurrentReadId(item.id);
+      document
+        .getElementById(item.id)
+        ?.scrollIntoView({ block: "center", behavior: "smooth" });
+    };
+    u.onend = () => {
+      if (readingRef.current) speakFrom(i + 1);
+    };
+    u.onerror = (e) => {
+      const err = (e as SpeechSynthesisErrorEvent).error;
+      if (err === "interrupted" || err === "canceled") return;
+      readingRef.current = false;
+      setReading(false);
+      setCurrentReadId(null);
+    };
+    window.speechSynthesis.speak(u);
+  }, []);
+
+  const stopReading = useCallback(() => {
+    readingRef.current = false;
+    setReading(false);
+    setCurrentReadId(null);
+    if (speechOK) window.speechSynthesis.cancel();
+  }, [speechOK]);
+
+  // Start from the first verse whose element is at/below the top of the view,
+  // so tapping play reads from where you're looking (not always the top).
+  const startReading = useCallback(() => {
+    if (!speechOK || !chosenVoiceRef.current) return;
+    setPlaying(false); // auto-scroll and read-aloud are mutually exclusive
+    setActiveMode("voice");
+    const items = readItemsRef.current;
+    let start = 0;
+    for (let k = 0; k < items.length; k++) {
+      const el = document.getElementById(items[k].id);
+      if (el && el.getBoundingClientRect().bottom > 90) {
+        start = k;
+        break;
+      }
+    }
+    const synth = window.speechSynthesis;
+    // Speak synchronously in the click; only cancel if something's still going
+    // (a cancel + same-tick speak races and drops the utterance in Chromium).
+    if (synth.speaking || synth.pending) synth.cancel();
+    synth.resume();
+    readingRef.current = true;
+    setReading(true);
+    speakFrom(start);
+  }, [speechOK, speakFrom]);
+
   // Stop scrolling on selection change; restore saved position on first load only.
   useEffect(() => {
     if (!ready) return;
     setPlaying(false);
+    stopReading();
     if (pendingScroll.current != null) {
       window.scrollTo(0, pendingScroll.current);
       pendingScroll.current = null;
     } else {
       window.scrollTo({ top: 0, behavior: "auto" });
     }
-  }, [sel, ready]);
+  }, [sel, ready, stopReading]);
+
+  // Silence the voice if the reader unmounts.
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   // Which Psalm sits on the "reading line" (~40% down the viewport) right now.
   function familiarAtReadingLine(): boolean {
@@ -479,18 +658,48 @@ export default function TehillimReader() {
     saveLS({ enhance: v });
     queueSync();
   }, []);
+  const setVoiceRate = useCallback((v: number) => {
+    const r = Math.max(VRATE_MIN, Math.min(VRATE_MAX, +v.toFixed(2)));
+    setVoiceRateState(r);
+    saveLS({ voiceRate: r });
+    queueSync();
+  }, []);
+  const setVoiceURI = useCallback((v: string) => {
+    setVoiceURIState(v);
+    saveLS({ voiceURI: v });
+    queueSync();
+  }, []);
+  const setNameStyle = useCallback((v: NameStyle) => {
+    setNameStyleState(v);
+    saveLS({ nameStyle: v });
+    queueSync();
+  }, []);
+
+  // One speed control, two meanings: it drives the voice rate while reading
+  // aloud, and the auto-scroll speed otherwise.
+  const voiceMode = activeMode === "voice";
+  const shownPct = voiceMode ? vRateToPct(voiceRate) : speedToPct(speed);
+  const applyPct = useCallback((pct: number) => {
+    if (activeModeRef.current === "voice") setVoiceRate(pctToVRate(pct));
+    else setSpeedPct(pct);
+  }, [setVoiceRate, setSpeedPct]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const cur =
+        activeMode === "voice" ? vRateToPct(voiceRate) : speedToPct(speed);
       if (e.code === "Space") {
         e.preventDefault();
-        setPlaying((p) => !p);
+        setPlaying((p) => {
+          if (!p) stopReading();
+          return !p;
+        });
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        setSpeedPct(speedToPct(speed) + PCT_STEP);
+        applyPct(cur + PCT_STEP);
       } else if (e.key === "ArrowDown") {
         e.preventDefault();
-        setSpeedPct(speedToPct(speed) - PCT_STEP);
+        applyPct(cur - PCT_STEP);
       } else if (e.key === "+" || e.key === "=") {
         e.preventDefault();
         setFont(font + FONT_STEP);
@@ -501,9 +710,7 @@ export default function TehillimReader() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [speed, font, setSpeedPct, setFont]);
-
-  const speedPct = speedToPct(speed);
+  }, [speed, voiceRate, activeMode, font, applyPct, setFont, stopReading]);
 
   // ---- Read-time estimate (like Substack): time to auto-scroll top→bottom ----
   useEffect(() => {
@@ -521,12 +728,13 @@ export default function TehillimReader() {
     return () => cancelAnimationFrame(id);
   }, [ready, sel, font, groups, speed]);
 
-  // ---- Keep the screen awake while auto-scrolling ----
+  // ---- Keep the screen awake while auto-scrolling or reading aloud ----
+  const awake = playing || reading;
   useEffect(() => {
     let cancelled = false;
     const acquire = async () => {
       try {
-        if ("wakeLock" in navigator && playing && !cancelled) {
+        if ("wakeLock" in navigator && awake && !cancelled) {
           wakeRef.current = await navigator.wakeLock.request("screen");
         }
       } catch {
@@ -541,11 +749,11 @@ export default function TehillimReader() {
       }
       wakeRef.current = null;
     };
-    if (playing) acquire();
+    if (awake) acquire();
     else release();
     // Re-acquire when returning to the tab (the lock drops when hidden).
     const onVis = () => {
-      if (document.visibilityState === "visible" && playing) acquire();
+      if (document.visibilityState === "visible" && awake) acquire();
     };
     document.addEventListener("visibilitychange", onVis);
     return () => {
@@ -553,7 +761,7 @@ export default function TehillimReader() {
       document.removeEventListener("visibilitychange", onVis);
       release();
     };
-  }, [playing]);
+  }, [awake]);
 
   const overallHeading = (() => {
     switch (sel.type) {
@@ -639,6 +847,41 @@ export default function TehillimReader() {
               <option value="sans">Clean</option>
             </select>
           </label>
+
+          {speechOK && hebrewVoices.length > 0 && (
+            <>
+              <label className="jump voicepick">
+                <span className="jump-label" aria-hidden>
+                  🔊
+                </span>
+                <select
+                  value={chosenVoice?.voiceURI || ""}
+                  onChange={(e) => setVoiceURI(e.target.value)}
+                  title="Reading voice"
+                  aria-label="Reading voice"
+                >
+                  {hebrewVoices.map((v) => (
+                    <option key={v.voiceURI} value={v.voiceURI}>
+                      {v.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="jump namestyle">
+                <span className="jump-label">ה׳</span>
+                <select
+                  value={nameStyle}
+                  onChange={(e) => setNameStyle(e.target.value as NameStyle)}
+                  title="How the reading voice says the Divine Name"
+                  aria-label="How to say the Divine Name"
+                >
+                  <option value="hashem">Hashem</option>
+                  <option value="adonai">Adonai</option>
+                </select>
+              </label>
+            </>
+          )}
 
           <div className="fontsz">
             <button
@@ -775,8 +1018,13 @@ export default function TehillimReader() {
                       <div className="verses">
                         {verses.slice(from - 1, to).map((v, idx) => {
                           const vn = from + idx;
+                          const vid = readId(gi, i, vn);
                           return (
-                            <p key={vn} className="verse">
+                            <p
+                              key={vn}
+                              id={vid}
+                              className={`verse ${currentReadId === vid ? "speaking" : ""}`}
+                            >
                               <span className="vnum">{hebNumber(vn)}</span>
                               <span className="vtext">{v}</span>
                             </p>
@@ -834,52 +1082,83 @@ export default function TehillimReader() {
             ~{readMin < 1 ? "<1" : Math.round(readMin)} min
           </span>
         )}
-        <div className="fab-speed">
+        <div className={`fab-speed ${voiceMode ? "voice-mode" : ""}`}>
           <button
             type="button"
             className="fab-step"
-            onClick={() => setSpeedPct(speedPct - PCT_STEP)}
+            onClick={() => applyPct(shownPct - PCT_STEP)}
             title="Slower"
             aria-label="Slower"
           >
             −
           </button>
           <span className="fab-pctwrap">
+            {voiceMode && (
+              <span className="fab-speed-ic" aria-hidden title="Voice speed">
+                🔊
+              </span>
+            )}
             <input
               className="fab-pct"
               type="number"
               inputMode="numeric"
               min={0}
               max={100}
-              value={speedPct}
+              value={shownPct}
               onChange={(e) => {
                 if (e.target.value === "") return;
-                setSpeedPct(Number(e.target.value));
+                applyPct(Number(e.target.value));
               }}
-              aria-label="Auto-scroll speed percent"
-              title="Type an exact speed (0–100%)"
+              aria-label={voiceMode ? "Voice speed percent" : "Auto-scroll speed percent"}
+              title={
+                voiceMode
+                  ? "Voice speed (0–100%)"
+                  : "Auto-scroll speed (0–100%)"
+              }
             />
             <span className="fab-pctsign">%</span>
           </span>
           <button
             type="button"
             className="fab-step"
-            onClick={() => setSpeedPct(speedPct + PCT_STEP)}
+            onClick={() => applyPct(shownPct + PCT_STEP)}
             title="Faster"
             aria-label="Faster"
           >
             +
           </button>
         </div>
-        <button
-          type="button"
-          className={`fab-play ${playing ? "fab-play-on" : ""}`}
-          onClick={() => setPlaying((p) => !p)}
-          title={playing ? "Pause (Space)" : "Auto-scroll (Space)"}
-          aria-label={playing ? "Pause auto-scroll" : "Start auto-scroll"}
-        >
-          {playing ? "❚❚" : "▶"}
-        </button>
+        <div className="fab-plays">
+          {speechOK && chosenVoice && (
+            <button
+              type="button"
+              className={`fab-read ${reading ? "fab-read-on" : ""}`}
+              onClick={() => (reading ? stopReading() : startReading())}
+              title={reading ? "Stop reading aloud" : "Read aloud"}
+              aria-pressed={reading}
+              aria-label={reading ? "Stop reading aloud" : "Read aloud"}
+            >
+              {reading ? "❚❚" : "🔊"}
+            </button>
+          )}
+          <button
+            type="button"
+            className={`fab-play ${playing ? "fab-play-on" : ""}`}
+            onClick={() =>
+              setPlaying((p) => {
+                if (!p) {
+                  stopReading();
+                  setActiveMode("scroll");
+                }
+                return !p;
+              })
+            }
+            title={playing ? "Pause (Space)" : "Auto-scroll (Space)"}
+            aria-label={playing ? "Pause auto-scroll" : "Start auto-scroll"}
+          >
+            {playing ? "❚❚" : "▶"}
+          </button>
+        </div>
       </div>
     </div>
   );
