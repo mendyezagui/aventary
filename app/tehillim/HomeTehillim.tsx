@@ -638,6 +638,19 @@ export default function HomeTehillim() {
         </span>
       </a>
 
+      {/* Read-aloud voice check (experiment) */}
+      <a className="card card-slim" href="/tehillim/voice-check">
+        <div className="card-main">
+          <span className="card-title">Read aloud — voice check (beta)</span>
+          <span className="card-desc">
+            Open on your phone to hear your device&rsquo;s Hebrew voice.
+          </span>
+        </div>
+        <span className="card-arrow" aria-hidden>
+          →
+        </span>
+      </a>
+
       <footer className="home-foot">
         Hebrew text: Masoretic, with nikkud (public domain). Saved Psalms are
         kept on this device.
