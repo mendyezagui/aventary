@@ -910,6 +910,109 @@ a.card:hover {
   color: var(--stop);
 }
 
+/* ---------- Voice check ---------- */
+.vc-title {
+  font-family: var(--font-hebrew), "Frank Ruhl Libre", serif;
+  font-size: 2rem;
+}
+.vc-ctrl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+.vc-ctrl-label {
+  font-size: 0.9rem;
+  color: var(--ink);
+  font-weight: 600;
+}
+.vc-ctrl input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+.vc-hint {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+  font-weight: 400;
+}
+.vc-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 14px;
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.vc-toggle input {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  flex: 0 0 auto;
+}
+.vc-preview {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-family: var(--font-hebrew), "Frank Ruhl Libre", serif;
+}
+.vc-preview-line {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.9;
+  color: var(--ink);
+}
+.vc-preview-line + .vc-preview-line {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+.vc-voices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+.vc-voice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+}
+.vc-voice.on {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+.vc-voice-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.vc-voice-meta b {
+  font-size: 0.98rem;
+  color: var(--ink);
+}
+.vc-voice-meta small {
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+.vc-play.cta {
+  margin-top: 0;
+  padding: 9px 16px;
+  flex: 0 0 auto;
+}
+
 .savedchips {
   display: flex;
   flex-wrap: wrap;
