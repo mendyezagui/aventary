@@ -9,6 +9,22 @@ const nextConfig = {
                                 ]
         },
         experimental: {},
+        async rewrites() {
+                // tehillimcircle.com is a second domain on this same Worker that
+                // serves the Tehillim app as its own site. Show the Tehillim home
+                // at that domain's root (its deeper links already use /tehillim/*).
+                // Host-scoped, so aventary.com is unaffected. Runs at the routing
+                // layer; the www→apex redirect below normalises the host first.
+                return {
+                    beforeFiles: [
+                        {
+                            source: "/",
+                            has: [{ type: "host", value: "tehillimcircle.com" }],
+                            destination: "/tehillim"
+                        }
+                    ]
+                };
+        },
         async redirects() {
                 return [
                     {
