@@ -14,15 +14,19 @@ const SHEM = /י[֑-ׇ]*ה[֑-ׇ]*ו[֑-ׇ]*ה/g;
 
 // Two verses chosen to test the two hard questions:
 // 1:1 is dense with nikkud (does the voice read the points?); 23:1 carries the
-// Divine Name (does the "Hashem" substitution work?).
+// Divine Name (is it vocalized correctly, not sounded out letter-by-letter?).
 const SAMPLES = [
   { label: "Psalm 1:1", he: "א׳", text: TEXT["1"]?.[0] ?? "" },
   { label: "Psalm 23:1", he: "כ״ג", text: TEXT["23"]?.[0] ?? "" },
 ];
 
+// The Tetragrammaton carries the borrowed vowels of Adonai, so a TTS engine
+// sounds it out into garble. We always replace it with a word the voice can
+// pronounce — "Hashem" (reverent, for casual listening) or "Adonai" (how it's
+// actually read aloud when davening) — never the raw letters.
 function transform(text: string, stripNikkud: boolean, sayHashem: boolean): string {
   let s = text;
-  if (sayHashem) s = s.replace(SHEM, "הַשֵּׁם");
+  s = s.replace(SHEM, sayHashem ? "הַשֵּׁם" : "אֲדֹנָי");
   if (stripNikkud) s = s.replace(NIKKUD, "");
   s = s.replace(/־/g, " "); // maqaf → space, so joined words are read apart
   return s.trim();
@@ -164,8 +168,9 @@ export default function VoiceCheck() {
             <span>
               Say ה׳ as &ldquo;Hashem&rdquo;
               <span className="vc-hint">
-                Substitutes the Divine Name so a machine doesn&rsquo;t pronounce
-                it. On by default.
+                On: says &ldquo;Hashem.&rdquo; Off: says &ldquo;Adonai,&rdquo; as
+                it&rsquo;s read when davening. Either way it&rsquo;s never sounded
+                out letter-by-letter.
               </span>
             </span>
           </label>
