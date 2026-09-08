@@ -91,6 +91,9 @@ function speakText(text: string, nameStyle: NameStyle): string {
 // Stable id for a rendered verse, matched by the read-aloud loop and the DOM.
 const readId = (gi: number, si: number, vn: number) => `rv-${gi}-${si}-${vn}`;
 
+const NO_AUDIO_MSG =
+  "No audio is playing — the page just scrolled. On Brave, lower Shields for this site; otherwise try Safari or Chrome and check the tab/system isn’t muted.";
+
 type Persisted = {
   speed?: number;
   font?: number;
@@ -221,6 +224,7 @@ export default function TehillimReader() {
   const watchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startedCountRef = useRef(0);
   const readStartTsRef = useRef(0);
+  const currentIdxRef = useRef(0);
 
   // ---- One-time client init ----
   useEffect(() => {
@@ -429,31 +433,19 @@ export default function TehillimReader() {
     if (speechOK) window.speechSynthesis.cancel();
   }, [speechOK, finishReading]);
 
-  // Start reading aloud. Two things make this robust on desktop:
-  //  - Queue every remaining verse *inside this click*. Browsers drop speak()
-  //    calls that aren't tied to a user gesture, so chaining the next verse
-  //    from an onend handler (not a gesture) silently fails and the page just
-  //    flies through. Queuing up front keeps them all under the one gesture and
-  //    lets the engine play them in order; each utterance's onstart drives the
-  //    highlight + follow-scroll.
-  //  - A watchdog: if nothing actually starts speaking, or the whole thing
-  //    "finishes" impossibly fast (a silent fly-through), stop and say so
-  //    instead of racing the page.
-  const startReading = useCallback(() => {
+  // Queue every verse from `start` to the end, all in one shot. This is called
+  // from a user gesture (tapping play, or nudging the speed) so the browser
+  // won't drop the speak() calls — chaining the next verse from an onend
+  // handler (not a gesture) is what made the page fly through silently. Each
+  // utterance's onstart drives the highlight + follow-scroll; a fly-through
+  // guard aborts fast if the engine reports progress without real sound
+  // (Brave desktop blocks synthesis with Shields up), and a watchdog covers
+  // the case where nothing starts at all.
+  const queueFrom = useCallback((start: number) => {
     if (!speechOK || !chosenVoiceRef.current) return;
-    setVoiceErr(null);
-    setPlaying(false); // auto-scroll and read-aloud are mutually exclusive
-    setActiveMode("voice");
     const items = readItemsRef.current;
-    if (!items.length) return;
-    let start = 0;
-    for (let k = 0; k < items.length; k++) {
-      const el = document.getElementById(items[k].id);
-      if (el && el.getBoundingClientRect().bottom > 90) {
-        start = k;
-        break;
-      }
-    }
+    if (start < 0 || start >= items.length) return;
+    setVoiceErr(null);
     const synth = window.speechSynthesis;
     if (synth.speaking || synth.pending) synth.cancel();
     synth.resume();
@@ -473,6 +465,21 @@ export default function TehillimReader() {
       u.rate = rate;
       u.onstart = () => {
         startedCountRef.current += 1;
+        currentIdxRef.current = i;
+        // Fly-through guard: three verses can't be *voiced* within ~350ms — the
+        // shortest spoken verse is a few hundred ms. If the engine reports that
+        // many "starts" that fast, it's advancing without producing sound
+        // (Brave desktop blocks synthesis with Shields up), so abort before the
+        // page races to the bottom. The window is deliberately tiny so a run of
+        // genuinely short verses never trips it.
+        if (
+          startedCountRef.current >= 3 &&
+          Date.now() - readStartTsRef.current < 350
+        ) {
+          window.speechSynthesis.cancel();
+          finishReading(NO_AUDIO_MSG);
+          return;
+        }
         setCurrentReadId(item.id);
         document
           .getElementById(item.id)
@@ -481,24 +488,10 @@ export default function TehillimReader() {
       u.onerror = (e) => {
         const err = (e as SpeechSynthesisErrorEvent).error;
         if (err === "interrupted" || err === "canceled") return;
-        finishReading(
-          "Your browser wouldn’t play the voice. Try Safari or Chrome, and check the tab isn’t muted."
-        );
+        finishReading(NO_AUDIO_MSG);
       };
       if (i === items.length - 1) {
-        u.onend = () => {
-          if (!readingRef.current) return;
-          // Real speech of 2+ verses can't finish in ~1.5s; if it did, no audio
-          // actually played — the page just scrolled.
-          const flew =
-            startedCountRef.current >= 2 &&
-            Date.now() - readStartTsRef.current < 1500;
-          finishReading(
-            flew
-              ? "It scrolled but didn’t play audio. Try Safari or Chrome, and check the tab/system isn’t muted."
-              : null
-          );
-        };
+        u.onend = () => finishReading(); // reached the end cleanly
       }
       synth.speak(u);
     }
@@ -508,12 +501,28 @@ export default function TehillimReader() {
       watchdogRef.current = null;
       if (readingRef.current && startedCountRef.current === 0) {
         window.speechSynthesis.cancel();
-        finishReading(
-          "No audio started. Try Safari or Chrome, and check the tab/system isn’t muted."
-        );
+        finishReading(NO_AUDIO_MSG);
       }
     }, 1600);
   }, [speechOK, finishReading]);
+
+  // Start from the first verse at/below the top of the view.
+  const startReading = useCallback(() => {
+    if (!speechOK || !chosenVoiceRef.current) return;
+    setPlaying(false); // auto-scroll and read-aloud are mutually exclusive
+    setActiveMode("voice");
+    const items = readItemsRef.current;
+    let start = 0;
+    for (let k = 0; k < items.length; k++) {
+      const el = document.getElementById(items[k].id);
+      if (el && el.getBoundingClientRect().bottom > 90) {
+        start = k;
+        break;
+      }
+    }
+    currentIdxRef.current = start;
+    queueFrom(start);
+  }, [speechOK, queueFrom]);
 
   // Stop scrolling on selection change; restore saved position on first load only.
   useEffect(() => {
@@ -698,9 +707,14 @@ export default function TehillimReader() {
   const setVoiceRate = useCallback((v: number) => {
     const r = Math.max(VRATE_MIN, Math.min(VRATE_MAX, +v.toFixed(2)));
     setVoiceRateState(r);
+    voiceRateRef.current = r; // so an immediate re-queue picks up the new rate
     saveLS({ voiceRate: r });
     queueSync();
-  }, []);
+    // The Web Speech API can't change rate on queued utterances, so apply it
+    // live by re-reading from the current verse at the new speed. This runs
+    // inside the tap/keypress that changed the speed, so it stays gesture-safe.
+    if (readingRef.current) queueFrom(currentIdxRef.current);
+  }, [queueFrom]);
   const setVoiceURI = useCallback((v: string) => {
     setVoiceURIState(v);
     saveLS({ voiceURI: v });
