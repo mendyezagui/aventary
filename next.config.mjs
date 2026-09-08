@@ -28,6 +28,25 @@ const nextConfig = {
         async redirects() {
                 return [
                     {
+                        // The Tehillim app has moved to its own domain. Send the
+                        // old aventary.com/tehillim URLs (and everything under
+                        // them, query strings preserved) to tehillimcircle.com.
+                        // Scoped to the aventary.com host so it never fires on
+                        // tehillimcircle.com itself (which serves the real
+                        // /tehillim/* app) — that would loop. Temporary for now
+                        // (not cached hard), so it stays easy to undo.
+                        source: "/tehillim",
+                        has: [{ type: "host", value: "aventary.com" }],
+                        destination: "https://tehillimcircle.com/tehillim",
+                        permanent: false
+                    },
+                    {
+                        source: "/tehillim/:path*",
+                        has: [{ type: "host", value: "aventary.com" }],
+                        destination: "https://tehillimcircle.com/tehillim/:path*",
+                        permanent: false
+                    },
+                    {
                         // /about, /contact and /appointments merged into one page.
                         // Permanent so the old URLs' search equity moves across;
                         // the fragments land people on the right section.
