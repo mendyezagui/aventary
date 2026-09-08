@@ -434,6 +434,19 @@
   max-width: 130px;
 }
 
+.fab-voiceerr {
+  max-width: 240px;
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--stop);
+  background: var(--card);
+  color: var(--stop);
+  font: 600 0.76rem/1.35 var(--font-body, ui-sans-serif, system-ui, sans-serif);
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+}
+
 /* The verse the voice is currently reading */
 .verse.speaking {
   background: var(--accent-soft);

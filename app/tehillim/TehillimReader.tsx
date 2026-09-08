@@ -196,6 +196,7 @@ export default function TehillimReader() {
   const [reading, setReading] = useState(false);
   const [activeMode, setActiveMode] = useState<"scroll" | "voice">("scroll");
   const [currentReadId, setCurrentReadId] = useState<string | null>(null);
+  const [voiceErr, setVoiceErr] = useState<string | null>(null);
 
   const wakeRef = useRef<WakeLockSentinel | null>(null);
   const selRef = useRef(sel);
@@ -217,6 +218,9 @@ export default function TehillimReader() {
   nameStyleRef.current = nameStyle;
   const activeModeRef = useRef(activeMode);
   activeModeRef.current = activeMode;
+  const watchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startedCountRef = useRef(0);
+  const readStartTsRef = useRef(0);
 
   // ---- One-time client init ----
   useEffect(() => {
@@ -409,57 +413,39 @@ export default function TehillimReader() {
   const chosenVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
   chosenVoiceRef.current = chosenVoice;
 
-  // Speak verse i, then chain to i+1 on end. Reads live values from refs so a
-  // stale closure (from a re-render mid-read) still uses the current voice/rate.
-  const speakFrom = useCallback((i: number) => {
-    const items = readItemsRef.current;
-    if (!readingRef.current || i >= items.length) {
-      readingRef.current = false;
-      setReading(false);
-      setCurrentReadId(null);
-      return;
-    }
-    const item = items[i];
-    const u = new SpeechSynthesisUtterance(
-      speakText(item.text, nameStyleRef.current)
-    );
-    const v = chosenVoiceRef.current;
-    if (v) u.voice = v;
-    u.lang = v?.lang || "he-IL";
-    u.rate = voiceRateRef.current;
-    u.onstart = () => {
-      setCurrentReadId(item.id);
-      document
-        .getElementById(item.id)
-        ?.scrollIntoView({ block: "center", behavior: "smooth" });
-    };
-    u.onend = () => {
-      if (readingRef.current) speakFrom(i + 1);
-    };
-    u.onerror = (e) => {
-      const err = (e as SpeechSynthesisErrorEvent).error;
-      if (err === "interrupted" || err === "canceled") return;
-      readingRef.current = false;
-      setReading(false);
-      setCurrentReadId(null);
-    };
-    window.speechSynthesis.speak(u);
-  }, []);
-
-  const stopReading = useCallback(() => {
+  const finishReading = useCallback((err?: string | null) => {
     readingRef.current = false;
     setReading(false);
     setCurrentReadId(null);
-    if (speechOK) window.speechSynthesis.cancel();
-  }, [speechOK]);
+    if (watchdogRef.current) {
+      clearTimeout(watchdogRef.current);
+      watchdogRef.current = null;
+    }
+    if (err) setVoiceErr(err);
+  }, []);
 
-  // Start from the first verse whose element is at/below the top of the view,
-  // so tapping play reads from where you're looking (not always the top).
+  const stopReading = useCallback(() => {
+    finishReading();
+    if (speechOK) window.speechSynthesis.cancel();
+  }, [speechOK, finishReading]);
+
+  // Start reading aloud. Two things make this robust on desktop:
+  //  - Queue every remaining verse *inside this click*. Browsers drop speak()
+  //    calls that aren't tied to a user gesture, so chaining the next verse
+  //    from an onend handler (not a gesture) silently fails and the page just
+  //    flies through. Queuing up front keeps them all under the one gesture and
+  //    lets the engine play them in order; each utterance's onstart drives the
+  //    highlight + follow-scroll.
+  //  - A watchdog: if nothing actually starts speaking, or the whole thing
+  //    "finishes" impossibly fast (a silent fly-through), stop and say so
+  //    instead of racing the page.
   const startReading = useCallback(() => {
     if (!speechOK || !chosenVoiceRef.current) return;
+    setVoiceErr(null);
     setPlaying(false); // auto-scroll and read-aloud are mutually exclusive
     setActiveMode("voice");
     const items = readItemsRef.current;
+    if (!items.length) return;
     let start = 0;
     for (let k = 0; k < items.length; k++) {
       const el = document.getElementById(items[k].id);
@@ -469,14 +455,65 @@ export default function TehillimReader() {
       }
     }
     const synth = window.speechSynthesis;
-    // Speak synchronously in the click; only cancel if something's still going
-    // (a cancel + same-tick speak races and drops the utterance in Chromium).
     if (synth.speaking || synth.pending) synth.cancel();
     synth.resume();
     readingRef.current = true;
+    startedCountRef.current = 0;
+    readStartTsRef.current = Date.now();
     setReading(true);
-    speakFrom(start);
-  }, [speechOK, speakFrom]);
+
+    const v = chosenVoiceRef.current;
+    const rate = voiceRateRef.current;
+    const ns = nameStyleRef.current;
+    for (let i = start; i < items.length; i++) {
+      const item = items[i];
+      const u = new SpeechSynthesisUtterance(speakText(item.text, ns));
+      if (v) u.voice = v;
+      u.lang = v?.lang || "he-IL";
+      u.rate = rate;
+      u.onstart = () => {
+        startedCountRef.current += 1;
+        setCurrentReadId(item.id);
+        document
+          .getElementById(item.id)
+          ?.scrollIntoView({ block: "center", behavior: "smooth" });
+      };
+      u.onerror = (e) => {
+        const err = (e as SpeechSynthesisErrorEvent).error;
+        if (err === "interrupted" || err === "canceled") return;
+        finishReading(
+          "Your browser wouldn’t play the voice. Try Safari or Chrome, and check the tab isn’t muted."
+        );
+      };
+      if (i === items.length - 1) {
+        u.onend = () => {
+          if (!readingRef.current) return;
+          // Real speech of 2+ verses can't finish in ~1.5s; if it did, no audio
+          // actually played — the page just scrolled.
+          const flew =
+            startedCountRef.current >= 2 &&
+            Date.now() - readStartTsRef.current < 1500;
+          finishReading(
+            flew
+              ? "It scrolled but didn’t play audio. Try Safari or Chrome, and check the tab/system isn’t muted."
+              : null
+          );
+        };
+      }
+      synth.speak(u);
+    }
+
+    if (watchdogRef.current) clearTimeout(watchdogRef.current);
+    watchdogRef.current = setTimeout(() => {
+      watchdogRef.current = null;
+      if (readingRef.current && startedCountRef.current === 0) {
+        window.speechSynthesis.cancel();
+        finishReading(
+          "No audio started. Try Safari or Chrome, and check the tab/system isn’t muted."
+        );
+      }
+    }, 1600);
+  }, [speechOK, finishReading]);
 
   // Stop scrolling on selection change; restore saved position on first load only.
   useEffect(() => {
@@ -1062,7 +1099,17 @@ export default function TehillimReader() {
         0%
       </div>
 
-      <div dir="ltr" className="fab" role="group" aria-label="Auto-scroll controls">
+      <div dir="ltr" className="fab" role="group" aria-label="Reading controls">
+        {voiceErr && (
+          <button
+            type="button"
+            className="fab-voiceerr"
+            onClick={() => setVoiceErr(null)}
+            title="Dismiss"
+          >
+            {voiceErr}
+          </button>
+        )}
         <button
           ref={enhBtnRef}
           type="button"
