@@ -37,6 +37,7 @@ export default function VoiceCheck() {
   const [speakingKey, setSpeakingKey] = useState<string | null>(null);
   const speedRef = useRef(speed);
   speedRef.current = speed;
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load the device's voices. They can arrive asynchronously, so refresh on the
   // voiceschanged event as well as on mount.
@@ -51,6 +52,7 @@ export default function VoiceCheck() {
     window.speechSynthesis.addEventListener("voiceschanged", load);
     return () => {
       window.speechSynthesis.removeEventListener("voiceschanged", load);
+      if (timerRef.current) clearTimeout(timerRef.current);
       window.speechSynthesis.cancel();
     };
   }, []);
@@ -58,31 +60,46 @@ export default function VoiceCheck() {
   const hebrew = voices.filter((v) => v.lang?.toLowerCase().startsWith("he"));
 
   const stop = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     window.speechSynthesis.cancel();
     setSpeakingKey(null);
   }, []);
 
   // Speak both sample verses in turn through one voice (or the default when
-  // `voice` is null). Cancel anything already queued first, so repeated taps
-  // never stack up into double-speech.
+  // `voice` is null).
+  //
+  // Two Web Speech quirks make a naive cancel()+speak() play only the first
+  // time: cancel() is asynchronous on Chrome/Safari, so speaking in the same
+  // tick gets swallowed by the pending cancel; and the engine can be left in a
+  // paused state after a run. So we cancel, then on a later tick resume() (to
+  // unstick) and queue the utterances. The pending timer is tracked so Stop
+  // (and unmount) can clear it, and so repeated taps never stack up.
   const speak = useCallback(
     (key: string, voice: SpeechSynthesisVoice | null) => {
       const synth = window.speechSynthesis;
+      if (timerRef.current) clearTimeout(timerRef.current);
       synth.cancel();
       setSpeakingKey(key);
-      SAMPLES.forEach((s, i) => {
-        const u = new SpeechSynthesisUtterance(
-          transform(s.text, stripNikkud, sayHashem)
-        );
-        if (voice) u.voice = voice;
-        u.lang = voice?.lang || "he-IL";
-        u.rate = speedRef.current;
-        if (i === SAMPLES.length - 1) {
-          u.onend = () => setSpeakingKey((k) => (k === key ? null : k));
-          u.onerror = () => setSpeakingKey((k) => (k === key ? null : k));
-        }
-        synth.speak(u);
-      });
+      timerRef.current = setTimeout(() => {
+        timerRef.current = null;
+        synth.resume();
+        SAMPLES.forEach((s, i) => {
+          const u = new SpeechSynthesisUtterance(
+            transform(s.text, stripNikkud, sayHashem)
+          );
+          if (voice) u.voice = voice;
+          u.lang = voice?.lang || "he-IL";
+          u.rate = speedRef.current;
+          if (i === SAMPLES.length - 1) {
+            u.onend = () => setSpeakingKey((k) => (k === key ? null : k));
+            u.onerror = () => setSpeakingKey((k) => (k === key ? null : k));
+          }
+          synth.speak(u);
+        });
+      }, 130);
     },
     [stripNikkud, sayHashem]
   );
