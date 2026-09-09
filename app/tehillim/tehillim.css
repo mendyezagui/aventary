@@ -447,12 +447,33 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
 }
 
+/* Playback-speed readout (e.g. "1.5×") shown while reading aloud */
+.fab-rate {
+  min-width: 34px;
+  text-align: center;
+  color: var(--ink);
+  font: 700 0.85rem/1 var(--font-body, ui-sans-serif, system-ui, sans-serif);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tap a verse to read from there (only when a voice is available) */
+.read-enabled .verse {
+  cursor: pointer;
+}
+.read-enabled .verse:hover {
+  background: var(--accent-soft);
+  border-radius: 6px;
+}
+
 /* The verse the voice is currently reading */
 .verse.speaking {
   background: var(--accent-soft);
   border-radius: 6px;
   box-shadow: 0 0 0 6px var(--accent-soft);
   transition: background 0.2s;
+}
+.read-enabled .verse.speaking:hover {
+  background: var(--accent-soft);
 }
 
 /* ---------- Text ---------- */

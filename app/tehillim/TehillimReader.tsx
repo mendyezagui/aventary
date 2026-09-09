@@ -70,12 +70,25 @@ const speedToPct = (s: number) =>
 
 // ---- Read-aloud (Web Speech) ----
 type NameStyle = "hashem" | "adonai"; // how the Divine Name is vocalized
-const VRATE_MIN = 0.5; // voice rate at 0%
-const VRATE_MAX = 1.3; // voice rate at 100%
-const pctToVRate = (pct: number) =>
-  VRATE_MIN + (Math.max(0, Math.min(100, pct)) / 100) * (VRATE_MAX - VRATE_MIN);
-const vRateToPct = (r: number) =>
-  Math.round(((r - VRATE_MIN) / (VRATE_MAX - VRATE_MIN)) * 100);
+// Read-aloud playback speed: standard multiplier presets like other audio apps
+// (1× = normal). Web Speech `rate` takes the multiplier directly.
+const VOICE_RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 3, 4];
+const VRATE_MIN = VOICE_RATES[0];
+const VRATE_MAX = VOICE_RATES[VOICE_RATES.length - 1];
+const fmtRate = (r: number) => `${r}×`;
+// Snap to the nearest preset, then move one step (dir −1 slower / +1 faster).
+const stepRate = (r: number, dir: number) => {
+  let idx = 0;
+  let best = Infinity;
+  VOICE_RATES.forEach((v, k) => {
+    const d = Math.abs(v - r);
+    if (d < best) {
+      best = d;
+      idx = k;
+    }
+  });
+  return VOICE_RATES[Math.max(0, Math.min(VOICE_RATES.length - 1, idx + dir))];
+};
 
 const SHEM = /י[֑-ׇ]*ה[֑-ׇ]*ו[֑-ׇ]*ה/g; // Tetragrammaton, nikkud between letters
 // The Tetragrammaton carries Adonai's borrowed vowels, so a TTS engine sounds
@@ -194,7 +207,7 @@ export default function TehillimReader() {
   // ---- read-aloud (Web Speech) ----
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [voiceURI, setVoiceURIState] = useState<string>("");
-  const [voiceRate, setVoiceRateState] = useState(0.85);
+  const [voiceRate, setVoiceRateState] = useState(1);
   const [nameStyle, setNameStyleState] = useState<NameStyle>("hashem");
   const [reading, setReading] = useState(false);
   const [activeMode, setActiveMode] = useState<"scroll" | "voice">("scroll");
@@ -257,7 +270,8 @@ export default function TehillimReader() {
     if (typeof s.speed === "number") setSpeedState(s.speed);
     if (typeof s.font === "number") setFontState(s.font);
     if (s.fontFace === "serif" || s.fontFace === "sans") setFontFaceState(s.fontFace);
-    if (typeof s.barOpen === "boolean") setBarOpenState(s.barOpen);
+    // The control bar always starts collapsed — people don't change their day;
+    // deliberately not restoring a saved open state here.
     if (typeof s.enhance === "boolean") setEnhanceState(s.enhance);
     if (typeof s.seasonalOn === "boolean") setSeasonalOnState(s.seasonalOn);
     if (typeof s.voiceRate === "number") setVoiceRateState(s.voiceRate);
@@ -300,7 +314,7 @@ export default function TehillimReader() {
       if (typeof s.speed === "number") setSpeedState(s.speed);
       if (typeof s.font === "number") setFontState(s.font);
       if (s.fontFace === "serif" || s.fontFace === "sans") setFontFaceState(s.fontFace);
-      if (typeof s.barOpen === "boolean") setBarOpenState(s.barOpen);
+      // bar stays collapsed by default (see init) — don't restore an open state
       if (typeof s.enhance === "boolean") setEnhanceState(s.enhance);
       if (typeof s.seasonalOn === "boolean") setSeasonalOnState(s.seasonalOn);
       if (typeof s.voiceRate === "number") setVoiceRateState(s.voiceRate);
@@ -524,6 +538,22 @@ export default function TehillimReader() {
     queueFrom(start);
   }, [speechOK, queueFrom]);
 
+  // Tap a verse to read aloud from there (restarts if already reading). Ignored
+  // when a text selection is in progress, or when there's no voice available.
+  const startReadingFromId = useCallback(
+    (id: string) => {
+      if (!speechOK || !chosenVoiceRef.current) return;
+      if (window.getSelection()?.toString()) return;
+      const idx = readItemsRef.current.findIndex((it) => it.id === id);
+      if (idx < 0) return;
+      setPlaying(false);
+      setActiveMode("voice");
+      currentIdxRef.current = idx;
+      queueFrom(idx);
+    },
+    [speechOK, queueFrom]
+  );
+
   // Stop scrolling on selection change; restore saved position on first load only.
   useEffect(() => {
     if (!ready) return;
@@ -726,19 +756,17 @@ export default function TehillimReader() {
     queueSync();
   }, []);
 
-  // One speed control, two meanings: it drives the voice rate while reading
-  // aloud, and the auto-scroll speed otherwise.
+  // One speed control, two meanings: while reading aloud it steps the voice
+  // playback rate (0.5×–4× presets); otherwise it's the auto-scroll speed (%).
   const voiceMode = activeMode === "voice";
-  const shownPct = voiceMode ? vRateToPct(voiceRate) : speedToPct(speed);
-  const applyPct = useCallback((pct: number) => {
-    if (activeModeRef.current === "voice") setVoiceRate(pctToVRate(pct));
-    else setSpeedPct(pct);
-  }, [setVoiceRate, setSpeedPct]);
+  const scrollPct = speedToPct(speed);
+  const stepVoice = useCallback(
+    (dir: number) => setVoiceRate(stepRate(voiceRateRef.current, dir)),
+    [setVoiceRate]
+  );
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const cur =
-        activeMode === "voice" ? vRateToPct(voiceRate) : speedToPct(speed);
       if (e.code === "Space") {
         e.preventDefault();
         setPlaying((p) => {
@@ -747,10 +775,12 @@ export default function TehillimReader() {
         });
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        applyPct(cur + PCT_STEP);
+        if (activeMode === "voice") stepVoice(1);
+        else setSpeedPct(scrollPct + PCT_STEP);
       } else if (e.key === "ArrowDown") {
         e.preventDefault();
-        applyPct(cur - PCT_STEP);
+        if (activeMode === "voice") stepVoice(-1);
+        else setSpeedPct(scrollPct - PCT_STEP);
       } else if (e.key === "+" || e.key === "=") {
         e.preventDefault();
         setFont(font + FONT_STEP);
@@ -761,7 +791,7 @@ export default function TehillimReader() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [speed, voiceRate, activeMode, font, applyPct, setFont, stopReading]);
+  }, [speed, scrollPct, activeMode, font, stepVoice, setSpeedPct, setFont, stopReading]);
 
   // ---- Read-time estimate (like Substack): time to auto-scroll top→bottom ----
   useEffect(() => {
@@ -978,7 +1008,7 @@ export default function TehillimReader() {
       </div>
 
       <main
-        className="scroll-area"
+        className={`scroll-area ${speechOK && chosenVoice ? "read-enabled" : ""}`}
         style={
           {
             ["--fs" as string]: font,
@@ -1075,6 +1105,12 @@ export default function TehillimReader() {
                               key={vn}
                               id={vid}
                               className={`verse ${currentReadId === vid ? "speaking" : ""}`}
+                              onClick={() => startReadingFromId(vid)}
+                              title={
+                                speechOK && chosenVoice
+                                  ? "Read aloud from here"
+                                  : undefined
+                              }
                             >
                               <span className="vnum">{hebNumber(vn)}</span>
                               <span className="vtext">{v}</span>
@@ -1147,42 +1183,47 @@ export default function TehillimReader() {
           <button
             type="button"
             className="fab-step"
-            onClick={() => applyPct(shownPct - PCT_STEP)}
+            onClick={() =>
+              voiceMode ? stepVoice(-1) : setSpeedPct(scrollPct - PCT_STEP)
+            }
             title="Slower"
             aria-label="Slower"
           >
             −
           </button>
-          <span className="fab-pctwrap">
-            {voiceMode && (
-              <span className="fab-speed-ic" aria-hidden title="Voice speed">
-                🔊
-              </span>
-            )}
-            <input
-              className="fab-pct"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              max={100}
-              value={shownPct}
-              onChange={(e) => {
-                if (e.target.value === "") return;
-                applyPct(Number(e.target.value));
-              }}
-              aria-label={voiceMode ? "Voice speed percent" : "Auto-scroll speed percent"}
-              title={
-                voiceMode
-                  ? "Voice speed (0–100%)"
-                  : "Auto-scroll speed (0–100%)"
-              }
-            />
-            <span className="fab-pctsign">%</span>
-          </span>
+          {voiceMode ? (
+            <span
+              className="fab-rate"
+              title="Playback speed"
+              aria-label={`Voice speed ${fmtRate(voiceRate)}`}
+            >
+              {fmtRate(voiceRate)}
+            </span>
+          ) : (
+            <span className="fab-pctwrap">
+              <input
+                className="fab-pct"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={100}
+                value={scrollPct}
+                onChange={(e) => {
+                  if (e.target.value === "") return;
+                  setSpeedPct(Number(e.target.value));
+                }}
+                aria-label="Auto-scroll speed percent"
+                title="Auto-scroll speed (0–100%)"
+              />
+              <span className="fab-pctsign">%</span>
+            </span>
+          )}
           <button
             type="button"
             className="fab-step"
-            onClick={() => applyPct(shownPct + PCT_STEP)}
+            onClick={() =>
+              voiceMode ? stepVoice(1) : setSpeedPct(scrollPct + PCT_STEP)
+            }
             title="Faster"
             aria-label="Faster"
           >
