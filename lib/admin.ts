@@ -14,7 +14,9 @@ export async function requireAdmin() {
   const { data: { user } } = await sb.auth.getUser();
   const email = user?.email?.toLowerCase();
   const allowed = allowlist();
-  if (!email || (allowed.length > 0 && !allowed.includes(email))) {
+  // Fail CLOSED: if the allowlist is empty or the email isn't on it, deny.
+  // (Previously an empty ADMIN_EMAILS let any signed-in user through.)
+  if (!email || !allowed.includes(email)) {
     redirect("/admin/login");
   }
   return { supabase: sb, email: email! };
