@@ -28,6 +28,24 @@ const nextConfig = {
         async redirects() {
                 return [
                     {
+                        // The admin panel is an aventary.com thing — it must not be
+                        // reachable on the Tehillim domain, so nobody stumbles onto
+                        // its "admins only" login there. Bounce any /admin* on
+                        // tehillimcircle.com back to the Tehillim home. (Note: this
+                        // deliberately does NOT touch /auth/callback, which the
+                        // Tehillim sign-in needs on this domain.)
+                        source: "/admin/:path*",
+                        has: [{ type: "host", value: "tehillimcircle.com" }],
+                        destination: "https://tehillimcircle.com/",
+                        permanent: false
+                    },
+                    {
+                        source: "/admin",
+                        has: [{ type: "host", value: "tehillimcircle.com" }],
+                        destination: "https://tehillimcircle.com/",
+                        permanent: false
+                    },
+                    {
                         // The Tehillim app has moved to its own domain. Send the
                         // old aventary.com/tehillim URLs (and everything under
                         // them, query strings preserved) to tehillimcircle.com.
