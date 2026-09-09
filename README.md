@@ -47,14 +47,21 @@ seed content (`lib/seed.ts`). The admin area and contact form need Supabase.
 2. Put the API key in `RESEND_API_KEY`; set `CONTACT_FROM_EMAIL` to a verified
    address on that domain and `CONTACT_TO_EMAIL` to where leads should land.
 
-## Git
+## Contributing
+
+`main` is production and is protected: every change lands through a reviewed
+pull request. Start here:
+
+- **[CLAUDE.md](CLAUDE.md)** — the working agreement, branch and PR workflow,
+  conventions. Claude Code reads it automatically; read it yourself too.
+- **[docs/ENGINEERING.md](docs/ENGINEERING.md)** — onboarding for new
+  engineers, and the owner's one-time setup checklist.
 
 ```bash
-cd aventary
-git init && git add . && git commit -m "Initial import"
-git branch -M main
-git remote add origin git@github.com:<you>/aventary.git
-git push -u origin main
+git switch -c feat/short-description
+npm run lint && npm run typecheck && npm run build
+git push -u origin feat/short-description
+gh pr create --fill
 ```
 
 ## Deploy to Cloudflare Pages

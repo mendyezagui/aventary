@@ -22,3 +22,7 @@ out/
 # Without this, `git add -A` sweeps ~157 generated files into a commit.
 .open-next/
 .wrangler/
+
+# Claude Code: shared team settings are committed (.claude/settings.json),
+# personal overrides are not.
+.claude/settings.local.json

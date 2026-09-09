@@ -38,7 +38,6 @@ export async function createSupabaseServer() {
  * Service-role client. Bypasses RLS. Never expose to the browser.
  */
 export function createSupabaseAdmin() {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { createClient } = require("@supabase/supabase-js") as typeof import("@supabase/supabase-js");
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

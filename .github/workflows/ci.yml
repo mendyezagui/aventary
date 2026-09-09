@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    # This job name is what branch protection requires. Renaming it silently
+    # un-blocks merges — update scripts/setup-branch-protection.sh if you do.
+    name: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run typecheck
+
+      # The guard that stops contributor sessions pushing to main or deploying.
+      # A change that makes it block everything is as bad as one that makes it
+      # block nothing, so it has tests and they run here.
+      - name: guard hook self-test
+        run: node .claude/hooks/guard-prod.test.mjs
+
+      # Builds with no secrets on purpose: the app falls back to lib/seed.ts
+      # when NEXT_PUBLIC_SUPABASE_URL is unset, so CI never needs production
+      # credentials and a contributor's PR can never read them.
+      - run: npm run build

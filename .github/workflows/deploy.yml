@@ -1,0 +1,66 @@
+name: Deploy to production
+
+# NOT WIRED UP YET — this runs only when you click "Run workflow" in the
+# Actions tab. It is here so that production can stop being something that
+# ships from a laptop.
+#
+# Why that matters: branch protection stops code reaching `main` without
+# review, but it cannot stop someone who holds the Cloudflare API token from
+# running the deploy command directly. Moving the deploy in here, with the
+# token held only by GitHub, makes a reviewed merge the only route to
+# production.
+#
+# To turn it on:
+#   1. Settings → Secrets and variables → Actions → New repository secret:
+#        CLOUDFLARE_API_TOKEN     (Workers Scripts: Edit, on this account only)
+#        CLOUDFLARE_ACCOUNT_ID
+#        NEXT_PUBLIC_SUPABASE_URL
+#        NEXT_PUBLIC_SUPABASE_ANON_KEY
+#        NEXT_PUBLIC_SITE_URL
+#        NEXT_PUBLIC_CLOUDFLARE_STREAM_SUBDOMAIN
+#      (Server-only keys — SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY,
+#       ANTHROPIC_API_KEY, ADMIN_EMAILS — belong in the Cloudflare Worker's
+#       own environment, not here. They are read at request time, not at build
+#       time, so this workflow never needs to see them.)
+#   2. Settings → Environments → New environment → "production" → tick
+#      "Required reviewers" and add yourself. Every deploy then waits for you
+#      to approve it, even after the merge.
+#   3. Uncomment the `push` trigger below.
+#   4. Rotate the Cloudflare token that currently lives on any laptop.
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build and deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_CLOUDFLARE_STREAM_SUBDOMAIN: ${{ secrets.NEXT_PUBLIC_CLOUDFLARE_STREAM_SUBDOMAIN }}
+        run: npm run deploy

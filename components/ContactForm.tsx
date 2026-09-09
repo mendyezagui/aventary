@@ -33,7 +33,7 @@ export default function ContactForm({ source = "contact" }: { source?: string })
     return (
       <div>
         <div className="text-accent font-label font-semibold text-xs tracking-[0.22em] uppercase mb-2">Thanks</div>
-        <h3 className="font-headline text-2xl font-bold mb-2">We'll be in touch.</h3>
+        <h3 className="font-headline text-2xl font-bold mb-2">We&apos;ll be in touch.</h3>
         <p className="text-on-surface-variant">
           We reply within 24 hours. In the meantime, feel free to{" "}
           <a className="text-accent underline" href="#book">book a call</a>.

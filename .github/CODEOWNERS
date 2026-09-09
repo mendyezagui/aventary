@@ -1,0 +1,21 @@
+# Every path needs a review from @mendyezagui before it can reach main.
+# Branch protection ("Require review from Code Owners") is what enforces this —
+# this file alone requests reviewers, it does not block anything.
+* @mendyezagui
+
+# Listed again so the requirement survives any future loosening of the * rule.
+# These are the paths where a mistake is expensive or hard to undo.
+/.github/            @mendyezagui
+/.claude/            @mendyezagui
+/middleware.ts       @mendyezagui
+/next.config.mjs     @mendyezagui
+/wrangler.jsonc      @mendyezagui
+/open-next.config.ts @mendyezagui
+/package.json        @mendyezagui
+/package-lock.json   @mendyezagui
+/supabase/           @mendyezagui
+/ops/                @mendyezagui
+/lib/supabase/       @mendyezagui
+/lib/admin.ts        @mendyezagui
+/app/admin/          @mendyezagui
+/app/api/            @mendyezagui

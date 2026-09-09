@@ -226,7 +226,7 @@ function StatsStrip({ left, right }: any) {
             <div className="flex-1">
               <div className="text-5xl font-headline font-bold mb-2">{left.metric}</div>
               <div className="text-lg font-medium text-surface-variant mb-6">{left.label}</div>
-              {left.quote ? <p className="text-surface-variant/70 italic">"{left.quote}"</p> : null}
+              {left.quote ? <p className="text-surface-variant/70 italic">&ldquo;{left.quote}&rdquo;</p> : null}
             </div>
           ) : null}
           {left && right ? <div className="h-48 w-px bg-outline-variant/20 hidden md:block" /> : null}
