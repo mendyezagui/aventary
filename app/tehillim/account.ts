@@ -156,6 +156,73 @@ export async function pushProfile(userId: string) {
   await sb().from("tehillim_profiles").update({ saved, settings }).eq("user_id", userId);
 }
 
+// ---- Referral ("your Tehillim circle") ----
+// A share link is /?ref=<handle>. We stash the ref on landing and, once the
+// person signs in, permanently record who referred them. Then every perek they
+// finish rolls up to that person's circle.
+const PENDING_REF = "tehillim.pendingRef";
+
+// Call on any page load: if the URL has ?ref=<handle>, remember it until sign-in.
+export function captureRef(): void {
+  try {
+    const ref = new URL(window.location.href).searchParams.get("ref");
+    if (ref && /^[a-z0-9][a-z0-9-]{2,59}$/i.test(ref)) {
+      localStorage.setItem(PENDING_REF, ref.toLowerCase());
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+// Once signed in, link a pending referral (set-once, server-side). Clears the
+// pending ref on any definitive outcome so we don't retry forever.
+export async function consumePendingRef(): Promise<void> {
+  if (!hasSupabase()) return;
+  let ref = "";
+  try {
+    ref = localStorage.getItem(PENDING_REF) || "";
+  } catch {
+    /* ignore */
+  }
+  if (!ref) return;
+  const user = await getUser();
+  if (!user) return; // wait until they're signed in
+  try {
+    await sb().rpc("set_referrer_by_handle", { referrer_handle: ref });
+    localStorage.removeItem(PENDING_REF); // linked, already-linked, self, cycle, not_found — all final
+  } catch {
+    /* keep pending; try next load */
+  }
+}
+
+// Add finished perakim to the signed-in user's tally (no-op when signed out).
+export async function addPerakim(n: number): Promise<void> {
+  if (!hasSupabase() || !n || n <= 0) return;
+  const user = await getUser();
+  if (!user) return;
+  try {
+    await sb().rpc("increment_perakim", { n });
+  } catch {
+    /* ignore */
+  }
+}
+
+export type RefStat = { level: number; people: number; perakim: number };
+
+// Per-level aggregate for the signed-in user's referral circle (down to 5).
+export async function getReferralStats(): Promise<RefStat[]> {
+  if (!hasSupabase()) return [];
+  const user = await getUser();
+  if (!user) return [];
+  try {
+    const { data, error } = await sb().rpc("referral_stats");
+    if (error || !Array.isArray(data)) return [];
+    return data as RefStat[];
+  } catch {
+    return [];
+  }
+}
+
 /**
  * Bring this device in line with the account.
  * - First time linking on this device: union local saved into the account

@@ -24,6 +24,10 @@ import {
   startSyncLoop,
   queueSync,
   sendSavedToHandle,
+  captureRef,
+  consumePendingRef,
+  getReferralStats,
+  type RefStat,
 } from "./account";
 
 type Theme = "light" | "dark";
@@ -58,6 +62,8 @@ export default function HomeTehillim() {
   const [linkSent, setLinkSent] = useState(false);
   const [authErr, setAuthErr] = useState<string | null>(null);
   const [acctOpen, setAcctOpen] = useState(false);
+  const [stats, setStats] = useState<RefStat[]>([]);
+  const [shared, setShared] = useState(false);
 
   useEffect(() => {
     const now = new Date();
@@ -88,6 +94,7 @@ export default function HomeTehillim() {
     } catch {
       /* ignore */
     }
+    captureRef(); // remember /?ref=<handle> until this person signs in
     setReady(true);
   }, []);
 
@@ -115,6 +122,9 @@ export default function HomeTehillim() {
       } catch {
         /* offline / error — stay on local */
       }
+      // Link a pending referral now that we're signed in, then load the circle.
+      await consumePendingRef();
+      setStats(await getReferralStats());
       stop = startSyncLoop();
     })();
     return () => stop?.();
@@ -133,6 +143,24 @@ export default function HomeTehillim() {
     setAccount(null);
     setHandle("");
     setLinkSent(false);
+    setStats([]);
+  }
+
+  async function shareApp() {
+    const origin =
+      typeof window !== "undefined" ? window.location.origin : "";
+    const link = handle ? `${origin}/?ref=${handle}` : `${origin}/`;
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title: "Tehillim", text: "Say Tehillim with me 🙏", url: link });
+      } else {
+        await navigator.clipboard.writeText(link);
+        setShared(true);
+        setTimeout(() => setShared(false), 2500);
+      }
+    } catch {
+      /* cancelled / blocked — ignore */
+    }
   }
 
   function toggleTheme() {
@@ -219,6 +247,13 @@ export default function HomeTehillim() {
     setSaved(moveSaved(ch, dir));
     queueSync();
   }
+
+  const circlePerakim = stats.reduce((n, s) => n + Number(s.perakim || 0), 0);
+  const circlePeople = stats.reduce((n, s) => n + Number(s.people || 0), 0);
+  const circleDepth = stats.reduce(
+    (m, s) => (Number(s.people) > 0 ? Math.max(m, s.level) : m),
+    0
+  );
 
   return (
     <div dir="ltr" className="home">
@@ -351,6 +386,62 @@ export default function HomeTehillim() {
             </span>
           </label>
         )}
+      </section>
+
+      {/* 1½ — Your Tehillim circle (sweet referral) */}
+      <section className="card circle-card">
+        <div className="card-main">
+          <span className="card-kicker">Share the zchus</span>
+          <span className="card-title">Your Tehillim circle</span>
+          {account ? (
+            circlePeople > 0 ? (
+              <>
+                <span className="card-desc">
+                  <b>{circlePeople}</b>{" "}
+                  {circlePeople === 1 ? "person" : "people"} in your circle
+                  {circleDepth > 1 ? ` (down to level ${circleDepth})` : ""} have
+                  said <b>{circlePerakim.toLocaleString()}</b> perakim —
+                  because you shared.
+                </span>
+                <div className="circle-levels">
+                  {[1, 2, 3, 4, 5].map((lvl) => {
+                    const s = stats.find((x) => x.level === lvl);
+                    const people = Number(s?.people || 0);
+                    if (people === 0) return null;
+                    return (
+                      <div className="circle-row" key={lvl}>
+                        <span className="circle-lvl">Level {lvl}</span>
+                        <span className="circle-ppl">
+                          {people} {people === 1 ? "person" : "people"}
+                        </span>
+                        <b className="circle-per">
+                          {Number(s?.perakim || 0).toLocaleString()}
+                        </b>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <span className="card-desc">
+                No one yet — share the app. Every perek the people you bring in
+                (and the people <i>they</i> bring in) finish will add up here.
+              </span>
+            )
+          ) : (
+            <span className="card-desc">
+              Sign in to get your share link and watch the Tehillim your circle
+              says add up. No reward — just the zchus of starting the chain.
+            </span>
+          )}
+          <button
+            type="button"
+            className="cta cta-quiet share-btn"
+            onClick={shareApp}
+          >
+            {shared ? "✓ Link copied" : account ? "Share your link" : "Share Tehillim"}
+          </button>
+        </div>
       </section>
 
       {/* 2 — Saved Psalms */}

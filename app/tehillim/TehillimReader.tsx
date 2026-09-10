@@ -24,6 +24,7 @@ import {
   setSyncUser,
   startSyncLoop,
   queueSync,
+  addPerakim,
 } from "./account";
 
 type Addition = "kera" | "neshama" | "none";
@@ -213,6 +214,7 @@ export default function TehillimReader() {
   const [activeMode, setActiveMode] = useState<"scroll" | "voice">("scroll");
   const [currentReadId, setCurrentReadId] = useState<string | null>(null);
   const [voiceErr, setVoiceErr] = useState<string | null>(null);
+  const [signedIn, setSignedIn] = useState(false);
 
   const wakeRef = useRef<WakeLockSentinel | null>(null);
   const selRef = useRef(sel);
@@ -238,6 +240,8 @@ export default function TehillimReader() {
   const startedCountRef = useRef(0);
   const readStartTsRef = useRef(0);
   const currentIdxRef = useRef(0);
+  const endnoteRef = useRef<HTMLParagraphElement | null>(null);
+  const countedSelRef = useRef(false);
 
   // ---- One-time client init ----
   useEffect(() => {
@@ -303,6 +307,7 @@ export default function TehillimReader() {
     (async () => {
       const u = await getUser();
       if (!u) return;
+      setSignedIn(true);
       setSyncUser(u.id);
       try {
         await syncOnLoad();
@@ -398,6 +403,14 @@ export default function TehillimReader() {
   }, [groups]);
   const readItemsRef = useRef(readItems);
   readItemsRef.current = readItems;
+
+  // How many distinct perakim (chapters) this portion contains — what we credit
+  // to the reader's "circle" once they reach the end. (Name mode = Psalm 119 = 1.)
+  const chapterCount = useMemo(() => {
+    const s = new Set<number>();
+    groups.forEach((g) => g.segments.forEach((seg) => s.add(seg.chapter)));
+    return s.size;
+  }, [groups]);
 
   // ---- Voices: load the device's Hebrew voices (async on some browsers) ----
   const speechOK =
@@ -826,6 +839,29 @@ export default function TehillimReader() {
     };
   }, [ready, sel, font, groups, speed]);
 
+  // ---- Count the portion once its end comes into view (any reading mode) ----
+  // A finished portion credits `chapterCount` perakim to the signed-in reader's
+  // circle. Counted at most once per selection.
+  useEffect(() => {
+    if (!ready) return;
+    countedSelRef.current = false;
+    const el = endnoteRef.current;
+    if (!el || !signedIn || chapterCount <= 0) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting && !countedSelRef.current) {
+            countedSelRef.current = true;
+            addPerakim(chapterCount);
+          }
+        }
+      },
+      { threshold: 0.6 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [ready, sel, groups, signedIn, chapterCount]);
+
   // ---- Keep the screen awake while auto-scrolling or reading aloud ----
   const awake = playing || reading;
   useEffect(() => {
@@ -1142,7 +1178,7 @@ export default function TehillimReader() {
             ))}
 
             {totalSegments > 0 && (
-              <p className="endnote">
+              <p className="endnote" ref={endnoteRef}>
                 {sel.type === "today" || sel.type === "day"
                   ? "סליק · end of the portion"
                   : sel.type === "name"
