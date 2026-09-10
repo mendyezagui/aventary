@@ -793,20 +793,37 @@ export default function TehillimReader() {
     return () => window.removeEventListener("keydown", onKey);
   }, [speed, scrollPct, activeMode, font, stepVoice, setSpeedPct, setFont, stopReading]);
 
-  // ---- Read-time estimate (like Substack): time to auto-scroll top→bottom ----
+  // ---- Time remaining: how long to auto-scroll from the CURRENT position to
+  // the bottom at the current speed. Recomputes as you scroll, but only sets
+  // state when the shown "~N min" label would actually change (avoids churn).
   useEffect(() => {
     if (!ready) return;
-    const id = requestAnimationFrame(() => {
+    let raf = 0;
+    const label = (m: number | null) =>
+      m == null ? "" : m < 1 ? "<1" : String(Math.round(m));
+    const calc = () => {
+      raf = 0;
       const scrollable =
         document.documentElement.scrollHeight - window.innerHeight;
       if (scrollable <= 4) {
-        setReadMin(null);
+        setReadMin((prev) => (prev == null ? prev : null));
         return;
       }
-      const seconds = scrollable / (speed * FPS);
-      setReadMin(seconds / 60);
-    });
-    return () => cancelAnimationFrame(id);
+      const remaining = Math.max(0, scrollable - window.scrollY);
+      const mins = remaining / (speed * FPS) / 60;
+      setReadMin((prev) => (label(prev) === label(mins) ? prev : mins));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(calc);
+    };
+    calc();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, [ready, sel, font, groups, speed]);
 
   // ---- Keep the screen awake while auto-scrolling or reading aloud ----
@@ -1175,7 +1192,7 @@ export default function TehillimReader() {
           </span>
         </button>
         {readMin != null && (
-          <span className="fab-time" title="Estimated time at this speed">
+          <span className="fab-time" title="Time left at this speed">
             ~{readMin < 1 ? "<1" : Math.round(readMin)} min
           </span>
         )}
