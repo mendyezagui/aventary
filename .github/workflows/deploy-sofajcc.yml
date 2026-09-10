@@ -1,0 +1,71 @@
+# Deploy sofajcc.org (the static site in sofajcc/) to Cloudflare Pages.
+#
+# WHY THIS EXISTS
+# The Pages project `sofajcc` was created by DIRECT UPLOAD — the README's
+# Option A, `wrangler pages deploy sofajcc`. A direct-upload project has no
+# Git connection, so pushing to main has never deployed anything and never
+# would. There was no failing build to fix; there was no build at all.
+#
+# This closes that gap from the repo side: every push to main that touches
+# sofajcc/ uploads the folder to the same project. It does not require the
+# Pages project to be reconnected to Git, and it keeps working if someone
+# later connects it.
+#
+# ONE-TIME SETUP (repo Settings -> Secrets and variables -> Actions):
+#   CLOUDFLARE_API_TOKEN    a token with the "Cloudflare Pages: Edit" permission
+#                           (My Profile -> API Tokens -> Create -> Edit Cloudflare
+#                            Workers, or a custom token with Account/Pages/Edit)
+#   CLOUDFLARE_ACCOUNT_ID   Cloudflare dashboard -> Workers & Pages -> Account ID
+#
+# Until both secrets exist the job fails fast with a clear message rather than
+# half-deploying.
+
+name: Deploy sofajcc.org
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "sofajcc/**"
+      - ".github/workflows/deploy-sofajcc.yml"
+  workflow_dispatch:        # lets you deploy by hand without a commit
+
+concurrency:
+  # A newer push supersedes an in-flight deploy rather than racing it.
+  group: deploy-sofajcc
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the required secrets are present
+        run: |
+          missing=
+          [ -n "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]  || missing="$missing CLOUDFLARE_API_TOKEN"
+          [ -n "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ] || missing="$missing CLOUDFLARE_ACCOUNT_ID"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secret(s):$missing"
+            echo "Add them under Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+
+      - name: Sanity-check the folder before uploading
+        run: |
+          test -f sofajcc/home.html || { echo "::error::sofajcc/home.html missing — refusing to deploy"; exit 1; }
+          echo "Files to upload: $(find sofajcc -type f | wc -l)"
+          find sofajcc -type f -name '*.pdf' -exec ls -lh {} \; || true
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # `sofajcc` is the existing project name — same one the README's
+          # Option A created, and the one behind sofajcc.pages.dev.
+          command: pages deploy sofajcc --project-name=sofajcc --branch=main
