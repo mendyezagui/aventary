@@ -938,6 +938,47 @@ a.card:hover {
   background: var(--accent-soft);
 }
 
+/* ---------- Your Tehillim circle (referral) ---------- */
+.circle-card {
+  align-items: stretch;
+}
+.share-btn.cta {
+  align-self: flex-start;
+  margin-top: 14px;
+}
+.circle-levels {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.circle-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+}
+.circle-lvl {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+.circle-ppl {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.circle-per {
+  font-size: 1.05rem;
+  color: var(--accent);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- Send a name's Psalm to a handle ---------- */
 .sendline {
   margin-top: 12px;
