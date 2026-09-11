@@ -78,6 +78,15 @@ const nextConfig = {
                         permanent: true
                     },
                     {
+                        // /lcla moved to the /c/<slug> client-page system. The old
+                        // link is already circulating, so it is a permanent redirect
+                        // rather than a removal — and the same password still works
+                        // on the other side of it.
+                        source: "/lcla",
+                        destination: "/c/lcla",
+                        permanent: true
+                    },
+                    {
                         // Canonical host: www.* → apex. Handled at the routing layer
                         // (runs before middleware, no function invocation), so it covers
                         // every path without billing serverless CPU. Replaces the old
