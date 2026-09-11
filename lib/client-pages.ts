@@ -53,7 +53,13 @@ type PageRow = {
   password_hash: string | null;
 };
 
-const PBKDF2_ITERATIONS = 210_000;
+// Cloudflare Workers caps PBKDF2 at 100,000 iterations and throws
+// NotSupportedError above it. That is the ceiling, not a considered choice:
+// OWASP wants far more for PBKDF2-SHA-256. It is acceptable here because these
+// are per-page document passwords, the hashes are not public, and the real
+// control is the allowlisted sign-in link. Do not raise this without checking
+// the platform still refuses it.
+const PBKDF2_ITERATIONS = 100_000;
 
 function b64(bytes: Uint8Array) {
   return btoa(String.fromCharCode(...bytes));
@@ -85,16 +91,35 @@ export async function hashPassword(password: string) {
   return `pbkdf2-sha256$${PBKDF2_ITERATIONS}$${b64(salt)}$${b64(hash)}`;
 }
 
-/** Constant-time verification against a stored hash. */
+/**
+ * Constant-time verification against a stored hash.
+ *
+ * Returns false rather than throwing on anything malformed or unsupported —
+ * including a hash written with more iterations than this runtime will accept,
+ * which is what a 210,000-iteration hash from an earlier version looks like
+ * here. A bad stored value must fail the sign-in, never 500 the request.
+ */
 export async function verifyPassword(password: string, stored: string) {
-  const [scheme, iters, salt, expected] = stored.split("$");
-  if (scheme !== "pbkdf2-sha256") return false;
-  const actual = await pbkdf2(password, unb64(salt), Number(iters));
-  const want = unb64(expected);
-  if (actual.length !== want.length) return false;
-  let diff = 0;
-  for (let i = 0; i < actual.length; i++) diff |= actual[i] ^ want[i];
-  return diff === 0;
+  try {
+    const [scheme, iters, salt, expected] = stored.split("$");
+    if (scheme !== "pbkdf2-sha256") return false;
+    const iterations = Number(iters);
+    if (!Number.isFinite(iterations) || iterations < 1 || iterations > PBKDF2_ITERATIONS) {
+      console.error(
+        `client-page password hash needs ${iters} PBKDF2 iterations; this runtime allows ${PBKDF2_ITERATIONS}. Re-set the password.`
+      );
+      return false;
+    }
+    const actual = await pbkdf2(password, unb64(salt), iterations);
+    const want = unb64(expected);
+    if (actual.length !== want.length) return false;
+    let diff = 0;
+    for (let i = 0; i < actual.length; i++) diff |= actual[i] ^ want[i];
+    return diff === 0;
+  } catch (err) {
+    console.error("client-page password verification failed", err);
+    return false;
+  }
 }
 
 /**
@@ -225,4 +250,53 @@ export async function readSession(
     .update({ last_seen_at: new Date().toISOString() })
     .eq("id", data.id);
   return { email: (data.email as string | null) ?? null, method: (data.method as string) ?? "link" };
+}
+
+// Named entities these documents actually use, plus the ones likely to turn up.
+// Anything unrecognised is left as written rather than mangled — a stray entity
+// reads better in a prompt than a wrong character.
+const NAMED_ENTITIES: Record<string, string> = {
+  mdash: "—", ndash: "–", hellip: "…", middot: "·", bull: "•",
+  lsquo: "\u2018", rsquo: "\u2019", ldquo: "\u201C", rdquo: "\u201D",
+  nbsp: " ", amp: "&", lt: "<", gt: ">", quot: '"', apos: "'",
+  times: "×", deg: "°"
+};
+
+/**
+ * Plain text of a client page's document, for grounding the Ask widget.
+ *
+ * Diagrams collapse to their aria-label rather than being dropped: those labels
+ * were written to state what the picture shows, so the model can answer about a
+ * diagram it cannot see. SVG coordinates would otherwise flood the prompt with
+ * numbers that mean nothing.
+ */
+export function documentText(html: string): string {
+  const withDiagrams = html.replace(
+    /<svg\b[^>]*?aria-label="([^"]*)"[\s\S]*?<\/svg>/gi,
+    (_m, label) => `\n[Diagram: ${label}]\n`
+  );
+  return withDiagrams
+    .replace(/<svg[\s\S]*?<\/svg>/gi, " ")
+    .replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ")
+    .replace(/<\/(p|div|section|h1|h2|h3|li|tr|figcaption|dd)>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&#x([0-9a-f]+);/gi, (_m, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_m, n) => String.fromCodePoint(Number(n)))
+    .replace(/&([a-z]+);/gi, (m, name) => NAMED_ENTITIES[name.toLowerCase()] ?? m)
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/** Records what a reader asked. Best effort — a logging failure must not break the answer. */
+export async function logQuestion(slug: string, email: string | null, question: string) {
+  if (!configured()) return;
+  try {
+    await createSupabaseAdmin()
+      .from("client_page_questions")
+      .insert({ slug, email, question: question.slice(0, 2000) });
+  } catch (err) {
+    console.error("client-page question log failed", err);
+  }
 }

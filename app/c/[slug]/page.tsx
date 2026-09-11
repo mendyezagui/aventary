@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { cookieName, getContent, getPageRow, readSession } from "@/lib/client-pages";
+import { AskPanel } from "./AskPanel";
 import "./client-page.css";
 
 export const dynamic = "force-dynamic";
@@ -40,6 +41,7 @@ export default async function ClientPage({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="stylesheet" href={FONTS} />
+        <AskPanel slug={slug} title={content.title} />
         <div className="lcla" dangerouslySetInnerHTML={{ __html: content.html }} />
         <p className="cp-whoami">
           {session.email

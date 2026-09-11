@@ -17,7 +17,12 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ slug: stri
   const content = getContent(slug);
   if (!content || !email.includes("@")) return done;
 
-  const token = await issueMagicLink(slug, email);
+  let token: string | null = null;
+  try {
+    token = await issueMagicLink(slug, email);
+  } catch (err) {
+    console.error("client-page link issue failed", err);
+  }
   if (!token) return done;
 
   const link = new URL(`/c/${slug}/verify`, req.url);
@@ -45,4 +50,11 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ slug: stri
   }
 
   return done;
+}
+
+// Someone landing here directly — a typed URL, a back button, a mail client
+// prefetch — gets sent to the page rather than an error page. Only POST signs in.
+export async function GET(req: NextRequest, ctx: { params: Promise<{ slug: string }> }) {
+  const { slug } = await ctx.params;
+  return NextResponse.redirect(new URL(`/c/${slug}`, req.url), { status: 303 });
 }
