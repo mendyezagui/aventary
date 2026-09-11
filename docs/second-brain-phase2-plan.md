@@ -51,22 +51,61 @@ Identity sequences were left at 1 by the explicit-id inserts, which would have c
 the next app insert. Fixed with `setval` and proved with an insert-probe on each table
 that had to land above the migrated range; the probe rows were removed.
 
-### Still on A — the runtime
+### The runtime, ported 2026-09-11
 
-The data moved; the machinery did not.
+`associate-tick` now runs on B and A's job is off.
 
-- **`associate-tick`** edge function still lives on A and reads A's tables.
-- **pg_cron job 6** on A (`0 * * * *`) still fires at A's function.
-- Until it is ported, the Associates in B are rows nobody runs, and `associate-tick` on A
-  keeps erroring against the frozen CRM tables.
+| | A (`xwacfwagyhgbbhefecdt`) | B (`fukehjqikxqsntwhmgsk`) |
+|---|---|---|
+| edge function | still deployed, now orphaned | **`associate-tick` v1, `verify_jwt` off** |
+| pg_cron | job 6, `0 * * * *` — **disabled** | **job 5, `0 * * * *` — active** |
 
-Order: deploy `associate-tick` to B → confirm a manual tick writes an `associate_runs` row
-in B → create the pg_cron job on B → disable job 6 on A → drop A's three tables.
+The planning logic did not change. It is the same two modules the browser console
+imports, still pinned to commit `2385386`, so the cron and the console cannot disagree
+about what an associate saw. Only the IO changed, and every change is because B is
+multi-tenant and A was not:
+
+1. **Every read is scoped to a tenant.** Service role bypasses RLS, so one forgotten
+   `.eq("tenant_id")` would hand Mendy's associate Jim's pipeline. That is the exact
+   failure this consolidation exists to end, and it would have been introduced by a
+   straight copy of A's function.
+2. **Every write sets `tenant_id`.**
+3. **`agentlogs`, `ai_memories`, `documents` and `tasks` have no identity on `id` in B** —
+   they were imported with explicit ids — so the runtime allocates one per tenant and
+   retries on collision. `associates` / `associate_runs` / `associate_drafts` do have
+   identity and are left to the database.
+4. **`verify_jwt` is off and the token is checked in the function**, matching
+   `loops-dispatcher`: `CRON_SECRET` runs every tenant, a signed-in user's JWT runs only
+   their own, and no token at all is a 401 before any model call.
+5. **A declared table that does not exist in B is named in `missing_tables`** and in the
+   tick's `agentlogs` line, instead of silently reading zero rows. Empty-and-silent is how
+   an associate looks healthy for a month while reading nothing.
+
+The source of record is `ops/associates-runtime/associate-tick.ts` in this repo.
+
+**Proved end to end**, not just deployed:
+
+- `GET` dry run: Jim's tenant `0 due of 0`, Mendy's `0 due of 18` with all eighteen held
+  for the right reason (two custom runtimes, three wrong weekday, twelve manual,
+  `project-status` already ran today).
+- Live tick with `now=2026-09-18T16:30:00Z`, which makes exactly one associate due:
+  `project-status` returned `status: ok`, wrote `associate_runs` id 6 and
+  `associate_drafts` id 11 under the Mendy tenant, and the tick log landed in `agentlogs`
+  at an allocated id — so the id-allocation path is exercised, not assumed. Jim's tenant
+  produced nothing.
+- Those three rows were then deleted and `last_run_at` restored. A test run dated
+  2026-09-18 left in place would have made the real 2026-09-18 tick skip `project-status`
+  as "already ran today".
+
+**Still to do:** drop A's `associates`, `associate_runs` and `associate_drafts` after one
+unattended hourly tick on B has been observed. The data is byte-verified in B and the drop
+is irreversible, so it waits for evidence the schedule fires on its own, not just on
+demand.
 
 **`content-brain` will fail its requirements in B** until the content tables move: its
 `inputs` read `socialStrategy`, `content_queue` and `contentCalendar`, none of which exist
 in B yet. It has two `blocking` requirements, so it will stop cleanly and say why rather
-than produce something wrong.
+than produce something wrong. The tick now reports these by name in `missing_tables`.
 
 ## site_analyses — reversed, 2026-09-11
 
@@ -155,7 +194,7 @@ dashboard by hand.
 | Social / content ops | `contentCalendar`, `content_queue`, `socialCampaigns`, `socialStrategy` | 100 | **Move to B** |
 | **Voitra site analyzer** | `site_analyses` | 44 | **KEEP — move to B**, becomes an Associate |
 | Multi-LLM playground | `llm_messages`, `llm_conversations` | 41 | ✅ **DROPPED 2026-09-11** |
-| Associates framework | `associates`, `associate_drafts`, `associate_runs` | 31 | ✅ **DATA MOVED 2026-09-11** — runtime still on A |
+| Associates framework | `associates`, `associate_drafts`, `associate_runs` | 31 | ✅ **MOVED 2026-09-11** — data and runtime both on B; A's tables pending drop |
 | Vantaca / Scott Mgmt | `vantaca_audit`, `vantaca_controls` | 22 | **Move to B** |
 | SoFa JCC | `sofa_events`, `sofa_nudges`, `sofa_flyers`, `sofa_work_orders`, `sofa_speakers` | 7 | **Move to B** |
 | TalkBoard | `board_sets`, `children` | 2 | **Leave in A** — separate app, not CRM |
@@ -196,7 +235,7 @@ column added to the table:
 
 | Group | Functions to redeploy | App view |
 |---|---|---|
-| Associates | `associate-tick` (runs ~hourly) | `associates` |
+| ~~Associates~~ | ~~`associate-tick`~~ — ✅ deployed to B, cron job 5, A's job 6 disabled | `associates` |
 | SoFa JCC | `sofa-jcc-scan` (runs ~hourly) | — |
 | Vantaca | `rc-controls` and the `rc-*` set if they share config | `vantaca_controls` |
 | Lead capture | `poc-lead-submit`, `voitra-poc-submit`, `retell-lead` | — |

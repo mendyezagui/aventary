@@ -64,15 +64,17 @@ permanently** and orphans the board data.
 Auth users cannot be "moved" — a new project means new user ids, so the references have
 to be remapped and the users re-invited.
 
-### 3. pg_cron — two live schedules on A
+### 3. pg_cron — one live schedule left on A
 
-| Job | Schedule | Calls |
-|---|---|---|
-| `associate-tick` | `0 * * * *` (hourly) | `/functions/v1/associate-tick` |
-| `sofa-jcc-daily-scan` | `30 14 * * *` | `/functions/v1/sofa-jcc-scan` |
+| Job | Schedule | Calls | Status |
+|---|---|---|---|
+| `associate-tick` | `0 * * * *` (hourly) | `/functions/v1/associate-tick` | **disabled 2026-09-11** — ported to B, now job 5 there |
+| `sofa-jcc-daily-scan` | `30 14 * * *` | `/functions/v1/sofa-jcc-scan` | still live on A |
 
 Both fire `net.http_post` at A's own functions. B has pg_cron 1.6.4 installed, so these
-can be recreated — but only after the functions themselves are on B.
+can be recreated — but only after the functions themselves are on B. `associate-tick` was
+disabled rather than unscheduled, so its command text is still readable if anyone needs to
+see what used to run here.
 
 ### 4. Triggers — two of them are the money logic
 
@@ -156,7 +158,8 @@ instead of a scary one.
 - [ ] Delete `revops-dashboard` and `update-page` — their table is already gone
 - [ ] Port the two invoice/payment triggers, reconcile the two money models
 - [ ] Move the phase-2 groups (social, Associates, SoFa JCC, Vantaca, lead capture)
-- [ ] Port `associate-tick` and `sofa-jcc-scan` to B, recreate both pg_cron jobs there
+- [x] Port `associate-tick` to B, recreate its pg_cron job there, disable A's job 6
+- [ ] Port `sofa-jcc-scan` to B and recreate its pg_cron job there
 - [ ] Close the shared-table deltas (agentlogs 735, events 142, cadence_enrollments 95, payment_allocations 30)
 - [ ] Decide TalkBoard's home; remap `children` / `board_sets` parent ids to new auth users
 - [ ] Decide Voitra's home; move ~27 edge functions and its DNS/routing
