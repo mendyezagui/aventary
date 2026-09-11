@@ -29,21 +29,50 @@ before deleting anything that serves a public URL.
 
 ---
 
+## Step 1 status, 2026-09-11
+
+**Done:** `llm_messages`, `llm_conversations` and `static_pages` dropped from A in the
+tracked migration `retire_multi_llm_playground_and_empty_static_pages`. Archived first to
+`../ops/retired-2026-09-11/multi-llm-playground.md`. A is down from 52 tables to 49.
+`llm-proxy` was deliberately left alone — VoiceView needs it.
+
+**On hold:** `site_analyses`. I labelled it "Spectari" and it is not. It is the
+**Voitra/Aventary homepage-analyzer lead-gen tool** — the rows are prospects (Ciocca
+Cleaning, WNY Disaster Relief, Southeast Restoration, Kennedy Richter Construction,
+Delta). Mendy's "we're done with that" was given against the wrong label, so it needs
+re-confirming before 44 rows of prospect research are deleted.
+
+Evidence that retiring it is safe, for when that call is made: not embedded on
+aventary.com or voitra.ai (zero references in either page), not referenced anywhere in
+the aventary repo, zero edge-function hits in 24h, and the last row was written
+**2026-05-29** — 3½ months ago.
+
+**Separately — dead config found on a live site.** `spectari.app` (the AI travel-glasses
+rental business, unrelated to `site_analyses`) hardcodes A's URL and publishable key in
+its page, but A has no Spectari tables left; they were removed 2026-08-21. Reservations
+actually go to the Cloudflare Worker `spectari-reserve.mendyezagui.workers.dev`, so the
+site works. The Supabase config in that page is vestigial and should be removed.
+
+**Two edge functions now reference a dropped table:** `revops-dashboard` and
+`update-page` both read `static_pages`. They served an empty page before and will error
+now. The Supabase MCP has no delete-function tool, so they need removing from the
+dashboard by hand.
+
 ## Decisions
 
 | Group | Tables | Rows | Decision |
 |---|---|---:|---|
 | Resale scraper | `unclaimed_watchlist` | 2,918 | **Own project** — see below |
 | Social / content ops | `contentCalendar`, `content_queue`, `socialCampaigns`, `socialStrategy` | 100 | **Move to B** |
-| Spectari | `site_analyses` | 44 | **Retire** |
-| Multi-LLM playground | `llm_messages`, `llm_conversations` | 41 | **Retire** + drop the app tab |
+| ~~Spectari~~ **Homepage analyzer** | `site_analyses` | 44 | **Retire — ON HOLD**, mislabelled, see below |
+| Multi-LLM playground | `llm_messages`, `llm_conversations` | 41 | ✅ **DROPPED 2026-09-11** |
 | Associates framework | `associates`, `associate_drafts`, `associate_runs` | 31 | **Move to B** |
 | Vantaca / Scott Mgmt | `vantaca_audit`, `vantaca_controls` | 22 | **Move to B** |
 | SoFa JCC | `sofa_events`, `sofa_nudges`, `sofa_flyers`, `sofa_work_orders`, `sofa_speakers` | 7 | **Move to B** |
 | TalkBoard | `board_sets`, `children` | 2 | **Leave in A** — separate app, not CRM |
 | Voitra gate | `voitra_gate_state` | 1 | **Do not touch** — working, leave as is |
 | bp501 demo | `bp501_static` | 5 | **Leave in A** — decide later |
-| Dead | `static_pages` | 1 | **Retire** — the one row has 0 bytes of html |
+| Dead | `static_pages` | 1 | ✅ **DROPPED 2026-09-11** |
 | Lead capture | `poc_leads`, `diagnostic_leads`, `secondbrain_waitlist`, `push_subscriptions` | 3 | **Move to B** — wired to live sites |
 
 ### `unclaimed_watchlist` — belongs in neither database
