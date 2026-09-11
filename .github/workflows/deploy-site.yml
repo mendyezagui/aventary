@@ -1,0 +1,83 @@
+# Deploy aventary.com (the Next app) to its Cloudflare Worker.
+#
+# WHY THIS EXISTS
+# The `aventary` Worker is deployed by direct upload — `opennextjs-cloudflare
+# deploy`, driven from someone's laptop. A direct-upload Worker has no Git
+# connection, so merging to main has never shipped anything. This is the same
+# gap that #75 closed for the sofajcc Pages project: there was no failing build
+# to fix, because there was no build at all.
+#
+# It caused a real miss: the /c/<slug> client pages sat on main, fully built and
+# tested, while aventary.com/c/lcla returned 404 — because nothing deployed it.
+#
+# ONE-TIME SETUP (repo Settings -> Secrets and variables -> Actions):
+#   CLOUDFLARE_API_TOKEN    needs "Edit Cloudflare Workers" (the sofajcc deploy
+#                           already uses this secret; a Workers-scoped token
+#                           covers both)
+#   CLOUDFLARE_ACCOUNT_ID   Cloudflare dashboard -> Workers & Pages -> Account ID
+#
+# Runtime secrets (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, …) are Worker
+# secrets set in Cloudflare and are NOT touched by a deploy — wrangler.jsonc
+# declares no `vars`, so nothing here can clobber them.
+
+name: Deploy aventary.com
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      # sofajcc has its own workflow; a change only there should not rebuild the app.
+      - "sofajcc/**"
+      - ".github/workflows/deploy-sofajcc.yml"
+      - "docs/**"
+      - "ops/**"
+      - "**.md"
+  workflow_dispatch:        # deploy by hand without a commit
+
+concurrency:
+  # A newer push supersedes an in-flight deploy rather than racing it.
+  group: deploy-site
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the required secrets are present
+        run: |
+          missing=
+          [ -n "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]  || missing="$missing CLOUDFLARE_API_TOKEN"
+          [ -n "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ] || missing="$missing CLOUDFLARE_ACCOUNT_ID"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secret(s):$missing"
+            echo "Add them under Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Build before deploying so a broken build fails here, loudly, instead of
+      # silently leaving the last good version live with no sign anything went wrong.
+      - name: Build the Worker bundle
+        run: npm run cf:build
+
+      - name: Sanity-check the bundle
+        run: |
+          test -f .open-next/worker.js || { echo "::error::.open-next/worker.js missing — refusing to deploy"; exit 1; }
+          test -d .open-next/assets    || { echo "::error::.open-next/assets missing — refusing to deploy"; exit 1; }
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx opennextjs-cloudflare deploy
