@@ -164,3 +164,11 @@
 .cp-gate-ok{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.9rem;color:#0E6B68;background:#DCEAE7;border:1px solid #0E6B68;border-radius:3px;padding:11px 13px;margin:4px 0 0;line-height:1.55;}
 .cp-gate-note{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.82rem;color:#7C8992;margin:10px 0 0;line-height:1.5;}
 .cp-whoami{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.72rem;color:#7C8992;text-align:center;padding:0 26px 44px;margin:-70px 0 0;}
+
+/* Two ways in on one card: the password (when a page has one) above, the
+   emailed link below, separated by a rule so neither looks like the fallback. */
+.cp-form{display:flex;flex-direction:column;gap:8px;}
+.cp-or{display:flex;align-items:center;gap:12px;margin:20px 0;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:#7C8992;}
+.cp-or::before,.cp-or::after{content:"";flex:1;height:1px;background:#DFD7C6;}
+.cp-gate button.cp-secondary{background:transparent;color:#0E6B68;border-color:#C8BEA8;}
+.cp-gate button.cp-secondary:hover{background:#DCEAE7;border-color:#0E6B68;}

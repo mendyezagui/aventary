@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { cookieName, getContent, getPageRow, sessionEmail } from "@/lib/client-pages";
+import { cookieName, getContent, getPageRow, readSession } from "@/lib/client-pages";
 import "./client-page.css";
 
 export const dynamic = "force-dynamic";
@@ -32,9 +32,9 @@ export default async function ClientPage({
   if (!content) notFound();
 
   const row = await getPageRow(slug);
-  const email = await sessionEmail(slug, (await cookies()).get(cookieName(slug))?.value);
+  const session = await readSession(slug, (await cookies()).get(cookieName(slug))?.value);
 
-  if (email) {
+  if (session) {
     return (
       <>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -42,7 +42,10 @@ export default async function ClientPage({
         <link rel="stylesheet" href={FONTS} />
         <div className="lcla" dangerouslySetInnerHTML={{ __html: content.html }} />
         <p className="cp-whoami">
-          Signed in as {email}. This document is confidential to its named recipients.
+          {session.email
+            ? `Signed in as ${session.email}.`
+            : "Signed in with the shared password."}{" "}
+          This document is confidential to its named recipients.
         </p>
       </>
     );
@@ -64,33 +67,61 @@ export default async function ClientPage({
             This page is not open yet. No reader list has been set for{" "}
             <code>{slug}</code>.
           </p>
-        ) : sent ? (
-          <p className="cp-gate-ok" role="status">
-            If that address is on the list for this page, a sign-in link is on its way.
-            It is good for 20 minutes and can be used once.
-          </p>
         ) : (
-          <form method="POST" action={`/api/c/${slug}/request`}>
-            <label htmlFor="cp-email">Your email</label>
-            <input
-              id="cp-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              placeholder="you@example.com"
-              autoFocus
-              required
-            />
-            {e === "expired" && (
-              <p className="cp-gate-error" role="alert">
-                That link has expired or was already used. Request a fresh one.
-              </p>
+          <>
+            {row.password_hash && (
+              <form method="POST" action={`/api/c/${slug}/password`} className="cp-form">
+                <label htmlFor="cp-password">Password</label>
+                <input
+                  id="cp-password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  autoFocus
+                  required
+                />
+                {e === "password" && (
+                  <p className="cp-gate-error" role="alert">
+                    That password is not right.
+                  </p>
+                )}
+                <button type="submit">Open the document</button>
+              </form>
             )}
-            <button type="submit">Email me a sign-in link</button>
-            <p className="cp-gate-note">
-              No password. We send a link to an address already on the list for this page.
-            </p>
-          </form>
+
+            {row.password_hash && <p className="cp-or"><span>or</span></p>}
+
+            {sent ? (
+              <p className="cp-gate-ok" role="status">
+                If that address is on the list for this page, a sign-in link is on its way.
+                It is good for 20 minutes and can be used once.
+              </p>
+            ) : (
+              <form method="POST" action={`/api/c/${slug}/request`} className="cp-form">
+                <label htmlFor="cp-email">Your email</label>
+                <input
+                  id="cp-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  autoFocus={!row.password_hash}
+                  required
+                />
+                {e === "expired" && (
+                  <p className="cp-gate-error" role="alert">
+                    That link has expired or was already used. Request a fresh one.
+                  </p>
+                )}
+                <button type="submit" className={row.password_hash ? "cp-secondary" : ""}>
+                  Email me a sign-in link
+                </button>
+                <p className="cp-gate-note">
+                  A link to an address already on the list for this page. No password needed.
+                </p>
+              </form>
+            )}
+          </>
         )}
 
         <p className="cp-gate-foot">

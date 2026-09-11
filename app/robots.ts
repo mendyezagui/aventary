@@ -4,7 +4,7 @@ import type { MetadataRoute } from "next";
  * Search engines are welcome; AI training crawlers are welcome to the marketing
  * pages only.
  *
- * `/c/*` and `/lcla` are gated client documents with no business in search
+ * `/c/*` holds gated client documents with no business in search
  * at all, so it is disallowed for everyone including Google.
  *
  * `/tehillim` is a personal Psalms reader that happens to be hosted here. It
@@ -38,14 +38,14 @@ const AI_CRAWLERS = [
   "Omgilibot",
 ];
 
-const PRIVATE_PATHS = ["/tehillim", "/lcla", "/c/", "/admin", "/api/"];
+const PRIVATE_PATHS = ["/tehillim", "/c/", "/admin", "/api/"];
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       // Everything else on the site stays open, which is the point of having
       // it. Only the private corners are closed.
-      { userAgent: "*", allow: "/", disallow: ["/lcla", "/c/", "/admin", "/api/"] },
+      { userAgent: "*", allow: "/", disallow: ["/c/", "/admin", "/api/"] },
       ...AI_CRAWLERS.map((userAgent) => ({
         userAgent,
         allow: "/",

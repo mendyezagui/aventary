@@ -1,30 +1,39 @@
 # Client pages
 
-Private documents for one client, served at `aventary.com/c/<slug>`, opened with
-an emailed sign-in link rather than a password.
+Private documents for one client, served at `aventary.com/c/<slug>`.
 
-Adding one never touches Cloudflare.
+A page can be opened two ways: an **emailed sign-in link**, and optionally a
+**shared password**. Adding a page, changing a password, or adding a reader
+never touches Cloudflare.
 
 ---
 
 ## How access works
 
-There is no password. A visitor types their email; if it is on that page's
-allowlist they get a link that works **once** and expires in **20 minutes**.
-Clicking it opens a **30-day session** scoped to that one page.
+**Sign-in link.** A visitor types their email; if it is on that page's allowlist
+they get a link that works **once** and expires in **20 minutes**. Clicking it
+opens a **30-day session** scoped to that one page.
 
-Three reasons this beats a shared password:
+**Shared password.** If the page has one, it appears above the email form. Same
+session, same 30 days. Use it when a document needs to reach people whose
+addresses you do not have, or when a client simply wants one thing to pass
+around.
 
-- **You know who read it.** A password tells you nothing. A sign-in link records
-  the address, so you can see that the menahel opened it twice and the board
-  member never did.
+Both are offered together, so a recipient can use whichever suits them. Prefer
+the link where you can, for three reasons:
+
+- **You know who read it.** A password tells you nothing, and the access log
+  says so honestly: a password sign-in is recorded as `(shared password)` with
+  no name attached. A link records the address, so you can see that the menahel
+  opened it twice and the board member never did.
 - **Forwarding is useless.** A password travels; a spent link does not. Someone
   who forwards their link gives away nothing, because it has already been used.
 - **Nothing to rotate.** Removing a reader is one row, not a new password for
   everybody else.
 
-The tokens table stores only a SHA-256 of each link, so the database never holds
-anything that would let someone sign in. All three tables are RLS-enabled with
+The tokens table stores only a SHA-256 of each link, and passwords are stored as
+PBKDF2-SHA256 with 210,000 iterations and a random salt, so the database never
+holds anything that would let someone sign in. All three tables are RLS-enabled with
 no policies — only the server, holding the service-role key, can touch them.
 
 ---
@@ -54,10 +63,21 @@ insert into client_pages (slug, title, allowed_emails) values
   ('acme-co', 'Operating Review', array['rivka@acme.com', 'sam@acme.com']);
 ```
 
-**4. Commit and push.** It deploys, and the page is live at `/c/acme-co`.
+**4. Optionally give it a password**, for readers whose addresses you do not
+have:
 
-Send the recipient the URL on its own. There is nothing else to send — no
-password, no second message.
+```bash
+node scripts/set-client-password.mjs acme-co 'SomethingMemorable'
+```
+
+That prints one `update` to run in Supabase. The password is hashed on your
+machine — only the hash travels, and nothing goes into the repository. Pass
+`--none` instead to remove a password later.
+
+**5. Commit and push.** It deploys, and the page is live at `/c/acme-co`.
+
+Send the URL on its own. If the page is link-only there is nothing else to
+send; if you set a password, send that in a separate message.
 
 ---
 
@@ -122,14 +142,15 @@ failures are logged server-side and deliberately never shown to the visitor.
 
 ---
 
-## `/lcla` is the old way
+## `/lcla` moved here
 
-The Cheder Menachem proposal at `/lcla` predates this and uses a shared password
-from the `LCLA_PASSWORD` Cloudflare secret. It still works, and the link may
-already be circulating, so it has been left alone.
+The Cheder Menachem proposal now lives at `/c/lcla`. The old `/lcla` URL is a
+permanent redirect, so a link already in someone's inbox still works, and the
+same password still opens it on the other side.
 
-The same document is also registered here, so once that link has served its
-purpose it can move to `/c/lcla`: add a `client_pages` row with the school's
-addresses, redirect `/lcla`, and delete `app/lcla`, `app/api/lcla` and
-`lib/lcla.ts`. The Cloudflare secret becomes dead weight at that point and can
-be removed — the last one this system will ever need.
+Its password moved out of the `LCLA_PASSWORD` Cloudflare secret and into the
+database as a PBKDF2 hash. That secret is now unused and can be deleted from
+Cloudflare — the last environment variable this system will ever need.
+
+Only `mendy@aventary.com` is on its allowlist so far. Add the school's addresses
+when you send it, and anyone who prefers a link over the password gets one.
