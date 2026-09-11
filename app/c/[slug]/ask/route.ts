@@ -13,6 +13,12 @@ import {
 //
 // Gated by the same session as the page: without it this would be an endpoint
 // that reads a confidential proposal aloud to anyone who found the URL.
+//
+// It lives under /c/<slug>/ rather than /api/ deliberately. The session cookie
+// is set with path=/c/<slug> so a confidential-document cookie is not attached
+// to every request to the site. A browser sends it only to paths under that
+// prefix, so an endpoint that needs to READ the session has to live there too.
+// Moving this to /api/ would 401 every request while looking perfectly correct.
 
 const MODEL = "claude-opus-5";
 const MAX_MESSAGES = 10;

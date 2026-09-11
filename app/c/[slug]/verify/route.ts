@@ -21,6 +21,9 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ slug: strin
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
+    // Scoped to this page only, so one client's session cookie is not sent with
+    // every request to the site. Anything that needs to read this session must
+    // therefore live under /c/<slug>/ — see app/c/[slug]/ask/route.ts.
     path: `/c/${slug}`,
     maxAge: SESSION_DAYS * 86400
   });

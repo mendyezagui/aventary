@@ -25,7 +25,10 @@ export function AskPanel({ slug, title }: { slug: string; title: string }) {
     setBusy(true);
 
     try {
-      const res = await fetch(`/api/c/${slug}/ask`, {
+      // Not /api/c/... — the session cookie is scoped to path=/c/<slug>, so a
+      // request outside that path arrives with no cookie and is rejected as
+      // signed-out. The endpoint lives under the page for that reason.
+      const res = await fetch(`/c/${slug}/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: next })
