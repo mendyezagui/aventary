@@ -161,7 +161,9 @@ instead of a scary one.
 - [x] Move the social/content group (copies still live on A — see below)
 - [x] Move SoFa JCC and Vantaca
 - [ ] Move the lead-capture group
-- [ ] Repoint the personal app deploy at B, **then** drop A's `contentCalendar`, `content_queue`, `socialCampaigns`, `socialStrategy` — until that happens both copies are writable and can diverge
+- [x] ~~Repoint the personal app deploy at B~~ — it was already on B; see `docs/personal-app-repoint.md`
+- [x] Drop A's `contentCalendar`, `content_queue`, `socialCampaigns`, `socialStrategy` and `dailyMarketingView`
+- [ ] Delete the leftover Vercel project (tidy-up only — its jobs are a duplicate and a no-op)
 - [x] Port `associate-tick` to B, recreate its pg_cron job there, disable A's job 6
 - [x] Port `sofa-jcc-scan` to B and recreate its pg_cron job there (job 7); A's job 5 disabled — **A now has no active cron jobs**
 - [ ] Close the shared-table deltas (agentlogs 735, events 142, cadence_enrollments 95, payment_allocations 30)

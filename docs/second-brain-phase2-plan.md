@@ -225,7 +225,16 @@ probes were deleted. `contentCalendar` 89, `content_queue` 8, `socialCampaigns` 
 
 The security advisor reports nothing against the four new tables.
 
-### The copies on A are still there, and that is a decision
+### The copies on A are dropped
+
+Dropped on 2026-09-11 once it was established — from data, not assumption — that
+nothing reads them. `docs/personal-app-repoint.md` has the evidence. The short
+version: the app was already reading B, and the only other candidate, a leftover
+Vercel deployment, runs a sweep that duplicates B's own and a Monday content job
+that has been skipping since June. `dailyMarketingView` depended on
+`contentCalendar` and was recreated in B first.
+
+### The reasoning at the time, kept because the shape of it was right
 
 **A's four tables were not dropped.** The personal app deploy still points at A (see the
 kill-A checklist), and the app's `social` and `marketing` views read these tables. Dropping
@@ -364,7 +373,7 @@ dashboard by hand.
 | Group | Tables | Rows | Decision |
 |---|---|---:|---|
 | Resale scraper | `unclaimed_watchlist` | 2,918 | **Own project** — see below |
-| Social / content ops | `contentCalendar`, `content_queue`, `socialCampaigns`, `socialStrategy` | 100 | ✅ **MOVED 2026-09-11** — copies still on A, see below |
+| Social / content ops | `contentCalendar`, `content_queue`, `socialCampaigns`, `socialStrategy` | 100 | ✅ **DONE 2026-09-11** — moved to B, A's copies dropped |
 | **Voitra site analyzer** | `site_analyses` | 44 | **KEEP — move to B**, becomes an Associate |
 | Multi-LLM playground | `llm_messages`, `llm_conversations` | 41 | ✅ **DROPPED 2026-09-11** |
 | Associates framework | `associates`, `associate_drafts`, `associate_runs` | 31 | ✅ **DONE 2026-09-11** — data and runtime on B, A's tables dropped |
