@@ -102,7 +102,7 @@ Still only on A, grouped by what they actually are:
 | **voitra.ai website** | ~27 | homepage-v2, verticals-v2, pricing, faq, integrations, nav-bundle, blog ×4, agent-guide ×4, resources-index, widget, gate, admin, poc-submit, home-nemt-v1 |
 | Site analyzer | 3 | `analyze-site`, `site-results`, `homepage-analyzer-widget` |
 | SoFa JCC | 1 | `sofa-jcc-scan` |
-| Associates | 1 | `associate-tick` |
+| ~~Associates~~ | 1 | `associate-tick` — **superseded 2026-09-11**; the live one is on B. Its tables here are dropped, so this copy can only 500. Safe to delete whenever the dead-function sweep happens. |
 | Retell | 2 | `retell-web-call`, `retell-lead` |
 | bp501 demo | 2 | `bp501-demo`, `bp501-publish` |
 | Jewish Dashboard | 1 | `jewish-dashboard` |
@@ -155,7 +155,7 @@ instead of a scary one.
 - [ ] Create storage buckets in B, copy 74 objects, rewrite `files` references
 - [ ] Make `memory-files` private, or confirm public is intended
 - [ ] Delete the empty `llm-attachments` bucket
-- [ ] Delete `revops-dashboard` and `update-page` — their table is already gone
+- [ ] Delete `revops-dashboard`, `update-page` and A's `associate-tick` — their tables are gone
 - [ ] Port the two invoice/payment triggers, reconcile the two money models
 - [ ] Move the phase-2 groups (social, Associates, SoFa JCC, Vantaca, lead capture)
 - [x] Port `associate-tick` to B, recreate its pg_cron job there, disable A's job 6

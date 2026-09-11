@@ -97,10 +97,27 @@ The source of record is `ops/associates-runtime/associate-tick.ts` in this repo.
   2026-09-18 left in place would have made the real 2026-09-18 tick skip `project-status`
   as "already ran today".
 
-**Still to do:** drop A's `associates`, `associate_runs` and `associate_drafts` after one
-unattended hourly tick on B has been observed. The data is byte-verified in B and the drop
-is irreversible, so it waits for evidence the schedule fires on its own, not just on
-demand.
+**A's three tables are dropped.** The 20:00 UTC tick on B fired on its own — `cron.job_run_details`
+job 5 `succeeded`, and `net._http_response` 33423 returned **HTTP 200** with `mode: cron`,
+two tenants, Jim's `0 due of 0` and yours held correctly. That is the schedule working
+unattended, not just on demand, which is what the drop was waiting on.
+
+Re-verified whole-row immediately before dropping — stronger than the migration-time check,
+which compared a shared column subset:
+
+| Table | Rows (A = B) | md5, both sides |
+|---|---:|---|
+| `associates` | 18 | `754627e63ab06ef1cf631d1403e4ad3a` |
+| `associate_runs` | 4 | `d3d38793ff4482d60e7816881003d69e` |
+| `associate_drafts` | 9 | `531c5108c59040c1aae06ac9f2800b90` |
+
+A's hourly tick wrote nothing new between the data move and the disable (counts never left
+18/4/9), and the match also confirms the verification run's cleanup restored `last_run_at`
+exactly. Dropped with the default RESTRICT, so a forgotten dependency would have failed the
+migration rather than quietly taking whatever hung off it.
+
+The only thing left on A is the orphaned `associate-tick` edge function, which can now only
+500. It goes with the dead-function sweep.
 
 **`content-brain` will fail its requirements in B** until the content tables move: its
 `inputs` read `socialStrategy`, `content_queue` and `contentCalendar`, none of which exist
@@ -194,7 +211,7 @@ dashboard by hand.
 | Social / content ops | `contentCalendar`, `content_queue`, `socialCampaigns`, `socialStrategy` | 100 | **Move to B** |
 | **Voitra site analyzer** | `site_analyses` | 44 | **KEEP — move to B**, becomes an Associate |
 | Multi-LLM playground | `llm_messages`, `llm_conversations` | 41 | ✅ **DROPPED 2026-09-11** |
-| Associates framework | `associates`, `associate_drafts`, `associate_runs` | 31 | ✅ **MOVED 2026-09-11** — data and runtime both on B; A's tables pending drop |
+| Associates framework | `associates`, `associate_drafts`, `associate_runs` | 31 | ✅ **DONE 2026-09-11** — data and runtime on B, A's tables dropped |
 | Vantaca / Scott Mgmt | `vantaca_audit`, `vantaca_controls` | 22 | **Move to B** |
 | SoFa JCC | `sofa_events`, `sofa_nudges`, `sofa_flyers`, `sofa_work_orders`, `sofa_speakers` | 7 | **Move to B** |
 | TalkBoard | `board_sets`, `children` | 2 | **Leave in A** — separate app, not CRM |
@@ -235,7 +252,7 @@ column added to the table:
 
 | Group | Functions to redeploy | App view |
 |---|---|---|
-| ~~Associates~~ | ~~`associate-tick`~~ — ✅ deployed to B, cron job 5, A's job 6 disabled | `associates` |
+| ~~Associates~~ | ~~`associate-tick`~~ — ✅ **done**: on B as cron job 5, A's job 6 disabled and A's tables dropped | `associates` |
 | SoFa JCC | `sofa-jcc-scan` (runs ~hourly) | — |
 | Vantaca | `rc-controls` and the `rc-*` set if they share config | `vantaca_controls` |
 | Lead capture | `poc-lead-submit`, `voitra-poc-submit`, `retell-lead` | — |
