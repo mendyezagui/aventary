@@ -19,9 +19,14 @@ that was published that way (`bbdc`) was closed on 2026-09-11.
 
 ## Before you touch Second Brain data
 
-The `2nd_Brain` MCP connector and the `Supabase` MCP connector reach **different
-CRM databases** that have diverged and now have colliding ids. Which one you want
-depends on the task, and neither is a copy of the other.
-`docs/second-brain-data-map.md` says which is which and who writes to each.
-Verify before writing: create a record through one connector and read it back
-through the other.
+**The CRM lives in `secondbrain-os` (`fukehjqikxqsntwhmgsk`).** That is the only
+database that accepts CRM writes.
+
+The older `xwacfwagyhgbbhefecdt` project holds a read-only archive: its 19 CRM
+tables were frozen on 2026-09-11 and will refuse every insert, update and delete.
+If a write there fails, that is working as intended — point the writer at
+`secondbrain-os` rather than lifting the freeze. See `docs/crm-freeze.md`.
+
+The two databases diverged for a month and have colliding ids — `projects.10010`
+and `contacts.206` are different records in each — so neither is a copy of the
+other. `docs/second-brain-data-map.md` says which is which.
