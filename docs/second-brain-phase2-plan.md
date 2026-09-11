@@ -29,6 +29,45 @@ before deleting anything that serves a public URL.
 
 ---
 
+## Associates: data moved to B, 2026-09-11
+
+All 31 rows are in B under the Mendy tenant, verified byte-for-byte:
+
+| Table | Rows | md5 (A) | md5 (B) |
+|---|---:|---|---|
+| `associates` | 18 | `324e239adeecccb1960142b6ed4efbb1` | **match** |
+| `associate_runs` | 4 | `390fc370b33cc81db52b19bc56e8b38a` | **match** |
+| `associate_drafts` | 9 | `1bded1fe1f6d0883ed13821f17dca5f0` | **match** |
+
+No id remapping was needed: B's tables were empty so ids carry 1:1, and every draft's
+`contactId` / `companyId` / `dealId` / `projectId` was null, so there were no CRM
+references to rewrite against the phase-1 map.
+
+Drafts 1–3 have a `body` byte-identical to their run's `output` (checked in A before the
+move), so their bodies were copied from the runs already in B rather than transcribed a
+second time — one source of truth, and no way for the two to drift in transit.
+
+Identity sequences were left at 1 by the explicit-id inserts, which would have collided on
+the next app insert. Fixed with `setval` and proved with an insert-probe on each table
+that had to land above the migrated range; the probe rows were removed.
+
+### Still on A — the runtime
+
+The data moved; the machinery did not.
+
+- **`associate-tick`** edge function still lives on A and reads A's tables.
+- **pg_cron job 6** on A (`0 * * * *`) still fires at A's function.
+- Until it is ported, the Associates in B are rows nobody runs, and `associate-tick` on A
+  keeps erroring against the frozen CRM tables.
+
+Order: deploy `associate-tick` to B → confirm a manual tick writes an `associate_runs` row
+in B → create the pg_cron job on B → disable job 6 on A → drop A's three tables.
+
+**`content-brain` will fail its requirements in B** until the content tables move: its
+`inputs` read `socialStrategy`, `content_queue` and `contentCalendar`, none of which exist
+in B yet. It has two `blocking` requirements, so it will stop cleanly and say why rather
+than produce something wrong.
+
 ## site_analyses — reversed, 2026-09-11
 
 **Not retiring it. It is a live funnel, and Mendy wants it as an Associate.**
@@ -116,7 +155,7 @@ dashboard by hand.
 | Social / content ops | `contentCalendar`, `content_queue`, `socialCampaigns`, `socialStrategy` | 100 | **Move to B** |
 | **Voitra site analyzer** | `site_analyses` | 44 | **KEEP — move to B**, becomes an Associate |
 | Multi-LLM playground | `llm_messages`, `llm_conversations` | 41 | ✅ **DROPPED 2026-09-11** |
-| Associates framework | `associates`, `associate_drafts`, `associate_runs` | 31 | **Move to B** — schema created 2026-09-11 |
+| Associates framework | `associates`, `associate_drafts`, `associate_runs` | 31 | ✅ **DATA MOVED 2026-09-11** — runtime still on A |
 | Vantaca / Scott Mgmt | `vantaca_audit`, `vantaca_controls` | 22 | **Move to B** |
 | SoFa JCC | `sofa_events`, `sofa_nudges`, `sofa_flyers`, `sofa_work_orders`, `sofa_speakers` | 7 | **Move to B** |
 | TalkBoard | `board_sets`, `children` | 2 | **Leave in A** — separate app, not CRM |
