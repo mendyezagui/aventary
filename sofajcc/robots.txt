@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /moderate
+Disallow: /api/
 
 Sitemap: https://www.sofajcc.org/sitemap.xml

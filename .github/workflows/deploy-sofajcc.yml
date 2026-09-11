@@ -1,24 +1,31 @@
 # Deploy sofajcc.org (the static site in sofajcc/) to Cloudflare Pages.
 #
 # WHY THIS EXISTS
-# The Pages project `sofajcc` was created by DIRECT UPLOAD — the README's
-# Option A, `wrangler pages deploy sofajcc`. A direct-upload project has no
-# Git connection, so pushing to main has never deployed anything and never
-# would. There was no failing build to fix; there was no build at all.
+# The Pages project `sofajcc` was created by DIRECT UPLOAD — a direct-upload
+# project has no Git connection, so pushing to main has never deployed
+# anything and never would. This closes that gap from the repo side.
 #
-# This closes that gap from the repo side: every push to main that touches
-# sofajcc/ uploads the folder to the same project. It does not require the
-# Pages project to be reconnected to Git, and it keeps working if someone
-# later connects it.
+# WHY IT DOES NOT RUN `wrangler pages deploy sofajcc`
+# Two reasons, both of which would have broken the live site:
+#
+#   1. The stylesheet that ships is `assets/tailwind.css`, a COMPILED file.
+#      New utility classes in the HTML do nothing until it is rebuilt, so the
+#      build step below is not optional — a deploy without it silently ships
+#      markup whose classes have no rules.
+#
+#   2. `wrangler pages deploy <dir>` uploads everything in <dir> except
+#      node_modules, and Pages does NOT honour `.assetsignore`. Uploading the
+#      source folder would publicly serve package.json, tailwind.config.js,
+#      schema.sql and any local *.env file. sofajcc/publish.sh exists
+#      precisely to prevent that: it assembles a clean `.pages-dist` holding
+#      only publishable files. This workflow mirrors that same allowlist so
+#      CI and a hand-run `./publish.sh` produce identical output.
 #
 # ONE-TIME SETUP (repo Settings -> Secrets and variables -> Actions):
 #   CLOUDFLARE_API_TOKEN    a token with the "Cloudflare Pages: Edit" permission
-#                           (My Profile -> API Tokens -> Create -> Edit Cloudflare
-#                            Workers, or a custom token with Account/Pages/Edit)
 #   CLOUDFLARE_ACCOUNT_ID   Cloudflare dashboard -> Workers & Pages -> Account ID
 #
-# Until both secrets exist the job fails fast with a clear message rather than
-# half-deploying.
+# Until both secrets exist the job fails fast rather than half-deploying.
 
 name: Deploy sofajcc.org
 
@@ -55,17 +62,59 @@ jobs:
             exit 1
           fi
 
-      - name: Sanity-check the folder before uploading
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: sofajcc/package-lock.json
+
+      - name: Install the Tailwind toolchain
+        working-directory: sofajcc
+        run: npm ci
+
+      - name: Build the stylesheet
+        working-directory: sofajcc
+        run: npm run build:css
+
+      - name: Fail if the committed stylesheet was stale
+        working-directory: sofajcc
         run: |
-          test -f sofajcc/home.html || { echo "::error::sofajcc/home.html missing — refusing to deploy"; exit 1; }
-          echo "Files to upload: $(find sofajcc -type f | wc -l)"
-          find sofajcc -type f -name '*.pdf' -exec ls -lh {} \; || true
+          # A rebuild that changes assets/tailwind.css means someone edited
+          # markup without rebuilding. CI still deploys the CORRECT (rebuilt)
+          # file — this only surfaces the drift so it gets committed.
+          if ! git diff --quiet -- assets/tailwind.css; then
+            echo "::warning::assets/tailwind.css was out of date; deploying the freshly built one. Run 'npm run build:css' in sofajcc/ and commit the result."
+          fi
+
+      - name: Assemble the clean publish directory
+        working-directory: sofajcc
+        run: |
+          # Same allowlist as publish.sh. Never copied, and therefore never
+          # served: node_modules, package*.json, tailwind.config.js,
+          # tw-input.css, schema.sql, README.md, publish.sh, *.env.
+          rm -rf .pages-dist && mkdir -p .pages-dist
+          cp ./*.html .pages-dist/
+          cp _headers _redirects robots.txt sitemap.xml .pages-dist/
+          cp -r assets .pages-dist/
+          cp -r functions .pages-dist/
+          [ -d downloads ] && cp -r downloads .pages-dist/ || true
+
+      - name: Refuse to ship anything that should not be public
+        working-directory: sofajcc
+        run: |
+          test -f .pages-dist/home.html || { echo "::error::home.html missing — refusing to deploy"; exit 1; }
+          leaked=$(cd .pages-dist && ls -A | grep -Ex 'package\.json|package-lock\.json|tailwind\.config\.js|tw-input\.css|schema\.sql|README\.md|publish\.sh|node_modules|.*\.env' || true)
+          if [ -n "$leaked" ]; then
+            echo "::error::These would have been served publicly:"; echo "$leaked"; exit 1
+          fi
+          echo "Files to upload: $(find .pages-dist -type f | wc -l)"
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # `sofajcc` is the existing project name — same one the README's
-          # Option A created, and the one behind sofajcc.pages.dev.
-          command: pages deploy sofajcc --project-name=sofajcc --branch=main
+          # `sofajcc` is the existing project name — the one behind
+          # sofajcc.pages.dev. `.pages-dist`, never the source folder.
+          workingDirectory: sofajcc
+          command: pages deploy .pages-dist --project-name=sofajcc --branch=main --commit-dirty=true

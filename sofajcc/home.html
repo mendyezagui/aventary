@@ -1,210 +1,308 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="scroll-smooth" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SoFa Jewish Community Center</title>
-  <meta name="description" content="SoFa Community welcomes you. A warm and welcoming Chabad Jewish Community Center in South Florida — prayer, Torah study, holidays, and heartfelt community connection. Pray. Celebrate. Love. Friendship.">
-  <link rel="canonical" href="https://www.sofajcc.org/home">
-  <meta name="robots" content="index, follow">
-  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="/assets/favicon.svg">
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="SoFa Jewish Community Center">
-  <meta property="og:title" content="SoFa Jewish Community Center">
-  <meta property="og:description" content="A warm and welcoming Chabad Jewish Community Center. Pray. Celebrate. Love. Friendship. Come sit, learn, and grow with us.">
-  <meta property="og:url" content="https://www.sofajcc.org/home">
-  <meta property="og:image" content="https://www.sofajcc.org/assets/og.svg">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="SoFa Jewish Community Center">
-  <meta name="twitter:description" content="A warm and welcoming Chabad Jewish Community Center. Pray. Celebrate. Love. Friendship.">
-  <meta name="twitter:image" content="https://www.sofajcc.org/assets/og.svg">
-
-  <link rel="stylesheet" href="/assets/styles.css">
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": ["Organization", "PlaceOfWorship"],
-    "name": "SoFa Jewish Community Center",
-    "alternateName": "The Sofa JCC",
-    "url": "https://www.sofajcc.org/home",
-    "logo": "https://www.sofajcc.org/assets/og.svg",
-    "description": "A warm and welcoming Chabad Jewish Community Center dedicated to fostering a deep connection to Jewish life and tradition.",
-    "keywords": "Chabad, Jewish Community Center, shul, synagogue, Torah study, Shabbos services, Judaism"
-  }
-  </script>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9GMTJP0TRP"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-9GMTJP0TRP');
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SoFa Jewish Community Center</title>
+<meta name="description" content="SoFa Community welcomes you. A warm and welcoming Chabad Jewish Community Center in Los Angeles — prayer, Torah study, holidays, and heartfelt community connection. Pray. Celebrate. Love. Friendship."/>
+<link rel="canonical" href="https://www.sofajcc.org/home"/>
+<meta name="robots" content="index, follow"/>
+<link rel="icon" href="/assets/img/sofa-favicon.png" type="image/png"/>
+<link rel="apple-touch-icon" href="/assets/img/sofa-icon.png"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="SoFa Jewish Community Center"/>
+<meta property="og:title" content="SoFa Jewish Community Center"/>
+<meta property="og:description" content="A warm and welcoming Chabad Jewish Community Center. Pray. Celebrate. Love. Friendship. Come sit, learn, and grow with us."/>
+<meta property="og:url" content="https://www.sofajcc.org/home"/>
+<meta property="og:image" content="https://www.sofajcc.org/assets/img/sofa-brand.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="SoFa Jewish Community Center"/>
+<meta name="twitter:description" content="A warm and welcoming Chabad Jewish Community Center. Pray. Celebrate. Love. Friendship."/>
+<meta name="twitter:image" content="https://www.sofajcc.org/assets/img/sofa-brand.jpg"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="/assets/tailwind.css?v=10" rel="stylesheet"/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["Organization", "PlaceOfWorship"],
+  "name": "SoFa Jewish Community Center",
+  "alternateName": "The Sofa JCC",
+  "url": "https://www.sofajcc.org/home",
+  "logo": "https://www.sofajcc.org/assets/img/sofa-brand.jpg",
+  "email": "office@sofajcc.org",
+  "description": "A warm and welcoming Chabad Jewish Community Center dedicated to fostering a deep connection to Jewish life and tradition."
+}
 </script>
 </head>
-<body>
-  <!--#HEADER#-->
-  <header class="site-header">
-    <nav class="nav">
-      <a class="brand" href="/home" aria-label="SoFa Jewish Community Center — Home">
-        <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#17335c"/><g fill="none" stroke="#e6cd93" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 34v-4a4 4 0 0 1 4-4h24a4 4 0 0 1 4 4v4"/><path d="M13 34a3 3 0 0 1 3 3v6h32v-6a3 3 0 0 1 6 0v9a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2v-9a3 3 0 0 1 3-3z" fill="#c99a3f" stroke="#c99a3f"/><path d="M20 45v3M44 45v3" stroke="#0f2542"/></g></svg>
-        <span class="brand-name">SoFa<span>Jewish Community Center</span></span>
-      </a>
-      <button class="nav-toggle" aria-label="Menu" aria-controls="menu"><span></span><span></span><span></span></button>
-      <ul class="menu" id="menu">
-        <li><a href="/home" class="active">Home</a></li>
-        <li><a href="/about">About</a></li>
-        <li><a href="/good-deeds">Good Deeds</a></li>
-        <li><a href="/donate" class="donate">Donate</a></li>
-      </ul>
-    </nav>
-  </header>
-
-  <main>
-    <section class="hero">
-      <div class="wrap">
-        <span class="kicker">Chabad Jewish Community Center</span>
-        <h1>SoFa Community Welcomes You</h1>
-        <p class="tagline">Pray &nbsp;+&nbsp; Celebrate &nbsp;+&nbsp; Love &nbsp;+&nbsp; Friendship</p>
-        <div class="cta-row">
-          <a href="#welcome" class="btn btn-gold">Discover SoFa</a>
-          <a href="/about#contact" class="btn btn-ghost">Get in Touch</a>
-        </div>
-      </div>
-    </section>
-
-    <!--#ROSH-HASHANAH-5787# time-sensitive; remove this section after 13 Sep 2026 -->
-    <section class="section alt">
-      <div class="wrap">
-        <div class="section-head" style="margin-bottom:0">
-          <span class="eyebrow">Rosh Hashanah 5787 &middot; September 11&ndash;13</span>
-          <h2>Schedule of Services &amp; Halachos for Home</h2>
-          <p class="lead">Service times for all three days, the public shofar blowing, and the
-             halachos for after shul &mdash; one double-sided page, ready to print.</p>
-          <div class="cta-row" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
-            <a href="/downloads/rosh-hashanah-5787.pdf" class="btn btn-gold" download>Download the PDF</a>
-            <a href="/downloads/rosh-hashanah-5787.pdf" class="btn btn-navy" target="_blank" rel="noopener">View in browser</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="welcome">
-      <div class="wrap prose section-head" style="margin-bottom:0">
-        <span class="eyebrow">Welcome Home</span>
-        <h2>More than a place of prayer — a spiritual home</h2>
-      </div>
-      <div class="wrap prose">
-        <p>We are a warm and welcoming Chabad Jewish Community Center dedicated to fostering a deep connection to Jewish life and tradition.</p>
-        <p>Our shul is more than just a place of prayer; it is a spiritual home where families, friends, and neighbors gather for lively prayer services, engaging Torah study, meaningful holidays, and heartfelt community connection.</p>
-        <p>Inspired by the Rebbe's vision, we embrace every individual with unconditional love and strive to ignite the soul of Judaism in a comfortable, family-focused atmosphere. Come sit, learn, and grow with us.</p>
-      </div>
-    </section>
-
-    <section class="section alt">
-      <div class="wrap">
-        <div class="section-head">
-          <span class="eyebrow">Community Life</span>
-          <h2>See what's new at SoFa</h2>
-          <p class="lead">Ways to connect, learn, and grow together throughout the week.</p>
-        </div>
-        <div class="cards">
-          <div class="card">
-            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8c0-2 1.5-3 3.5-3S12 6 12 8"/><path d="M19 8c0-2-1.5-3-3.5-3S12 6 12 8"/><path d="M5 8v6a3.5 3.5 0 0 0 7 0"/><path d="M19 8v6a3.5 3.5 0 0 1-7 0"/></svg></div>
-            <h3>Shabbos Services</h3>
-            <p>Lively, welcoming prayer services to greet the Shabbos together.</p>
-          </div>
-          <div class="card">
-            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2z"/><path d="M8 7h8M8 11h8"/></svg></div>
-            <h3>Weekly Shiur</h3>
-            <p>Engaging Torah study that meets you wherever you are on the journey.</p>
-          </div>
-          <div class="card">
-            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
-            <h3>Career Guidance</h3>
-            <p>Practical mentorship and support to help you move forward with confidence.</p>
-          </div>
-          <div class="card">
-            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 22l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg></div>
-            <h3>Mental Health Support</h3>
-            <p>A caring, confidential space and resources for well-being and healing.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="section-head">
-          <span class="eyebrow">Learn With Us</span>
-          <h2>Shabbos Table Dvar Torah</h2>
-          <p class="lead">A short weekly Torah thought for your Shabbos table — updated every week.</p>
-        </div>
-        <div class="panel" style="max-width:820px;margin:0 auto">
-          <div class="panel-head">
-            <h3>This Week's Vort</h3>
-            <span class="tag">Updated Weekly</span>
-          </div>
-          <iframe class="embed-frame" style="height:640px"
-            src="https://docs.google.com/document/d/1khotQ-cPlYrS90Bp4ns1PhuWbHrbEWAib1o7b-3ud50/preview"
-            title="Shabbos Table Dvar Torah" loading="lazy"></iframe>
-        </div>
-        <p style="text-align:center;margin-top:16px">
-          <a class="btn btn-navy" href="https://docs.google.com/document/d/1khotQ-cPlYrS90Bp4ns1PhuWbHrbEWAib1o7b-3ud50/preview" target="_blank" rel="noopener">Open the full Dvar Torah &rarr;</a>
-        </p>
-      </div>
-    </section>
-  </main>
-
-  <section class="cta-band">
-    <div class="wrap">
-      <h2>Come sit, learn, and grow with us</h2>
-      <p>Whether you're looking to pray, study, celebrate, or simply connect — there's a seat for you on the SoFa.</p>
-      <div class="cta-row" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
-        <a href="/about#contact" class="btn btn-gold">Get in Touch</a>
-        <a href="/donate" class="btn btn-ghost">Support SoFa</a>
-      </div>
-    </div>
-  </section>
-
-  <!--#FOOTER#-->
-  <footer class="site-footer">
-    <div class="footer-grid">
-      <div>
-        <a class="brand" href="/home" style="margin-bottom:14px">
-          <svg viewBox="0 0 64 64" aria-hidden="true" style="width:40px;height:40px"><rect width="64" height="64" rx="14" fill="#0f2542"/><g fill="none" stroke="#e6cd93" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 34v-4a4 4 0 0 1 4-4h24a4 4 0 0 1 4 4v4"/><path d="M13 34a3 3 0 0 1 3 3v6h32v-6a3 3 0 0 1 6 0v9a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2v-9a3 3 0 0 1 3-3z" fill="#c99a3f" stroke="#c99a3f"/><path d="M20 45v3M44 45v3" stroke="#0f2542"/></g></svg>
-          <span class="brand-name">SoFa<span>Jewish Community Center</span></span>
-        </a>
-        <p style="max-width:320px;color:#aebbcd">A warm and welcoming Chabad Jewish Community Center. Pray. Celebrate. Love. Friendship.</p>
-      </div>
-      <div>
-        <h4>Explore</h4>
-        <ul>
-          <li><a href="/home">Home</a></li>
-          <li><a href="/about">About</a></li>
-          <li><a href="/good-deeds">Good Deeds</a></li>
-          <li><a href="/donate">Donate</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Connect</h4>
-        <ul>
-          <li><a href="/about#contact">Contact Us</a></li>
-          <li><a href="https://docs.google.com/document/d/1khotQ-cPlYrS90Bp4ns1PhuWbHrbEWAib1o7b-3ud50/preview" target="_blank" rel="noopener">Weekly Dvar Torah</a></li>
-          <li><a href="/donate">Make a Donation</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>&copy; <span id="yr">2026</span> SoFa Jewish Community Center. All rights reserved.</span>
-      <span>Inspired by the Rebbe's vision &middot; Ahavat Yisrael</span>
-    </div>
-  </footer>
-
-  <script src="/assets/nav.js"></script>
-  <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+<body class="bg-soft-cream text-on-background font-body-md overflow-x-hidden">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-soft-cream/80 backdrop-blur-md shadow-sm transition-all duration-300 ease-in-out" id="siteNav">
+<div class="flex justify-between items-center px-gutter py-4 max-w-container-max mx-auto">
+<a class="font-display-lg text-headline-sm text-primary tracking-tighter" href="/home">SoFa JCC</a>
+<div class="hidden md:flex items-center gap-stack-lg">
+<a class="font-button text-button text-primary border-b-2 border-secondary pb-1 transition-colors duration-300" href="/home">Home</a>
+<a class="font-button text-button text-on-surface-variant hover:text-secondary transition-colors duration-300" href="/about">About</a>
+<a class="font-button text-button text-on-surface-variant hover:text-secondary transition-colors duration-300" href="/good-deeds">Good Deeds</a>
+<a class="bg-primary text-on-primary px-8 py-3 rounded-full font-button text-button hover:bg-secondary transition-all duration-300" href="/donate">Donate</a>
+</div>
+<button aria-label="Menu" class="md:hidden text-primary" id="navToggle"><span class="material-symbols-outlined">menu</span></button>
+</div>
+<div class="hidden md:hidden bg-soft-cream border-t border-outline-variant px-gutter py-4 space-y-2" id="mobileMenu">
+<a class="block font-button text-button text-primary py-2" href="/home">Home</a>
+<a class="block font-button text-button text-on-surface-variant py-2" href="/about">About</a>
+<a class="block font-button text-button text-on-surface-variant py-2" href="/good-deeds">Good Deeds</a>
+<a class="block bg-primary text-on-primary text-center px-6 py-3 rounded-full font-button text-button" href="/donate">Donate</a>
+</div>
+</nav>
+<main class="mt-20">
+<!-- Hero Section -->
+<section class="max-w-container-max mx-auto px-gutter pt-6 pb-10 md:pt-8 md:pb-12">
+<div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+<div class="max-w-[640px] order-2 md:order-1">
+<span class="font-label-caps text-label-caps text-secondary mb-4 block">B'RUCHIM HABA'IM</span>
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-3">
+SoFa Community Welcomes You
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-6 border-l-2 border-secondary pl-6 italic">
+Pray + Celebrate + Love + Friendship
+</p>
+<div class="flex flex-col sm:flex-row gap-4">
+<a class="bg-primary text-on-primary px-10 py-4 rounded-full font-button text-button inline-block text-center hover:bg-secondary transition-all duration-300" href="#welcome">Discover SoFa</a>
+<a class="border border-secondary text-secondary px-10 py-4 rounded-full font-button text-button inline-block text-center hover:bg-secondary-container transition-all duration-300" href="/about#contact">Get in Touch</a>
+</div>
+</div>
+<div class="order-1 md:order-2">
+<img src="/assets/img/sofa-lockup.jpg" alt="The SoFa Jewish Community Center — a warm home for Jewish life" class="w-full max-w-[360px] mx-auto"/>
+</div>
+</div>
+</section>
+<!--#ROSH-HASHANAH-5787# time-sensitive: delete this whole section after 13 Sep 2026 -->
+<section class="max-w-container-max mx-auto px-gutter pb-6 md:pb-8" aria-labelledby="shofar-heading">
+<div class="bg-secondary-fixed/25 border border-secondary/30 rounded-2xl px-6 py-8 md:px-12 md:py-10">
+<div class="flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
+<svg class="w-[200px] md:w-[240px] shrink-0" viewBox="0 0 570 180" role="img" aria-label="Shofar, apple and honey">
+<g stroke="#16293d" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+<path fill="#b79549" d="M18 116 C 66 132, 176 134, 236 112 C 292 92, 314 58, 328 24 L 368 46 C 350 90, 318 122, 256 144 C 178 170, 62 154, 14 124 Z"></path>
+<path fill="#dcb96d" d="M328 24 L368 46 C 360 60, 350 68, 342 72 C 336 58, 332 40, 328 24 Z"></path>
+<path fill="none" stroke-width="4" opacity=".55" d="M74 132 C 140 146, 210 138, 258 118"></path>
+<path fill="#dcb96d" d="M404 118 h56 c4 0 6 3 5 7 l-7 40 c-1 4-4 6-8 6 h-36 c-4 0-7-2-8-6 l-7-40 c-1-4 1-7 5-7z"></path>
+<rect fill="#b79549" x="400" y="104" width="64" height="16" rx="5"></rect>
+<path fill="#8b2635" d="M482 116 c0-17 12-29 26-29 6 0 10 3 13 3 s7-3 13-3 c14 0 26 12 26 29 c0 21-17 40-28 40 -4 0-8-3-11-3 s-7 3-11 3 c-11 0-28-19-28-40z"></path>
+<path fill="none" d="M521 87 c0-10 6-17 15-20"></path>
+</g>
+</svg>
+<div class="flex-1 text-center">
+<p class="font-display-lg text-[34px] lg:text-[30px] xl:text-[38px] leading-tight text-primary mb-2 whitespace-nowrap" dir="rtl" lang="he">&#1499;&#1514;&#1497;&#1489;&#1492; &#1493;&#1495;&#1514;&#1497;&#1502;&#1492; &#1496;&#1493;&#1489;&#1492;</p>
+<span class="font-label-caps text-label-caps text-secondary uppercase block mb-2">Ksiva Vachasima Tova</span>
+<p class="font-body-lg text-body-lg text-on-surface-variant italic">A sweet and blessed new year</p>
+</div>
+<div class="lg:border-l lg:border-secondary/30 lg:pl-10 text-center shrink-0">
+<span class="font-label-caps text-label-caps text-secondary uppercase block mb-2" id="shofar-heading">Shofar Blowing</span>
+<p class="font-headline-sm text-headline-sm text-primary whitespace-nowrap">Sunday, September 13</p>
+<p class="font-display-lg text-display-lg text-primary leading-none whitespace-nowrap">9:00 AM</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-3">All are welcome</p>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-secondary/20 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+<p class="font-body-md text-body-md text-on-surface-variant text-center sm:text-left">Service times for all three days, and the halachos for after shul at home:</p>
+<a class="border border-secondary text-secondary px-8 py-3 rounded-full font-button text-button inline-block text-center hover:bg-secondary-container transition-all duration-300 shrink-0" href="/downloads/rosh-hashanah-5787.pdf" target="_blank" rel="noopener">Download the PDF</a>
+</div>
+</div>
+</section>
+<!-- Shabbos Services (prominent) -->
+<section class="pb-4 md:pb-6 max-w-container-max mx-auto px-gutter" id="services">
+<div class="bg-primary text-on-primary rounded-2xl px-6 py-10 md:px-12 md:py-12">
+<div class="text-center mb-8">
+<span class="font-label-caps text-label-caps text-secondary-fixed-dim uppercase tracking-widest block mb-2">Join Us for Shabbos</span>
+<h2 class="font-headline-md text-headline-md text-white">Weekly Services</h2>
+</div>
+<div class="grid gap-6 md:grid-cols-3 max-w-[1080px] mx-auto">
+<div class="bg-white/[0.06] border border-white/10 rounded-xl p-8 text-center">
+<div class="w-14 h-14 rounded-full bg-secondary-fixed-dim/20 text-secondary-fixed-dim flex items-center justify-center mx-auto mb-4"><span class="material-symbols-outlined text-3xl">nights_stay</span></div>
+<h3 class="font-headline-sm text-headline-sm text-white mb-1">Friday Night</h3>
+<p class="font-body-md text-secondary-fixed-dim mb-3">Kabbalas Shabbos</p>
+<p class="font-display-lg text-headline-sm text-white">At candle-lighting time</p>
+</div>
+<div class="bg-white/[0.06] border border-white/10 rounded-xl p-8 text-center">
+<div class="w-14 h-14 rounded-full bg-secondary-fixed-dim/20 text-secondary-fixed-dim flex items-center justify-center mx-auto mb-4"><span class="material-symbols-outlined text-3xl">wb_sunny</span></div>
+<h3 class="font-headline-sm text-headline-sm text-white mb-1">Shabbos Day</h3>
+<p class="font-body-md text-secondary-fixed-dim mb-3">Saturday Morning</p>
+<p class="font-display-lg text-headline-sm text-white">Chassidus at 8:00 AM</p>
+<p class="font-body-md text-secondary-fixed-dim text-sm mt-2">Message for details</p>
+</div>
+<div class="bg-white/[0.06] border border-white/10 rounded-xl p-8 text-center">
+<div class="w-14 h-14 rounded-full bg-secondary-fixed-dim/20 text-secondary-fixed-dim flex items-center justify-center mx-auto mb-4"><span class="material-symbols-outlined text-3xl">wb_twilight</span></div>
+<h3 class="font-headline-sm text-headline-sm text-white mb-1">Shabbos Afternoon</h3>
+<p class="font-body-md text-secondary-fixed-dim mb-3">Mincha &amp; Torah Reading</p>
+<p class="font-display-lg text-headline-sm text-white">45 minutes before Shabbos ends</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Welcome / About Intro Section -->
+<section class="py-12 md:py-16 max-w-container-max mx-auto px-gutter" id="welcome">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-stack-lg items-center">
+<div class="md:col-span-4">
+<span class="font-label-caps text-label-caps text-secondary mb-4 block">WELCOME HOME</span>
+<h2 class="font-headline-md text-headline-md text-primary leading-tight">
+More than a place of prayer — a spiritual home
+</h2>
+</div>
+<div class="md:col-span-7 md:col-start-6">
+<div class="space-y-4 text-on-surface-variant max-w-[720px]">
+<p class="font-body-lg text-body-lg leading-relaxed">
+We are a warm and welcoming Chabad Jewish Community Center dedicated to fostering a deep connection to Jewish life and tradition.
+</p>
+<p class="font-body-md text-body-md leading-relaxed">
+Our shul is more than just a place of prayer; it is a spiritual home where families, friends, and neighbors gather for lively prayer services, engaging Torah study, meaningful holidays, and heartfelt community connection.
+</p>
+<p class="font-body-md text-body-md leading-relaxed">
+Inspired by the Rebbe's vision, we embrace every individual with unconditional love and strive to ignite the soul of Judaism in a comfortable, family-focused atmosphere. Come sit, learn, and grow with us.
+</p>
+<div class="pt-4 flex flex-col sm:flex-row gap-4 sm:gap-8">
+<a class="text-primary font-button text-button group flex items-center gap-2" href="/about">
+Learn about our mission
+<span class="material-symbols-outlined text-secondary transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+<a class="text-primary font-button text-button group flex items-center gap-2" href="/about#rabbi">
+Meet the SoFa family
+<span class="material-symbols-outlined text-secondary transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent & Upcoming Events -->
+<section class="pt-8 pb-4 md:pt-10 md:pb-6 max-w-container-max mx-auto px-gutter">
+<div class="text-center mb-6">
+<span class="font-label-caps text-label-caps text-secondary mb-2 block">WHAT'S HAPPENING</span>
+<h2 class="font-headline-md text-headline-md text-primary">Upcoming Event</h2>
+</div>
+<div class="max-w-[560px] mx-auto">
+<div class="bg-white rounded-xl premium-shadow border border-surface-variant/40 p-6 flex gap-4">
+<div class="w-12 h-12 shrink-0 rounded-lg bg-soft-cream text-secondary flex items-center justify-center"><span class="material-symbols-outlined">record_voice_over</span></div>
+<div>
+<span class="font-label-caps text-label-caps text-secondary uppercase tracking-widest">Upcoming</span>
+<h3 class="font-headline-sm text-headline-sm text-primary mt-1 mb-1">Friday Night Guest Speaker &middot; Rabbi Meni Even-Israel</h3>
+<p class="font-body-md text-sm text-on-surface-variant mb-3">Welcoming back Rabbi Meni Even-Israel &mdash; Executive Director of The Steinsaltz Center, Jerusalem. Words of inspiration between Mincha &amp; Maariv.</p>
+<p class="font-button text-xs text-primary flex items-center gap-1"><span class="material-symbols-outlined text-secondary text-[16px]">event</span> Fri, Aug 14 &middot; Candle lighting 7:22 PM</p>
+</div>
+</div>
+</div>
+<p class="text-center font-body-md text-sm text-on-surface-variant mt-5">All are welcome.</p>
+</section>
+<!-- Ways to Connect & Grow -->
+<section class="py-12 md:py-16 bg-surface">
+<div class="max-w-container-max mx-auto px-gutter">
+<div class="text-center mb-8">
+<span class="font-label-caps text-label-caps text-secondary mb-4 block">COMMUNITY LIFE</span>
+<h2 class="font-headline-md text-headline-md text-primary mb-4">Ways to Connect &amp; Grow</h2>
+<p class="text-on-surface-variant max-w-[600px] mx-auto">From prayer to professional guidance, here are a few of the ways our community shows up for one another.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<div class="bg-white p-8 rounded-xl ambient-shadow ambient-shadow-hover border border-outline-variant/30">
+<div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center mb-4 text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">work</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-2">Career Guidance</h3>
+<p class="text-on-surface-variant font-body-md">Practical mentorship, resume reviews, and industry insight to help you move forward with confidence.</p>
+</div>
+<div class="bg-white p-8 rounded-xl ambient-shadow ambient-shadow-hover border border-outline-variant/30">
+<div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center mb-4 text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">volunteer_activism</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-2">Mental Health Support</h3>
+<p class="text-on-surface-variant font-body-md">A caring, confidential space and resources for well-being — helping neighbors find support and healing.</p>
+</div>
+<div class="bg-white p-8 rounded-xl ambient-shadow ambient-shadow-hover border border-outline-variant/30">
+<div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center mb-4 text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-2">Shabbos Hospitality</h3>
+<p class="text-on-surface-variant font-body-md">Open your home or help set the table for our community meals. Celebrate tradition through shared connection.</p>
+</div>
+<div class="bg-white p-8 rounded-xl ambient-shadow ambient-shadow-hover border border-outline-variant/30">
+<div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center mb-4 text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-2">Learn &amp; Share Torah</h3>
+<p class="text-on-surface-variant font-body-md">Join the Weekly Shiur, bring the Shabbos Table Dvar Torah to your table, and help spread the light of Torah study.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Dvar Torah Section -->
+<section class="py-12 md:py-16 max-w-container-max mx-auto px-gutter">
+<div class="bg-white rounded-2xl ambient-shadow border border-outline-variant/20 p-gutter md:p-stack-lg flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+<div class="flex-1">
+<div class="flex items-center gap-3 mb-3">
+<span class="font-label-caps text-label-caps text-secondary block">LEARN WITH US</span>
+<span class="bg-sage-status text-white text-[10px] font-label-caps px-3 py-1 rounded-full uppercase tracking-widest">Updated Weekly</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-primary mb-3">Shabbos Table Dvar Torah</h2>
+<p class="text-on-surface-variant font-body-md max-w-[560px]">
+"This Week's Vort" — a short weekly Torah thought designed for your Shabbos table to ignite conversation and connection.
+</p>
+</div>
+<a class="shrink-0 bg-primary text-on-primary px-8 py-4 rounded-full font-button text-button inline-flex items-center gap-3 hover:bg-secondary transition-all" href="https://docs.google.com/document/d/1khotQ-cPlYrS90Bp4ns1PhuWbHrbEWAib1o7b-3ud50/preview" target="_blank" rel="noopener">
+Open the full Dvar Torah
+<span class="material-symbols-outlined">arrow_right_alt</span>
+</a>
+</div>
+</section>
+<!-- Final CTA Section -->
+<section class="py-12 md:py-16 bg-primary text-on-primary text-center">
+<div class="max-w-container-max mx-auto px-gutter">
+<h2 class="font-headline-md text-headline-md mb-4">Come sit, learn, and grow with us</h2>
+<p class="font-body-lg text-body-lg mb-7 max-w-[600px] mx-auto opacity-80">
+Whether you're looking to pray, study, celebrate, or simply connect — there's a seat for you on the SoFa.
+</p>
+<div class="flex flex-col sm:flex-row gap-6 justify-center">
+<a class="bg-white text-primary px-12 py-4 rounded-full font-button text-button hover:bg-secondary-fixed transition-colors duration-300" href="/about#contact">Get in Touch</a>
+<a class="border border-white/30 text-white px-12 py-4 rounded-full font-button text-button hover:bg-white/10 transition-colors duration-300" href="/donate">Support SoFa</a>
+</div>
+<div class="mt-6">
+<a class="inline-flex items-center justify-center gap-2 bg-[#25D366] text-white px-10 py-4 rounded-full font-button text-button hover:bg-[#1ebe5d] transition-colors duration-300" href="https://chat.whatsapp.com/DPajPTAQbWa7cI1uNMTieW" target="_blank" rel="noopener">
+<span class="material-symbols-outlined text-[20px]">forum</span>
+Join our WhatsApp Community
+</a>
+</div>
+</div>
+</section>
+</main>
+<!--#FOOTER#-->
+<footer class="bg-surface border-t border-outline-variant">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-stack-lg px-gutter py-section-gap max-w-container-max mx-auto">
+<div class="md:col-span-2">
+<h2 class="font-display-lg text-headline-md text-primary mb-4">SoFa JCC</h2>
+<p class="font-body-md text-on-surface-variant max-w-[320px] mb-4">
+A warm and welcoming Chabad Jewish Community Center. Pray. Celebrate. Love. Friendship.
+</p>
+<p class="font-body-md italic text-secondary text-sm">Inspired by the Rebbe's vision &middot; Ahavat Yisrael</p>
+</div>
+<div>
+<h4 class="font-label-caps text-label-caps text-primary mb-6">Explore</h4>
+<ul class="space-y-3">
+<li><a class="font-body-md text-on-surface-variant hover:text-secondary transition-colors" href="/home">Home</a></li>
+<li><a class="font-body-md text-on-surface-variant hover:text-secondary transition-colors" href="/about">About</a></li>
+<li><a class="font-body-md text-on-surface-variant hover:text-secondary transition-colors" href="/good-deeds">Good Deeds</a></li>
+<li><a class="font-body-md text-on-surface-variant hover:text-secondary transition-colors" href="/donate">Donate</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-caps text-label-caps text-primary mb-6">Connect</h4>
+<ul class="space-y-3 font-body-md text-on-surface-variant">
+<li><a class="hover:text-secondary transition-colors" href="mailto:office@sofajcc.org">office@sofajcc.org</a></li>
+</ul>
+</div>
+</div>
+<div class="max-w-container-max mx-auto px-gutter py-8 border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="font-body-md text-on-surface-variant text-sm">&copy; <span id="yr">2026</span> SoFa Jewish Community Center, Inc. &middot; A California Religious Nonprofit Corporation</p>
+<p class="font-body-md text-on-surface-variant text-sm">An Orthodox Jewish House of Worship</p>
+</div>
+</footer>
+<script src="/assets/nav.js?v=10"></script>
 </body>
 </html>
