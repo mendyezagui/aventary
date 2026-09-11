@@ -109,3 +109,55 @@ quietly producing a second daily brief nobody reads.
 
 To lift it deliberately:
 `alter table public.agentlogs disable trigger aaa_crm_frozen;`
+
+## Why the deploy is not connected to git — 2026-09-11
+
+Nobody ever connected it. Not a decision that was reversed; it was never set up
+that way, and the repo still carries the evidence:
+
+- **2026-03-13** — the repo's first commits are `Add files via upload`, the
+  GitHub web UI, not a push. The zip is still in the root:
+  `second-brain-deploy.zip`, timestamped that same afternoon.
+- It began as a **Vercel** project. `vercel.json` dates from day one and
+  `.gitignore` contains exactly one line, `.vercel`.
+- The move to **Cloudflare Pages** was made by uploading built files by hand.
+  The tell is that `dist/` is committed — twelve times, last on 2026-08-21. You
+  only commit build output when something downstream picks it up manually; a
+  git-connected project builds its own and would ignore yours.
+
+The consequence is the one that bit: development modernised and publishing did
+not. The recent commits are numbered pull requests — `(#2)`, `(#4)`, `(#11)`,
+`(#12)`, `(#13)` — all landed **2026-09-10**, the day SoFa arrived. The last
+committed build is three weeks older, and the live build is older still. SoFa has
+never existed in a published bundle. The code moved; nothing carried it to the
+site.
+
+### Correction: it does not come up blank
+
+I told Mendy a git-connected build without its environment variables would
+"build fine and come up completely blank", and offered to hardcode the values to
+prevent it. That was wrong, and worth recording because it nearly caused a bad
+change.
+
+`src/App.jsx` already guards on `ENV_READY` and renders a red **Missing
+Environment Variables** card. The failure was never silent. What was wrong was
+the instruction on that card: it said to set them *in Vercel*, and this app is
+served from Cloudflare Pages — so following it would set variables somewhere
+that cannot affect the build you are looking at. Naming the wrong dashboard is
+worse than naming none.
+
+Fixed instead by correcting the card to name Cloudflare, and to say the values
+are read at build time so an existing deployment will not pick them up on its
+own. **No credentials were committed**, which is the right outcome: the anon key
+is public, but the repo is not where deployment configuration should start
+living, and an automated guard flagged the attempt before the habit began.
+
+### The branch to merge
+
+`claude/deployable-from-git` in the second-brain repo, two commits:
+
+1. RC Controls pointed at secondbrain-os (building `main` as it stood would have
+   moved it backwards)
+2. the corrected missing-variables card
+
+A built bundle with both, plus SoFa, has been handed over for a direct upload.
