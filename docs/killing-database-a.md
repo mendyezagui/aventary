@@ -157,7 +157,10 @@ instead of a scary one.
 - [ ] Delete the empty `llm-attachments` bucket
 - [ ] Delete `revops-dashboard`, `update-page` and A's `associate-tick` — their tables are gone
 - [ ] Port the two invoice/payment triggers, reconcile the two money models
-- [ ] Move the phase-2 groups (social, Associates, SoFa JCC, Vantaca, lead capture)
+- [x] Move the Associates group
+- [x] Move the social/content group (copies still live on A — see below)
+- [ ] Move the remaining phase-2 groups (SoFa JCC, Vantaca, lead capture)
+- [ ] Repoint the personal app deploy at B, **then** drop A's `contentCalendar`, `content_queue`, `socialCampaigns`, `socialStrategy` — until that happens both copies are writable and can diverge
 - [x] Port `associate-tick` to B, recreate its pg_cron job there, disable A's job 6
 - [ ] Port `sofa-jcc-scan` to B and recreate its pg_cron job there
 - [ ] Close the shared-table deltas (agentlogs 735, events 142, cadence_enrollments 95, payment_allocations 30)

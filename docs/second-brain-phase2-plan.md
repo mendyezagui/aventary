@@ -119,10 +119,10 @@ migration rather than quietly taking whatever hung off it.
 The only thing left on A is the orphaned `associate-tick` edge function, which can now only
 500. It goes with the dead-function sweep.
 
-**`content-brain` will fail its requirements in B** until the content tables move: its
-`inputs` read `socialStrategy`, `content_queue` and `contentCalendar`, none of which exist
-in B yet. It has two `blocking` requirements, so it will stop cleanly and say why rather
-than produce something wrong. The tick now reports these by name in `missing_tables`.
+~~**`content-brain` will fail its requirements in B**~~ — fixed by the content-table move
+below. A dry tick dated to next Monday now returns `missing_tables: []` and a real context
+digest for `content-brain`: `socialStrategy` 1, `content_queue` 7, `contentCalendar` 12,
+`company_news` 12, `goals` 6, `ai_memories` 1 — **0 gaps**.
 
 ## site_analyses — reversed, 2026-09-11
 
@@ -174,6 +174,75 @@ contacts in the CRM ("Sourced via Apollo"), and `apollo_organizations_enrich` pl
 titles and LinkedIn URLs. Scraping LinkedIn directly is against their terms and breaks
 constantly.
 
+---
+
+## Social / content tables: moved to B, 2026-09-11
+
+100 rows across four tables, all under the Mendy tenant, verified byte-for-byte:
+
+| Table | Rows | md5, both sides |
+|---|---:|---|
+| `contentCalendar` | 86 | `ab21fba3ff3fbee785bacb96f1ceac78` |
+| `content_queue` | 7 | `e95c6b2c30bb9d8f28135bef75ed995d` |
+| `socialCampaigns` | 4 | `27613299c6a0a88d8a4b1a6578fa381f` |
+| `socialStrategy` | 3 | `af5db1247e670c035443a1d2c07270fc` |
+
+### How the rows got across
+
+There is no server-to-server path between the two projects, and the obvious route — read
+174 KB of rows into a chat transcript and retype them into an `INSERT` — puts a
+3,781-character LinkedIn script through a quoting round-trip where one bad escape corrupts
+a row silently and the md5 check afterwards only proves I copied my own mistake faithfully.
+
+So instead: a narrow `import-rows` edge function on B, and `net.http_post` from A sending
+`to_jsonb(row) || {"tenant_id": …}` straight to it. Postgres renders the JSON, PostgREST
+parses it, and nothing is reformatted in between. Five requests, all HTTP 200:
+3 + 4 + 7 + 43 + 43 = 100. `contentCalendar` went in two halves so an oversized body could
+not be the failure and a partial failure would name its half.
+
+`import-rows` is **retired**: redeployed as a 410 stub *and* flipped to `verify_jwt: true`,
+so the shared secret that opened it is now rejected at the platform layer before the body
+runs. Both files are kept in `ops/content-tables/` — the MCP surface has no
+delete-function call, so a tombstone is how an endpoint goes out of service here.
+
+### What changed in the schema
+
+Column names are kept exactly as they were, camelCase and all. They are not prettier that
+way, but `content-brain`'s `inputs` name these columns literally, so renaming would have
+broken the very thing the move exists to fix.
+
+Tenancy is added the way every other table in B does it: `tenant_id`, a composite
+`(tenant_id, id)` primary key, and a `tenant_isolation` policy. One deliberate change:
+`socialStrategy`'s `UNIQUE (platform)` becomes `UNIQUE (tenant_id, platform)` — a global
+unique would mean the first tenant to write a LinkedIn strategy locks every other tenant
+out of having one.
+
+Identity sequences were re-synced and **proved by insert-probe**, not by reading
+`pg_sequences` — `last_value` there lies about a sequence that has never been read. Each
+probe had to land above the imported maximum or the migration raised and rolled back;
+probes were deleted. `contentCalendar` 89, `content_queue` 8, `socialCampaigns` 5,
+`socialStrategy` 4, zero probes left behind.
+
+The security advisor reports nothing against the four new tables.
+
+### The copies on A are still there, and that is a decision
+
+**A's four tables were not dropped.** The personal app deploy still points at A (see the
+kill-A checklist), and the app's `social` and `marketing` views read these tables. Dropping
+them would break Mendy's Social tab today, which is not something to do as a side effect of
+a data move.
+
+That leaves two copies that can now diverge — the disease this whole consolidation is
+curing — so it needs closing one of two ways, and it is Mendy's call which:
+
+1. **Repoint the personal app deploy at B**, then drop A's four tables. Correct, and it is
+   on the kill-A checklist anyway.
+2. **Freeze A's four tables** the way the CRM tables were frozen, so the Social tab can
+   still read but cannot fork. Faster, but an edit in the app would then fail visibly.
+
+Doing nothing is the one option that is actually wrong: every day both copies are writable
+is another day of the exact problem that started this.
+
 ## Step 1 status, 2026-09-11
 
 **Done:** `llm_messages`, `llm_conversations` and `static_pages` dropped from A in the
@@ -208,7 +277,7 @@ dashboard by hand.
 | Group | Tables | Rows | Decision |
 |---|---|---:|---|
 | Resale scraper | `unclaimed_watchlist` | 2,918 | **Own project** — see below |
-| Social / content ops | `contentCalendar`, `content_queue`, `socialCampaigns`, `socialStrategy` | 100 | **Move to B** |
+| Social / content ops | `contentCalendar`, `content_queue`, `socialCampaigns`, `socialStrategy` | 100 | ✅ **MOVED 2026-09-11** — copies still on A, see below |
 | **Voitra site analyzer** | `site_analyses` | 44 | **KEEP — move to B**, becomes an Associate |
 | Multi-LLM playground | `llm_messages`, `llm_conversations` | 41 | ✅ **DROPPED 2026-09-11** |
 | Associates framework | `associates`, `associate_drafts`, `associate_runs` | 31 | ✅ **DONE 2026-09-11** — data and runtime on B, A's tables dropped |
@@ -256,7 +325,7 @@ column added to the table:
 | SoFa JCC | `sofa-jcc-scan` (runs ~hourly) | — |
 | Vantaca | `rc-controls` and the `rc-*` set if they share config | `vantaca_controls` |
 | Lead capture | `poc-lead-submit`, `voitra-poc-submit`, `retell-lead` | — |
-| Social / content | none found | `social`, `marketing` |
+| ~~Social / content~~ | none found — ✅ **data moved 2026-09-11** | `social`, `marketing` |
 
 Lead capture is the one to be careful with: those endpoints are embedded in live
 websites. Repoint the function, verify a test submission lands in B, and only then
@@ -285,7 +354,7 @@ own home. Which means:
 
 1. Confirm the Spectari widget is off a live page, then retire Spectari and multi-LLM.
    Lowest risk, clears 85 rows and two app tabs.
-2. Move social/content — no functions involved, pure data.
+2. ~~Move social/content — no functions involved, pure data.~~ ✅ done 2026-09-11.
 3. Move Associates, then SoFa JCC, then Vantaca. One at a time, redeploying the function
    and confirming a tick lands in B before removing the A-side table.
 4. Move lead capture last, with a live test submission per endpoint.
