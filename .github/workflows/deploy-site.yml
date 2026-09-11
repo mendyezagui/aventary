@@ -1,16 +1,17 @@
 # Deploy aventary.com (the Next app) to its Cloudflare Worker.
 #
-# WHY THIS EXISTS
-# The `aventary` Worker is deployed by direct upload — `opennextjs-cloudflare
-# deploy`, driven from someone's laptop. A direct-upload Worker has no Git
-# connection, so merging to main has never shipped anything. This is the same
-# gap that #75 closed for the sofajcc Pages project: there was no failing build
-# to fix, because there was no build at all.
+# WHY THIS IS MANUAL-ONLY
+# Cloudflare Workers Builds owns automatic deploys: it is connected to this repo,
+# builds every push, and reports back on pull requests with a preview URL — which
+# is better than this workflow, because you see the result before merging rather
+# than after.
 #
-# It caused a real miss: the /c/<slug> client pages sat on main, fully built and
-# tested, while aventary.com/c/lcla returned 404 — because nothing deployed it.
+# So this does NOT run on push. Two pipelines deploying the same Worker would race
+# each other on every merge. It stays as a manual escape hatch for when the
+# Cloudflare build is unavailable or needs bypassing: Actions -> Deploy
+# aventary.com -> Run workflow.
 #
-# ONE-TIME SETUP (repo Settings -> Secrets and variables -> Actions):
+# SETUP, only if you ever need to run it (repo Settings -> Secrets and variables -> Actions):
 #   CLOUDFLARE_API_TOKEN    needs "Edit Cloudflare Workers" (the sofajcc deploy
 #                           already uses this secret; a Workers-scoped token
 #                           covers both)
@@ -23,16 +24,7 @@
 name: Deploy aventary.com
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      # sofajcc has its own workflow; a change only there should not rebuild the app.
-      - "sofajcc/**"
-      - ".github/workflows/deploy-sofajcc.yml"
-      - "docs/**"
-      - "ops/**"
-      - "**.md"
-  workflow_dispatch:        # deploy by hand without a commit
+  workflow_dispatch:        # manual only — Cloudflare Workers Builds handles pushes
 
 concurrency:
   # A newer push supersedes an in-flight deploy rather than racing it.
