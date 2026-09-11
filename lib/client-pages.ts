@@ -53,7 +53,13 @@ type PageRow = {
   password_hash: string | null;
 };
 
-const PBKDF2_ITERATIONS = 210_000;
+// Cloudflare Workers caps PBKDF2 at 100,000 iterations and throws
+// NotSupportedError above it. That is the ceiling, not a considered choice:
+// OWASP wants far more for PBKDF2-SHA-256. It is acceptable here because these
+// are per-page document passwords, the hashes are not public, and the real
+// control is the allowlisted sign-in link. Do not raise this without checking
+// the platform still refuses it.
+const PBKDF2_ITERATIONS = 100_000;
 
 function b64(bytes: Uint8Array) {
   return btoa(String.fromCharCode(...bytes));
@@ -85,16 +91,35 @@ export async function hashPassword(password: string) {
   return `pbkdf2-sha256$${PBKDF2_ITERATIONS}$${b64(salt)}$${b64(hash)}`;
 }
 
-/** Constant-time verification against a stored hash. */
+/**
+ * Constant-time verification against a stored hash.
+ *
+ * Returns false rather than throwing on anything malformed or unsupported —
+ * including a hash written with more iterations than this runtime will accept,
+ * which is what a 210,000-iteration hash from an earlier version looks like
+ * here. A bad stored value must fail the sign-in, never 500 the request.
+ */
 export async function verifyPassword(password: string, stored: string) {
-  const [scheme, iters, salt, expected] = stored.split("$");
-  if (scheme !== "pbkdf2-sha256") return false;
-  const actual = await pbkdf2(password, unb64(salt), Number(iters));
-  const want = unb64(expected);
-  if (actual.length !== want.length) return false;
-  let diff = 0;
-  for (let i = 0; i < actual.length; i++) diff |= actual[i] ^ want[i];
-  return diff === 0;
+  try {
+    const [scheme, iters, salt, expected] = stored.split("$");
+    if (scheme !== "pbkdf2-sha256") return false;
+    const iterations = Number(iters);
+    if (!Number.isFinite(iterations) || iterations < 1 || iterations > PBKDF2_ITERATIONS) {
+      console.error(
+        `client-page password hash needs ${iters} PBKDF2 iterations; this runtime allows ${PBKDF2_ITERATIONS}. Re-set the password.`
+      );
+      return false;
+    }
+    const actual = await pbkdf2(password, unb64(salt), iterations);
+    const want = unb64(expected);
+    if (actual.length !== want.length) return false;
+    let diff = 0;
+    for (let i = 0; i < actual.length; i++) diff |= actual[i] ^ want[i];
+    return diff === 0;
+  } catch (err) {
+    console.error("client-page password verification failed", err);
+    return false;
+  }
 }
 
 /**

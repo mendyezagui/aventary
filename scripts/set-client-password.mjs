@@ -21,7 +21,10 @@ if (password === "--none") {
   process.exit(0);
 }
 
-const ITERATIONS = 210_000;
+// Must match PBKDF2_ITERATIONS in lib/client-pages.ts. Cloudflare Workers
+// refuses anything above 100,000, so a hash written higher cannot be verified
+// in production even though Node will happily generate it.
+const ITERATIONS = 100_000;
 const salt = crypto.getRandomValues(new Uint8Array(16));
 const key = await crypto.subtle.importKey(
   "raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]
