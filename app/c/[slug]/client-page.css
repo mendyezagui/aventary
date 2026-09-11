@@ -144,6 +144,9 @@
 .lcla{max-width:none;margin:0;}
 
 /* The password gate. Deliberately plain: it is a door, not a landing page. */
+/* Do not inherit border-box from the site's global reset — the gate must lay
+   out correctly on its own, or a change to globals.css breaks these forms. */
+.cp-gate,.cp-gate *{box-sizing:border-box;}
 .cp-gate{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:64px 24px;background:#FAF8F3;}
 .cp-gate-card{width:100%;max-width:26rem;background:#fff;border:1px solid #DFD7C6;border-radius:4px;padding:36px 34px;box-shadow:0 1px 2px rgba(20,33,43,.05),0 10px 30px -20px rgba(20,33,43,.35);}
 .cp-gate-eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:#0E6B68;margin:0 0 14px;}
