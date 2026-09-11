@@ -29,6 +29,56 @@ before deleting anything that serves a public URL.
 
 ---
 
+## site_analyses — reversed, 2026-09-11
+
+**Not retiring it. It is a live funnel, and Mendy wants it as an Associate.**
+
+`analyze-site` publishes to **`https://voitra.ai/for/<slug>`**. Its system prompt opens
+*"You are Voitra, an AI voice agent platform"* — a visitor pastes their URL and gets three
+recommended voice agents with savings benchmarks per industry. Three-provider fallback
+(Anthropic → OpenAI → Google), 30 requests/IP/hour, 24-hour cache, `view_count` tracking
+whether the prospect opened their page. No rows since 2026-05-29 only because the widget
+is not currently embedded on voitra.ai.
+
+**The new Associate is a different motion from the existing one.** Today's flow is
+*inbound self-serve*: a visitor analyses their own business. What Mendy described —
+"analyze the people who work there, analyze their LinkedIn" — is *outbound prospect
+research*: he points it at a target. You would never show a visitor a dossier on their
+own staff. Both can share one table, distinguished by the new `kind` column
+(`voitra-inbound` | `bd-research`).
+
+### Done: schema created in B
+
+`associates`, `associate_runs`, `associate_drafts` and `site_analyses` now exist in B,
+mirroring A exactly, plus B's conventions: `tenant_id uuid` referencing `tenants` with
+`on delete cascade`, composite `(tenant_id, id)` primary keys, RLS enabled with the same
+`tenant_id in (select auth_tenant_ids())` policy every other table uses, and
+`unique (tenant_id, slug)` on associates and site_analyses.
+
+Three columns added to `site_analyses` for the people layer:
+
+| Column | Purpose |
+|---|---|
+| `kind` | `voitra-inbound` (the existing 44) vs `bd-research` (the new associate) |
+| `people` | `[{name, title, linkedin_url, email, seniority, source}]` |
+| `company_profile` | enrichment — size, funding, tech stack, locations |
+
+### Still to do
+
+1. Move the data: 18 associates, 9 drafts, 4 runs, 44 analyses.
+2. Write the new associate row — `brief`, `inputs`, `rails`, `requirements`.
+3. Build the runtime. This is `runtime: custom`, like `sofa-jcc` — it needs web fetch,
+   Apollo, and a page writer, which a `prompt` associate cannot do.
+4. Deploy it to B. **Needs secrets on B that this session cannot set:**
+   `ANTHROPIC_API_KEY` and an Apollo key.
+5. A page renderer on B, equivalent to A's `site-results`.
+
+**Recommended people source: Apollo.** Already paid for, already the origin of most
+contacts in the CRM ("Sourced via Apollo"), and `apollo_organizations_enrich` plus
+`apollo_mixed_people_api_search` do exactly this — company enrichment, then people with
+titles and LinkedIn URLs. Scraping LinkedIn directly is against their terms and breaks
+constantly.
+
 ## Step 1 status, 2026-09-11
 
 **Done:** `llm_messages`, `llm_conversations` and `static_pages` dropped from A in the
@@ -64,9 +114,9 @@ dashboard by hand.
 |---|---|---:|---|
 | Resale scraper | `unclaimed_watchlist` | 2,918 | **Own project** — see below |
 | Social / content ops | `contentCalendar`, `content_queue`, `socialCampaigns`, `socialStrategy` | 100 | **Move to B** |
-| ~~Spectari~~ **Homepage analyzer** | `site_analyses` | 44 | **Retire — ON HOLD**, mislabelled, see below |
+| **Voitra site analyzer** | `site_analyses` | 44 | **KEEP — move to B**, becomes an Associate |
 | Multi-LLM playground | `llm_messages`, `llm_conversations` | 41 | ✅ **DROPPED 2026-09-11** |
-| Associates framework | `associates`, `associate_drafts`, `associate_runs` | 31 | **Move to B** |
+| Associates framework | `associates`, `associate_drafts`, `associate_runs` | 31 | **Move to B** — schema created 2026-09-11 |
 | Vantaca / Scott Mgmt | `vantaca_audit`, `vantaca_controls` | 22 | **Move to B** |
 | SoFa JCC | `sofa_events`, `sofa_nudges`, `sofa_flyers`, `sofa_work_orders`, `sofa_speakers` | 7 | **Move to B** |
 | TalkBoard | `board_sets`, `children` | 2 | **Leave in A** — separate app, not CRM |
