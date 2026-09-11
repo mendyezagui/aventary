@@ -127,6 +127,12 @@ is the longer of the two.
 
 ---
 
+## Status: phase 1 applied 2026-09-11
+
+The 313 rows below are **in B**, verified byte-for-byte, with every pre-existing row
+proven unchanged by hash. See `../ops/merge-a-into-b/RESULT.md` for the evidence.
+A is **not** yet disposable — see `second-brain-schema-gap.md` for what remains.
+
 ## Order of work
 
 1. **Back up both databases.** Nothing below starts before a restorable snapshot exists.
