@@ -87,6 +87,19 @@ const nextConfig = {
                         permanent: true
                     },
                     {
+                        // BBDC proposal moved into the gated /c/<slug> client-page
+                        // system. The old public /bbdc page is removed, so send its
+                        // (already-circulating) URL to the new gated one.
+                        source: "/bbdc",
+                        destination: "/c/bbdc",
+                        permanent: true
+                    },
+                    {
+                        source: "/bbdc/",
+                        destination: "/c/bbdc",
+                        permanent: true
+                    },
+                    {
                         // Canonical host: www.* → apex. Handled at the routing layer
                         // (runs before middleware, no function invocation), so it covers
                         // every path without billing serverless CPU. Replaces the old

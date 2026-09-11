@@ -1,4 +1,5 @@
 import { html as lcla } from "./lcla";
+import { html as bbdc } from "./bbdc";
 
 // The registry of client pages. Adding one is: drop a `<slug>.ts` file next to
 // this one that exports its HTML, add a line here, and insert a row in
@@ -13,6 +14,14 @@ export type ClientPageContent = {
   /** One line under the title on the sign-in card. */
   blurb: string;
   html: string;
+  /**
+   * How `html` is rendered once the reader is signed in.
+   * "inline" (default): injected into a `.<slug>` div; its CSS lives, scoped,
+   *   in client-page.css (the lcla model).
+   * "document": a full standalone HTML document, rendered in an isolated
+   *   iframe so its own <style> can't touch — and isn't touched by — the site.
+   */
+  mode?: "inline" | "document";
 };
 
 export const CLIENT_PAGES: Record<string, ClientPageContent> = {
@@ -21,6 +30,12 @@ export const CLIENT_PAGES: Record<string, ClientPageContent> = {
     blurb:
       "A proposal prepared for the leadership of Cheder Menachem and Bais Chaya Mushka.",
     html: lcla
+  },
+  bbdc: {
+    title: "Aventary × Brown Bag Direct — Discovery Engagement",
+    blurb: "A discovery-engagement proposal prepared for Brown Bag Direct Marketing.",
+    html: bbdc,
+    mode: "document"
   }
 };
 

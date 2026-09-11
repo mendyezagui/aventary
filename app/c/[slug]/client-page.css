@@ -200,3 +200,13 @@
   .cp-ask-form{flex-wrap:wrap;}
   .cp-ask-form button{width:100%;}
 }
+
+/* Full-document client pages (mode:"document") render in an isolated iframe.
+   The frame is sized to its content by DocFrame; it stays chrome-free so the
+   embedded proposal reads as the whole page. */
+.cp-doc{
+  display:block;
+  width:100%;
+  border:0;
+  min-height:100vh;
+}
