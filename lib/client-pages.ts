@@ -251,3 +251,52 @@ export async function readSession(
     .eq("id", data.id);
   return { email: (data.email as string | null) ?? null, method: (data.method as string) ?? "link" };
 }
+
+// Named entities these documents actually use, plus the ones likely to turn up.
+// Anything unrecognised is left as written rather than mangled — a stray entity
+// reads better in a prompt than a wrong character.
+const NAMED_ENTITIES: Record<string, string> = {
+  mdash: "—", ndash: "–", hellip: "…", middot: "·", bull: "•",
+  lsquo: "\u2018", rsquo: "\u2019", ldquo: "\u201C", rdquo: "\u201D",
+  nbsp: " ", amp: "&", lt: "<", gt: ">", quot: '"', apos: "'",
+  times: "×", deg: "°"
+};
+
+/**
+ * Plain text of a client page's document, for grounding the Ask widget.
+ *
+ * Diagrams collapse to their aria-label rather than being dropped: those labels
+ * were written to state what the picture shows, so the model can answer about a
+ * diagram it cannot see. SVG coordinates would otherwise flood the prompt with
+ * numbers that mean nothing.
+ */
+export function documentText(html: string): string {
+  const withDiagrams = html.replace(
+    /<svg\b[^>]*?aria-label="([^"]*)"[\s\S]*?<\/svg>/gi,
+    (_m, label) => `\n[Diagram: ${label}]\n`
+  );
+  return withDiagrams
+    .replace(/<svg[\s\S]*?<\/svg>/gi, " ")
+    .replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ")
+    .replace(/<\/(p|div|section|h1|h2|h3|li|tr|figcaption|dd)>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&#x([0-9a-f]+);/gi, (_m, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_m, n) => String.fromCodePoint(Number(n)))
+    .replace(/&([a-z]+);/gi, (m, name) => NAMED_ENTITIES[name.toLowerCase()] ?? m)
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/** Records what a reader asked. Best effort — a logging failure must not break the answer. */
+export async function logQuestion(slug: string, email: string | null, question: string) {
+  if (!configured()) return;
+  try {
+    await createSupabaseAdmin()
+      .from("client_page_questions")
+      .insert({ slug, email, question: question.slice(0, 2000) });
+  } catch (err) {
+    console.error("client-page question log failed", err);
+  }
+}

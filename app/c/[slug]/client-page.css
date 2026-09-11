@@ -175,3 +175,28 @@
 .cp-or::before,.cp-or::after{content:"";flex:1;height:1px;background:#DFD7C6;}
 .cp-gate button.cp-secondary{background:transparent;color:#0E6B68;border-color:#C8BEA8;}
 .cp-gate button.cp-secondary:hover{background:#DCEAE7;border-color:#0E6B68;}
+
+/* The "ask a question" panel above the document. Quiet by design: it sits on
+   the page's own paper colour with one rule beneath it, so it reads as part of
+   the document rather than a widget bolted to the top of it. */
+.cp-ask{background:#FAF8F3;border-bottom:1px solid #DFD7C6;padding:18px 26px 16px;}
+.cp-ask *{box-sizing:border-box;}
+.cp-ask-inner{max-width:1080px;margin:0 auto;}
+.cp-ask-form{display:flex;gap:8px;align-items:stretch;}
+.cp-ask-form input{flex:1;min-width:0;font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.95rem;padding:10px 13px;border:1px solid #C8BEA8;border-radius:3px;background:#fff;color:#14212B;}
+.cp-ask-form input::placeholder{color:#9aa3a8;}
+.cp-ask-form input:focus-visible{outline:2px solid #0E6B68;outline-offset:2px;border-color:#0E6B68;}
+.cp-ask-form input:disabled{background:#F2EEE4;color:#7C8992;}
+.cp-ask-form button{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.92rem;font-weight:600;padding:10px 20px;border:1px solid #0E6B68;border-radius:3px;background:#0E6B68;color:#FAF8F3;cursor:pointer;white-space:nowrap;}
+.cp-ask-form button:hover:not(:disabled){background:#0A514F;border-color:#0A514F;}
+.cp-ask-form button:disabled{opacity:.45;cursor:default;}
+.cp-ask-note{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.78rem;color:#7C8992;margin:8px 0 0;}
+.cp-ask-log{max-height:40vh;overflow-y:auto;margin:0 0 12px;padding-right:4px;}
+.cp-ask-q{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.82rem;color:#7C8992;margin:0 0 4px;}
+.cp-ask-q::before{content:"you asked — ";}
+.cp-ask-a{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.97rem;line-height:1.6;color:#14212B;margin:0 0 16px;white-space:pre-wrap;}
+@media (max-width:620px){
+  .cp-ask{padding:14px 18px 12px;}
+  .cp-ask-form{flex-wrap:wrap;}
+  .cp-ask-form button{width:100%;}
+}
