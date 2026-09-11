@@ -1,83 +1,83 @@
-# Repointing the personal app from A to B — readiness, 2026-09-11
+# The personal app and database B — 2026-09-11
 
-The personal Second Brain app still reads database **A** (`xwacfwagyhgbbhefecdt`). Moving it
-to **B** (`fukehjqikxqsntwhmgsk`) is what closes the last fork: until it happens, A's copies
-of the social/content tables stay writable and can diverge from the ones now in B.
+**Correction.** An earlier version of this document said the personal app still
+read database A and that the repoint was a pending job. That was wrong. It was
+inferred from the repo's `vercel.json` and the kill-A checklist rather than from
+the thing that actually decides it — the deployed bundle. Checking the deployed
+bundle settles it in one query, and that is what should have been done first.
 
-This is what it actually takes. Short version: it is two environment variables plus 29 rows
-of data that are not in B yet.
+## The app already reads B
 
-## 1. The switch itself is a Vercel setting, not a code change
-
-The app is a Vite build deployed on Vercel, and it picks its database at **build time**:
+`https://2nd.mendyezagui.com/assets/index-BYYmilmv.js`, minified, contains:
 
 ```js
-// src/lib/supabase.js
-export const SUPA_URL = import.meta.env.VITE_SUPABASE_URL  || "";
-export const SUPA_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+ec = "https://fukehjqikxqsntwhmgsk.supabase.co",   // SUPA_URL
+ma = "eyJ…",                                       // SUPA_KEY
+XO = ec.startsWith("https://") && ma.length > 10,  // ENV_READY
+Q  = XO ? YO(ec, ma) : null,                       // the shared client
 ```
 
-Neither value is in the repository — they are Vercel project environment variables. So the
-repoint is: change `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to B's, redeploy. The
-same two variables also feed the `/api/*` serverless routes and therefore the two Vercel
-crons (`/api/sweep` daily, `/api/content` Mondays), so those follow automatically.
+`Q` is the client every `supabase.from(...)` in the app goes through. It is
+built on **B**. So contacts, tasks, projects, `contentCalendar`,
+`socialCampaigns`, `content_queue`, `socialStrategy` and the `sofa_*` tables are
+all read from B, and have been since before this work started.
 
-Nobody with repository access can make this change. It is a dashboard job.
+Two consequences that were not obvious:
 
-## 2. What is not in B yet
+- The Social, Marketing and Morning Brief views were reading tables that **did
+  not exist in B** until this afternoon. They were not working. Moving the
+  content tables is what fixed them, not what put them at risk.
+- The app is served from **Cloudflare Pages**, not Vercel. `/api/content` and
+  `/api/sweep` at `2nd.mendyezagui.com` return the SPA's `index.html`, not a
+  function — the Vercel-format `api/*.js` routes do not run at that host. The
+  one route that does run is the Cloudflare Pages Function at
+  `functions/api/rambam-controls.js`, which answers 401.
 
-The app queries 49 tables. Nineteen of them do not exist in B — but that number is
-misleading, because **eleven of them do not exist in A either.** Those are already-dead
-references that return an error the loaders treat as "empty", and the repoint does not make
-them any worse:
+## The one thing still pointed at A
 
-| Dead in both | Why |
-|---|---|
-| `llm_conversations`, `llm_messages` | dropped from A on 2026-09-11, deliberately |
-| `spectari_blocks`, `spectari_bookings`, `spectari_items`, `spectari_models`, `spectari_reservations`, `spectari_settings` | never existed in A; the Spectari tab has always been dead here |
-| `calendar_events`, `email_accounts`, `emails` | never existed in A |
+The deployed bundle also carries a **second** client, hardcoded to A:
 
-`push_subscriptions` exists in A and is **empty**, so there is nothing to carry.
+```js
+YM = "https://xwacfwagyhgbbhefecdt.supabase.co", XM = "eyJ…", Bo = YO(YM, XM)
+```
 
-That leaves the real blockers — **7 tables, 29 rows**, both groups already marked keep-and-move:
+`Bo` is used in exactly one place — the Vantaca Controls view, for
+`vantaca_controls` and `vantaca_audit`. Nothing else in the bundle touches it.
 
-| Group | Tables | Rows in A |
-|---|---|---:|
-| SoFa JCC | `sofa_events` 3, `sofa_nudges` 2, `sofa_flyers` 1, `sofa_work_orders` 1, `sofa_speakers` 0 | 7 |
-| Vantaca | `vantaca_audit` 21, `vantaca_controls` 1 | 22 |
+**This is already fixed in `main`.** `src/views/VantacaControlsView.jsx` at
+`fe532d6` imports the shared client and reads Vantaca through it; there is no
+second `createClient` anywhere in the repo. The deployed bundle is simply older
+than `main`. A redeploy moves Vantaca onto B, where its rows now are. No code
+change is needed — only a build.
 
-**Neither can move as data alone.** SoFa JCC has `sofa-jcc-scan` on A behind pg_cron job 5,
-and Vantaca has `rc-controls` / `rc-debug` there. Copy the rows and leave the machinery
-writing to A and you have rebuilt, table for table, the exact fork this whole consolidation
-is unwinding. The function and the cron move with the data or the data does not move.
+## The open question: is there still a Vercel project?
 
-## 3. One thing that will look like a bug and is not
+`vercel.json` declares two crons, `/api/sweep` daily and `/api/content` Mondays,
+and `api/content.js` writes drafts into `content_queue`. Those routes do not run
+at `2nd.mendyezagui.com`, but they would run on a `*.vercel.app` deployment if
+one still exists, against whatever database that project's environment variables
+name.
 
-A has no `tenants` table, so `loadTenant()` returns null and the app treats that as
-"owner — every module on". B does have one, and Mendy's tenant row enables nine of the ten
-optional modules. **`sofa_jcc` is not among them.**
+That is the only reason A's four content tables have not been dropped. Two
+outcomes:
 
-So on the day of the repoint, the SoFa JCC nav disappears — even once its tables are in B.
-The fix is one jsonb key, and it belongs with the SoFa move rather than before it: turning
-it on today just surfaces a tab with no tables behind it.
+- **No live Vercel project, or its env points at B** → drop A's
+  `contentCalendar`, `content_queue`, `socialCampaigns`, `socialStrategy`.
+  Nothing reads them.
+- **A live Vercel project whose env points at A** → point it at B first. Its
+  Monday content brain is currently writing drafts into a database the app no
+  longer reads, which is its own quiet failure.
 
-## 4. What is ready
+Checking the project's environment variables settles it.
 
-Authentication. Mendy's tenant in B has two members and both have signed in before, so the
-repointed app has a working login on the other side. B's RLS scopes every table to the
-caller's tenant, which A never did.
+## Status
 
-## 5. Order
+| | Where it runs | Where its data is |
+|---|---|---|
+| App (all views but Vantaca) | Cloudflare Pages | **B** |
+| Vantaca Controls view | Cloudflare Pages | **A** until the next build; fixed in `main` |
+| Associates | **B**, cron job 5 | **B** |
+| SoFa JCC | **B**, cron job 7 | **B** |
+| Social / content | — | **B** (A's copies still present, pending the question above) |
 
-1. Move SoFa JCC — tables, `sofa-jcc-scan`, and pg_cron job 5 — then disable A's job.
-2. Move Vantaca — tables and the `rc-*` functions that read them.
-3. Turn on `sofa_jcc` in `tenants.modules` for the Mendy tenant.
-4. Flip the two Vercel environment variables and redeploy.
-5. Confirm the Social, Marketing, Pipelines and Morning Brief views read B.
-6. **Only then** drop A's `contentCalendar`, `content_queue`, `socialCampaigns`,
-   `socialStrategy`.
-
-Step 6 is the one this document exists to protect. Those four tables are read *and written*
-by `SocialMediaView`, `PipelinesView`, `MarketingView`, `MorningBriefView` and the Monday
-`/api/content` cron. Dropping them before step 4 does not tidy anything up; it breaks four
-views and a weekly job.
+Database A now has **no active cron jobs**.

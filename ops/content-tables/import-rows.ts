@@ -1,5 +1,6 @@
-// A one-shot import endpoint, used to move the social/content tables from the
-// old database into this one on 2026-09-11.
+// A one-shot import endpoint. Stood up to move the social/content tables on
+// 2026-09-11, tombstoned, and brought back the same day with a new allowlist to
+// move SoFa JCC and Vantaca. Tombstoned again after.
 //
 // Why this exists at all: there is no server-to-server path between the two
 // Supabase projects. The alternative was to read 174 KB of rows out of A into a
@@ -23,7 +24,10 @@
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const ALLOW = new Set(["contentCalendar", "content_queue", "socialCampaigns", "socialStrategy"]);
+const ALLOW = new Set([
+  "sofa_speakers", "sofa_events", "sofa_flyers", "sofa_nudges", "sofa_work_orders",
+  "vantaca_controls", "vantaca_audit",
+]);
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
 
 const sb = createClient(

@@ -243,6 +243,93 @@ curing — so it needs closing one of two ways, and it is Mendy's call which:
 Doing nothing is the one option that is actually wrong: every day both copies are writable
 is another day of the exact problem that started this.
 
+---
+
+## SoFa JCC and Vantaca: moved to B, 2026-09-11
+
+29 rows across seven tables, all under the Mendy tenant, all md5-identical:
+
+| Table | Rows | md5, both sides |
+|---|---:|---|
+| `sofa_events` | 3 | `49cc5c9eecaaab8db9af4767ef2960a3` |
+| `sofa_flyers` | 1 | `49ec5fbcaae7eb1d2e5024ebfc199085` |
+| `sofa_nudges` | 2 | `c8cc627f5743f1ca0c361620892ffd07` |
+| `sofa_work_orders` | 1 | `924638bfb27aeceaaac2a8dbaedbd457` |
+| `sofa_speakers` | 0 | — (empty in A) |
+| `vantaca_controls` | 1 | `b07dd434382ad2b33739d2f472a2187f` |
+| `vantaca_audit` | 21 | `f0694c4e5318f44ca45d4b02bff7452f` |
+
+### Two things went wrong, and both were caught by checks rather than by luck
+
+**The foreign keys rejected the first push, correctly.** All six tables were
+queued from one transaction on the assumption that pg_net sends in the order it
+was handed the requests. It does not. The three SoFa child tables arrived before
+their parent rows and `sofa_flyers_tenant_id_event_id_fkey` refused them — which
+is precisely the job those keys were kept for. Nothing was half-written; the
+retry went one table per migration, each confirmed before the next.
+
+**`vantaca_audit` did not match on the first digest.** The import endpoint parses
+its body with `JSON.parse`, so every Postgres `numeric` becomes a JavaScript
+double on the way through, and a double does not carry scale. Four of the 21
+costs came out a digit shorter: `0.0530 → 0.053`, `0.0640 → 0.064`,
+`0.1600 → 0.16`, `0.0240 → 0.024`. The values are equal and no money is wrong,
+but a verification that only passes when it feels like it is worse than none.
+Restored with `round(cost_usd, 4)` — every source value is scale 4 — and the
+digest then matched.
+
+**This is a real limitation of the pg_net import route, not a one-off.** Any
+`numeric` column moved this way loses its scale. The four content tables moved
+earlier have no numeric columns, which is why their digests matched first time.
+
+### Schema notes
+
+SoFa keeps its foreign keys, which no other table in B does. They are kept
+because SoFa relies on the behaviour and not merely the integrity: deleting an
+event is supposed to take its flyers and nudges with it. Composite
+`(tenant_id, x) → (tenant_id, id)` is the right form against a composite primary
+key and makes a cross-tenant reference unrepresentable. `ON DELETE SET NULL`
+names its column explicitly (PG15+), because the default would try to null
+`tenant_id` as well.
+
+Every UNIQUE gained `tenant_id` — `hebcal_key`, `dedupe_key` ×2. `hebcal_key`
+matters most: the scan upserts on it, so a global unique would mean the first
+tenant to record Erev Rosh Hashana 5786 owns that key and every other tenant's
+scan quietly fails to write its own.
+
+`vantaca_controls` is a singleton addressed as `.eq("id", 1)`; the composite key
+makes that one row *per tenant*.
+
+### The runtime
+
+`sofa-jcc-scan` is deployed to B and **proved equivalent, not just deployed**: a
+dry run on B returned byte-identical `location`, `shabbat`, `holidays`,
+`summary`, `upserts`, `drafts` and `nudges` to A's dry run on the same day. Same
+Pico-Robertson coordinates, same candle-lighting and havdalah times, same single
+holiday in the window. The Hebcal location needed no secret — `DEFAULT_ZIP` is
+baked into the pinned module.
+
+Three changes beyond tenant-scoping:
+
+- the upsert conflicts on `"tenant_id,hebcal_key"`, since the old single-column
+  constraint no longer exists;
+- `agentlogs` has no identity on `id` here, so the log line allocates one;
+- **auth no longer fails open.** The original checked `SOFA_SCAN_SECRET` only
+  when that variable was set, and it is not set in this project — the scan would
+  have been a wide-open write endpoint. It now requires `CRON_SECRET`. Verified:
+  no bearer and a wrong bearer both return 401.
+
+It runs only for tenants with the `sofa_jcc` module enabled. That is not
+bureaucracy: `planDay` derives its events from the Hebcal calendar rather than
+from existing rows, so an un-opted-in tenant would not be skipped — it would be
+filled with a shul calendar it never asked for.
+
+`sofa_jcc` was turned on for the Mendy tenant in the same pass. The old database
+has no `tenants` table, so the app treated every module as on there; this one
+enables nine of ten, and `sofa_jcc` was the omission.
+
+pg_cron job 7 on B runs it at 14:30 UTC. **A's job 5 is disabled, which leaves
+database A with no active cron jobs at all.**
+
 ## Step 1 status, 2026-09-11
 
 **Done:** `llm_messages`, `llm_conversations` and `static_pages` dropped from A in the

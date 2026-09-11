@@ -159,10 +159,11 @@ instead of a scary one.
 - [ ] Port the two invoice/payment triggers, reconcile the two money models
 - [x] Move the Associates group
 - [x] Move the social/content group (copies still live on A — see below)
-- [ ] Move the remaining phase-2 groups (SoFa JCC, Vantaca, lead capture)
+- [x] Move SoFa JCC and Vantaca
+- [ ] Move the lead-capture group
 - [ ] Repoint the personal app deploy at B, **then** drop A's `contentCalendar`, `content_queue`, `socialCampaigns`, `socialStrategy` — until that happens both copies are writable and can diverge
 - [x] Port `associate-tick` to B, recreate its pg_cron job there, disable A's job 6
-- [ ] Port `sofa-jcc-scan` to B and recreate its pg_cron job there
+- [x] Port `sofa-jcc-scan` to B and recreate its pg_cron job there (job 7); A's job 5 disabled — **A now has no active cron jobs**
 - [ ] Close the shared-table deltas (agentlogs 735, events 142, cadence_enrollments 95, payment_allocations 30)
 - [ ] Decide TalkBoard's home; remap `children` / `board_sets` parent ids to new auth users
 - [ ] Decide Voitra's home; move ~27 edge functions and its DNS/routing
