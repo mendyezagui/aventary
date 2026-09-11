@@ -1,5 +1,10 @@
 # Second Brain — which database is which, and who writes to it
 
+> **Superseded in part, 2026-09-11.** The "keep them separate" decision below was
+> reversed the same day: the two databases are being merged into **B** under the
+> `Mendy Ezagui` tenant. See `second-brain-merge-audit.md` for the row-level diff,
+> the id collisions, and the order of work. The map and the rules here still hold.
+
 **Last verified:** 2026-09-11. Everything marked **VERIFIED** was checked directly
 against the live systems on that date. **INFERRED** was not — confirm before acting.
 
@@ -24,7 +29,7 @@ wrote that down.
 | Multi-tenant | no `tenant_id` column | every row has `tenant_id` |
 | Reached by | the **Supabase** MCP connector | the **`2nd_Brain`** MCP connector |
 | App host | the personal Vercel deploy | `secondbrain-app.pages.dev`, `os.aventary.com` |
-| Written by | all the automation (Apollo loops, gmail-triage, Claude sessions) | the product app, and the `2nd_Brain` connector |
+| Written by | the automation, and Claude sessions on the Supabase connector | the product app, the `2nd_Brain` connector — **and the loops too** |
 
 **C — `uclyawqdeabjsrejfdlw` ("aventary")** is the website's database. No CRM tables.
 It holds the access control for this repo's `/c/<slug>` pages.
