@@ -154,3 +154,36 @@ Cloudflare — the last environment variable this system will ever need.
 
 Only `mendy@aventary.com` is on its allowlist so far. Add the school's addresses
 when you send it, and anyone who prefers a link over the password gets one.
+
+---
+
+## Generated pages
+
+Everything above describes **authored** documents: a `content/clients/<slug>.ts` file,
+written and reviewed like code, registered in `content/clients/index.ts`.
+
+There is now a second source. `client_page_documents` in the `aventary` project holds
+documents a machine produced — a BD dossier the Second Brain Associate generated for one
+prospect — where deploying the site once per prospect is not an option.
+
+`getContent()` checks the repo first and falls back to the table, so **an authored
+document can never be shadowed by a generated one claiming its slug.**
+
+Nothing else changes. Access control is keyed on the slug and knows nothing about where
+the content came from, so a generated dossier gets the allowlist, the single-use sign-in
+link, the 30-day session, the Ask panel and the access log exactly as `lcla` does.
+
+| | Authored | Generated |
+|---|---|---|
+| Lives in | `content/clients/<slug>.ts` | `client_page_documents` |
+| Changing it | commit + deploy | a row write |
+| Wins a slug collision | **yes** | no |
+| Gated by `client_pages` | yes | yes |
+
+**Publishing a generated page is two writes, and they are deliberately separate:** the
+document row, and the `client_pages` row that says who may read it. A dossier with no
+`client_pages` row shows "not open yet" rather than falling open. Write the allowlist
+last, on purpose — these documents name real people and carry their LinkedIn profiles.
+
+The table is RLS-enabled with no policies, like every other `client_page_*` table: the
+service role reaches it and nothing else does.

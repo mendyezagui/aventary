@@ -14,7 +14,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ slug: stri
   target.searchParams.set("sent", "1");
   const done = NextResponse.redirect(target, { status: 303 });
 
-  const content = getContent(slug);
+  const content = await getContent(slug);
   if (!content || !email.includes("@")) return done;
 
   let token: string | null = null;

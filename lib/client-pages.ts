@@ -41,8 +41,42 @@ export async function hashToken(token: string) {
     .join("");
 }
 
-export function getContent(slug: string): ClientPageContent | null {
-  return CLIENT_PAGES[slug] ?? null;
+/**
+ * The document behind /c/<slug>.
+ *
+ * Authored documents in content/clients win, always. They are written and
+ * reviewed like code, and a generated page must never be able to shadow one by
+ * claiming its slug.
+ *
+ * Generated documents — a BD dossier the Associate produced for one prospect —
+ * fall back to client_page_documents, because deploying the site once per
+ * prospect is not a thing. Access control does not change either way: it is
+ * keyed on the slug and knows nothing about where the content came from.
+ */
+export async function getContent(slug: string): Promise<ClientPageContent | null> {
+  const authored = CLIENT_PAGES[slug];
+  if (authored) return authored;
+
+  if (!configured()) return null;
+  try {
+    const { data } = await createSupabaseAdmin()
+      .from("client_page_documents")
+      .select("title,blurb,html,mode")
+      .eq("slug", slug)
+      .maybeSingle();
+    if (!data?.html) return null;
+    return {
+      title: (data.title as string) ?? "Private",
+      blurb: (data.blurb as string) ?? "",
+      html: data.html as string,
+      mode: data.mode === "inline" ? "inline" : "document"
+    };
+  } catch (err) {
+    // A lookup failure must read as "no such page", never as a 500 that hints
+    // the slug exists.
+    console.error("client-page content lookup failed", err);
+    return null;
+  }
 }
 
 type PageRow = {
