@@ -106,8 +106,12 @@ reversible.
 - Served by a Supabase Edge Function on B: `/functions/v1/client-page?slug=<slug>`.
 - **It has no access control at all — VERIFIED.** That endpoint returns the full
   document as JSON to an unauthenticated request with no `apikey` header. The only
-  protection is that the slug has to be guessed; a wrong slug 404s.
-- Live example: project 10011 in B, `client_slug: "bbdc"`, `public_enabled: true`.
+  protection is that the slug has to be guessed; a wrong slug 404s. There is no
+  password, no allowlist, and no record of who read it.
+- The one live page was project 10011 in B (`client_slug: "bbdc"`). It was
+  **closed on 2026-09-11** by setting `public_enabled: false`; the endpoint now
+  404s. The gated copy at `aventary.com/c/bbdc` is unaffected. The slug is still
+  on the row, so re-enabling it re-publishes it to the open internet.
 
 ### System 2 — `/c/<slug>` in this repo
 
@@ -140,13 +144,49 @@ matches. As of 2026-09-11 the Brown Bag Direct proposal exists **twice**: gated 
    rewrites, reversible, both sides backed up first.
 5. **Bulk-identical `modified_at` values are a migration fingerprint**, not a bug.
 
-## Still open
+## The decision, 2026-09-11
 
-- **Is A or B canonical — or are they meant to stay separate?** Only Mendy can
-  decide. If they stay separate, the fix is not a migration: it is pointing the
-  `2nd_Brain` connector at A (or making the choice explicit per session) and
-  correcting the `second-brain-mcp` README.
-- The `second-brain-mcp` Worker's deployed source is not this repo at HEAD. Find
-  what is deployed before changing it.
-- A row-level A/B audit (rows only in A, only in B, differing, colliding) has not
-  been produced. It is only worth producing if a merge is actually the plan.
+**A and B stay separate.** A is the personal CRM; B is the product's tenant store.
+There is no migration, no id remapping, and the collisions stop mattering — they
+are two systems that were never meant to be one. What has to be fixed is the
+tooling that crosses them.
+
+### Repointing the `2nd_Brain` connector at A
+
+Not done here — it is a Cloudflare Worker secret, which this session cannot reach.
+Run against `mendyezagui/second-brain-mcp`:
+
+```bash
+wrangler secret put SUPABASE_URL          # https://xwacfwagyhgbbhefecdt.supabase.co
+wrangler secret put SUPABASE_ANON_KEY     # A's anon key
+wrangler secret put SUPABASE_USER_EMAIL   # an auth user that exists in A
+wrangler secret put SUPABASE_USER_PASSWORD
+```
+
+Three things make this safe, all **VERIFIED**:
+
+- The server is schema-agnostic. `src/tools/records.ts` builds generic PostgREST
+  queries and never mentions `tenant_id`, `client_slug`, or any B-only column, so
+  A's narrower schema is fine. `create_record` stamps only `modified_by`/`modified_at`.
+- A's RLS admits any signed-in user: every table has one policy, `auth_all`,
+  `ALL USING (auth.role() = 'authenticated')`. No per-user policy to satisfy.
+- A already has auth users — the personal app deploy signs in against it.
+
+Confirm the swap the same way the split was found: write a record through one
+connector and read it back through the other.
+
+### Still open
+
+- **The `second-brain-mcp` README still names the wrong project** (it says
+  `xwacfwagyhgbbhefecdt`, which only becomes true after the repoint above).
+  Whichever way it ends up, the README should state which instance it serves and
+  that the answer lives in a Worker secret, not in the repo.
+- **The deployed Worker is not that repo at HEAD** — 11 allowed tables vs 15, no
+  `run_sql`. Find what is actually deployed before editing it.
+- **Prime Rock Realty exists in both databases** (A: 172/384/10011, B: 135/208/10012),
+  written within 16 minutes of each other on 2026-09-11. Under "keep separate" one
+  of the two is spurious. Nothing has been deleted; pick the one that survives.
+- **The four LCLA records live in A only** (companies 171, contacts 383,
+  projects 10010, deals 18). Under "keep separate" that is correct — they are
+  Mendy's own client records, not product tenant data. No action.
+- A row-level A/B audit was never produced, and under this decision it is not needed.
