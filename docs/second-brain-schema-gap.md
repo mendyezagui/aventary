@@ -22,6 +22,12 @@ has a home in B or has been explicitly written off.
 
 ## 1. Tables in A with no equivalent in B — 27 tables, 3,175 rows
 
+> **Decisions taken 2026-09-11 — see `second-brain-phase2-plan.md`.** Move: social/content,
+> Associates, Vantaca, SoFa JCC, lead capture. Retire: Spectari, multi-LLM, `static_pages`.
+> Leave in A: TalkBoard, bp501, the Voitra gate. `unclaimed_watchlist` gets its own project.
+> Note these 27 do **not** include `agentlogs`, `events`, `cadence_enrollments` or
+> `payment_allocations` — those exist in B already and are row-count gaps, listed in §4.
+
 | Table | Rows | What it is |
 |---|---:|---|
 | `unclaimed_watchlist` | **2,918** | the largest table in A |
