@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { cookieName, getContent, getPageRow, readSession } from "@/lib/client-pages";
+import { PORTAL_COOKIE, canReadSlug, readPortalSession, seesEverything } from "@/lib/portal";
 import { AskPanel } from "./AskPanel";
 import { DocFrame } from "./DocFrame";
 import "./client-page.css";
@@ -20,6 +22,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
+/**
+ * One client document.
+ *
+ * There are two ways to be let in here and they are checked independently.
+ *
+ *  - A PAGE session: the cp_<slug> cookie, from a link emailed for this one
+ *    document or from its shared password. Scoped to this page and nothing else.
+ *  - A PORTAL session: the customer login at /c. One identity, and what it may
+ *    open is decided per request from the role and the page's allowlist.
+ *
+ * Either is sufficient. Keeping the first means every link and password already
+ * out in the world went on working the day the login shipped, which is not a
+ * nicety — those are in clients' inboxes and we do not get to invalidate them on
+ * a deploy.
+ */
 export default async function ClientPage({
   params,
   searchParams
@@ -33,10 +50,18 @@ export default async function ClientPage({
   const content = await getContent(slug);
   if (!content) notFound();
 
-  const row = await getPageRow(slug);
-  const session = await readSession(slug, (await cookies()).get(cookieName(slug))?.value);
+  // Three independent lookups, so they go together rather than in a queue —
+  // this runs on a Worker and each one is a round trip to Supabase.
+  const jar = await cookies();
+  const [row, pageSession, viewer] = await Promise.all([
+    getPageRow(slug),
+    readSession(slug, jar.get(cookieName(slug))?.value),
+    readPortalSession(jar.get(PORTAL_COOKIE)?.value)
+  ]);
+  const viewerMayRead = viewer ? await canReadSlug(viewer, slug) : false;
 
-  if (session) {
+  if (pageSession || viewerMayRead) {
+    const backTo = viewer && seesEverything(viewer) ? "/see" : "/c";
     return (
       <>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -49,12 +74,40 @@ export default async function ClientPage({
           <div className="lcla" dangerouslySetInnerHTML={{ __html: content.html }} />
         )}
         <p className="cp-whoami">
-          {session.email
-            ? `Signed in as ${session.email}.`
-            : "Signed in with the shared password."}{" "}
+          {viewerMayRead && viewer ? (
+            <>
+              Signed in as {viewer.email}. <Link href={backTo}>All your documents</Link>.
+            </>
+          ) : pageSession?.email ? (
+            `Signed in as ${pageSession.email}.`
+          ) : (
+            "Signed in with the shared password."
+          )}{" "}
           This document is confidential to its named recipients.
         </p>
       </>
+    );
+  }
+
+  // Signed in to the portal, but this page is not theirs. Say so plainly rather
+  // than showing a sign-in form they have already used — and without the title,
+  // which is the one thing on the gate that is worth withholding from somebody
+  // who has guessed at a slug.
+  if (viewer) {
+    return (
+      <main className="cp-gate">
+        <div className="cp-gate-card">
+          <p className="cp-gate-eyebrow">Aventary</p>
+          <h1>Not shared with you</h1>
+          <p className="cp-gate-sub">
+            You are signed in as {viewer.email}, and this page is not open to that address.
+          </p>
+          <p className="cp-gate-note">
+            <Link href="/c">Back to your documents</Link> — or{" "}
+            <Link href="/contact">ask for access</Link> if you were expecting this one.
+          </p>
+        </div>
+      </main>
     );
   }
 
@@ -132,6 +185,8 @@ export default async function ClientPage({
         )}
 
         <p className="cp-gate-foot">
+          Already signed in with Aventary? <Link href="/c">Your documents</Link>.
+          <br />
           Expecting access and not getting it? <a href="/contact">Get in touch</a>.
         </p>
       </div>

@@ -1,0 +1,107 @@
+/* The customer login at /c and the project index at /see.
+
+   Same paper, ink and teal as the documents these pages lead to, and light-only
+   for the same reason: aventary.com has no dark theme, and a signed-in index
+   that flipped dark on one person's phone would not match the proposal it opens.
+
+   Prefixed .pl- (portal list) so nothing here can reach a client document's own
+   styles, which arrive with their own CSS and sometimes their own iframe. */
+
+.pl,
+.pl *{box-sizing:border-box;}
+.pl{
+  --ground:#FAF8F3; --surface:#FFFFFF; --surface-2:#F2EEE4;
+  --ink:#14212B; --ink-2:#4A5860; --ink-3:#7C8992;
+  --rule:#DFD7C6; --rule-strong:#C8BEA8;
+  --accent:#0E6B68; --accent-2:#0A514F; --accent-soft:#DCEAE7;
+  --brass:#9C6E22;
+  --shadow:0 1px 2px rgba(20,33,43,.05),0 10px 30px -20px rgba(20,33,43,.35);
+  min-height:100vh;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.pl :focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+
+.pl-wrap{max-width:52rem;margin:0 auto;padding:56px 24px 96px;}
+
+.pl-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;
+  gap:10px 24px;border-bottom:1px solid var(--rule-strong);padding-bottom:20px;margin-bottom:8px;}
+.pl-eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.72rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 12px;}
+.pl-head h1{font-family:Newsreader,Georgia,serif;font-size:clamp(1.9rem,4.4vw,2.5rem);line-height:1.1;
+  font-weight:600;letter-spacing:-.012em;margin:0;}
+.pl-who{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.72rem;color:var(--ink-3);
+  text-align:right;line-height:1.7;}
+.pl-who strong{color:var(--ink-2);font-weight:500;}
+.pl-signout{background:none;border:0;padding:0;font:inherit;color:var(--accent);
+  cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+.pl-lede{font-size:1.02rem;color:var(--ink-2);max-width:60ch;margin:20px 0 0;}
+
+/* One row per document. The whole card is the link — a title that happens to be
+   clickable is a smaller target than it looks on a phone. */
+.pl-list{list-style:none;margin:34px 0 0;padding:0;display:grid;gap:1px;
+  background:var(--rule);border:1px solid var(--rule);border-radius:3px;overflow:hidden;
+  box-shadow:var(--shadow);}
+.pl-item{background:var(--surface);}
+.pl-item a{display:grid;grid-template-columns:1fr auto;gap:4px 20px;align-items:baseline;
+  padding:20px 24px;text-decoration:none;color:inherit;}
+.pl-item a:hover{background:var(--surface-2);}
+.pl-client{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.7rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--brass);grid-column:1;margin:0 0 4px;}
+.pl-title{font-family:Newsreader,Georgia,serif;font-size:1.22rem;font-weight:600;line-height:1.28;
+  margin:0;grid-column:1;}
+.pl-summary{font-size:.93rem;color:var(--ink-2);margin:.4rem 0 0;grid-column:1;max-width:60ch;}
+.pl-open{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.72rem;color:var(--accent);
+  grid-column:2;grid-row:1 / span 3;white-space:nowrap;align-self:center;}
+.pl-item a:hover .pl-open{color:var(--accent-2);}
+
+.pl-empty{background:var(--surface);border:1px solid var(--rule);border-radius:3px;
+  padding:26px 24px;margin-top:34px;color:var(--ink-2);box-shadow:var(--shadow);}
+.pl-empty p{margin:0 0 .6rem;}
+.pl-empty p:last-child{margin:0;}
+
+.pl-foot{font-size:.84rem;color:var(--ink-3);margin:40px 0 0;padding-top:20px;
+  border-top:1px solid var(--rule);}
+.pl-foot a{color:var(--accent);}
+
+/* The sign-in card. Deliberately the same object as the per-page gate: someone
+   who has opened a document before should recognise this, not wonder whether
+   they are on the right site. */
+.pl-gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:64px 24px;}
+.pl-card{width:100%;max-width:26rem;background:var(--surface);border:1px solid var(--rule);
+  border-radius:4px;padding:36px 34px;box-shadow:var(--shadow);}
+.pl-card h1{font-family:Newsreader,Georgia,serif;font-size:1.7rem;line-height:1.15;font-weight:600;
+  margin:0 0 10px;letter-spacing:-.012em;}
+.pl-card-sub{font-size:.94rem;line-height:1.6;color:var(--ink-2);margin:0 0 22px;}
+.pl-card form{display:flex;flex-direction:column;gap:8px;}
+.pl-card label{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.68rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3);}
+.pl-card input[type=email]{font-size:1rem;padding:11px 13px;border:1px solid var(--rule-strong);
+  border-radius:3px;background:var(--surface);color:var(--ink);width:100%;font-family:inherit;}
+.pl-card input[type=email]:focus-visible{outline:2px solid var(--accent);outline-offset:2px;
+  border-color:var(--accent);}
+.pl-card button[type=submit]{margin-top:8px;font-family:inherit;font-size:.94rem;font-weight:600;
+  padding:11px 18px;border:1px solid var(--accent);border-radius:3px;background:var(--accent);
+  color:var(--ground);cursor:pointer;}
+.pl-card button[type=submit]:hover{background:var(--accent-2);border-color:var(--accent-2);}
+.pl-note{font-size:.82rem;color:var(--ink-3);margin:10px 0 0;line-height:1.5;}
+.pl-ok{font-size:.9rem;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);
+  border-radius:3px;padding:11px 13px;margin:4px 0 0;line-height:1.55;}
+.pl-error{font-size:.88rem;color:#9E3A2C;background:#F6E3DE;border:1px solid #9E3A2C;
+  border-radius:3px;padding:9px 12px;margin:4px 0 0;}
+.pl-card-foot{font-size:.84rem;color:var(--ink-3);margin:22px 0 0;}
+.pl-card-foot a{color:var(--accent);}
+
+@media (max-width:620px){
+  .pl-wrap{padding:40px 18px 72px;}
+  .pl-head{flex-direction:column;align-items:flex-start;}
+  .pl-who{text-align:left;}
+  .pl-item a{grid-template-columns:1fr;padding:18px 18px;}
+  .pl-open{grid-column:1;grid-row:auto;margin-top:.5rem;}
+  .pl-card{padding:28px 22px;}
+}
+@media (prefers-reduced-motion:reduce){.pl *{animation:none!important;transition:none!important;}}

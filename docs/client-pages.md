@@ -6,6 +6,13 @@ A page can be opened two ways: an **emailed sign-in link**, and optionally a
 **shared password**. Adding a page, changing a password, or adding a reader
 never touches Cloudflare.
 
+> **There is now a login above this.** `/c` is a customer sign-in: one address,
+> and the documents shared with it. A page allowlist is still exactly what
+> grants access, so everything below is unchanged and every link and password
+> already sent out still works. What changed is that a customer can be sent
+> `aventary.com/c` instead of a URL per document, and that staff see every
+> project at `/see`. See **`docs/customer-login.md`**.
+
 ---
 
 ## How access works

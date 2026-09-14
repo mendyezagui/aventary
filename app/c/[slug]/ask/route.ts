@@ -7,6 +7,7 @@ import {
   logQuestion,
   readSession
 } from "@/lib/client-pages";
+import { PORTAL_COOKIE, canReadSlug, readPortalSession } from "@/lib/portal";
 
 // "Ask a question" on a client page. Answers strictly from that page's own
 // document and nothing else.
@@ -14,11 +15,13 @@ import {
 // Gated by the same session as the page: without it this would be an endpoint
 // that reads a confidential proposal aloud to anyone who found the URL.
 //
-// It lives under /c/<slug>/ rather than /api/ deliberately. The session cookie
+// It lives under /c/<slug>/ rather than /api/ deliberately. The cp_<slug> cookie
 // is set with path=/c/<slug> so a confidential-document cookie is not attached
 // to every request to the site. A browser sends it only to paths under that
-// prefix, so an endpoint that needs to READ the session has to live there too.
-// Moving this to /api/ would 401 every request while looking perfectly correct.
+// prefix, so an endpoint that needs to READ that session has to live there too.
+// Moving this to /api/ would 401 every page-session request while looking
+// perfectly correct. (The portal cookie is site-wide and would survive the move;
+// the per-page one is the constraint, and it is the stricter of the two.)
 
 const MODEL = "claude-opus-5";
 const MAX_MESSAGES = 10;
@@ -68,9 +71,21 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
   const content = await getContent(slug);
   if (!content) return new Response("no such page", { status: 404 });
 
-  // Same gate as the page itself.
-  const session = await readSession(slug, (await cookies()).get(cookieName(slug))?.value);
-  if (!session) return new Response("not signed in", { status: 401 });
+  // Same gate as the page itself, and for the same reason: without it this is an
+  // endpoint that reads a confidential proposal aloud to anyone who found the URL.
+  // Both ways in are accepted here exactly as they are one level up.
+  const jar = await cookies();
+  const [pageSession, viewer] = await Promise.all([
+    readSession(slug, jar.get(cookieName(slug))?.value),
+    readPortalSession(jar.get(PORTAL_COOKIE)?.value)
+  ]);
+  const viewerMayRead = viewer ? await canReadSlug(viewer, slug) : false;
+  if (!pageSession && !viewerMayRead) return new Response("not signed in", { status: 401 });
+
+  // Who asked. A portal session always knows; a page session knows only when it
+  // came from a link, and a shared-password session never does. Null is recorded
+  // rather than guessed — an unattributed question is honest, a wrong name is not.
+  const asker = (viewerMayRead && viewer?.email) || pageSession?.email || null;
 
   let body: unknown;
   try {
@@ -89,7 +104,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
     );
   }
 
-  await logQuestion(slug, session.email, messages[messages.length - 1].content);
+  await logQuestion(slug, asker, messages[messages.length - 1].content);
 
   const client = new Anthropic({ apiKey: key });
   const encoder = new TextEncoder();

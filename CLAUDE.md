@@ -11,6 +11,10 @@ app has the other. **Read `docs/second-brain-data-map.md` before adding either.*
 
 - This repo: `aventary.com/c/<slug>` — gated, content in `content/clients/`,
   access control in the `aventary` Supabase project. See `docs/client-pages.md`.
+  All of `/c` sits behind a customer login: one sign-in, and a person sees the
+  pages whose allowlist names them. Staff see every active project at `/see`.
+  **`/see` reads this repo's own database, never the CRM** — that schema has
+  moved under us twice in a week. See `docs/customer-login.md`.
 - Elsewhere: `projects.client_slug` / `public_enabled` in the Second Brain
   **product** database, served publicly by an edge function. No access control.
 
