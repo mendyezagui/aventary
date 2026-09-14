@@ -113,10 +113,17 @@ reversible.
   document as JSON to an unauthenticated request with no `apikey` header. The only
   protection is that the slug has to be guessed; a wrong slug 404s. There is no
   password, no allowlist, and no record of who read it.
-- The one live page was project 10011 in B (`client_slug: "bbdc"`). It was
-  **closed on 2026-09-11** by setting `public_enabled: false`; the endpoint now
-  404s. The gated copy at `aventary.com/c/bbdc` is unaffected. The slug is still
-  on the row, so re-enabling it re-publishes it to the open internet.
+- Two projects had it on: 10011 (`client_slug: "bbdc"`) and 10012
+  (`client_slug: "micah"`, Prime Rock Realty).
+- An earlier version of this file said bbdc was **closed on 2026-09-11** by
+  setting `public_enabled: false`. **That was not true of the database.** On
+  2026-09-14 the flag was still `true` and the endpoint was still returning the
+  full document; `micah` was open the same way. Both were set to `false` on
+  2026-09-14 and both slugs now 404 — verified against the live endpoint, not
+  against the row. The slugs are still on the rows, so re-enabling either
+  re-publishes it to the open internet.
+- **Verify this one by calling the endpoint.** The flag is what the row says; the
+  endpoint is what the world gets.
 
 ### System 2 — `/c/<slug>` in this repo
 
@@ -126,11 +133,13 @@ reversible.
 - Gated: single-use emailed sign-in link (20-min expiry) or a shared password
   (PBKDF2-SHA256), 30-day scoped sessions, per-page allowlist.
 
-### They share nothing, and `bbdc` is now in both
+### They share nothing, and two documents live in both
 
 `grep -rn "client_slug\|public_enabled\|public_meta"` in this repo returns zero
-matches. As of 2026-09-11 the Brown Bag Direct proposal exists **twice**: gated at
-`aventary.com/c/bbdc`, and publicly readable from the System 1 edge function.
+matches. Brown Bag Direct and Prime Rock each exist **twice** — as Client Hub
+blocks in B, and as a gated document at `aventary.com/c/<slug>` here. Editing one
+does not touch the other. Client Hub is the internal working copy; the gated page
+is what a client is sent.
 
 ---
 

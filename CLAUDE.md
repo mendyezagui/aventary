@@ -14,8 +14,13 @@ app has the other. **Read `docs/second-brain-data-map.md` before adding either.*
 - Elsewhere: `projects.client_slug` / `public_enabled` in the Second Brain
   **product** database, served publicly by an edge function. No access control.
 
-A confidential document must not go in the second one as it stands. The one page
-that was published that way (`bbdc`) was closed on 2026-09-11.
+A confidential document must not go in the second one as it stands. Two pages were
+published that way (`bbdc`, `micah`); both were closed on 2026-09-14 by setting
+`public_enabled = false`. An earlier note here said `bbdc` had been closed on
+2026-09-11 — it had not, and the endpoint was still serving. **Check that claim
+against the endpoint, not the row:**
+`curl "https://fukehjqikxqsntwhmgsk.supabase.co/functions/v1/client-page?slug=<slug>"`
+must 404.
 
 ## Before you touch Second Brain data
 
