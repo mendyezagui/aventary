@@ -1,6 +1,5 @@
 import { html as lcla } from "./lcla";
 import { html as bbdc } from "./bbdc";
-import { html as micah } from "./micah";
 
 // The registry of client pages. Adding one is: drop a `<slug>.ts` file next to
 // this one that exports its HTML, add a line here, and insert a row in
@@ -36,13 +35,6 @@ export const CLIENT_PAGES: Record<string, ClientPageContent> = {
     title: "Aventary × Brown Bag Direct — Discovery Engagement",
     blurb: "A discovery-engagement proposal prepared for Brown Bag Direct Marketing.",
     html: bbdc,
-    mode: "document"
-  },
-  micah: {
-    title: "Prime Rock Realty — Where your deals are leaking",
-    blurb:
-      "Findings from a review of the Prime Rock Realty back end, prepared for Micah Hiller.",
-    html: micah,
     mode: "document"
   }
 };
