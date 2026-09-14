@@ -65,7 +65,7 @@ How to answer:
 export async function POST(req: Request, ctx: { params: Promise<{ slug: string }> }) {
   const { slug } = await ctx.params;
 
-  const content = getContent(slug);
+  const content = await getContent(slug);
   if (!content) return new Response("no such page", { status: 404 });
 
   // Same gate as the page itself.

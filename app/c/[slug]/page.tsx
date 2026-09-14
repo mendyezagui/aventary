@@ -12,7 +12,7 @@ const FONTS =
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const content = getContent(slug);
+  const content = await getContent(slug);
   return {
     title: content?.title ?? "Private",
     // Client documents have no business in search. robots.ts disallows /c too.
@@ -30,7 +30,7 @@ export default async function ClientPage({
   const { slug } = await params;
   const { sent, e } = await searchParams;
 
-  const content = getContent(slug);
+  const content = await getContent(slug);
   if (!content) notFound();
 
   const row = await getPageRow(slug);
