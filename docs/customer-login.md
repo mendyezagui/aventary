@@ -117,18 +117,36 @@ select * from client_page_access; -- the per-page sessions, as before
 
 ## Things worth knowing
 
-**A project appears on `/see` when it has an active `client_pages` row.** That
-is the same row that decides who may read it, on purpose: one table answers both
-"does this exist" and "who may open it", so the staff index and a customer's own
-shelf can never drift into disagreeing about either.
+**Who may read a page is a union, and there is one function that knows it.**
+`readersFor()` in `lib/client-pages.ts` combines `client_pages.allowed_emails`
+with the reader list on the published Second Brain project behind that slug. A
+project page is provisioned here with `allowed_emails` **empty** on purpose —
+its readers are named in Client Hub — so anything that reads `allowed_emails`
+directly looks correct and silently excludes every project-page reader. The
+customer login had exactly that bug for about an hour: sign-in links worked
+while `/c` showed those customers an empty shelf. Ask `readersFor()`, or
+`mayRead()` in `lib/portal.ts`, and never the column.
 
-**`/see` does not read the CRM.** The temptation is to list `projects` live from
-the Second Brain product database, and the reason not to is on the record in
-`docs/second-brain-data-map.md`: that schema changed under this repo twice in one
-week — `public_enabled` became `page_published`, `page_readers` appeared — and a
-live read would have gone down with it. Adding a project to the portal is a row
-here. If that ever becomes tedious enough to automate, automate it as a script
-that writes these rows, not as a query the page depends on.
+**A project appears on `/see` once it has an active `client_pages` row**, which
+is the same row that decides who may read it — one table answers both "does this
+exist" and "who may open it", so the staff index and a customer's own shelf
+cannot drift into disagreeing.
+
+**Known gap: that row is created lazily.** `getPageRow()` provisions it the first
+time anyone asks for the slug, so a project published in Client Hub and not yet
+opened by anybody is **not** on `/see` yet. Open it once and it appears. The
+honest fix is a list mode on the `project-page-feed` endpoint — it takes a slug
+today, so this side has no way to ask "what is published?" — and that endpoint
+lives on the Second Brain side, not here.
+
+**`/see` does not query the CRM for the project list.** Content comes across
+through one narrow, slug-keyed endpoint holding a secret that can fetch published
+page content and nothing else; the index itself is built from this repo's own
+table. That split is the point, and `docs/second-brain-data-map.md` says why:
+that schema moved under this repo twice in one week — `public_enabled` became
+`page_published`, `page_readers` appeared. Content that degrades to "page not
+found" when the feed is unreachable is survivable. A staff index that goes blank,
+or an access check that starts saying yes, is not.
 
 **The portal cookie is site-wide, and the per-page one is not.** `cp_<slug>` is
 scoped to `path=/c/<slug>` so a confidential-document cookie is not attached to

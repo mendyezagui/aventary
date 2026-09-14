@@ -1,5 +1,11 @@
 import { createSupabaseAdmin } from "@/lib/supabase/server";
-import { hashToken, normalizeEmail, randomToken } from "@/lib/client-pages";
+import {
+  getPageRow,
+  hashToken,
+  normalizeEmail,
+  randomToken,
+  readersFor
+} from "@/lib/client-pages";
 
 // The customer login behind /c, and the project index at /see.
 //
@@ -123,12 +129,37 @@ export async function isKnownAddress(email: string): Promise<boolean> {
         .maybeSingle();
       if (person) return person.active !== false;
 
-      const { count } = await db
-        .from("client_pages")
-        .select("slug", { count: "exact", head: true })
-        .eq("active", true)
-        .contains("allowed_emails", [email]);
-      return (count ?? 0) > 0;
+      // Not a .contains() on allowed_emails: a project page leaves that column
+      // empty on purpose and keeps its readers in Client Hub, so the cheap
+      // query would refuse a link to exactly the people we publish for now.
+      const { data } = await db.from("client_pages").select("slug").eq("active", true);
+      const slugs = (data ?? []).map((r) => r.slug as string);
+      const hits = await Promise.all(slugs.map((slug) => mayRead(slug, email)));
+      return hits.some(Boolean);
+    },
+    false
+  );
+}
+
+/**
+ * Whether one address may read one page — the single place this is decided.
+ *
+ * It defers to readersFor(), which unions the website's own allowlist with the
+ * reader list on the published Second Brain project. Asking client_pages
+ * directly would look right and quietly exclude every project-page reader,
+ * because a row provisioned for a project page is written with allowed_emails
+ * empty and its readers live in Client Hub.
+ *
+ * getPageRow() also provisions that row on first sight, so a page published in
+ * Client Hub and never yet visited still answers correctly here.
+ */
+async function mayRead(slug: string, email: string): Promise<boolean> {
+  return safely(
+    "mayRead",
+    async () => {
+      const page = await getPageRow(slug);
+      if (!page || page.active !== true) return false;
+      return (await readersFor(slug, page)).includes(email);
     },
     false
   );
@@ -294,7 +325,8 @@ export async function closePortalSession(cookie: string | undefined) {
  * Every active page this viewer may open.
  *
  * For staff that is the whole list, which is what /see is. For a client it is
- * the pages naming their address.
+ * the pages that name their address — on the website's row or on the published
+ * project behind it, which is one question answered by mayRead() per page.
  */
 export async function listVisiblePages(viewer: Viewer): Promise<PageSummary[]> {
   if (!configured()) return [];
@@ -302,34 +334,34 @@ export async function listVisiblePages(viewer: Viewer): Promise<PageSummary[]> {
   return safely(
     "listVisiblePages",
     async () => {
-      let q = createSupabaseAdmin()
+      const { data } = await createSupabaseAdmin()
         .from("client_pages")
         .select("slug,title,client_name,summary,created_at,sort")
-        .eq("active", true);
-
-      if (!seesEverything(viewer)) {
-        // Exact match, in the database, rather than fetching every row and
-        // filtering here — a list built by reading everything and hiding most
-        // of it is one careless render away from being a leak.
-        //
-        // It relies on allowed_emails being stored lowercased, which is what
-        // client_pages says it holds and what every path that writes one does.
-        // A stray capital would drop the page off this list while canReadSlug
-        // below still opened it — annoying, and the safe direction of the two.
-        q = q.contains("allowed_emails", [viewer.email]);
-      }
-
-      const { data } = await q
+        .eq("active", true)
         .order("sort", { ascending: false })
         .order("created_at", { ascending: false });
 
-      return (data ?? []).map((r) => ({
+      const rows = (data ?? []).map((r) => ({
         slug: r.slug as string,
         title: (r.title as string) ?? (r.slug as string),
         clientName: (r.client_name as string | null) ?? null,
         summary: (r.summary as string | null) ?? null,
         createdAt: (r.created_at as string) ?? ""
       }));
+
+      if (seesEverything(viewer)) return rows;
+
+      // This used to filter in the query, which was better: a list built by
+      // reading everything and hiding most of it is one careless render away
+      // from being a leak. It cannot any more. Half of a project page's readers
+      // live in Client Hub rather than in this table, so membership is only
+      // answerable per page — and a .contains() on allowed_emails would show a
+      // customer an empty shelf while their sign-in link worked fine.
+      //
+      // Only the slug is used to decide; nothing about a page a viewer fails
+      // this test for is returned. Keep it that way.
+      const allowed = await Promise.all(rows.map((r) => mayRead(r.slug, viewer.email)));
+      return rows.filter((_, i) => allowed[i]);
     },
     []
   );
@@ -348,16 +380,11 @@ export async function canReadSlug(viewer: Viewer, slug: string): Promise<boolean
   return safely(
     "canReadSlug",
     async () => {
-      const { data } = await createSupabaseAdmin()
-        .from("client_pages")
-        .select("slug,active,allowed_emails")
-        .eq("slug", slug)
-        .maybeSingle();
-
-      if (!data || data.active !== true) return false;
-      if (seesEverything(viewer)) return true;
-      const allowed = ((data.allowed_emails as string[] | null) ?? []).map(normalizeEmail);
-      return allowed.includes(viewer.email);
+      if (seesEverything(viewer)) {
+        const page = await getPageRow(slug);
+        return Boolean(page && page.active === true);
+      }
+      return mayRead(slug, viewer.email);
     },
     false
   );

@@ -5,26 +5,33 @@ Its database is the Supabase project `uclyawqdeabjsrejfdlw` ("aventary").
 
 ## Before you build a client-facing page
 
-There are two unrelated systems that publish a document for one client, and they
-share no code and no database. This repo has one of them; the Second Brain product
-app has the other. **Read `docs/second-brain-data-map.md` before adding either.**
+**There is one system now: `aventary.com/c/<slug>`, and it is always gated.** It
+serves a document from one of three sources, in this order — an authored file in
+`content/clients/`, a published Second Brain project's public blocks, or a row in
+`client_page_documents`. Access control is the same whichever it came from, and
+lives in this repo. See `docs/client-pages.md`.
 
-- This repo: `aventary.com/c/<slug>` — gated, content in `content/clients/`,
-  access control in the `aventary` Supabase project. See `docs/client-pages.md`.
-  All of `/c` sits behind a customer login: one sign-in, and a person sees the
-  pages whose allowlist names them. Staff see every active project at `/see`.
-  **`/see` reads this repo's own database, never the CRM** — that schema has
-  moved under us twice in a week. See `docs/customer-login.md`.
-- Elsewhere: `projects.client_slug` / `public_enabled` in the Second Brain
-  **product** database, served publicly by an edge function. No access control.
+Normal work is a **project page**: build it in Client Hub, tick Publish, name the
+readers. No deploy. Reach for `content/clients/` only for a one-off worth
+hand-designing.
 
-A confidential document must not go in the second one as it stands. Two pages were
-published that way (`bbdc`, `micah`); both were closed on 2026-09-14 by setting
-`public_enabled = false`. An earlier note here said `bbdc` had been closed on
-2026-09-11 — it had not, and the endpoint was still serving. **Check that claim
-against the endpoint, not the row:**
-`curl "https://fukehjqikxqsntwhmgsk.supabase.co/functions/v1/client-page?slug=<slug>"`
-must 404.
+**"Gated" now means a customer login.** `/c` is one sign-in: a person enters
+their address and finds the documents shared with it, rather than needing a URL
+per document. Owner and staff see every active project at `/see`. A page's
+readers are the union of `client_pages.allowed_emails` and the project's own
+reader list in Client Hub, so a project page can be opened to somebody without
+touching this repo — use `readersFor()` in `lib/client-pages.ts` rather than
+reading `allowed_emails` directly, or you will miss half the readers. See
+`docs/customer-login.md`.
+
+History worth keeping, because it was wrong twice: a second, **unauthenticated**
+publishing path used to exist — the `client-page` edge function on Second Brain,
+reading `projects.public_enabled`. Two documents (`bbdc`, `micah`) were served
+that way to anyone who guessed the slug. An earlier note here claimed `bbdc` had
+been closed on 2026-09-11; it had not, and the endpoint was still answering three
+days later. On 2026-09-14 both flags were cleared, the function was replaced with
+a 410, and the column was renamed `page_published` so nobody reads the old promise
+into it. **Verify a claim like that against the endpoint, never the row.**
 
 ## Before you touch Second Brain data
 

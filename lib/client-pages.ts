@@ -1,5 +1,6 @@
 import { createSupabaseAdmin } from "@/lib/supabase/server";
 import { CLIENT_PAGES, type ClientPageContent } from "@/content/clients";
+import { getProjectAccess, getProjectPage } from "@/lib/project-pages";
 
 // Access control for /c/<slug> pages.
 //
@@ -44,18 +45,28 @@ export async function hashToken(token: string) {
 /**
  * The document behind /c/<slug>.
  *
- * Authored documents in content/clients win, always. They are written and
- * reviewed like code, and a generated page must never be able to shadow one by
- * claiming its slug.
+ * Three sources, in this order:
  *
- * Generated documents — a BD dossier the Associate produced for one prospect —
- * fall back to client_page_documents, because deploying the site once per
- * prospect is not a thing. Access control does not change either way: it is
- * keyed on the slug and knows nothing about where the content came from.
+ * 1. Authored documents in content/clients win, always. They are written and
+ *    reviewed like code, and nothing generated may shadow one by claiming its
+ *    slug.
+ * 2. A published Second Brain project, rendered from its public blocks. This is
+ *    the one that scales: a project page is built in Client Hub and published
+ *    with a checkbox, and no deploy happens at any point.
+ * 3. client_page_documents — a one-off document generated into the database,
+ *    which is how a page existed before projects could be published.
+ *
+ * Access control does not change with the source. It is keyed on the slug and
+ * knows nothing about where the content came from.
  */
 export async function getContent(slug: string): Promise<ClientPageContent | null> {
   const authored = CLIENT_PAGES[slug];
   if (authored) return authored;
+
+  const project = await getProjectPage(slug);
+  if (project) {
+    return { title: project.title, blurb: project.blurb, html: project.html, mode: "document" };
+  }
 
   if (!configured()) return null;
   try {
@@ -79,7 +90,7 @@ export async function getContent(slug: string): Promise<ClientPageContent | null
   }
 }
 
-type PageRow = {
+export type PageRow = {
   slug: string;
   title: string;
   allowed_emails: string[];
@@ -165,15 +176,60 @@ function configured() {
   return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
 }
 
+const PAGE_COLS = "slug,title,allowed_emails,active,password_hash";
+
 export async function getPageRow(slug: string): Promise<PageRow | null> {
   if (!configured()) return null;
   const db = createSupabaseAdmin();
-  const { data } = await db
+  const { data } = await db.from("client_pages").select(PAGE_COLS).eq("slug", slug).maybeSingle();
+  if (data) return data as PageRow;
+  return provisionFromProject(slug);
+}
+
+/**
+ * Gives a published project page its access-control row the first time someone
+ * asks for it, so publishing from Client Hub does not also require somebody to
+ * run an insert over here.
+ *
+ * It only ever fires for a slug a published project already owns AND that
+ * already names its readers, so this cannot open anything that was not
+ * deliberately opened — a page with no readers stays "not open yet", which is
+ * the direction a mistake should fail in. allowed_emails is left empty on
+ * purpose: for a project page the reader list lives in Client Hub, and is
+ * unioned in at sign-in.
+ */
+async function provisionFromProject(slug: string): Promise<PageRow | null> {
+  const access = await getProjectAccess(slug);
+  if (!access || access.readers.length === 0) return null;
+
+  const db = createSupabaseAdmin();
+  const { error } = await db
     .from("client_pages")
-    .select("slug,title,allowed_emails,active,password_hash")
-    .eq("slug", slug)
-    .maybeSingle();
+    .insert({ slug, title: access.title, allowed_emails: [], active: true });
+  // 23505 means another request created it a moment ago — read it back either way.
+  if (error && error.code !== "23505") {
+    console.error("could not open access for published project page", slug, error);
+    return null;
+  }
+  const { data } = await db.from("client_pages").select(PAGE_COLS).eq("slug", slug).maybeSingle();
   return (data as PageRow | null) ?? null;
+}
+
+/**
+ * Everyone allowed to open this page: the addresses on the website's own row,
+ * plus the reader list on the Second Brain project if one is published here.
+ * A union, so a hand-built page keeps working exactly as before and a project
+ * page can be opened to someone from Client Hub without a deploy.
+ *
+ * Exported because there is now a second thing that has to answer "may this
+ * person read this?" — the customer login in lib/portal.ts. Both must ask here.
+ * Reading page.allowed_emails directly looks correct and silently misses every
+ * project-page reader, since a provisioned row deliberately leaves it empty.
+ */
+export async function readersFor(slug: string, page: PageRow): Promise<string[]> {
+  const site = (page.allowed_emails ?? []).map(normalizeEmail);
+  const project = (await getProjectAccess(slug))?.readers.map(normalizeEmail) ?? [];
+  return Array.from(new Set([...site, ...project]));
 }
 
 /**
@@ -186,7 +242,7 @@ export async function issueMagicLink(slug: string, email: string): Promise<strin
   if (!configured()) return null;
   const page = await getPageRow(slug);
   if (!page || !page.active) return null;
-  if (!page.allowed_emails.map(normalizeEmail).includes(email)) return null;
+  if (!(await readersFor(slug, page)).includes(email)) return null;
 
   const db = createSupabaseAdmin();
   const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();

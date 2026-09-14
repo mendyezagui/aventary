@@ -15,6 +15,61 @@ never touches Cloudflare.
 
 ---
 
+## Two ways to make one
+
+**A project page** is the normal way, and takes no deploy and no SQL. You build
+it in Client Hub, in Second Brain, and publish it with a checkbox. Start here.
+
+**An authored page** is a hand-built HTML document in `content/clients/`, for a
+one-off worth designing by hand — `bbdc` and `lcla` are the two. It takes a
+deploy. Everything from "Adding a page" down describes this kind.
+
+An authored file always wins a slug collision, so a generated page can never
+shadow a reviewed one.
+
+---
+
+## Project pages
+
+In Second Brain, open the project → **Client Hub**:
+
+1. Write the sections. Each block has a **tab** (which becomes a numbered
+   section of the document), a title, a markdown body, and a sort order.
+2. Mark each block **Public** or **Private**. Private blocks are your working
+   notes and never leave the building; the public ones are the document.
+3. Set the **URL slug**, tick **Publish**, list **who may read it**, and Save.
+
+That is the whole thing. The website builds the document from the blocks on
+each request, so an edit in Client Hub is live on reload.
+
+The status line under the URL says what is missing rather than letting you
+believe a page is up when it is not. A project with no public blocks is not
+served at all — an empty document reads as a mistake to whoever opened it.
+
+**Readers.** The list in Client Hub is the allowlist, unioned with
+`client_pages.allowed_emails` here. The access-control row is created the first
+time someone asks for a published page that names at least one reader, so
+publishing does not also require an insert on this side. A published page with
+no readers stays closed.
+
+**How the content gets here.** One endpoint on Second Brain,
+`project-page-feed`, which returns a published project's public blocks and its
+reader list for one slug, and refuses anything else. It takes a shared secret in
+`x-page-secret` and **fails closed** — an unset secret is a 503, never an open
+door. Deliberately not a service-role key: this is a public marketing site, and a
+key here that could read every tenant's CRM would be wildly out of proportion to
+rendering a document.
+
+Set `SECOND_BRAIN_URL` and `PAGE_FEED_SECRET` here, and `PAGE_FEED_SECRET` as a
+secret on the Second Brain project. Unset, project pages are simply not found and
+the other two sources still serve, so an unconfigured deploy degrades instead of
+breaking.
+
+**Markdown is markdown.** Block bodies render through `marked` with raw HTML
+escaped, so a `<script>` pasted into a body shows as text.
+
+---
+
 ## How access works
 
 **Sign-in link.** A visitor types their email; if it is on that page's allowlist
