@@ -19,6 +19,10 @@ import {
 // working untouched and knows nothing about this file. A portal session is the
 // second way in, not a replacement, and /c/<slug> accepts either.
 //
+// Mail lives in lib/mail.ts, not here: the contact form and the diagnostic
+// leads send too, and the error check that makes a send visible must be one
+// function rather than a habit repeated in five routes.
+//
 // Where they differ is identity. A shared-password session has none — the
 // database records it as "(shared password)" because that is the truth — so it
 // can only ever open the one document it was used on. It never reaches an index
@@ -412,119 +416,6 @@ export async function listStaff(): Promise<Viewer[]> {
       }));
     },
     []
-  );
-}
-
-export type MailHealth = {
-  ok: boolean;
-  missing: string[];
-};
-
-/**
- * Whether this deploy can actually send a sign-in link.
- *
- * It exists because the failure it describes is invisible. Every mail path in
- * this app — the contact form, the diagnostic lead, the per-page link and the
- * portal link — sends inside a try/catch that logs and swallows, and the portal
- * then tells the visitor a link is on its way. That silence is deliberate for a
- * DELIVERY failure: saying "we could not mail you" confirms the address is one
- * we know, which is the one thing the form must never confirm.
- *
- * A CONFIGURATION failure is a different animal and was wrongly getting the same
- * treatment. Missing secrets are a property of the deploy, identical for every
- * address on earth, so reporting them reveals nothing about anybody — and not
- * reporting them means an owner watching a customer fail to sign in has no way
- * to tell "wrong address" from "this site has never been able to send mail".
- *
- * Returns which names are absent, never their values.
- */
-export function mailHealth(): MailHealth {
-  const missing = ["RESEND_API_KEY", "CONTACT_FROM_EMAIL"].filter((k) => !process.env[k]);
-  return { ok: missing.length === 0, missing };
-}
-
-export type MailTrouble = {
-  failures: number;
-  lastError: { email: string; error: string; at: string; context: string } | null;
-  lastSuccessAt: string | null;
-};
-
-const TROUBLE_WINDOW_DAYS = 7;
-
-/**
- * Records what happened to one sign-in email.
- *
- * Best effort in both directions: a logging failure must never break a sign-in,
- * and a send failure must never reach the visitor. This row is the only place
- * the truth is kept, because the form above it is required to lie politely.
- */
-export async function logMailResult(
-  context: "portal" | "client-page",
-  email: string,
-  error: string | null
-) {
-  if (!configured()) return;
-  try {
-    await createSupabaseAdmin().from("portal_mail_events").insert({
-      context,
-      email,
-      ok: !error,
-      error: error ? error.slice(0, 500) : null
-    });
-  } catch (err) {
-    console.error("portal mail log failed", err);
-  }
-}
-
-/**
- * Recent sign-in email failures, for the staff index.
- *
- * The last SUCCESS is returned alongside the failures on purpose: "the last
- * link went out fine twenty minutes ago" is what separates a broken mailer from
- * one customer who mistyped their address, and without it a single bounce reads
- * like an outage.
- */
-export async function recentMailTrouble(): Promise<MailTrouble> {
-  const none: MailTrouble = { failures: 0, lastError: null, lastSuccessAt: null };
-  if (!configured()) return none;
-
-  return safely(
-    "recentMailTrouble",
-    async () => {
-      const db = createSupabaseAdmin();
-      const since = new Date(Date.now() - TROUBLE_WINDOW_DAYS * 86400 * 1000).toISOString();
-
-      const [{ data: bad, count }, { data: good }] = await Promise.all([
-        db
-          .from("portal_mail_events")
-          .select("email,error,created_at,context", { count: "exact" })
-          .eq("ok", false)
-          .gte("created_at", since)
-          .order("created_at", { ascending: false })
-          .limit(1),
-        db
-          .from("portal_mail_events")
-          .select("created_at")
-          .eq("ok", true)
-          .order("created_at", { ascending: false })
-          .limit(1)
-      ]);
-
-      const top = bad?.[0];
-      return {
-        failures: count ?? 0,
-        lastError: top
-          ? {
-              email: top.email as string,
-              error: (top.error as string | null) ?? "no detail recorded",
-              at: top.created_at as string,
-              context: (top.context as string) ?? "portal"
-            }
-          : null,
-        lastSuccessAt: (good?.[0]?.created_at as string | undefined) ?? null
-      };
-    },
-    none
   );
 }
 

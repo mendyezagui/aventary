@@ -5,11 +5,10 @@ import {
   displayName,
   listStaff,
   listVisiblePages,
-  mailHealth,
   readPortalSession,
-  recentMailTrouble,
   seesEverything
 } from "@/lib/portal";
+import { mailHealth, recentMailTrouble } from "@/lib/mail";
 import { PageList, PortalFonts, SignInCard, WhoAmI } from "../portal/ui";
 import "../portal/portal.css";
 
@@ -106,10 +105,11 @@ export default async function ProjectIndex({
           {mail.ok && trouble.failures > 0 && (
             <p className="pl-warn" role="alert">
               <strong>
-                {trouble.failures} sign-in {trouble.failures === 1 ? "email" : "emails"} failed
+                {trouble.failures} {trouble.failures === 1 ? "email" : "emails"} failed to send
               </strong>{" "}
-              in the last 7 days. The people affected were told a link was on its way and
-              never got one — they cannot tell, so this is the only place it shows.
+              in the last 7 days. Nobody gets told when this happens — a sign-in form must
+              not confirm whose address it knows, and a missed inquiry has nobody to tell at
+              all — so this page is the only place it shows.
               {trouble.lastError && (
                 <>
                   {" "}
@@ -153,7 +153,7 @@ export default async function ProjectIndex({
             Everyone on this page sees every project. Adding somebody is one row in{" "}
             <code>portal_people</code>.
             {mail.ok && trouble.failures === 0 && trouble.lastSuccessAt && (
-              <> Last sign-in email sent {when(trouble.lastSuccessAt)}.</>
+              <> Last email sent {when(trouble.lastSuccessAt)}.</>
             )}
           </p>
         </div>

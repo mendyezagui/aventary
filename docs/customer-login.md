@@ -178,13 +178,19 @@ last email *did* go out, so one bounced address does not read as an outage.
 **Resend does not throw.** `resend.emails.send()` resolves with
 `{ data: null, error }` on an API error — bad key, unverified domain, rejected
 from-address — so a bare `try/catch` catches none of the failures most likely to
-happen. Both sign-in routes read that `error`. **Anything else in this repo that
-sends mail must do the same**, or it will fail exactly as silently as this did:
+happen.
 
-```ts
-const { error } = await resend.emails.send({ ... });
-if (error) { /* record it — it will not be thrown */ }
-```
+**So every email goes through `sendMail()` in `lib/mail.ts`, and nothing calls
+Resend directly.** That is not tidiness: it is the only way the error check and
+the audit row survive the next person adding a send. All six of them go through
+it — the two sign-in links, the contact notification, the kit auto-responder,
+and both diagnostic-lead emails.
+
+`sendMail()` never throws, so a mail problem cannot take down the request that
+triggered it; a lead is saved whether or not the email about it goes out. The
+callers no longer skip sending when the deploy is unconfigured, either — that
+silent `if` is precisely what hid the outage, so an unconfigured send is now
+**recorded as a failure** instead of evaporating.
 
 **Non-secret config belongs in `wrangler.jsonc`, not the dashboard.** A deploy
 REPLACES a Worker's plain-text variables with whatever the config declares, so

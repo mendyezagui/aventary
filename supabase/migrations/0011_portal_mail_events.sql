@@ -36,8 +36,11 @@ comment on table public.portal_mail_events is
   'Outcome of each sign-in email. Read by /see so the owner can see a failure
    the visitor is deliberately never told about.';
 comment on column public.portal_mail_events.context is
-  '"portal" — the customer login at /c. "client-page" — a per-page link for one
-   document. Both are invisible failures in the same way.';
+  'Which send: portal and client-page are sign-in links; contact-notify,
+   kit-autoresponder, lead-ack and lead-notify are the contact form and the
+   diagnostic leads. Every one of them fails invisibly without this row — the
+   sign-in paths because they must not confirm an address, the rest because the
+   only person who would notice is the one not being told.';
 comment on column public.portal_mail_events.error is
   'Provider error, truncated. Null when ok. Never contains a credential: Resend
    reports the key as invalid without echoing it back.';

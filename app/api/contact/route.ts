@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { Resend } from "resend";
+import { sendMail } from "@/lib/mail";
 import { createSupabaseAdmin } from "@/lib/supabase/server";
 
 const Schema = z.object({
@@ -54,16 +54,17 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 2. Email via Resend (optional; skipped if no key)
-  if (process.env.RESEND_API_KEY && process.env.CONTACT_TO_EMAIL && process.env.CONTACT_FROM_EMAIL) {
-    try {
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      await resend.emails.send({
-        from: process.env.CONTACT_FROM_EMAIL,
-        to: process.env.CONTACT_TO_EMAIL,
-        replyTo: input.email,
-        subject: `New inquiry — ${input.name}${input.company ? " (" + input.company + ")" : ""}`,
-        text:
+  // 2. Tell Mendy. NOT guarded on the env vars any more, deliberately: skipping
+  //    the send when unconfigured is what made this invisible. Twelve inquiries
+  //    reached the table above between May and September and none of them
+  //    reached an inbox, because RESEND_API_KEY was never set on the Worker and
+  //    this branch quietly did nothing. sendMail now records that as a failure
+  //    and /see shows it.
+  await sendMail("contact-notify", {
+      to: process.env.CONTACT_TO_EMAIL,
+      replyTo: input.email,
+      subject: `New inquiry — ${input.name}${input.company ? " (" + input.company + ")" : ""}`,
+      text:
 `Name:    ${input.name}
 Email:   ${input.email}
 Company: ${input.company ?? "—"}
@@ -72,29 +73,18 @@ Source:  ${input.source ?? "contact"}
 
 Message:
 ${input.message}`
-      });
-    } catch (e) {
-      console.error("resend failed", e);
-    }
-  }
+  });
 
   // 3. Auto-responder for the Revenue Leak Detection Kit (diagnostics leads only).
-  // Reuses the same Resend transport as the notification above. Wrapped so a
-  // failure here never affects the lead capture or the notification.
-  if (
-    input.source === "diagnostics" &&
-    process.env.RESEND_API_KEY &&
-    process.env.CONTACT_FROM_EMAIL
-  ) {
-    try {
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      const firstName = input.name.trim().split(/\s+/)[0] || input.name;
-      await resend.emails.send({
-        from: process.env.CONTACT_FROM_EMAIL,
-        to: input.email,
-        replyTo: process.env.CONTACT_TO_EMAIL ?? undefined,
-        subject: "Your Pipeline X-Ray \u2014 how to run it (2 min)",
-        text:
+  //    sendMail never throws, so a failure here cannot affect the lead capture
+  //    above or the notification — it is recorded and shown on /see instead.
+  if (input.source === "diagnostics") {
+    const firstName = input.name.trim().split(/\s+/)[0] || input.name;
+    await sendMail("kit-autoresponder", {
+      to: input.email,
+      replyTo: process.env.CONTACT_TO_EMAIL ?? undefined,
+      subject: "Your Pipeline X-Ray \u2014 how to run it (2 min)",
+      text:
 `Hey ${firstName},
 
 Thanks for grabbing the Revenue Leak Detection Kit! Here's how to get your number, fast.
@@ -116,7 +106,7 @@ Want me to walk your team through what the number means once you've run it? Grab
 Ciao,
 Mendy
 Aventary`,
-        html: `<div style="font-family:system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;color:#1a1a1a">
+      html: `<div style="font-family:system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;color:#1a1a1a">
 <p>Hey ${firstName},</p>
 <p>Thanks for grabbing the <strong>Revenue Leak Detection Kit</strong>! Here's how to get your number, fast.</p>
 <p><strong>Export your open pipeline</strong> (one file, two diagnostics):</p>
@@ -134,10 +124,7 @@ Aventary`,
 <p>Want me to walk your team through what the number means once you've run it? <a href="https://aventary.com/contact#book">Grab 20 minutes here.</a></p>
 <p style="margin-top:18px">Ciao,<br>Mendy<br><span style="color:#777">Aventary</span></p>
 </div>`
-      });
-    } catch (e) {
-      console.error("autoresponder failed", e);
-    }
+    });
   }
 
   return NextResponse.json({ ok: true });

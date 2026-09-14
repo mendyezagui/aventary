@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { Resend } from "resend";
+import { sendMail } from "@/lib/mail";
 
 // Leads from the in-browser diagnostics (Pipeline X-Ray, Forecast Stress Test)
 // are written to the Second Brain Supabase `diagnostic_leads` table — a
@@ -71,10 +71,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // 2. Emails via Resend (reuses the site's existing config; skipped if unset).
-  //    Never blocks the response — the lead is already saved.
-  if (process.env.RESEND_API_KEY && process.env.CONTACT_FROM_EMAIL) {
-    const resend = new Resend(process.env.RESEND_API_KEY);
+  // 2. Emails. Deliberately NOT guarded on the env vars: skipping the send when
+  //    unconfigured is exactly what hid four months of silence elsewhere in this
+  //    app. sendMail records an unconfigured deploy as a failure, so it shows on
+  //    /see instead of evaporating. Neither send can throw, so the lead — which
+  //    is already saved above — is never at risk from a mail problem.
+  {
     const first = (name || "").split(/\s+/)[0] || "there";
     const scoreLabel = score != null ? `${score}/100` : "your";
     const isOS = diagnostic === "operating_system";
@@ -133,28 +135,22 @@ Aventary`,
 <p style="margin-top:18px">Ciao,<br>Mendy<br><span style="color:#777">Aventary</span></p>
 </div>`,
         };
-    try {
-      await resend.emails.send({
-        from: process.env.CONTACT_FROM_EMAIL,
-        to: email,
-        replyTo: process.env.CONTACT_TO_EMAIL ?? undefined,
-        subject: ack.subject,
-        text: ack.text,
-        html: ack.html,
-      });
-    } catch (e) {
-      console.error("lead ack email failed", e);
-    }
+    await sendMail("lead-ack", {
+      to: email,
+      replyTo: process.env.CONTACT_TO_EMAIL ?? undefined,
+      subject: ack.subject,
+      text: ack.text,
+      html: ack.html,
+    });
 
-    // 2b. Heads-up to Mendy so the PDF actually gets sent (capture is manual-fulfilled).
-    if (process.env.CONTACT_TO_EMAIL) {
-      try {
-        await resend.emails.send({
-          from: process.env.CONTACT_FROM_EMAIL,
-          to: process.env.CONTACT_TO_EMAIL,
-          replyTo: email,
-          subject: `New diagnostic lead — ${name ?? email}${score != null ? ` (${score}/100)` : ""}`,
-          text:
+    // 2b. Heads-up to Mendy so the PDF actually gets sent (capture is
+    //     manual-fulfilled), which makes a silent failure here a lost lead.
+    {
+      await sendMail("lead-notify", {
+        to: process.env.CONTACT_TO_EMAIL,
+        replyTo: email,
+        subject: `New diagnostic lead — ${name ?? email}${score != null ? ` (${score}/100)` : ""}`,
+        text:
 `New ${diagnostic} lead — send the report.
 
 Name:    ${name ?? "—"}
@@ -163,10 +159,7 @@ Company: ${company ?? "—"}
 Score:   ${score != null ? `${score}/100${band ? ` (${band})` : ""}` : "—"}
 Detail:  ${typeof b.notes === "string" && b.notes.trim() ? b.notes.trim() : heardVia ? `heard_via: ${heardVia}` : "—"}
 Source:  ${typeof b.source === "string" && b.source ? b.source : "—"}`,
-        });
-      } catch (e) {
-        console.error("lead notify email failed", e);
-      }
+      });
     }
   }
 
