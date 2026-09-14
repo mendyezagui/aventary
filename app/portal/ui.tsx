@@ -77,6 +77,13 @@ export function SignInCard({
                   That link has expired or was already used. Ask for a fresh one.
                 </p>
               )}
+              {error === "mail" && (
+                <p className="pl-error" role="alert">
+                  This site cannot send mail right now, so no link went out — to
+                  anyone. Nothing to do with your address. Please{" "}
+                  <a href="/contact">let us know</a>.
+                </p>
+              )}
               <button type="submit">Email me a sign-in link</button>
               <p className="pl-note">
                 No password. The link opens everything shared with your address and stays

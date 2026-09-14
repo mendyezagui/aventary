@@ -5,6 +5,7 @@ import {
   displayName,
   listStaff,
   listVisiblePages,
+  mailHealth,
   readPortalSession,
   seesEverything
 } from "@/lib/portal";
@@ -65,6 +66,7 @@ export default async function ProjectIndex({
 
   const [pages, staff] = await Promise.all([listVisiblePages(viewer), listStaff()]);
   const colleagues = staff.filter((s) => s.email !== viewer.email);
+  const mail = mailHealth();
 
   return (
     <>
@@ -78,6 +80,19 @@ export default async function ProjectIndex({
             </h1>
             <WhoAmI email={viewer.email} role={viewer.role} />
           </div>
+
+          {!mail.ok && (
+            <p className="pl-warn" role="alert">
+              <strong>Nobody can sign in.</strong> This deploy cannot send mail, so
+              every sign-in link is failing silently — for employees and customers
+              alike. Missing Worker {mail.missing.length === 1 ? "secret" : "secrets"}:{" "}
+              {mail.missing.map((k) => (
+                <code key={k}>{k}</code>
+              ))}
+              . Set {mail.missing.length === 1 ? "it" : "them"} in Cloudflare on this
+              Worker and the links start arriving; nothing needs redeploying here.
+            </p>
+          )}
 
           <p className="pl-lede">
             Everything open to a client right now, {displayName(viewer)}. Each one opens the

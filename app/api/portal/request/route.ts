@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { Resend } from "resend";
 import { normalizeEmail } from "@/lib/client-pages";
-import { issuePortalLink, safeRedirect } from "@/lib/portal";
+import { issuePortalLink, mailHealth, safeRedirect } from "@/lib/portal";
 
 // Sends a sign-in link for the customer login.
 //
@@ -20,6 +20,22 @@ export async function POST(req: NextRequest) {
   target.searchParams.set("sent", "1");
   const done = NextResponse.redirect(target, { status: 303 });
 
+  // Checked first, and before the address is looked at in any way, so the answer
+  // is the same for every address on earth. A deploy that cannot send mail is a
+  // fact about the deploy; saying so leaks nothing and is the difference between
+  // a customer retrying forever and somebody fixing it. Everything after this
+  // point IS address-specific and must stay silent.
+  const mail = mailHealth();
+  if (!mail.ok) {
+    console.error(`portal link not sent: missing ${mail.missing.join(", ")}`);
+    const broken = new URL(from, req.url);
+    broken.searchParams.set("e", "mail");
+    return NextResponse.redirect(broken, { status: 303 });
+  }
+  // Narrowed by the check above; read once so the send below is plainly typed.
+  const apiKey = process.env.RESEND_API_KEY!;
+  const fromAddress = process.env.CONTACT_FROM_EMAIL!;
+
   if (!email.includes("@")) return done;
 
   let token: string | null = null;
@@ -34,10 +50,10 @@ export async function POST(req: NextRequest) {
   link.searchParams.set("t", token);
 
   try {
-    if (process.env.RESEND_API_KEY && process.env.CONTACT_FROM_EMAIL) {
-      const resend = new Resend(process.env.RESEND_API_KEY);
+    {
+      const resend = new Resend(apiKey);
       await resend.emails.send({
-        from: process.env.CONTACT_FROM_EMAIL,
+        from: fromAddress,
         to: email,
         subject: "Your Aventary sign-in link",
         text:
@@ -45,8 +61,6 @@ export async function POST(req: NextRequest) {
           `It opens everything shared with this address, and stays signed in for 30 days.\n\n` +
           `If you did not ask for this you can ignore it — nobody can use the link but you.\n\n— Aventary`
       });
-    } else {
-      console.error("portal link not sent: Resend is not configured");
     }
   } catch (err) {
     // Never surfaced to the visitor: a mail error shown on screen would confirm

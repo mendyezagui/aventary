@@ -415,6 +415,34 @@ export async function listStaff(): Promise<Viewer[]> {
   );
 }
 
+export type MailHealth = {
+  ok: boolean;
+  missing: string[];
+};
+
+/**
+ * Whether this deploy can actually send a sign-in link.
+ *
+ * It exists because the failure it describes is invisible. Every mail path in
+ * this app — the contact form, the diagnostic lead, the per-page link and the
+ * portal link — sends inside a try/catch that logs and swallows, and the portal
+ * then tells the visitor a link is on its way. That silence is deliberate for a
+ * DELIVERY failure: saying "we could not mail you" confirms the address is one
+ * we know, which is the one thing the form must never confirm.
+ *
+ * A CONFIGURATION failure is a different animal and was wrongly getting the same
+ * treatment. Missing secrets are a property of the deploy, identical for every
+ * address on earth, so reporting them reveals nothing about anybody — and not
+ * reporting them means an owner watching a customer fail to sign in has no way
+ * to tell "wrong address" from "this site has never been able to send mail".
+ *
+ * Returns which names are absent, never their values.
+ */
+export function mailHealth(): MailHealth {
+  const missing = ["RESEND_API_KEY", "CONTACT_FROM_EMAIL"].filter((k) => !process.env[k]);
+  return { ok: missing.length === 0, missing };
+}
+
 /** First name where we have one, address otherwise. Used to greet, nothing more. */
 export function displayName(viewer: Viewer) {
   return viewer.name?.trim().split(/\s+/)[0] || viewer.email;
