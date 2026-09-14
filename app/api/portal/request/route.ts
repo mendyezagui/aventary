@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { Resend } from "resend";
 import { normalizeEmail } from "@/lib/client-pages";
-import { issuePortalLink, mailHealth, safeRedirect } from "@/lib/portal";
+import { issuePortalLink, logMailResult, mailHealth, safeRedirect } from "@/lib/portal";
 
 // Sends a sign-in link for the customer login.
 //
@@ -49,24 +49,33 @@ export async function POST(req: NextRequest) {
   const link = new URL("/portal/verify", req.url);
   link.searchParams.set("t", token);
 
+  // Resend RESOLVES with { data: null, error } on an API error — a bad key, an
+  // unverified domain, a rejected from-address — rather than throwing. A
+  // try/catch alone therefore misses exactly the failures most likely to
+  // happen, which is how this app sent nothing for four months while logging
+  // nothing. Read the error; keep the catch for transport faults.
+  let failure: string | null = null;
   try {
-    {
-      const resend = new Resend(apiKey);
-      await resend.emails.send({
-        from: fromAddress,
-        to: email,
-        subject: "Your Aventary sign-in link",
-        text:
-          `Here is your link. It works once and expires in 20 minutes:\n${link.toString()}\n\n` +
-          `It opens everything shared with this address, and stays signed in for 30 days.\n\n` +
-          `If you did not ask for this you can ignore it — nobody can use the link but you.\n\n— Aventary`
-      });
-    }
+    const resend = new Resend(apiKey);
+    const { error } = await resend.emails.send({
+      from: fromAddress,
+      to: email,
+      subject: "Your Aventary sign-in link",
+      text:
+        `Here is your link. It works once and expires in 20 minutes:\n${link.toString()}\n\n` +
+        `It opens everything shared with this address, and stays signed in for 30 days.\n\n` +
+        `If you did not ask for this you can ignore it — nobody can use the link but you.\n\n— Aventary`
+    });
+    if (error) failure = `${error.name ?? "error"}: ${error.message ?? String(error)}`;
   } catch (err) {
-    // Never surfaced to the visitor: a mail error shown on screen would confirm
-    // the address is one we know. Logged instead.
-    console.error("portal link send failed", err);
+    failure = err instanceof Error ? err.message : String(err);
   }
+
+  // Still the same redirect either way. The visitor is never told, because
+  // telling them confirms the address is one we know — the owner is told
+  // instead, on /see, which is the whole point of recording this.
+  if (failure) console.error("portal link send failed", failure);
+  await logMailResult("portal", email, failure);
 
   return done;
 }

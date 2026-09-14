@@ -7,6 +7,7 @@ import {
   listVisiblePages,
   mailHealth,
   readPortalSession,
+  recentMailTrouble,
   seesEverything
 } from "@/lib/portal";
 import { PageList, PortalFonts, SignInCard, WhoAmI } from "../portal/ui";
@@ -64,9 +65,17 @@ export default async function ProjectIndex({
   // clients; that it exists is not something to confirm.
   if (!seesEverything(viewer)) redirect("/c");
 
-  const [pages, staff] = await Promise.all([listVisiblePages(viewer), listStaff()]);
+  const [pages, staff, trouble] = await Promise.all([
+    listVisiblePages(viewer),
+    listStaff(),
+    recentMailTrouble()
+  ]);
   const colleagues = staff.filter((s) => s.email !== viewer.email);
   const mail = mailHealth();
+  const when = (iso: string) =>
+    new Date(iso).toLocaleString("en-GB", {
+      day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"
+    });
 
   return (
     <>
@@ -94,6 +103,31 @@ export default async function ProjectIndex({
             </p>
           )}
 
+          {mail.ok && trouble.failures > 0 && (
+            <p className="pl-warn" role="alert">
+              <strong>
+                {trouble.failures} sign-in {trouble.failures === 1 ? "email" : "emails"} failed
+              </strong>{" "}
+              in the last 7 days. The people affected were told a link was on its way and
+              never got one — they cannot tell, so this is the only place it shows.
+              {trouble.lastError && (
+                <>
+                  {" "}
+                  Most recent: <code>{trouble.lastError.error}</code> — to{" "}
+                  {trouble.lastError.email} ({trouble.lastError.context}) at{" "}
+                  {when(trouble.lastError.at)}.
+                </>
+              )}
+              {trouble.lastSuccessAt && (
+                <>
+                  {" "}
+                  The last email that did go out was {when(trouble.lastSuccessAt)}, so the
+                  mailer is not dead — check the address before the plumbing.
+                </>
+              )}
+            </p>
+          )}
+
           <p className="pl-lede">
             Everything open to a client right now, {displayName(viewer)}. Each one opens the
             page that client sees, exactly as they see it — there is no separate internal
@@ -118,6 +152,9 @@ export default async function ProjectIndex({
               : "You are the only person with this view."}{" "}
             Everyone on this page sees every project. Adding somebody is one row in{" "}
             <code>portal_people</code>.
+            {mail.ok && trouble.failures === 0 && trouble.lastSuccessAt && (
+              <> Last sign-in email sent {when(trouble.lastSuccessAt)}.</>
+            )}
           </p>
         </div>
       </main>

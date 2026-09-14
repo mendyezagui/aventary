@@ -162,6 +162,37 @@ stranger who guesses.
 
 **Five links per address per hour**, as on the per-page form.
 
+**A sign-in email that fails is invisible to the person waiting for it, on
+purpose — so it is shown to you instead.** The form must answer identically
+whether or not it really sent anything, because "we could not mail you" confirms
+the address is one we know. That silence hid a four-month outage: the Worker had
+no `RESEND_API_KEY`, no link had ever been delivered, and the form said one was
+on its way every time.
+
+Two things now close that. Config problems are reported to the visitor directly,
+since a missing secret is a fact about the deploy and identical for every address
+on earth. Delivery problems are recorded in `portal_mail_events` and shown on
+`/see` — how many failed in the last week, the provider's own error, and when the
+last email *did* go out, so one bounced address does not read as an outage.
+
+**Resend does not throw.** `resend.emails.send()` resolves with
+`{ data: null, error }` on an API error — bad key, unverified domain, rejected
+from-address — so a bare `try/catch` catches none of the failures most likely to
+happen. Both sign-in routes read that `error`. **Anything else in this repo that
+sends mail must do the same**, or it will fail exactly as silently as this did:
+
+```ts
+const { error } = await resend.emails.send({ ... });
+if (error) { /* record it — it will not be thrown */ }
+```
+
+To read the log directly:
+
+```sql
+select created_at, context, email, ok, error
+from portal_mail_events order by created_at desc limit 20;
+```
+
 **RLS on a table does not cover a view over it.** Both access-log views were
 readable with the public anon key until `0010` — the tables were locked down
 correctly, but a Postgres 15+ view runs as its *owner* unless you set

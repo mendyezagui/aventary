@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { Resend } from "resend";
 import { getContent, issueMagicLink, normalizeEmail } from "@/lib/client-pages";
+import { logMailResult } from "@/lib/portal";
 
 // Sends a sign-in link. Deliberately returns the same redirect whether or not
 // the address was on the allowlist: the response must not reveal who a client's
@@ -28,10 +29,16 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ slug: stri
   const link = new URL(`/c/${slug}/verify`, req.url);
   link.searchParams.set("t", token);
 
+  // Same blindness as the portal link, same fix: Resend resolves with
+  // { data: null, error } on an API error instead of throwing, so the catch
+  // below never saw a bad key. The outcome is recorded either way and shown to
+  // staff on /see — never to the visitor, which would confirm the address is on
+  // this page's list.
+  let failure: string | null = null;
   try {
     if (process.env.RESEND_API_KEY && process.env.CONTACT_FROM_EMAIL) {
       const resend = new Resend(process.env.RESEND_API_KEY);
-      await resend.emails.send({
+      const { error } = await resend.emails.send({
         from: process.env.CONTACT_FROM_EMAIL,
         to: email,
         subject: `Your link to ${content.title}`,
@@ -40,14 +47,16 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ slug: stri
           `Open it here — the link works once and expires in 20 minutes:\n${link.toString()}\n\n` +
           `If you did not ask for this, you can ignore it. Nobody can use the link but you.\n\n— Aventary`
       });
+      if (error) failure = `${error.name ?? "error"}: ${error.message ?? String(error)}`;
     } else {
-      console.error("client-page link not sent: Resend is not configured");
+      failure = "Resend is not configured (RESEND_API_KEY / CONTACT_FROM_EMAIL)";
     }
   } catch (err) {
-    // Never surface mail failures to the visitor — it would confirm the address
-    // is on the list. It is logged instead.
-    console.error("client-page link send failed", err);
+    failure = err instanceof Error ? err.message : String(err);
   }
+
+  if (failure) console.error("client-page link send failed", failure);
+  await logMailResult("client-page", email, failure);
 
   return done;
 }

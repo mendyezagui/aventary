@@ -443,6 +443,91 @@ export function mailHealth(): MailHealth {
   return { ok: missing.length === 0, missing };
 }
 
+export type MailTrouble = {
+  failures: number;
+  lastError: { email: string; error: string; at: string; context: string } | null;
+  lastSuccessAt: string | null;
+};
+
+const TROUBLE_WINDOW_DAYS = 7;
+
+/**
+ * Records what happened to one sign-in email.
+ *
+ * Best effort in both directions: a logging failure must never break a sign-in,
+ * and a send failure must never reach the visitor. This row is the only place
+ * the truth is kept, because the form above it is required to lie politely.
+ */
+export async function logMailResult(
+  context: "portal" | "client-page",
+  email: string,
+  error: string | null
+) {
+  if (!configured()) return;
+  try {
+    await createSupabaseAdmin().from("portal_mail_events").insert({
+      context,
+      email,
+      ok: !error,
+      error: error ? error.slice(0, 500) : null
+    });
+  } catch (err) {
+    console.error("portal mail log failed", err);
+  }
+}
+
+/**
+ * Recent sign-in email failures, for the staff index.
+ *
+ * The last SUCCESS is returned alongside the failures on purpose: "the last
+ * link went out fine twenty minutes ago" is what separates a broken mailer from
+ * one customer who mistyped their address, and without it a single bounce reads
+ * like an outage.
+ */
+export async function recentMailTrouble(): Promise<MailTrouble> {
+  const none: MailTrouble = { failures: 0, lastError: null, lastSuccessAt: null };
+  if (!configured()) return none;
+
+  return safely(
+    "recentMailTrouble",
+    async () => {
+      const db = createSupabaseAdmin();
+      const since = new Date(Date.now() - TROUBLE_WINDOW_DAYS * 86400 * 1000).toISOString();
+
+      const [{ data: bad, count }, { data: good }] = await Promise.all([
+        db
+          .from("portal_mail_events")
+          .select("email,error,created_at,context", { count: "exact" })
+          .eq("ok", false)
+          .gte("created_at", since)
+          .order("created_at", { ascending: false })
+          .limit(1),
+        db
+          .from("portal_mail_events")
+          .select("created_at")
+          .eq("ok", true)
+          .order("created_at", { ascending: false })
+          .limit(1)
+      ]);
+
+      const top = bad?.[0];
+      return {
+        failures: count ?? 0,
+        lastError: top
+          ? {
+              email: top.email as string,
+              error: (top.error as string | null) ?? "no detail recorded",
+              at: top.created_at as string,
+              context: (top.context as string) ?? "portal"
+            }
+          : null,
+        lastSuccessAt: (good?.[0]?.created_at as string | undefined) ?? null
+      };
+    },
+    none
+  );
+}
+
 /** First name where we have one, address otherwise. Used to greet, nothing more. */
 export function displayName(viewer: Viewer) {
   return viewer.name?.trim().split(/\s+/)[0] || viewer.email;
