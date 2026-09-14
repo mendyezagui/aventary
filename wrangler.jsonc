@@ -8,6 +8,29 @@
     "binding": "ASSETS",
     "directory": ".open-next/assets"
   },
+  // Non-secret runtime config, declared here ON PURPOSE.
+  //
+  // These were set as plain-text variables in the Cloudflare dashboard and a
+  // deploy silently removed them, which took sign-in email down twenty minutes
+  // after it was first proved working.
+  //
+  // That is not a Cloudflare bug. A deploy replaces a Worker's plain-text vars
+  // with whatever the config declares — declaring none means "remove them all".
+  // Encrypted SECRETS are untouched, which is why RESEND_API_KEY survived the
+  // same deploy and these two did not, and why the failure looked so arbitrary.
+  //
+  // So anything non-secret belongs here, in version control, where a deploy
+  // restores it instead of erasing it. Neither of these is a credential: they
+  // are the addresses the site sends from and to, both already public in
+  // .env.example and on the contact page.
+  //
+  // Secrets stay out of this file and are set with `wrangler secret put` or in
+  // the dashboard as type Secret: RESEND_API_KEY, SUPABASE_SERVICE_ROLE_KEY,
+  // PAGE_FEED_SECRET, and anything else that would matter if it leaked.
+  "vars": {
+    "CONTACT_FROM_EMAIL": "noreply@aventary.com",
+    "CONTACT_TO_EMAIL": "mendy@aventary.com"
+  },
   "observability": {
     "enabled": true
   }

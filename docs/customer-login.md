@@ -186,6 +186,17 @@ const { error } = await resend.emails.send({ ... });
 if (error) { /* record it — it will not be thrown */ }
 ```
 
+**Non-secret config belongs in `wrangler.jsonc`, not the dashboard.** A deploy
+REPLACES a Worker's plain-text variables with whatever the config declares, so
+declaring none removes every one added by hand. Encrypted Secrets are untouched —
+which is why `RESEND_API_KEY` survived a deploy that erased `CONTACT_FROM_EMAIL`
+on the same Worker, and why the breakage looked arbitrary: mail was fixed by
+hand, proved working, and died twenty minutes later on the next push.
+
+`CONTACT_FROM_EMAIL` and `CONTACT_TO_EMAIL` are now in the `vars` block, where a
+deploy restores them. Credentials stay out of that file and are set as type
+**Secret**: `RESEND_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `PAGE_FEED_SECRET`.
+
 To read the log directly:
 
 ```sql

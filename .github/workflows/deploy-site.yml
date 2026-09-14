@@ -17,9 +17,15 @@
 #                           covers both)
 #   CLOUDFLARE_ACCOUNT_ID   Cloudflare dashboard -> Workers & Pages -> Account ID
 #
-# Runtime secrets (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, …) are Worker
-# secrets set in Cloudflare and are NOT touched by a deploy — wrangler.jsonc
-# declares no `vars`, so nothing here can clobber them.
+# Encrypted SECRETS (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, PAGE_FEED_SECRET)
+# are set in Cloudflare and are NOT touched by a deploy.
+#
+# PLAIN-TEXT variables are a different story, and this comment used to get it
+# wrong: a deploy REPLACES them with whatever wrangler.jsonc declares, so
+# declaring none removes every one that was added in the dashboard. That is
+# exactly how sign-in email died twenty minutes after being fixed by hand.
+# Non-secret config therefore lives in wrangler.jsonc's `vars` block, where a
+# deploy restores it. Do not set plain-text vars in the dashboard.
 
 name: Deploy aventary.com
 
