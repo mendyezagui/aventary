@@ -144,6 +144,26 @@ stranger who guesses.
 
 **Five links per address per hour**, as on the per-page form.
 
+**RLS on a table does not cover a view over it.** Both access-log views were
+readable with the public anon key until `0010` — the tables were locked down
+correctly, but a Postgres 15+ view runs as its *owner* unless you set
+`security_invoker`, so the view read past RLS and handed the rows to whoever
+asked. `client_page_access` was returning nine real rows to an unauthenticated
+request; only luck kept addresses out of them, since every session so far had
+been a shared-password one that names nobody. **Any new view in this schema
+needs `security_invoker = on` and the anon grants revoked.** Check it the way
+this was checked — against the endpoint, with the anon key, not against the
+catalogue:
+
+```bash
+curl -s "https://uclyawqdeabjsrejfdlw.supabase.co/rest/v1/<view>?select=*" \
+  -H "apikey: <the anon key>"
+```
+
+`permission denied` is the right answer. Rows are not. `select * from
+portal_access` in the SQL editor still works — that runs as postgres, and the
+site reads these tables with the service role, which bypasses RLS.
+
 **A signed-in customer who guesses another client's slug** is told the page is
 not shared with them, without its title. An anonymous visitor who guesses one
 still sees the sign-in card with the title and blurb on it — that is unchanged
