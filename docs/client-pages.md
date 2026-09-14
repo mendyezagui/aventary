@@ -45,10 +45,18 @@ time someone asks for a published page that names at least one reader, so
 publishing does not also require an insert on this side. A published page with
 no readers stays closed.
 
-**Requires two environment variables** — `SECOND_BRAIN_URL` and
-`SECOND_BRAIN_SERVICE_ROLE_KEY`, see `.env.example`. Without them project pages
-are simply not found and the other two sources still serve, so an unconfigured
-deploy degrades instead of breaking.
+**How the content gets here.** One endpoint on Second Brain,
+`project-page-feed`, which returns a published project's public blocks and its
+reader list for one slug, and refuses anything else. It takes a shared secret in
+`x-page-secret` and **fails closed** — an unset secret is a 503, never an open
+door. Deliberately not a service-role key: this is a public marketing site, and a
+key here that could read every tenant's CRM would be wildly out of proportion to
+rendering a document.
+
+Set `SECOND_BRAIN_URL` and `PAGE_FEED_SECRET` here, and `PAGE_FEED_SECRET` as a
+secret on the Second Brain project. Unset, project pages are simply not found and
+the other two sources still serve, so an unconfigured deploy degrades instead of
+breaking.
 
 **Markdown is markdown.** Block bodies render through `marked` with raw HTML
 escaped, so a `<script>` pasted into a body shows as text.

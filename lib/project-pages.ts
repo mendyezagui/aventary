@@ -11,15 +11,18 @@ import { Marked } from "marked";
 // So this module reaches across to fetch content, and nothing else. Every
 // access decision stays on this side.
 //
-// It is read-only and service-role, server-side only. The key must never reach
-// a browser: it can read every tenant's data.
+// It reads through one purpose-built endpoint, project-page-feed, and holds a
+// secret that can fetch published page content for one slug and nothing else.
+// Deliberately not a service-role key: this is a public marketing site, and a
+// key here that could read every tenant's CRM would be a blast radius out of
+// all proportion to rendering a document.
 
 // Read per call, not at module scope. On Workers the environment is bound to
 // the request, so a module-level capture can be undefined for the life of the
 // isolate and silently disable this whole path.
 const sbEnv = () => ({
   url: process.env.SECOND_BRAIN_URL,
-  key: process.env.SECOND_BRAIN_SERVICE_ROLE_KEY
+  secret: process.env.PAGE_FEED_SECRET
 });
 
 /**
@@ -28,8 +31,8 @@ const sbEnv = () => ({
  * so an unconfigured deploy serves the old page rather than breaking.
  */
 export function projectPagesConfigured() {
-  const { url, key } = sbEnv();
-  return Boolean(url && key);
+  const { url, secret } = sbEnv();
+  return Boolean(url && secret);
 }
 
 export type ProjectBlock = {
@@ -54,32 +57,37 @@ type Meta = {
   prepared_for?: string;
 };
 
-type ProjectRow = {
-  tenant_id: string;
-  id: number;
+type Feed = {
   name: string;
   client: string | null;
-  public_meta: Meta | null;
-  page_readers: string[] | null;
+  meta: Meta;
+  readers: string[];
+  blocks: ProjectBlock[];
 };
 
-/** One REST read against Second Brain. Returns [] rather than throwing. */
-async function sbSelect<T>(path: string): Promise<T[]> {
-  const { url, key } = sbEnv();
-  if (!url || !key) return [];
+/**
+ * Fetch one published page. Null for every failure — not configured, no such
+ * published slug, a bad secret, Second Brain down — because from this side they
+ * all mean the same thing: there is no project page here, fall through to the
+ * next content source.
+ */
+async function fetchFeed(slug: string): Promise<Feed | null> {
+  const { url, secret } = sbEnv();
+  if (!url || !secret) return null;
   try {
-    const res = await fetch(`${url}/rest/v1/${path}`, {
-      headers: { apikey: key, Authorization: `Bearer ${key}` },
-      cache: "no-store"
-    });
+    const res = await fetch(
+      `${url}/functions/v1/project-page-feed?slug=${encodeURIComponent(slug)}`,
+      { headers: { "x-page-secret": secret }, cache: "no-store" }
+    );
+    if (res.status === 404) return null;
     if (!res.ok) {
-      console.error(`second-brain read failed: ${path} -> ${res.status}`);
-      return [];
+      console.error(`project-page-feed ${slug} -> ${res.status}`);
+      return null;
     }
-    return (await res.json()) as T[];
+    return (await res.json()) as Feed;
   } catch (err) {
-    console.error("second-brain read threw", err);
-    return [];
+    console.error("project-page-feed threw", err);
+    return null;
   }
 }
 
@@ -313,18 +321,13 @@ ${body}
 export async function getProjectAccess(
   slug: string
 ): Promise<{ title: string; readers: string[] } | null> {
-  if (!projectPagesConfigured()) return null;
-  const rows = await sbSelect<Pick<ProjectRow, "name" | "public_meta" | "page_readers">>(
-    `projects?client_slug=eq.${encodeURIComponent(slug)}&page_published=is.true` +
-      `&select=name,public_meta,page_readers&limit=1`
-  );
-  const p = rows[0];
-  if (!p) return null;
-  return {
-    title: p.public_meta?.heading || p.name,
-    readers: (p.page_readers ?? []).map((e) => e.trim().toLowerCase()).filter(Boolean)
-  };
+  const feed = await fetchFeed(slug);
+  if (!feed) return null;
+  return { title: feed.meta.heading || feed.name, readers: normalize(feed.readers) };
 }
+
+const normalize = (list: string[] | null) =>
+  (list ?? []).map((e) => e.trim().toLowerCase()).filter(Boolean);
 
 /**
  * The published project behind a slug, or null.
@@ -335,37 +338,23 @@ export async function getProjectAccess(
  * empty document would look like a mistake to whoever opened it.
  */
 export async function getProjectPage(slug: string): Promise<ProjectPage | null> {
-  if (!projectPagesConfigured()) return null;
+  const feed = await fetchFeed(slug);
+  if (!feed || !feed.blocks.length) return null;
 
-  const q = encodeURIComponent(slug);
-  const rows = await sbSelect<ProjectRow>(
-    `projects?client_slug=eq.${q}&page_published=is.true&select=tenant_id,id,name,client,public_meta,page_readers&limit=1`
-  );
-  const project = rows[0];
-  if (!project) return null;
-
-  const blocks = await sbSelect<ProjectBlock>(
-    `project_blocks?project_id=eq.${project.id}&tenant_id=eq.${project.tenant_id}` +
-      `&visibility=eq.public&select=tab,title,body,format,sort&order=tab.asc,sort.asc`
-  );
-  if (!blocks.length) return null;
-
-  const meta = project.public_meta ?? {};
-  const heading = meta.heading || project.name;
-  const preparedFor = meta.prepared_for || project.client || "";
+  const heading = feed.meta.heading || feed.name;
 
   return {
     title: heading,
-    blurb: meta.subheading || "",
-    readers: (project.page_readers ?? []).map((e) => e.trim().toLowerCase()).filter(Boolean),
+    blurb: feed.meta.subheading || "",
+    readers: normalize(feed.readers),
     html: document_({
       title: heading,
       heading,
-      subheading: meta.subheading || "",
-      preparedFor,
-      preparedBy: meta.prepared_by || "Mendy Ezagui · Aventary",
-      eyebrow: project.client || "",
-      sections: sections(blocks),
+      subheading: feed.meta.subheading || "",
+      preparedFor: feed.meta.prepared_for || feed.client || "",
+      preparedBy: feed.meta.prepared_by || "Mendy Ezagui · Aventary",
+      eyebrow: feed.client || "",
+      sections: sections(feed.blocks),
       date: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
     })
   };
