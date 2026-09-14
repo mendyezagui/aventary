@@ -161,3 +161,56 @@ living, and an automated guard flagged the attempt before the habit began.
 2. the corrected missing-variables card
 
 A built bundle with both, plus SoFa, has been handed over for a direct upload.
+
+## The deployed app was not built from `mendyezagui/second-brain` — 2026-09-14
+
+Mendy flagged a second repository, `aventary-ai/secondbrain-app`, under a separate GitHub
+account this session cannot reach. He was right, and checking it overturns the premise of
+everything above.
+
+Three independent checks across all 284 commits of `mendyezagui/second-brain`:
+
+| | Live bundle | `mendyezagui/second-brain`, whole history |
+|---|---|---|
+| Product-host pattern | `…\|(^\|\.)aventary\.com$` | `…\|(^\|\.)os\.aventary\.com$` — the live variant appears in **no** commit |
+| Second browser Supabase client (Vantaca Controls) | present | **never existed** in any commit |
+| `createClient` count in `src/lib/supabase.js` | two | always exactly one |
+
+The live JavaScript contains code that has never been in this repository. The Cloudflare
+Pages project is named `secondbrain-app`, matching the other repository's name exactly.
+
+**So the walkthrough written above was pointing at the wrong repository.** Connecting the
+`secondbrain-app` project to `mendyezagui/second-brain` would have replaced a live
+multi-tenant product with a different, diverged codebase — the one thing in this whole
+consolidation that could have caused real damage, and it came within one dashboard visit of
+happening.
+
+It also re-explains the SoFa symptom. SoFa is missing from the deployed app not because
+nobody rebuilt this repo, but because the deployed app is built from a different codebase
+that may not contain SoFa at all. That is the same disease as the two databases — two
+copies, diverged, nobody certain which is canonical — in the front end this time.
+
+### How this was nearly missed
+
+The same mistake three times in one day: describing a running system from documents about
+it rather than from the system. First `vercel.json` and a checklist instead of the deployed
+bundle; then an assumed failure mode instead of opening `App.jsx`; then assuming the
+deployed app came from the repository that happened to be attached to the session. Each
+time the correction was one command against the live thing.
+
+### Unresolved, and what settles it
+
+This session cannot read `aventary-ai/secondbrain-app`: `add_repo` refuses cross-owner
+attachment, and the proxy blocks the GitHub API outside session scope. A new session opened
+with that repository as its initial source answers it — is it ahead or behind, does it
+contain SoFa, which one is canonical, and whether `mendyezagui/second-brain` should be
+merged into it or retired.
+
+Until then, **nothing should be connected to the `secondbrain-app` Pages project.** A
+read-only investigation task for Cowork was written instead, covering the Deployments tab
+(a commit hash means Git feeds it; "Direct Upload" means a human does) and the one line of
+`src/lib/utils.js` in the other repo that settles which source produced the live build.
+
+**None of the database work is affected.** Associates, the content tables, SoFa, Vantaca all
+live in Supabase and are independent of which repository builds the front end. Content Brain
+ran clean on its first real Monday, 2026-09-14 at 15:00 UTC, 39 rows of context, 0 gaps.
