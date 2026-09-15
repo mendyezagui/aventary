@@ -134,6 +134,13 @@ export function PageList({
             {showClient && p.clientName && <p className="pl-client">{p.clientName}</p>}
             <h2 className="pl-title">{p.title}</h2>
             {showClient && p.summary && <p className="pl-summary">{p.summary}</p>}
+            {showClient && p.noReaders ? (
+              <p className="pl-flag pl-flag-warn">
+                Published, nobody named to read it — no client can open this yet
+              </p>
+            ) : (
+              showClient && p.unopened && <p className="pl-flag">Published · not opened yet</p>
+            )}
             <span className="pl-open" aria-hidden="true">
               Open →
             </span>

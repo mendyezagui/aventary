@@ -29,7 +29,11 @@
   // PAGE_FEED_SECRET, and anything else that would matter if it leaked.
   "vars": {
     "CONTACT_FROM_EMAIL": "noreply@aventary.com",
-    "CONTACT_TO_EMAIL": "mendy@aventary.com"
+    "CONTACT_TO_EMAIL": "mendy@aventary.com",
+    // Which Supabase project serves project-page content. A public hostname,
+    // already named in CLAUDE.md and the docs — the credential that goes with
+    // it is PAGE_FEED_SECRET, which is a Secret and is not in this file.
+    "SECOND_BRAIN_URL": "https://fukehjqikxqsntwhmgsk.supabase.co"
   },
   "observability": {
     "enabled": true

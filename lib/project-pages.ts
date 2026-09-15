@@ -313,6 +313,56 @@ ${body}
 </html>`;
 }
 
+export type ProjectPageListing = {
+  slug: string;
+  title: string;
+  /** How many people are named in Client Hub. Zero means nobody can open it. */
+  readerCount: number;
+};
+
+/**
+ * Every published page's slug and title — the feed's list mode.
+ *
+ * This is what lets the website know a page EXISTS. Access rows over here are
+ * provisioned lazily, on the first request for a slug, so without this a
+ * project published in Client Hub and not yet opened by anybody was missing
+ * from the staff index at /see and from its own client's shelf at /c: invisible
+ * until somebody guessed the URL it had never been sent.
+ *
+ * Null, not [], when the feed cannot be reached — an index that cannot tell
+ * "nothing is published" from "Second Brain is down" would quietly report an
+ * empty desk as the truth. Callers fall back to what this repo's own table
+ * knows, which is the behaviour that existed before this function.
+ *
+ * It returns no readers and no blocks. A list needs to know a page is there and
+ * whether anyone can open it, not everyone's address.
+ */
+export async function listProjectPages(): Promise<ProjectPageListing[] | null> {
+  const { url, secret } = sbEnv();
+  if (!url || !secret) return null;
+  try {
+    const res = await fetch(`${url}/functions/v1/project-page-feed?list=1`, {
+      headers: { "x-page-secret": secret },
+      cache: "no-store"
+    });
+    if (!res.ok) {
+      console.error(`project-page-feed list -> ${res.status}`);
+      return null;
+    }
+    const body = (await res.json()) as { pages?: ProjectPageListing[] };
+    return (body.pages ?? [])
+      .filter((p) => typeof p.slug === "string" && p.slug.trim())
+      .map((p) => ({
+        slug: p.slug.toLowerCase().trim(),
+        title: (p.title || p.slug).trim(),
+        readerCount: Number.isFinite(p.readerCount) ? Number(p.readerCount) : 0
+      }));
+  } catch (err) {
+    console.error("project-page-feed list threw", err);
+    return null;
+  }
+}
+
 /**
  * Just the reader list and title for a published project, without building the
  * document. Sign-in checks need the allowlist on every attempt and have no use

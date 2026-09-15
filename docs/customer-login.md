@@ -132,21 +132,38 @@ is the same row that decides who may read it — one table answers both "does th
 exist" and "who may open it", so the staff index and a customer's own shelf
 cannot drift into disagreeing.
 
-**Known gap: that row is created lazily.** `getPageRow()` provisions it the first
-time anyone asks for the slug, so a project published in Client Hub and not yet
-opened by anybody is **not** on `/see` yet. Open it once and it appears. The
-honest fix is a list mode on the `project-page-feed` endpoint — it takes a slug
-today, so this side has no way to ask "what is published?" — and that endpoint
-lives on the Second Brain side, not here.
+**A published project appears without anyone opening it first.** Access rows are
+still provisioned lazily, but `/see` and `/c` no longer depend on that: the feed
+has a list mode (`?list=1`) returning every published slug with a title and a
+reader COUNT — never the addresses, and never the blocks. Two states that used to
+be discoverable only by a client failing to open a page now show on `/see`:
 
-**`/see` does not query the CRM for the project list.** Content comes across
-through one narrow, slug-keyed endpoint holding a secret that can fetch published
-page content and nothing else; the index itself is built from this repo's own
-table. That split is the point, and `docs/second-brain-data-map.md` says why:
+- **Published · not opened yet** — live, nobody has been to it.
+- **Published, nobody named to read it** — live and unopenable. Name the readers
+  in Client Hub.
+
+If the feed cannot be reached the list falls back to this repo's own table rather
+than reporting an empty desk — `listProjectPages()` returns `null`, not `[]`, and
+the difference is the point.
+
+**Both sides of the feed need `PAGE_FEED_SECRET`, and it is one value in two
+places.** The function fails closed without it and answers `503 not configured`
+to everything, which is how project pages can look built and never once have
+worked. Set the same string as a Supabase **Edge Function secret** on
+`fukehjqikxqsntwhmgsk` and as a Cloudflare **Secret** on the `aventary` Worker.
+`SECOND_BRAIN_URL` is a public hostname, not a credential, and lives in
+`wrangler.jsonc` so a deploy restores it.
+
+**`/see` never queries the CRM directly.** Everything from Second Brain arrives
+through one narrow endpoint holding a secret that can fetch published page
+content and nothing else — no service-role key, no reach into anyone's CRM.
+Access control stays entirely on this side: the feed reports who a project names
+as readers, and this repo decides what that means. That split is the point, and `docs/second-brain-data-map.md` says why:
 that schema moved under this repo twice in one week — `public_enabled` became
 `page_published`, `page_readers` appeared. Content that degrades to "page not
-found" when the feed is unreachable is survivable. A staff index that goes blank,
-or an access check that starts saying yes, is not.
+found" when the feed is unreachable is survivable, and so is a project list that
+falls back to this repo's own table. A staff index that goes blank, or an access
+check that starts saying yes, is not.
 
 **The portal cookie is site-wide, and the per-page one is not.** `cp_<slug>` is
 scoped to `path=/c/<slug>` so a confidential-document cookie is not attached to

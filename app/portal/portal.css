@@ -68,6 +68,12 @@
 .pl-warn code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.86em;
   background:#fff;border:1px solid #E3C6BE;border-radius:2px;padding:1px 5px;margin-right:4px;}
 
+/* Two states a project page can be in that are otherwise only discoverable by
+   a client failing to open it. */
+.pl-flag{grid-column:1;margin:.5rem 0 0;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);}
+.pl-flag-warn{color:#9E3A2C;}
+
 .pl-empty{background:var(--surface);border:1px solid var(--rule);border-radius:3px;
   padding:26px 24px;margin-top:34px;color:var(--ink-2);box-shadow:var(--shadow);}
 .pl-empty p{margin:0 0 .6rem;}

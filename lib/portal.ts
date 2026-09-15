@@ -1,4 +1,5 @@
 import { createSupabaseAdmin } from "@/lib/supabase/server";
+import { listProjectPages } from "@/lib/project-pages";
 import {
   getPageRow,
   hashToken,
@@ -52,6 +53,16 @@ export type PageSummary = {
   clientName: string | null;
   summary: string | null;
   createdAt: string;
+  /**
+   * Published in Client Hub, with no access row on this side yet — so it has
+   * never been opened by anybody. Staff-facing only.
+   */
+  unopened?: boolean;
+  /**
+   * Published with nobody named to read it. The page exists and no client can
+   * open it, which is a state worth seeing rather than discovering by email.
+   */
+  noReaders?: boolean;
 };
 
 /**
@@ -345,7 +356,7 @@ export async function listVisiblePages(viewer: Viewer): Promise<PageSummary[]> {
         .order("sort", { ascending: false })
         .order("created_at", { ascending: false });
 
-      const rows = (data ?? []).map((r) => ({
+      const rows: PageSummary[] = (data ?? []).map((r) => ({
         slug: r.slug as string,
         title: (r.title as string) ?? (r.slug as string),
         clientName: (r.client_name as string | null) ?? null,
@@ -353,7 +364,29 @@ export async function listVisiblePages(viewer: Viewer): Promise<PageSummary[]> {
         createdAt: (r.created_at as string) ?? ""
       }));
 
-      if (seesEverything(viewer)) return rows;
+      // Pages published in Client Hub that have no access row here yet. Without
+      // this the list can only show what somebody has already opened, which is
+      // the wrong way round: the index is where you go to find out.
+      //
+      // null from the feed means it could not be reached, which is not the same
+      // as "nothing is published" and must not read as an empty desk — fall back
+      // to this repo's own table, exactly as before the feed had a list mode.
+      const published = await listProjectPages();
+      const known = new Set(rows.map((r) => r.slug));
+      const extras: PageSummary[] = (published ?? [])
+        .filter((p) => !known.has(p.slug))
+        .map((p) => ({
+          slug: p.slug,
+          title: p.title,
+          clientName: null,
+          summary: null,
+          createdAt: "",
+          unopened: true,
+          noReaders: p.readerCount === 0
+        }));
+
+      const candidates = [...rows, ...extras];
+      if (seesEverything(viewer)) return candidates;
 
       // This used to filter in the query, which was better: a list built by
       // reading everything and hiding most of it is one careless render away
@@ -364,8 +397,11 @@ export async function listVisiblePages(viewer: Viewer): Promise<PageSummary[]> {
       //
       // Only the slug is used to decide; nothing about a page a viewer fails
       // this test for is returned. Keep it that way.
-      const allowed = await Promise.all(rows.map((r) => mayRead(r.slug, viewer.email)));
-      return rows.filter((_, i) => allowed[i]);
+      // mayRead goes through getPageRow, which provisions the access row for a
+      // published project on first sight — so a client sees a page published
+      // for them today, rather than after somebody else has opened it.
+      const allowed = await Promise.all(candidates.map((c) => mayRead(c.slug, viewer.email)));
+      return candidates.filter((_, i) => allowed[i]);
     },
     []
   );
