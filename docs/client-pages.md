@@ -194,6 +194,80 @@ their sessions and see the new version.
 
 ---
 
+## Ask
+
+Every client page carries an **Ask** button pinned to its bottom-right corner.
+It opens a rail beside the document where a reader can ask questions about it,
+and it answers **only from that document** — the same session gates the endpoint
+as the page, so it is never reading a proposal aloud to someone who guessed a
+URL.
+
+It used to be a bar across the top of the page. That was available to a reader
+who had not started yet and gone by the time a question occurred to them, which
+is the wrong half of the visit. Pinned to the edge it travels with them, and the
+document gets the top of the page back.
+
+On a screen wider than 1100px the document makes room for the rail rather than
+being covered by it. Narrower than that the rail overlays, and closes itself
+when the reader follows a citation — sending somebody to a passage and leaving
+the rail on top of it is sending them nowhere.
+
+### Every answer cites where it came from
+
+An answer closes with **Read more here**, naming a section and scrolling the
+document to it with a brief highlight. An answer about a proposal is a claim
+about a document the reader is holding, and being shown the passage is what
+separates it from a chatbot they have no reason to believe.
+
+**Nothing needs anchoring by hand — not in Client Hub, not in an authored
+file.** `lib/doc-anchors.ts` derives the anchors from the finished HTML on every
+request, whichever of the three sources produced it: every heading, plus
+anything carrying one of the section-label classes our templates use
+(`.eyebrow`, `.section-eyebrow`, `.kicker`, `.phase-title`, `.col-title`,
+`.wg-label`). Each gets an id made from its own words — `cpa-engagement-phases`
+— so the same heading yields the same link on every request, and renaming a
+block changes its link and nothing else.
+
+Two things are deliberately left out of the index. An element that **already has
+an id** is left exactly as it is: a hand-written id is somebody's decision and
+this has no business overwriting it (it is also then not citable — give the
+heading no id if you want it linkable). And a "heading" whose text is empty or
+longer than 120 characters is skipped, which is how a div that happens to share
+a class name stays out.
+
+### How the citation survives being wrong
+
+The model is shown the section list and asked to end each reply with
+`SOURCE: <id>`. That line never reaches the reader: the panel strips it and
+turns it into the link, and the bookkeeping strips it before the exchange is
+recorded or emailed — the admin table and Mendy's copy name the section by its
+title instead.
+
+The id is then **checked against the document's real anchors before it becomes a
+link**, so a section the model invented shows the reader nothing rather than a
+link that goes nowhere. `SOURCE: none` — which the model is told to use when the
+answer is not in the document — does the same. So an answer can arrive without a
+citation, and that is correct: the alternative is pointing a client at a passage
+that does not say what they were just told.
+
+`splitAnswer()` in `lib/doc-anchors.ts` reads the line loosely (`Source:`,
+`[cpa-x]`, a trailing full stop) because the cost of a strict parser is a
+citation silently not appearing. It is not a trust boundary — the anchor check
+is.
+
+### Where the jump happens
+
+A full document (`mode:"document"`) renders inside DocFrame's iframe, and a
+`#id` link cannot reach into one. `app/c/[slug]/reveal.ts` is why the link works
+anyway: the frame registers itself, and the jump measures the target's position
+inside the frame and scrolls the **outer** page, which is the one that actually
+scrolls. An inline document is an ordinary element and takes the short path.
+Both end with the same highlight, applied as an inline style — a class would do
+nothing inside the iframe, which carries the proposal's own stylesheet and not
+this site's.
+
+---
+
 ## Things worth knowing
 
 **A page with no row is closed.** The document can be in the repo and still
