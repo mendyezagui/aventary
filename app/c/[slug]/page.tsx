@@ -67,17 +67,24 @@ export default async function ClientPage({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="stylesheet" href={FONTS} />
+        {/* Keyed by slug, both branches. These are different clients'
+            confidential documents, and a React element reused from the
+            previously-viewed one would show the wrong proposal under the right
+            title — which is what /c/myef did on 2026-09-15. A key makes reuse
+            across documents impossible rather than merely unlikely; DocFrame
+            then checks, once loaded, that it is showing the document this URL
+            asked for. */}
         {content.mode === "document" ? (
-          <DocFrame html={content.html} title={content.title} />
+          <DocFrame key={`doc:${slug}`} slug={slug} html={content.html} title={content.title} />
         ) : (
-          <div className="lcla" dangerouslySetInnerHTML={{ __html: content.html }} />
+          <div key={`doc:${slug}`} className="lcla" dangerouslySetInnerHTML={{ __html: content.html }} />
         )}
         {/* After the document, not before it. The panel floats, so where it
             sits in the markup decides nothing visually — but it decides the
             reading and tab order, and a reader arrives here for the proposal.
             The anchors come from the same pass that put the ids in the HTML
             above, so every section the widget can cite is one this page has. */}
-        <AskPanel slug={slug} title={content.title} anchors={content.anchors} />
+        <AskPanel key={`ask:${slug}`} slug={slug} title={content.title} anchors={content.anchors} />
         <p className="cp-whoami">
           {viewerMayRead && viewer ? (
             <>
