@@ -187,6 +187,17 @@ sits *beside* a real heading rather than being one.
 `--accent`, `--accent-2`, `--accent-soft` and `--accent-line` are set per client
 and are the only dynamic values on the page. Every other colour is fixed.
 
+### A note on client accents
+
+The accent is the client's, but the document's warning tone is not — `--flag`
+stays fixed, so a `warn` callout is red whatever the accent is. A client whose
+own brand colour is red therefore gets a document where the recommendation and
+the thing that cost them a deal look identical, and where every bullet marker on
+every list reads as an alarm. Prime Rock Realty is exactly this case.
+
+When a client's brand is red, use Aventary teal and carry their identity with
+the logo instead. That is what the logo slot is for.
+
 ### One brand, not three
 
 The palette and faces are **identical** to the portal shell (`.pl`) and the
@@ -211,6 +222,20 @@ open preview/client-document-template.html
 exercises every component. No database, no sign-in, no real client. If you add a
 component, add it there too — it is the only place the whole system can be
 looked at at once.
+
+**To preview a real project** without its content entering this repository,
+write a fixture holding the same `{ name, client, meta, blocks }` shape the feed
+returns, and send the output somewhere outside the tree:
+
+```bash
+AVDOC_FIXTURE=~/scratch/acme.json AVDOC_OUT=~/scratch/acme.html npm run preview:doc
+```
+
+Do this before applying a template to a live page. A published document is
+rebuilt from its blocks on every request, so a directive written into Client Hub
+is in front of the client on their next reload — including a directive the
+deployed site does not understand yet, which renders as literal text at the top
+of the section.
 
 ---
 
