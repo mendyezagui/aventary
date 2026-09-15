@@ -105,49 +105,46 @@ const slugify = (s: string) =>
 export const TONES = ["note", "warn", "good", "quiet"] as const;
 export type Tone = (typeof TONES)[number];
 
+/** What every component carries, whatever its shape. */
+type BlockBase = {
+  id: string;
+  title: string | null;
+  width: DocWidth;
+  /**
+   * The body as written, with its directive lines removed.
+   *
+   * Kept alongside the rendered form because the Ask widget is grounded in the
+   * document's text, and markdown somebody wrote is better context than that
+   * same markdown rendered to HTML and then stripped back to text again.
+   */
+  source: string;
+};
+
 /** Every component the document can render. */
 export type DocBlock =
-  | { kind: "prose"; id: string; title: string | null; width: DocWidth; html: string }
-  | { kind: "callout"; id: string; title: string | null; width: DocWidth; tone: Tone; html: string }
-  | { kind: "quote"; id: string; title: string | null; width: DocWidth; html: string; by: string | null }
-  | {
+  | (BlockBase & { kind: "prose"; html: string })
+  | (BlockBase & { kind: "callout"; tone: Tone; html: string })
+  | (BlockBase & { kind: "quote"; html: string; by: string | null })
+  | (BlockBase & {
       kind: "metrics";
-      id: string;
-      title: string | null;
-      width: DocWidth;
       items: { value: string; label: string; note: string | null }[];
-    }
-  | {
+    })
+  | (BlockBase & {
       kind: "cards";
-      id: string;
-      title: string | null;
-      width: DocWidth;
       columns: number | null;
       items: { title: string; badge: string | null; html: string }[];
-    }
-  | {
+    })
+  | (BlockBase & {
       kind: "steps";
-      id: string;
-      title: string | null;
-      width: DocWidth;
       items: { title: string; when: string | null; html: string }[];
-    }
-  | {
-      kind: "keyvalue";
-      id: string;
-      title: string | null;
-      width: DocWidth;
-      items: { term: string; value: string }[];
-    }
-  | {
+    })
+  | (BlockBase & { kind: "keyvalue"; items: { term: string; value: string }[] })
+  | (BlockBase & {
       kind: "figure";
-      id: string;
-      title: string | null;
-      width: DocWidth;
       src: string | null;
       alt: string;
       caption: string | null;
-    };
+    });
 
 export type BlockKind = DocBlock["kind"];
 
@@ -200,6 +197,7 @@ export function parseBlock(raw: RawBlock, index: number): DocBlock {
       id: blockId(raw, index),
       title: raw.title,
       width: "text",
+      source: raw.body,
       html: `<pre class="avd-raw">${raw.body.replace(/[<&]/g, (c) => (c === "<" ? "&lt;" : "&amp;"))}</pre>`
     };
   }
@@ -215,7 +213,7 @@ export function parseBlock(raw: RawBlock, index: number): DocBlock {
       ? "wide"
       : (DEFAULT_WIDTH[kind] ?? "text");
 
-  const base = { id, title, width } as const;
+  const base = { id, title, width, source: rest } as const;
 
   try {
     switch (kind) {

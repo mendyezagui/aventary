@@ -69,11 +69,11 @@ export default async function ClientPage({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="stylesheet" href={FONTS} />
-        <AskPanel slug={slug} title={content.title} />
-        {/* Three sources, three ways of rendering. A project page is ours
-            end to end, so it renders as components on the page. An authored
-            page is hand-written standalone HTML with its own <style>, and the
-            iframe that sandboxes it is the whole reason that path exists. */}
+        {/* Three sources, three ways of rendering. A structured document is
+            ours end to end, so it renders as components on the page. An
+            authored page is hand-written standalone HTML with its own <style>,
+            and the iframe that sandboxes it is the whole reason that path
+            exists. */}
         {content.mode === "project" && content.doc ? (
           <ClientDoc doc={content.doc} />
         ) : content.mode === "document" ? (
@@ -81,6 +81,12 @@ export default async function ClientPage({
         ) : (
           <div className="lcla" dangerouslySetInnerHTML={{ __html: content.html }} />
         )}
+        {/* After the document, not before it. The panel floats, so where it
+            sits in the markup decides nothing visually — but it decides the
+            reading and tab order, and a reader arrives here for the proposal.
+            The anchors come from the same pass that put the ids in the HTML
+            above, so every section the widget can cite is one this page has. */}
+        <AskPanel slug={slug} title={content.title} anchors={content.anchors} />
         <p className="cp-whoami">
           {viewerMayRead && viewer ? (
             <>

@@ -1,7 +1,14 @@
 import { createSupabaseAdmin } from "@/lib/supabase/server";
 import { CLIENT_PAGES, type ClientPageContent } from "@/content/clients";
 import { getProjectAccess, getProjectPage } from "@/lib/project-pages";
-import { buildDocument, documentSource, normalizeBlocks, type DocMeta } from "@/lib/client-doc";
+import {
+  anchorsOf,
+  buildDocument,
+  documentSource,
+  normalizeBlocks,
+  type DocMeta
+} from "@/lib/client-doc";
+import { ANCHOR_PREFIX, anchorize, type Anchor } from "@/lib/doc-anchors";
 
 // Access control for /c/<slug> pages.
 //
@@ -63,7 +70,7 @@ export async function hashToken(token: string) {
  * Access control does not change with the source. It is keyed on the slug and
  * knows nothing about where the content came from.
  */
-export async function getContent(slug: string): Promise<ClientPageContent | null> {
+async function resolveContent(slug: string): Promise<ClientPageContent | null> {
   const authored = CLIENT_PAGES[slug];
   if (authored) return authored;
 
@@ -108,7 +115,7 @@ export async function getContent(slug: string): Promise<ClientPageContent | null
         html: "",
         mode: "project",
         doc,
-        text: documentSource(blocks)
+        text: documentSource(doc)
       };
     }
 
@@ -125,6 +132,38 @@ export async function getContent(slug: string): Promise<ClientPageContent | null
     console.error("client-page content lookup failed", err);
     return null;
   }
+}
+
+/** A document plus the anchors worked out for it. */
+export type ResolvedPage = ClientPageContent & { anchors: Anchor[] };
+
+/**
+ * The document behind /c/<slug>, with anchors.
+ *
+ * Every source comes out with anchors, so the page and the Ask widget are
+ * looking at the same ids no matter which produced the document. Doing it here
+ * rather than in each source is the point: nobody anchors a Client Hub block by
+ * hand, and the two authored documents predate the idea entirely.
+ *
+ * How they are arrived at differs, and only here. An HTML document is scraped
+ * by anchorize(). A structured one is asked, because it assigned its ids when
+ * it was built and renders those exact ids — there is no markup to scrape and
+ * no opportunity for the index and the page to disagree.
+ */
+export async function getContent(slug: string): Promise<ResolvedPage | null> {
+  const content = await resolveContent(slug);
+  if (!content) return null;
+
+  // A structured document already knows its own anchors: the ids were assigned
+  // when it was built and are what ClientDoc renders. Scraping them back out of
+  // markup would be guessing at something this side already decided — and there
+  // is no markup to scrape, because the document is components on the page.
+  if (content.mode === "project" && content.doc) {
+    return { ...content, anchors: anchorsOf(content.doc) };
+  }
+
+  const { html, anchors } = anchorize(content.html);
+  return { ...content, html, anchors };
 }
 
 export type PageRow = {
@@ -398,7 +437,14 @@ const NAMED_ENTITIES: Record<string, string> = {
  * numbers that mean nothing.
  */
 export function documentText(html: string): string {
-  const withDiagrams = html.replace(
+  // Mark where each anchored section begins. The model is told what these mean
+  // and cites one back, which is the whole mechanism behind "Read more here" —
+  // without them it can describe where something is but not link to it.
+  const withSections = html.replace(
+    new RegExp(`<[a-z][a-z0-9]*\\b[^>]*\\sid="(${ANCHOR_PREFIX}[a-z0-9-]+)"[^>]*>`, "gi"),
+    (_m, id) => `\n\n[section: ${id}]\n`
+  );
+  const withDiagrams = withSections.replace(
     /<svg\b[^>]*?aria-label="([^"]*)"[\s\S]*?<\/svg>/gi,
     (_m, label) => `\n[Diagram: ${label}]\n`
   );

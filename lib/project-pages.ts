@@ -1,10 +1,12 @@
 import {
+  anchorsOf,
   buildDocument,
   documentSource,
   type ClientDocument,
   type DocMeta,
   type RawBlock
 } from "@/lib/client-doc";
+import type { Anchor } from "@/lib/doc-anchors";
 
 // Project pages: the document at /c/<slug> built from a Second Brain project's
 // blocks, rather than from a file in this repo.
@@ -57,8 +59,10 @@ export type ProjectPage = {
    * its own scrollHeight could ever have.
    */
   doc: ClientDocument;
-  /** The document as plain text, for the Ask panel's context. */
+  /** The document as text, with section markers, for the Ask panel's context. */
   text: string;
+  /** Every place a citation may point, indexed from the document's own ids. */
+  anchors: Anchor[];
 };
 
 type Feed = {
@@ -187,6 +191,7 @@ export async function getProjectPage(slug: string): Promise<ProjectPage | null> 
     blurb: doc.blurb,
     readers: normalize(feed.readers),
     doc,
-    text: documentSource(feed.blocks)
+    text: documentSource(doc),
+    anchors: anchorsOf(doc)
   };
 }

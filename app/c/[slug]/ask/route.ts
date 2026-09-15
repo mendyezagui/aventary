@@ -9,6 +9,7 @@ import {
   readSession,
   recordAnswer
 } from "@/lib/client-pages";
+import { splitAnswer, type Anchor } from "@/lib/doc-anchors";
 import { sendMail } from "@/lib/mail";
 import { PORTAL_COOKIE, canReadSlug, readPortalSession } from "@/lib/portal";
 
@@ -49,14 +50,29 @@ function sanitize(raw: unknown): Msg[] | null {
   return trimmed;
 }
 
-function systemPrompt(title: string, doc: string) {
+function systemPrompt(title: string, doc: string, anchors: Anchor[]) {
+  const index = anchors.map((a) => `${a.id} — ${a.label}`).join("\n");
+
   return `You answer questions about one document: "${title}", a proposal written by Aventary for this client. The reader is the client, reading it on their own private page.
 
 The document is below, in full, between the markers. It is everything you know.
 
+The document is divided into sections, each with an id. A line reading [section: <id>] in the text marks where that section begins, so you can tell which section any passage belongs to. These are the sections, in order:
+
+<sections>
+${index || "(this document has no sections)"}
+</sections>
+
 <document>
 ${doc}
 </document>
+
+Citing where the answer came from. This matters as much as the answer: the reader is holding the document, and being shown the passage is how they check you rather than take your word for it.
+
+- End every reply with a final line, on its own, in exactly this form: SOURCE: <id>
+- <id> must be copied exactly from the section list above. It is the section a reader should go and read to see your answer for themselves — the one your answer actually came from, not the nearest-sounding title.
+- If your answer did not come from the document — you said it is not covered, the question is outside it, or you are asking them to clarify — write SOURCE: none instead. Never cite a section to have something to cite.
+- Write nothing after that line, and never mention it or the ids in the answer itself. The reader is shown a link, not this.
 
 How to answer:
 
@@ -84,6 +100,8 @@ async function notifyOwner(x: {
   asker: string | null;
   question: string;
   answer: string;
+  /** The section the reader was pointed at, as they saw it. Null when none was cited. */
+  cited: string | null;
 }) {
   const who = x.asker ?? "(signed in with the shared password — no address)";
   const { ok } = await sendMail("question-notify", {
@@ -101,6 +119,9 @@ ${x.question}
 
 WHAT THEY WERE TOLD
 ${x.answer.trim() || "(no answer — the stream failed)"}
+
+SENT TO READ
+${x.cited ?? "(nothing — the answer was not in the document)"}
 
 ---
 Every question is at https://aventary.com/admin/questions`
@@ -154,9 +175,14 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
   const encoder = new TextEncoder();
   // The document is large and identical on every request, so it is cached; only
   // the question after it varies.
-  // A project page has no HTML string to strip — it carries the markdown its
-  // blocks were written in, which is better context than tag-stripped markup.
-  const system = systemPrompt(content.title, content.text ?? documentText(content.html));
+  // A structured document carries its own text, already marked up with the
+  // section ids it renders — better context than tag-stripped markup, and the
+  // only form available, since it has no HTML string to strip.
+  const system = systemPrompt(
+    content.title,
+    content.text ?? documentText(content.html),
+    content.anchors
+  );
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -191,13 +217,22 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
       // the bookkeeping below is allowed to turn into an error they see.
       if (questionId) {
         try {
-          await recordAnswer(questionId, full);
+          // The trailing SOURCE line is machinery, not something the reader was
+          // told. It has no business in the record or in Mendy's inbox — the
+          // section it named is reported on its own line instead, by the label
+          // the reader actually saw on the link.
+          const { text, cited } = splitAnswer(full);
+          const citedLabel = cited
+            ? content.anchors.find((a) => a.id === cited)?.label ?? null
+            : null;
+          await recordAnswer(questionId, text);
           const sent = await notifyOwner({
             title: content.title,
             slug,
             asker,
             question,
-            answer: full
+            answer: text,
+            cited: citedLabel
           });
           if (sent) await markQuestionNotified(questionId);
         } catch (err) {

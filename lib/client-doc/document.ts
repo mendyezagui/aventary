@@ -1,6 +1,7 @@
 import { resolveBrand, type DocBrand } from "./brand";
 import { parseBlock, readDirectives, type DocBlock, type RawBlock } from "./parse";
 import { plain } from "./markdown";
+import { ANCHOR_PREFIX, slugifyAnchor, type Anchor } from "@/lib/doc-anchors";
 
 // Assembling a whole client document.
 //
@@ -82,26 +83,53 @@ export function normalizeBlocks(input: unknown): RawBlock[] {
 }
 
 /**
- * The document as plain text, for the Ask panel's context.
+ * The document as text, for grounding the Ask widget.
  *
- * Built from the block bodies rather than from the rendered page, which is both
- * simpler and better context: the model gets the markdown somebody wrote
- * instead of markup with the tags stripped out of it. Directive lines go, since
- * "@component: metrics" is a layout instruction and not something a reader
- * could ever ask about.
+ * Two things at once, and they have to come from the same walk. The prose is
+ * the markdown somebody wrote, which is better context than that markdown
+ * rendered to HTML and stripped back to text. The `[section: …]` markers are
+ * the citation protocol: the model is told what they mean and cites one back,
+ * and that is the whole mechanism behind "Read more here".
+ *
+ * anchorsOf() below indexes exactly the same ids. An index naming an id the
+ * text does not contain would produce a citation pointing at nothing.
  */
-export function documentSource(blocks: RawBlock[]): string {
+export function documentSource(doc: ClientDocument): string {
   const parts: string[] = [];
-  let tab = "";
-  for (const b of blocks) {
-    if (b.tab && b.tab !== tab) {
-      tab = b.tab;
-      parts.push(`\n## ${tab}`);
+  for (const section of doc.sections) {
+    parts.push(`[section: ${section.id}]`);
+    parts.push(`## ${section.title}`);
+    for (const block of section.blocks) {
+      if (block.title) {
+        parts.push(`[section: ${block.id}]`);
+        parts.push(`### ${block.title}`);
+      }
+      if (block.source.trim()) parts.push(block.source.trim());
     }
-    if (b.title) parts.push(`### ${b.title}`);
-    parts.push(readDirectives(b.body).rest);
   }
   return parts.join("\n\n").trim();
+}
+
+/**
+ * Every place in this document a citation may point, and what to call it.
+ *
+ * Sections always, and blocks that have a title. A block without one has no
+ * words to offer as a link label, and "Read more here" with nothing to name is
+ * worse than citing the section around it.
+ *
+ * Unlike the HTML documents, nothing is scraped: these ids were assigned when
+ * the document was built and are what ClientDoc renders. There is no pass over
+ * finished markup that could disagree with what is on the page.
+ */
+export function anchorsOf(doc: ClientDocument): Anchor[] {
+  const out: Anchor[] = [];
+  for (const section of doc.sections) {
+    out.push({ id: section.id, label: section.title });
+    for (const block of section.blocks) {
+      if (block.title) out.push({ id: block.id, label: block.title });
+    }
+  }
+  return out;
 }
 
 export type DocMeta = {
@@ -146,8 +174,24 @@ export function resolveLayout(raw: unknown, sectionCount: number): DocLayout {
   };
 }
 
-const sectionId = (title: string, index: number) =>
-  `s${index}-${plain(title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "section"}`;
+/**
+ * Assigns the anchor ids for one document.
+ *
+ * Shares the prefix and the slug rule with lib/doc-anchors, which derives the
+ * same kind of id from finished HTML for the other two sources. A citation
+ * looks identical whichever produced the page, and nothing downstream — the
+ * prompt, the SOURCE marker, the reveal — has to know the difference.
+ */
+function anchorIds() {
+  const taken = new Set<string>();
+  return (label: string, fallback: string) => {
+    const base = slugifyAnchor(plain(label)) || fallback;
+    let id = ANCHOR_PREFIX + base;
+    for (let n = 2; taken.has(id); n++) id = `${ANCHOR_PREFIX}${base}-${n}`;
+    taken.add(id);
+    return id;
+  };
+}
 
 /**
  * Group blocks into the sections they were authored as, in the order Client Hub
@@ -161,6 +205,7 @@ const sectionId = (title: string, index: number) =>
 export function buildSections(raw: RawBlock[], layout: CollapseMode): DocSection[] {
   const order: string[] = [];
   const byTab = new Map<string, RawBlock[]>();
+  const nextId = anchorIds();
 
   for (const b of raw) {
     const tab = (b.tab || "").trim() || "Overview";
@@ -183,11 +228,20 @@ export function buildSections(raw: RawBlock[], layout: CollapseMode): DocSection
     const byMode =
       layout === "all" ? true : layout === "after-first" ? index > 1 : false;
 
+    // Ids are assigned here rather than in parseBlock because uniqueness is a
+    // property of the whole document, not of one block: two sections may both
+    // hold a block called "What it costs".
+    const id = nextId(tab, `section-${index}`);
+    const parsed = blocks.map((b, i) => {
+      const block = parseBlock(b, i);
+      return { ...block, id: nextId(block.title ?? `${tab} ${i + 1}`, `${id.slice(ANCHOR_PREFIX.length)}-${i + 1}`) };
+    });
+
     return {
-      id: sectionId(tab, index),
+      id,
       index,
       title: tab,
-      blocks: blocks.map((b, i) => parseBlock(b, i)),
+      blocks: parsed,
       startsCollapsed: layout === "never" ? false : forcedOpen ? false : forcedClosed || byMode
     };
   });
