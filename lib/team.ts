@@ -58,6 +58,26 @@ export type Engagement = {
   outcomes: { label: string; value: string }[];
 };
 
+/** Something of this person's that lives elsewhere on the web. */
+export type ExternalLink = {
+  /** How it should be named on the page. */
+  label: string;
+  url: string;
+  /** One or two sentences on what it is. */
+  description: string;
+  /** Their relationship to it, e.g. "Founder". */
+  role?: string;
+};
+
+/**
+ * A profile, which is allowed to start small.
+ *
+ * Only `lede` and `story` are required. Everything else is optional and its
+ * section is skipped when absent, so somebody can go up with the two things
+ * that are actually known about them rather than waiting for a full CV — and
+ * so nobody is tempted to pad the gap with invented history. Fill a field in
+ * later and its section appears; nothing else has to change.
+ */
 export type Profile = {
   /** Opening move — the claim the rest of the page has to earn. */
   lede: string;
@@ -65,13 +85,15 @@ export type Profile = {
   story: string[];
   /** A pulled quote set between the story and the record. Optional. */
   pull?: string;
-  chapters: Chapter[];
+  /** Work of their own that lives elsewhere. */
+  links?: ExternalLink[];
+  chapters?: Chapter[];
   /** Client work, by vertical — the same shape of proof /work carries. */
-  engagements: Engagement[];
-  education: Credential[];
-  certifications: Credential[];
+  engagements?: Engagement[];
+  education?: Credential[];
+  certifications?: Credential[];
   /** How this person actually works — the operating principles. */
-  principles: { title: string; body: string }[];
+  principles?: { title: string; body: string }[];
 };
 
 export type TeamMember = {
@@ -359,14 +381,33 @@ export const TEAM: TeamMember[] = [
     slug: "musy",
     name: "Musy Ezagui",
     role: "Customer Success Lead",
-    blurb: "Customer Success Lead at Aventary.",
+    blurb:
+      "Customer success at Aventary, and the founder of Chai Cut — an AI video editing agent that turns raw footage into a finished Reel.",
     // Mendy and Musy share initials, so the monograms use the first two
     // letters of the first name instead — two identical "ME" circles on a
     // two-person roster reads as a bug. Moot once there are headshots.
     initials: "MU",
-    // No `profile` yet — the card renders without a link until there is a real
-    // write-up to link to. Add background, experience and story here and the
-    // /team/musi page comes to life with no other change.
+    // Deliberately thin. Two things are known and both are stated; every other
+    // Profile field is optional and is left out rather than filled with a
+    // plausible-sounding history nobody supplied. Add chapters, education or
+    // principles later and those sections appear on their own.
+    profile: {
+      lede:
+        "Customer success at Aventary, and the founder of Chai Cut — so the person answering for how a system feels to use also builds one of her own.",
+      story: [
+        "Musy leads customer success at Aventary. That is the side of the work that begins after the build ships: whether the people who have to live with a system can actually run it, and what has to change when they cannot.",
+        "She is also the creator and founder of Chai Cut, an AI video editing agent. You hand it raw footage; it watches the clips, finds the story and the strongest moments, keeps complete thoughts intact, and returns a finished vertical Reel — B-roll, captions, hook, pacing, colour and ducked music included. A real product with a real user problem under it, which is the same instinct customer success runs on.",
+      ],
+      links: [
+        {
+          label: "Chai Cut",
+          url: "https://chaicut.vercel.app/",
+          role: "Creator & Founder",
+          description:
+            "An AI video editing agent. Hand it raw footage; it finds the story and edits a finished vertical Reel — captions, pacing, colour and music included.",
+        },
+      ],
+    },
   },
 ];
 

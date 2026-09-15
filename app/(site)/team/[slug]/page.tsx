@@ -147,6 +147,7 @@ export default async function TeamMemberPage({
       </section>
 
       {/* THE RECORD */}
+      {p.chapters && p.chapters.length > 0 && (
       <section className="px-8 py-20 md:py-24 bg-surface-container">
         <div className="max-w-5xl mx-auto">
           <div className="text-accent font-label font-bold text-xs tracking-[0.18em] uppercase mb-4">
@@ -191,9 +192,53 @@ export default async function TeamMemberPage({
           </div>
         </div>
       </section>
+      )}
+
+      {/* WORK OF THEIR OWN — things that live elsewhere */}
+      {p.links && p.links.length > 0 && (
+        <section className="px-8 pb-20 md:pb-24">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-accent font-label font-bold text-xs tracking-[0.18em] uppercase mb-6">
+              Elsewhere
+            </div>
+            <div className="space-y-4">
+              {p.links.map((l) => (
+                <Reveal key={l.url}>
+                  <a
+                    href={l.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="block bg-surface-container-lowest rounded-3xl p-7 md:p-8 soft-lift"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        {l.role && (
+                          <div className="text-accent font-label font-bold text-xs tracking-[0.16em] uppercase mb-2">
+                            {l.role}
+                          </div>
+                        )}
+                        <h3 className="font-headline text-2xl font-bold leading-tight mb-2">
+                          {l.label}
+                        </h3>
+                        <p className="text-on-surface-variant leading-relaxed">{l.description}</p>
+                      </div>
+                      <span
+                        aria-hidden="true"
+                        className="material-symbols-outlined text-accent shrink-0 mt-1"
+                      >
+                        north_east
+                      </span>
+                    </div>
+                  </a>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* SELECTED CLIENT WORK */}
-      {p.engagements.length > 0 && (
+      {p.engagements && p.engagements.length > 0 && (
         <section className="px-8 py-20 md:py-24">
           <div className="max-w-6xl mx-auto">
             <div className="text-accent font-label font-bold text-xs tracking-[0.18em] uppercase mb-4">
@@ -281,6 +326,7 @@ export default async function TeamMemberPage({
       )}
 
       {/* HOW I WORK */}
+      {p.principles && p.principles.length > 0 && (
       <section className="px-8 py-20 md:py-24">
         <div className="max-w-5xl mx-auto">
           <div className="text-accent font-label font-bold text-xs tracking-[0.18em] uppercase mb-4">
@@ -304,8 +350,11 @@ export default async function TeamMemberPage({
           </div>
         </div>
       </section>
+      )}
 
       {/* CREDENTIALS */}
+      {((p.education && p.education.length > 0) ||
+        (p.certifications && p.certifications.length > 0)) && (
       <section className="px-8 py-20 md:py-24 bg-ink text-inverse-on-surface">
         <div className="max-w-5xl mx-auto">
           <div className="text-primary font-label font-bold text-xs tracking-[0.18em] uppercase mb-4">
@@ -316,6 +365,7 @@ export default async function TeamMemberPage({
           </h2>
 
           <div className="grid md:grid-cols-2 gap-x-14 gap-y-12">
+            {p.education && p.education.length > 0 && (
             <div>
               <div className="font-label text-xs tracking-[0.16em] uppercase text-white/35 mb-5">
                 Education
@@ -330,6 +380,9 @@ export default async function TeamMemberPage({
               </ul>
             </div>
 
+            )}
+
+            {p.certifications && p.certifications.length > 0 && (
             <div>
               <div className="font-label text-xs tracking-[0.16em] uppercase text-white/35 mb-5">
                 Certifications
@@ -343,9 +396,11 @@ export default async function TeamMemberPage({
                 ))}
               </ul>
             </div>
+            )}
           </div>
         </div>
       </section>
+      )}
 
       {/* CTA */}
       <section className="px-8 py-24">
