@@ -216,8 +216,24 @@ export function buildSections(raw: RawBlock[], layout: CollapseMode): DocSection
     byTab.get(tab)!.push(b);
   }
 
+  // Sections run in `sort` order, not the order the blocks arrived in.
+  //
+  // project-page-feed returns blocks ordered by tab and then by sort, so a
+  // document assembled from arrival order comes out with its sections in
+  // ALPHABETICAL order by tab name. A proposal then opens on "Also in scope"
+  // and closes on "Who is doing this". The first two documents to use this
+  // survived only because "Findings" happens to sort before "Recommendation".
+  //
+  // Ranking by the lowest sort in each section fixes it wherever sort is
+  // meaningful across the whole document, and changes nothing where it is not:
+  // sections that all start at 0 tie, and the sort is stable, so they keep the
+  // order they arrived in.
+  const ranked = order
+    .map((tab) => ({ tab, rank: Math.min(...byTab.get(tab)!.map((b) => b.sort)) }))
+    .sort((a, b) => a.rank - b.rank);
+
   let n = 0;
-  return order.map((tab) => {
+  return ranked.map(({ tab }) => {
     const blocks = byTab.get(tab)!.slice().sort((a, b) => a.sort - b.sort);
     const index = ++n;
 
@@ -230,7 +246,8 @@ export function buildSections(raw: RawBlock[], layout: CollapseMode): DocSection
 
     // Ids are assigned here rather than in parseBlock because uniqueness is a
     // property of the whole document, not of one block: two sections may both
-    // hold a block called "What it costs".
+    // hold a block called "What it costs". Assigned after ranking, so the
+    // numbering and the anchors both follow reading order.
     const id = nextId(tab, `section-${index}`);
     const parsed = blocks.map((b, i) => {
       const block = parseBlock(b, i);
