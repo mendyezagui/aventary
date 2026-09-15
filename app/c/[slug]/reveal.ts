@@ -1,8 +1,10 @@
 // Taking a reader to the passage an answer came from.
 //
-// There are two shapes of client page and the jump works differently in each.
-// An inline document (the lcla model) is part of this page, so the target is an
-// ordinary element. A full document (mode:"document") lives inside DocFrame's
+// There are three shapes of client page and the jump works differently in each.
+// An inline document (the lcla model) and a structured one (mode:"project") are
+// part of this page, so the target is an ordinary element — though a structured
+// document's sections collapse, and a shut one has to be opened before anything
+// can be measured. A full document (mode:"document") lives inside DocFrame's
 // iframe, and a plain `#id` link cannot reach into one — so the frame registers
 // itself here and this measures the target's position inside it and scrolls the
 // OUTER page, which is the one that actually scrolls.
@@ -54,6 +56,14 @@ export function revealAnchor(id: string): boolean {
 
   const own = document.getElementById(id);
   if (own) {
+    // A structured document's sections collapse, and a citation may point
+    // inside a shut one. getBoundingClientRect on a hidden element reports
+    // zeros, so opening its ancestors first is not a nicety — without it the
+    // reader is scrolled to the top of the page and shown no highlight, having
+    // clicked a link that said it would take them somewhere.
+    for (let d = own.closest("details"); d; d = d.parentElement?.closest("details") ?? null) {
+      d.open = true;
+    }
     window.scrollTo({ top: window.scrollY + own.getBoundingClientRect().top - HEADROOM, behavior });
     flash(own);
     return true;

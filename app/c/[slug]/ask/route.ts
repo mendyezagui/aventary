@@ -175,7 +175,14 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
   const encoder = new TextEncoder();
   // The document is large and identical on every request, so it is cached; only
   // the question after it varies.
-  const system = systemPrompt(content.title, documentText(content.html), content.anchors);
+  // A structured document carries its own text, already marked up with the
+  // section ids it renders — better context than tag-stripped markup, and the
+  // only form available, since it has no HTML string to strip.
+  const system = systemPrompt(
+    content.title,
+    content.text ?? documentText(content.html),
+    content.anchors
+  );
 
   const stream = new ReadableStream({
     async start(controller) {

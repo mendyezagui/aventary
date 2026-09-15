@@ -42,6 +42,12 @@ In Second Brain, open the project → **Client Hub**:
 That is the whole thing. The website builds the document from the blocks on
 each request, so an edit in Client Hub is live on reload.
 
+**What the page looks like, and what each block becomes, is a separate subject:
+see `docs/client-document-template.md`.** A block can be a paragraph, a row of
+numbers, a callout, a card grid, a timeline or a table, chosen with one line at
+the top of its body; the client's logo and accent colour are one object in
+`public_meta`. Neither needs a deploy.
+
 The status line under the URL says what is missing rather than letting you
 believe a page is up when it is not. A project with no public blocks is not
 served at all — an empty document reads as a mistake to whoever opened it.
@@ -67,6 +73,10 @@ breaking.
 
 **Markdown is markdown.** Block bodies render through `marked` with raw HTML
 escaped, so a `<script>` pasted into a body shows as text.
+
+**Sections collapse.** Native `<details>`, so it works without JavaScript and
+everything opens when the page is printed. Nothing starts closed unless you say
+so — see the template doc.
 
 ---
 
@@ -335,6 +345,18 @@ link, the 30-day session, the Ask panel and the access log exactly as `lcla` doe
 | Changing it | commit + deploy | a row write |
 | Wins a slug collision | **yes** | no |
 | Gated by `client_pages` | yes | yes |
+
+**A generated row should carry `blocks`, not `html`.** A row with `blocks` is
+rendered through the shared template, so it gets the design system, the
+collapsible sections, the contents rail and the client's branding — and every
+later improvement to any of them. A row with finished `html` gets none of that,
+ever, because by the time the row exists there is nothing left to lay out.
+`blocks` wins where a row has both. See `docs/client-document-template.md` and
+`.claude/skills/client-document/SKILL.md`.
+
+The two rows written before that column existed (`micah`, `myef`) still serve
+their html. They are live documents in front of named readers, and replacing
+what somebody has been sent is not a migration's decision to make.
 
 **Publishing a generated page is two writes, and they are deliberately separate:** the
 document row, and the `client_pages` row that says who may read it. A dossier with no

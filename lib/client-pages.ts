@@ -1,6 +1,13 @@
 import { createSupabaseAdmin } from "@/lib/supabase/server";
 import { CLIENT_PAGES, type ClientPageContent } from "@/content/clients";
 import { getProjectAccess, getProjectPage } from "@/lib/project-pages";
+import {
+  anchorsOf,
+  buildDocument,
+  documentSource,
+  normalizeBlocks,
+  type DocMeta
+} from "@/lib/client-doc";
 import { ANCHOR_PREFIX, anchorize, type Anchor } from "@/lib/doc-anchors";
 
 // Access control for /c/<slug> pages.
@@ -54,8 +61,11 @@ export async function hashToken(token: string) {
  * 2. A published Second Brain project, rendered from its public blocks. This is
  *    the one that scales: a project page is built in Client Hub and published
  *    with a checkbox, and no deploy happens at any point.
- * 3. client_page_documents — a one-off document generated into the database,
- *    which is how a page existed before projects could be published.
+ * 3. client_page_documents — a document generated into the database, which is
+ *    how a page existed before projects could be published and is how the
+ *    Associate publishes today. A row here may carry `blocks` (structured, and
+ *    rendered through the shared template) or `html` (finished markup, served
+ *    as-is). Blocks win where both exist.
  *
  * Access control does not change with the source. It is keyed on the slug and
  * knows nothing about where the content came from.
@@ -66,17 +76,50 @@ async function resolveContent(slug: string): Promise<ClientPageContent | null> {
 
   const project = await getProjectPage(slug);
   if (project) {
-    return { title: project.title, blurb: project.blurb, html: project.html, mode: "document" };
+    return {
+      title: project.title,
+      blurb: project.blurb,
+      html: "",
+      mode: "project",
+      doc: project.doc,
+      text: project.text
+    };
   }
 
   if (!configured()) return null;
   try {
     const { data } = await createSupabaseAdmin()
       .from("client_page_documents")
-      .select("title,blurb,html,mode")
+      .select("title,blurb,html,mode,blocks,meta")
       .eq("slug", slug)
       .maybeSingle();
-    if (!data?.html) return null;
+    if (!data) return null;
+
+    // Structured wins. A row carrying blocks renders through the shared
+    // template, so it gains the design system, the collapsing and the branding
+    // — and every later change to them. A row carrying finished html keeps
+    // serving that html, because the two live documents written that way are in
+    // front of named readers and are not ours to replace on a deploy.
+    const blocks = normalizeBlocks(data.blocks);
+    if (blocks.length) {
+      const meta = (data.meta ?? {}) as DocMeta;
+      const doc = buildDocument({
+        name: (data.title as string) || slug,
+        client: null,
+        meta,
+        blocks
+      });
+      return {
+        title: doc.title,
+        blurb: doc.blurb || ((data.blurb as string) ?? ""),
+        html: "",
+        mode: "project",
+        doc,
+        text: documentSource(doc)
+      };
+    }
+
+    if (!data.html) return null;
     return {
       title: (data.title as string) ?? "Private",
       blurb: (data.blurb as string) ?? "",
@@ -97,15 +140,28 @@ export type ResolvedPage = ClientPageContent & { anchors: Anchor[] };
 /**
  * The document behind /c/<slug>, with anchors.
  *
- * Every source goes through anchorize() on the way out, so the page and the Ask
- * widget are looking at the same ids no matter which of the three produced the
- * HTML. Doing it here rather than in each source is the point: a project page
- * is rebuilt from Client Hub blocks on every request and nobody anchors those
- * by hand, and the two authored documents predate the idea entirely.
+ * Every source comes out with anchors, so the page and the Ask widget are
+ * looking at the same ids no matter which produced the document. Doing it here
+ * rather than in each source is the point: nobody anchors a Client Hub block by
+ * hand, and the two authored documents predate the idea entirely.
+ *
+ * How they are arrived at differs, and only here. An HTML document is scraped
+ * by anchorize(). A structured one is asked, because it assigned its ids when
+ * it was built and renders those exact ids — there is no markup to scrape and
+ * no opportunity for the index and the page to disagree.
  */
 export async function getContent(slug: string): Promise<ResolvedPage | null> {
   const content = await resolveContent(slug);
   if (!content) return null;
+
+  // A structured document already knows its own anchors: the ids were assigned
+  // when it was built and are what ClientDoc renders. Scraping them back out of
+  // markup would be guessing at something this side already decided — and there
+  // is no markup to scrape, because the document is components on the page.
+  if (content.mode === "project" && content.doc) {
+    return { ...content, anchors: anchorsOf(content.doc) };
+  }
+
   const { html, anchors } = anchorize(content.html);
   return { ...content, html, anchors };
 }
