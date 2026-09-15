@@ -67,12 +67,17 @@ export default async function ClientPage({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="stylesheet" href={FONTS} />
-        <AskPanel slug={slug} title={content.title} />
         {content.mode === "document" ? (
           <DocFrame html={content.html} title={content.title} />
         ) : (
           <div className="lcla" dangerouslySetInnerHTML={{ __html: content.html }} />
         )}
+        {/* After the document, not before it. The panel floats, so where it
+            sits in the markup decides nothing visually — but it decides the
+            reading and tab order, and a reader arrives here for the proposal.
+            The anchors come from the same pass that put the ids in the HTML
+            above, so every section the widget can cite is one this page has. */}
+        <AskPanel slug={slug} title={content.title} anchors={content.anchors} />
         <p className="cp-whoami">
           {viewerMayRead && viewer ? (
             <>
