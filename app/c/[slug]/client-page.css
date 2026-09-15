@@ -182,11 +182,6 @@
 .cp-ask{background:#FAF8F3;border-bottom:1px solid #DFD7C6;padding:18px 26px 16px;}
 .cp-ask *{box-sizing:border-box;}
 .cp-ask-inner{max-width:1080px;margin:0 auto;}
-/* One line that says what the box is. Shown only before the first question —
-   once someone is asking, they know, and the log is what matters. */
-.cp-ask-lede{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.88rem;line-height:1.55;
-  color:#4A5860;margin:0 0 10px;max-width:74ch;}
-.cp-ask-lede strong{color:#14212B;font-weight:600;}
 .cp-ask-form{display:flex;gap:8px;align-items:stretch;}
 .cp-ask-form input{flex:1;min-width:0;font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.95rem;padding:10px 13px;border:1px solid #C8BEA8;border-radius:3px;background:#fff;color:#14212B;}
 .cp-ask-form input::placeholder{color:#9aa3a8;}

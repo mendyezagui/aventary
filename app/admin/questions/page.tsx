@@ -1,5 +1,14 @@
 import { requireAdmin } from "@/lib/admin";
 import { createSupabaseAdmin } from "@/lib/supabase/server";
+import { clearQuestions, deleteQuestion } from "./actions";
+import { ConfirmButton } from "./ConfirmButton";
+
+// Answers were not kept until this point — 0008 stored the question alone, and
+// 0012 added the answer column. Rows older than this can never have one, and
+// saying "no answer recorded" about them reads as a bug in the widget rather
+// than a feature that did not exist yet. Roughly the deploy that started
+// recording them; a few minutes either way only changes a label.
+const ANSWERS_KEPT_FROM = new Date("2026-09-15T00:05:00Z");
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +61,10 @@ export default async function QuestionsPage() {
     ])
   );
 
-  const unanswered = rows.filter((r) => !r.answer).length;
+  // Only rows that COULD have had an answer count as missing one.
+  const unanswered = rows.filter(
+    (r) => !r.answer && new Date(r.created_at) >= ANSWERS_KEPT_FROM
+  ).length;
 
   return (
     <div>
@@ -62,7 +74,7 @@ export default async function QuestionsPage() {
         {unanswered > 0 && (
           <>
             {" "}
-            <strong>{unanswered}</strong> never got an answer — the stream failed partway.
+            <strong>{unanswered}</strong> never got an answer recorded.
           </>
         )}
       </p>
@@ -86,6 +98,7 @@ export default async function QuestionsPage() {
                 <th className="p-3">Asked by</th>
                 <th className="p-3">Question</th>
                 <th className="p-3">Answer given</th>
+                <th className="p-3"></th>
               </tr>
             </thead>
             <tbody>
@@ -116,7 +129,21 @@ export default async function QuestionsPage() {
                     </td>
                     <td className="max-w-sm whitespace-pre-wrap p-3">{r.question}</td>
                     <td className="max-w-xl whitespace-pre-wrap p-3">
-                      {r.answer ?? <span className="opacity-60">— no answer recorded —</span>}
+                      {r.answer ?? (
+                        <span className="opacity-60">
+                          {new Date(r.created_at) < ANSWERS_KEPT_FROM
+                            ? "— asked before answers were kept —"
+                            : "— no answer recorded —"}
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-3">
+                      <form action={deleteQuestion}>
+                        <input type="hidden" name="id" value={r.id} />
+                        <button className="link-underline text-xs opacity-70 hover:opacity-100">
+                          Delete
+                        </button>
+                      </form>
                     </td>
                   </tr>
                 );
@@ -124,6 +151,20 @@ export default async function QuestionsPage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {rows.length > 0 && (
+        <form action={clearQuestions} className="mt-8">
+          <ConfirmButton
+            className="border border-black/20 px-4 py-2 text-sm hover:bg-black hover:text-white"
+            confirmText={`Delete all ${rows.length} questions? This cannot be undone.`}
+          >
+            Clear all questions
+          </ConfirmButton>
+          <span className="ml-3 text-xs text-[color:var(--muted)]">
+            Permanent — there is no archive behind this table.
+          </span>
+        </form>
       )}
     </div>
   );
