@@ -39,6 +39,18 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-3 md:gap-6">
+          {/* Client Login — the door to /c, where a customer signs in with their
+              address and finds whatever has been shared with it. Deliberately a
+              quiet text link rather than a second gold button: it is for the
+              people who already are clients, not for the ones we are courting. */}
+          <Link
+            href="/c"
+            className="hidden md:inline-flex items-center gap-1.5 font-label text-xs tracking-[0.16em] uppercase text-white/60 hover:text-primary transition-colors whitespace-nowrap"
+          >
+            <span className="material-symbols-outlined text-base">lock_open_right</span>
+            Client Login
+          </Link>
+
           {/* Mobile hamburger — pure CSS via <details>/<summary>, no JS so it
               works under Brave shields. Hidden on md and up. */}
           <details className="md:hidden relative group">
@@ -91,11 +103,19 @@ export default function Header() {
                   key={n.href}
                   href={n.href}
                   role="menuitem"
-                  className="block px-5 py-3 font-label text-xs tracking-[0.16em] uppercase text-white/70 hover:bg-white/5 transition-colors border-b border-white/5 last:border-b-0"
+                  className="block px-5 py-3 font-label text-xs tracking-[0.16em] uppercase text-white/70 hover:bg-white/5 transition-colors border-b border-white/5"
                 >
                   {n.label}
                 </Link>
               ))}
+              <Link
+                href="/c"
+                role="menuitem"
+                className="flex items-center gap-2 px-5 py-3 font-label text-xs tracking-[0.16em] uppercase text-primary hover:bg-white/5 transition-colors"
+              >
+                <span className="material-symbols-outlined text-base">lock_open_right</span>
+                Client Login
+              </Link>
             </div>
           </details>
 

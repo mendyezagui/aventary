@@ -25,6 +25,16 @@ import type { MetadataRoute } from "next";
  * is never fetched, so its `noindex` is never read, and a URL somebody links to
  * can still surface as a bare result. Letting Google read the page is what
  * actually keeps it out.
+ *
+ * `/team` gets the `/tehillim` treatment for the same two reasons. The roster
+ * and the profiles under it are unlisted, not secret: they carry `noindex`, they
+ * are absent from the nav and the sitemap, and they exist to be sent to a
+ * specific person. Google is left free to fetch them precisely so it reads that
+ * `noindex`; the training crawlers are disallowed, because a `noindex` tag is an
+ * instruction about indexing and says nothing about scraping a personal
+ * biography into a corpus. Note that `/work` links to `/team/mendy`, so the page
+ * is reachable by anyone who goes looking — if it needs to be genuinely private
+ * rather than merely unlisted, it belongs behind the customer login at `/c`.
  */
 
 // Crawlers that gather text for model training or AI answers. Several ignore a
@@ -47,7 +57,7 @@ const AI_CRAWLERS = [
   "Omgilibot",
 ];
 
-const PRIVATE_PATHS = ["/tehillim", "/c/", "/see", "/portal/", "/admin", "/api/"];
+const PRIVATE_PATHS = ["/tehillim", "/team", "/c/", "/see", "/portal/", "/admin", "/api/"];
 
 export default function robots(): MetadataRoute.Robots {
   return {

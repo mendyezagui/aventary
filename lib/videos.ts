@@ -1,4 +1,4 @@
-import { createSupabaseServer } from "./supabase/server";
+import { createSupabaseServer, supabaseAnonConfigured } from "./supabase/server";
 
 /**
  * The video library behind /videos, /videos/[slug] and /videos/feed.
@@ -139,7 +139,7 @@ function feedOrder(a: Video, b: Video): number {
 // ---------------------------------------------------------------------------
 
 export async function listVideos(): Promise<Video[]> {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [...SEED_VIDEOS].sort(feedOrder);
+  if (!supabaseAnonConfigured()) return [...SEED_VIDEOS].sort(feedOrder);
   try {
     const supabase = await createSupabaseServer();
     const { data } = await supabase
@@ -156,7 +156,7 @@ export async function listVideos(): Promise<Video[]> {
 }
 
 export async function getVideo(slug: string): Promise<Video | null> {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  if (!supabaseAnonConfigured()) {
     return SEED_VIDEOS.find((v) => v.slug === slug) ?? null;
   }
   try {
@@ -181,7 +181,7 @@ export async function getVideo(slug: string): Promise<Video | null> {
 
 /** Clips attached to an Insights post, for the in-article embed. */
 export async function listVideosForPost(postSlug: string): Promise<Video[]> {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  if (!supabaseAnonConfigured()) {
     return SEED_VIDEOS.filter((v) => v.post_slug === postSlug).sort(feedOrder);
   }
   try {
