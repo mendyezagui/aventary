@@ -67,6 +67,42 @@ check("format:html renders as text",
   !/<script/i.test(parseBlock({ tab: "t", title: null, body: "<script>alert(1)</script>", format: "html", sort: 0 }, 0).html),
   parseBlock({ tab: "t", title: null, body: "<script>alert(1)</script>", format: "html", sort: 0 }).html);
 
+// --- inline SVG: the one place markup is allowed through -------------------
+const { sanitizeSvg } = await import(join(out, "lib/client-doc/svg.js"));
+const SVG_BAD = /<script|<foreignobject|<iframe|\son[a-z]+\s*=|javascript:|data:text\/html|@import|url\(\s*['"]?https?:/i;
+
+for (const [label, src] of [
+  ["script element", '<svg><script>alert(1)</script><rect/></svg>'],
+  ["foreignObject", '<svg><foreignObject><img src=x onerror=alert(1)></foreignObject></svg>'],
+  ["onload on root", '<svg onload="alert(1)"><rect/></svg>'],
+  ["onclick on a shape", '<svg><rect onclick="alert(1)" width="10"/></svg>'],
+  ["javascript: href", '<svg><use href="javascript:alert(1)"/></svg>'],
+  ["external use href", '<svg><use href="https://evil.example/x.svg#a"/></svg>'],
+  ["@import in style", '<svg><style>@import url("https://evil.example/x.css");</style><rect/></svg>'],
+  ["remote url() in style", '<svg><style>.a{fill:url(https://evil.example/t.png)}</style><rect/></svg>'],
+  ["remote url() in fill", '<svg><rect fill="url(https://evil.example/t.png)"/></svg>'],
+  ["animate to href", '<svg><animate attributeName="href" to="javascript:alert(1)"/><rect/></svg>'],
+  ["nested html", '<svg><g><iframe src="javascript:alert(1)"></iframe></g></svg>']
+]) {
+  const cleaned = sanitizeSvg(src) ?? "";
+  check(`svg refuses ${label}`, !SVG_BAD.test(cleaned), cleaned);
+}
+
+// Legitimate diagram content must survive, or the component is useless.
+const diagram = sanitizeSvg(
+  '<svg viewBox="0 0 100 40" role="img" aria-label="x">' +
+  '<defs><marker id="a" refX="4"><path d="M0,0 L8,4 L0,8 z"/></marker></defs>' +
+  '<style>.node{fill:#eee}</style>' +
+  '<rect class="node" x="1" y="2" width="30" height="10" rx="3"/>' +
+  '<line x1="0" y1="0" x2="9" y2="9" marker-end="url(#a)"/>' +
+  '<text x="5" y="20" text-anchor="middle">Label &amp; more</text></svg>'
+) ?? "";
+for (const want of ['viewBox="0 0 100 40"', 'aria-label="x"', "<marker", "<style", "fill:#eee",
+                    'class="node"', 'rx="3"', 'marker-end="url(#a)"', "Label &amp; more"]) {
+  check(`svg keeps ${want}`, diagram.includes(want), diagram.slice(0, 160));
+}
+check("svg refuses a non-svg body", sanitizeSvg("just some text") === null, "expected null");
+
 // --- brand values reach a style attribute, so they are hex or nothing -------
 const hostile = buildDocument({
   name: "n", client: null,

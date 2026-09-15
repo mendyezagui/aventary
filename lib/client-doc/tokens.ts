@@ -57,7 +57,8 @@ export const DEFAULT_WIDTH: Record<string, DocWidth> = {
   steps: "wide",
   keyvalue: "wide",
   table: "wide",
-  figure: "full"
+  figure: "full",
+  svg: "wide"
 };
 
 /**

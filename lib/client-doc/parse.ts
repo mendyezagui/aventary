@@ -1,5 +1,6 @@
 import { DEFAULT_WIDTH, isWidth, type DocWidth } from "./tokens";
 import { md, mdInline, plain } from "./markdown";
+import { sanitizeSvg } from "./svg";
 
 // Turning one row of project_blocks into one typed component.
 //
@@ -144,6 +145,13 @@ export type DocBlock =
       src: string | null;
       alt: string;
       caption: string | null;
+    })
+  | (BlockBase & {
+      kind: "svg";
+      /** Rebuilt from an allowlist by lib/client-doc/svg.ts — never the input. */
+      svg: string;
+      label: string;
+      caption: string | null;
     });
 
 export type BlockKind = DocBlock["kind"];
@@ -168,7 +176,9 @@ const ALIASES: Record<string, BlockKind> = {
   keyvalue: "keyvalue",
   facts: "keyvalue",
   figure: "figure",
-  image: "figure"
+  image: "figure",
+  svg: "svg",
+  diagram: "svg"
 };
 
 export type RawBlock = {
@@ -272,6 +282,21 @@ export function parseBlock(raw: RawBlock, index: number): DocBlock {
           .map(([term, value]) => ({ term: mdInline(term), value: mdInline(value) }));
         if (!items.length) break;
         return { kind, ...base, items };
+      }
+
+      case "svg": {
+        const svg = sanitizeSvg(rest);
+        // No <svg> root means a mistyped block, not a diagram. Falling through
+        // to prose shows whatever was written rather than an empty frame.
+        if (!svg) break;
+        const caption = rest.replace(/<svg[\s\S]*<\/svg>/i, "").trim();
+        return {
+          kind,
+          ...base,
+          svg,
+          label: directives.label || directives.alt || title || "Diagram",
+          caption: caption ? mdInline(caption) : null
+        };
       }
 
       case "figure": {

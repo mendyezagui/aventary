@@ -132,6 +132,26 @@ export function DocBlock({ block }: { block: Block }) {
         </div>
       );
 
+    case "svg":
+      return (
+        <figure className={cls} id={block.id}>
+          {heading}
+          {/* The markup here was rebuilt from an allowlist by sanitizeSvg —
+              it is never the block body as written. role and aria-label go on
+              the wrapper so the diagram still says what it shows even when the
+              source SVG carried no label of its own. */}
+          <div
+            className="avd-svg"
+            role="img"
+            aria-label={block.label}
+            dangerouslySetInnerHTML={html(block.svg)}
+          />
+          {block.caption ? (
+            <figcaption dangerouslySetInnerHTML={html(block.caption)} />
+          ) : null}
+        </figure>
+      );
+
     case "figure":
       return (
         <figure className={cls} id={block.id}>
@@ -146,4 +166,14 @@ export function DocBlock({ block }: { block: Block }) {
         </figure>
       );
   }
+
+  // Adding a component to the registry in lib/client-doc/parse.ts without
+  // rendering it here is a compile error, not a blank space on a client's page.
+  // Without this the switch just falls out and the return type widens to
+  // include undefined, which is how `svg` was added and typechecked clean.
+  return exhaustive(block);
+}
+
+function exhaustive(block: never): never {
+  throw new Error(`client document: no renderer for block ${JSON.stringify(block)}`);
 }

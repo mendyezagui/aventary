@@ -55,6 +55,7 @@ and you can guess the rest.
 | `quote` | `pull` | The quote; a last line starting `— ` becomes the attribution |
 | `table` | — | Markdown table. Same as `prose` but defaults to the wide measure |
 | `figure` | `image` | `![alt](https://…)` plus caption text, or `@src:` |
+| `svg` | `diagram` | Inline `<svg>…</svg>`, plus caption text after it |
 
 ### Directives
 
@@ -65,6 +66,7 @@ and you can guess the rest.
 | `@tone:` | `callout` | `note` (default), `warn`, `good`, `quiet` |
 | `@columns:` | `cards` | `1`–`4`. Ignored on phones, which always get one |
 | `@src:`, `@alt:` | `figure` | an `https://` URL, and alt text |
+| `@label:` | `svg` | what the diagram shows, for a screen reader |
 | `@section-closed` | any block | that block's whole section starts collapsed |
 | `@section-open` | any block | that block's whole section starts open |
 
@@ -257,6 +259,34 @@ replacing what a client has already been sent is not a deploy-time decision —
 but nothing new should be written that way. See
 `.claude/skills/client-document/SKILL.md`.
 
+## Diagrams
+
+A block body may be an inline `<svg>`, with a caption after it. This is the one
+place markup reaches the page instead of rendering as text, and it exists
+because the documents this template replaced each carried a diagram that was
+doing real work — a site map, a migration sequence. Converting those to lists
+lost the argument they were making.
+
+Inline rather than a hosted image, deliberately: the diagram inherits the
+document's ink and the client's accent, so it themes per client, stays sharp at
+any zoom, and can still be edited in Client Hub. A PNG freezes all three.
+
+**The SVG is rebuilt, not filtered.** `lib/client-doc/svg.ts` walks the input,
+drops any element not on its allowlist, and re-emits each survivor with only
+allowlisted attributes. A blocklist over untrusted markup loses to the first
+parser quirk; nothing unrecognised survives here because nothing is copied
+through. Specifically refused: `<script>`, `<foreignObject>` (SVG whose children
+are HTML), every `on*` handler, `@import`, and any `url()` or `href` pointing
+off-document.
+
+Two things to know when authoring one:
+
+- **Attribute case matters.** `viewBox`, `refX`, `gradientUnits` and
+  `preserveAspectRatio` are case-sensitive; the sanitizer preserves what you
+  wrote. It looks them up folded and emits them as written.
+- **Give it an `aria-label`,** or `@label:`. The diagram is announced by it, and
+  the Ask widget can answer about a picture it cannot see.
+
 ## Safety
 
 `npm run check:doc` asserts what a document must never render, whoever wrote
@@ -268,7 +298,9 @@ holding the reader's session cookie.
 The check covers link and image schemes (allowlist: http, https, mailto, tel,
 and relative or in-page targets), raw HTML in a body, `format: "html"`, the
 brand accent and logo — both of which reach a style attribute and an `<img>` —
-and malformed block rows. Run it after touching anything in `lib/client-doc`.
+malformed block rows, and every refusal the SVG sanitizer makes alongside the
+diagram content it has to keep. Run it after touching anything in
+`lib/client-doc`.
 
 A refused link keeps its words and loses only its target. Deleting a sentence
 from a proposal to make a security point is the wrong trade.
@@ -280,6 +312,7 @@ from a proposal to make a security point is the wrong trade.
 | Design tokens, the three rules written down | `lib/client-doc/tokens.ts` |
 | Per-client brand, and its validation | `lib/client-doc/brand.ts` |
 | Directives, and one parser per component | `lib/client-doc/parse.ts` |
+| The SVG allowlist | `lib/client-doc/svg.ts` |
 | Assembling sections and the page | `lib/client-doc/document.ts` |
 | The page | `components/client-doc/ClientDoc.tsx` |
 | One branch per component | `components/client-doc/DocBlock.tsx` |
@@ -289,9 +322,12 @@ from a proposal to make a security point is the wrong trade.
 | Choosing a source, and the generated path | `lib/client-pages.ts` |
 | What must never render | `scripts/check-doc-safety.mjs` |
 
-The switch in `DocBlock.tsx` is exhaustive over the component union, so adding a
-component to `parse.ts` makes TypeScript point at the renderer until it has one.
-The two halves of the registry cannot drift apart.
+The switch in `DocBlock.tsx` ends in an `exhaustive(block: never)` call, so
+adding a component to `parse.ts` makes TypeScript point at the renderer until it
+has one. That guard is load-bearing rather than decorative: without it the
+switch simply falls out, the return type widens to include `undefined`, and a
+new component typechecks clean while rendering nothing. `svg` was added that way
+and the build stayed green.
 
 ---
 
