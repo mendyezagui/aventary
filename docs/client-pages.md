@@ -265,6 +265,18 @@ link, the 30-day session, the Ask panel and the access log exactly as `lcla` doe
 | Wins a slug collision | **yes** | no |
 | Gated by `client_pages` | yes | yes |
 
+**A generated row should carry `blocks`, not `html`.** A row with `blocks` is
+rendered through the shared template, so it gets the design system, the
+collapsible sections, the contents rail and the client's branding — and every
+later improvement to any of them. A row with finished `html` gets none of that,
+ever, because by the time the row exists there is nothing left to lay out.
+`blocks` wins where a row has both. See `docs/client-document-template.md` and
+`.claude/skills/client-document/SKILL.md`.
+
+The two rows written before that column existed (`micah`, `myef`) still serve
+their html. They are live documents in front of named readers, and replacing
+what somebody has been sent is not a migration's decision to make.
+
 **Publishing a generated page is two writes, and they are deliberately separate:** the
 document row, and the `client_pages` row that says who may read it. A dossier with no
 `client_pages` row shows "not open yet" rather than falling open. Write the allowlist

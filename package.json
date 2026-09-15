@@ -13,7 +13,8 @@
     "cf:deploy": "opennextjs-cloudflare deploy",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "preview:doc": "node scripts/build-preview.mjs"
+    "preview:doc": "node scripts/build-preview.mjs",
+    "check:doc": "node scripts/check-doc-safety.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.113.0",

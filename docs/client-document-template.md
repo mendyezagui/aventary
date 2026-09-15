@@ -77,7 +77,8 @@ wrote.
 
 ## The page
 
-`projects.public_meta`, in Client Hub. Every field is optional.
+`projects.public_meta` in Client Hub, or the `meta` column on a generated
+document. Same object either way. Every field is optional.
 
 ```jsonc
 {
@@ -239,6 +240,39 @@ of the section.
 
 ---
 
+## Two places a document can come from
+
+The template does not care which.
+
+| | Client Hub project | Generated document |
+|---|---|---|
+| Blocks live in | `project_blocks` (Second Brain) | `client_page_documents.blocks` (aventary) |
+| Page settings | `projects.public_meta` | `client_page_documents.meta` |
+| Written by | you, in Client Hub | the Associate |
+| Reaches the site via | `project-page-feed` | the service-role client |
+
+A generated row may still carry finished `html` instead, which is served as-is
+and gets none of this. That path is kept because two live documents use it and
+replacing what a client has already been sent is not a deploy-time decision —
+but nothing new should be written that way. See
+`.claude/skills/client-document/SKILL.md`.
+
+## Safety
+
+`npm run check:doc` asserts what a document must never render, whoever wrote
+the row. It is not a formality: escaping raw HTML does not cover
+`[click](javascript:alert(1))`, which is ordinary markdown, and marked emits
+that href untouched by default. A client document is served from the origin
+holding the reader's session cookie.
+
+The check covers link and image schemes (allowlist: http, https, mailto, tel,
+and relative or in-page targets), raw HTML in a body, `format: "html"`, the
+brand accent and logo — both of which reach a style attribute and an `<img>` —
+and malformed block rows. Run it after touching anything in `lib/client-doc`.
+
+A refused link keeps its words and loses only its target. Deleting a sentence
+from a proposal to make a security point is the wrong trade.
+
 ## Where the code is
 
 | | |
@@ -252,6 +286,8 @@ of the section.
 | Contents rail and expand/collapse | `components/client-doc/DocControls.tsx` |
 | The stylesheet | `app/c/[slug]/client-doc.css` |
 | Fetching the project | `lib/project-pages.ts` |
+| Choosing a source, and the generated path | `lib/client-pages.ts` |
+| What must never render | `scripts/check-doc-safety.mjs` |
 
 The switch in `DocBlock.tsx` is exhaustive over the component union, so adding a
 component to `parse.ts` makes TypeScript point at the renderer until it has one.

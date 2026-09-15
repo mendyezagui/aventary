@@ -21,7 +21,7 @@
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
-import { buildDocument } from "@/lib/client-doc";
+import { buildDocument, normalizeBlocks } from "@/lib/client-doc";
 import { ClientDoc } from "@/components/client-doc/ClientDoc";
 
 const block = (tab: string, title: string | null, body: string, sort: number) => ({
@@ -183,7 +183,9 @@ const doc = buildDocument({
   name: input.name,
   client: input.client ?? null,
   meta: input.meta ?? {},
-  blocks: input.blocks,
+  // Through the same coercion a jsonb column goes through, so the harness
+  // exercises the production path rather than a tidier version of it.
+  blocks: normalizeBlocks(input.blocks),
   // Fixed, so re-running the harness does not show up as a diff every day.
   now: fixture ? new Date() : new Date("2026-09-15T12:00:00Z")
 });

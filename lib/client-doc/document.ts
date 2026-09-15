@@ -54,6 +54,56 @@ export type ClientDocument = {
   sections: DocSection[];
 };
 
+/**
+ * Coerce whatever a caller has into blocks the template can render.
+ *
+ * The feed's rows are already this shape; a jsonb column is whatever was
+ * written into it. Every field is defended separately and a row with no body is
+ * dropped, because the alternative — throwing — turns one malformed block into
+ * a client opening a proposal and finding an error page.
+ */
+export function normalizeBlocks(input: unknown): RawBlock[] {
+  if (!Array.isArray(input)) return [];
+  const out: RawBlock[] = [];
+  input.forEach((raw, i) => {
+    if (!raw || typeof raw !== "object") return;
+    const b = raw as Record<string, unknown>;
+    const body = typeof b.body === "string" ? b.body : "";
+    if (!body.trim()) return;
+    out.push({
+      tab: typeof b.tab === "string" && b.tab.trim() ? b.tab.trim() : "Overview",
+      title: typeof b.title === "string" && b.title.trim() ? b.title.trim() : null,
+      body,
+      format: b.format === "html" ? "html" : "markdown",
+      sort: Number.isFinite(b.sort) ? Number(b.sort) : i
+    });
+  });
+  return out;
+}
+
+/**
+ * The document as plain text, for the Ask panel's context.
+ *
+ * Built from the block bodies rather than from the rendered page, which is both
+ * simpler and better context: the model gets the markdown somebody wrote
+ * instead of markup with the tags stripped out of it. Directive lines go, since
+ * "@component: metrics" is a layout instruction and not something a reader
+ * could ever ask about.
+ */
+export function documentSource(blocks: RawBlock[]): string {
+  const parts: string[] = [];
+  let tab = "";
+  for (const b of blocks) {
+    if (b.tab && b.tab !== tab) {
+      tab = b.tab;
+      parts.push(`\n## ${tab}`);
+    }
+    if (b.title) parts.push(`### ${b.title}`);
+    parts.push(readDirectives(b.body).rest);
+  }
+  return parts.join("\n\n").trim();
+}
+
 export type DocMeta = {
   heading?: unknown;
   subheading?: unknown;

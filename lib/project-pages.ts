@@ -1,6 +1,6 @@
 import {
   buildDocument,
-  readDirectives,
+  documentSource,
   type ClientDocument,
   type DocMeta,
   type RawBlock
@@ -187,29 +187,6 @@ export async function getProjectPage(slug: string): Promise<ProjectPage | null> 
     blurb: doc.blurb,
     readers: normalize(feed.readers),
     doc,
-    text: projectText(feed)
+    text: documentSource(feed.blocks)
   };
-}
-
-/**
- * The document as plain text, for the Ask panel.
- *
- * Built from the block bodies rather than from the rendered page, which is both
- * simpler and better context: the model gets the markdown somebody wrote
- * instead of markup with the tags stripped out of it. Directive lines go, since
- * "@component: metrics" is a layout instruction and not something a reader
- * could ever ask about.
- */
-function projectText(feed: Feed): string {
-  const parts: string[] = [];
-  let tab = "";
-  for (const b of feed.blocks) {
-    if (b.tab && b.tab !== tab) {
-      tab = b.tab;
-      parts.push(`\n## ${tab}`);
-    }
-    if (b.title) parts.push(`### ${b.title}`);
-    parts.push(readDirectives(b.body).rest);
-  }
-  return parts.join("\n\n").trim();
 }

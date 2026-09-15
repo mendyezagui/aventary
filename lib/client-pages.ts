@@ -1,6 +1,7 @@
 import { createSupabaseAdmin } from "@/lib/supabase/server";
 import { CLIENT_PAGES, type ClientPageContent } from "@/content/clients";
 import { getProjectAccess, getProjectPage } from "@/lib/project-pages";
+import { buildDocument, documentSource, normalizeBlocks, type DocMeta } from "@/lib/client-doc";
 
 // Access control for /c/<slug> pages.
 //
@@ -53,8 +54,11 @@ export async function hashToken(token: string) {
  * 2. A published Second Brain project, rendered from its public blocks. This is
  *    the one that scales: a project page is built in Client Hub and published
  *    with a checkbox, and no deploy happens at any point.
- * 3. client_page_documents — a one-off document generated into the database,
- *    which is how a page existed before projects could be published.
+ * 3. client_page_documents — a document generated into the database, which is
+ *    how a page existed before projects could be published and is how the
+ *    Associate publishes today. A row here may carry `blocks` (structured, and
+ *    rendered through the shared template) or `html` (finished markup, served
+ *    as-is). Blocks win where both exist.
  *
  * Access control does not change with the source. It is keyed on the slug and
  * knows nothing about where the content came from.
@@ -79,10 +83,36 @@ export async function getContent(slug: string): Promise<ClientPageContent | null
   try {
     const { data } = await createSupabaseAdmin()
       .from("client_page_documents")
-      .select("title,blurb,html,mode")
+      .select("title,blurb,html,mode,blocks,meta")
       .eq("slug", slug)
       .maybeSingle();
-    if (!data?.html) return null;
+    if (!data) return null;
+
+    // Structured wins. A row carrying blocks renders through the shared
+    // template, so it gains the design system, the collapsing and the branding
+    // — and every later change to them. A row carrying finished html keeps
+    // serving that html, because the two live documents written that way are in
+    // front of named readers and are not ours to replace on a deploy.
+    const blocks = normalizeBlocks(data.blocks);
+    if (blocks.length) {
+      const meta = (data.meta ?? {}) as DocMeta;
+      const doc = buildDocument({
+        name: (data.title as string) || slug,
+        client: null,
+        meta,
+        blocks
+      });
+      return {
+        title: doc.title,
+        blurb: doc.blurb || ((data.blurb as string) ?? ""),
+        html: "",
+        mode: "project",
+        doc,
+        text: documentSource(blocks)
+      };
+    }
+
+    if (!data.html) return null;
     return {
       title: (data.title as string) ?? "Private",
       blurb: (data.blurb as string) ?? "",
