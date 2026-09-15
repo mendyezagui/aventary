@@ -45,3 +45,22 @@ comment on column public.client_page_documents.meta is
 create index if not exists client_page_documents_structured_idx
   on public.client_page_documents (slug)
   where blocks is not null;
+
+-- A structured document has no html, so html stops being required.
+--
+-- Everything above says a row may carry `blocks` instead of finished markup. It
+-- could not: html was NOT NULL, so every structured row would have had to carry
+-- an empty string to satisfy a constraint describing a shape it does not have.
+-- A column that is only sometimes applicable should not be mandatory.
+--
+-- Nothing is relaxed about what gets SERVED. lib/client-pages returns no
+-- document when a row has neither blocks nor html, so an empty row reads as
+-- "not found" rather than as a blank page — the same failure direction as before.
+
+alter table public.client_page_documents
+  alter column html drop not null;
+
+comment on column public.client_page_documents.html is
+  'Finished standalone markup, served as-is in an iframe. Null for a structured
+   row, which carries `blocks` instead and is rendered through the shared
+   template. A row with neither is not served at all.';

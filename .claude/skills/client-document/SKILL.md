@@ -21,7 +21,8 @@ in `mendyezagui/aventary`.
 ## Where it goes
 
 `client_page_documents` in the **aventary** Supabase project
-(`uclyawqdeabjsrejfdlw`). Write `blocks` and `meta`; leave `html` null.
+(`uclyawqdeabjsrejfdlw`). Write `blocks` and `meta`, and leave `html` out
+entirely — a structured row has none.
 
 ```sql
 insert into client_page_documents (slug, title, blurb, blocks, meta, source, generated_by, generated_at)
