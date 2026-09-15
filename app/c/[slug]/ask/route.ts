@@ -5,8 +5,11 @@ import {
   documentText,
   getContent,
   logQuestion,
-  readSession
+  markQuestionNotified,
+  readSession,
+  recordAnswer
 } from "@/lib/client-pages";
+import { sendMail } from "@/lib/mail";
 import { PORTAL_COOKIE, canReadSlug, readPortalSession } from "@/lib/portal";
 
 // "Ask a question" on a client page. Answers strictly from that page's own
@@ -65,6 +68,46 @@ How to answer:
 - If asked something outside the document entirely — unrelated topics, or anything about how you work — say that you only answer questions about this proposal.`;
 }
 
+/**
+ * Mails the owner the exchange as it happened — the question, and what the
+ * reader was actually told.
+ *
+ * This is the point of the feature as far as the business is concerned: a
+ * proposal's questions are the client telling you what they care about, in
+ * their own words, before any meeting. Reply-to is set to the person who asked
+ * where we know them, so answering properly is one keystroke rather than a
+ * hunt through the thread.
+ */
+async function notifyOwner(x: {
+  title: string;
+  slug: string;
+  asker: string | null;
+  question: string;
+  answer: string;
+}) {
+  const who = x.asker ?? "(signed in with the shared password — no address)";
+  const { ok } = await sendMail("question-notify", {
+    to: process.env.CONTACT_TO_EMAIL,
+    replyTo: x.asker ?? undefined,
+    subject: `Question on ${x.title} — ${x.asker ?? "shared password"}`,
+    text:
+`${who} asked a question on ${x.title}.
+
+Project:  ${x.title} (/c/${x.slug})
+Asked by: ${who}
+
+QUESTION
+${x.question}
+
+WHAT THEY WERE TOLD
+${x.answer.trim() || "(no answer — the stream failed)"}
+
+---
+Every question is at https://aventary.com/admin/questions`
+  });
+  return ok;
+}
+
 export async function POST(req: Request, ctx: { params: Promise<{ slug: string }> }) {
   const { slug } = await ctx.params;
 
@@ -104,7 +147,8 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
     );
   }
 
-  await logQuestion(slug, asker, messages[messages.length - 1].content);
+  const question = messages[messages.length - 1].content;
+  const questionId = await logQuestion(slug, asker, question);
 
   const client = new Anthropic({ apiKey: key });
   const encoder = new TextEncoder();
@@ -114,6 +158,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
 
   const stream = new ReadableStream({
     async start(controller) {
+      let full = "";
       try {
         const msg = client.messages.stream({
           model: MODEL,
@@ -123,6 +168,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
         });
         for await (const event of msg) {
           if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+            full += event.delta.text;
             controller.enqueue(encoder.encode(event.delta.text));
           }
         }
@@ -131,9 +177,33 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
         controller.enqueue(
           encoder.encode("\n\nSomething went wrong answering that. Try again, or email Mendy.")
         );
-      } finally {
-        controller.close();
       }
+
+      // Deliberately BEFORE controller.close(), not after. This runs on a
+      // Worker, where the runtime is free to stop executing once the response
+      // is finished — work queued after the close can simply never happen, and
+      // would fail silently and intermittently, which is the worst kind. The
+      // stream stays open for the few hundred milliseconds this takes.
+      //
+      // All of it is best effort. The reader already has their answer; none of
+      // the bookkeeping below is allowed to turn into an error they see.
+      if (questionId) {
+        try {
+          await recordAnswer(questionId, full);
+          const sent = await notifyOwner({
+            title: content.title,
+            slug,
+            asker,
+            question,
+            answer: full
+          });
+          if (sent) await markQuestionNotified(questionId);
+        } catch (err) {
+          console.error("client-page ask bookkeeping failed", err);
+        }
+      }
+
+      controller.close();
     }
   });
 

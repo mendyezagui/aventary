@@ -30,7 +30,9 @@ export type MailContext =
   /** "Your report is on its way" to a diagnostic lead. */
   | "lead-ack"
   /** "New diagnostic lead" to Mendy, so the report actually gets sent. */
-  | "lead-notify";
+  | "lead-notify"
+  /** A client asked something on a proposal page, with what they were told. */
+  | "question-notify";
 
 export type MailHealth = { ok: boolean; missing: string[] };
 

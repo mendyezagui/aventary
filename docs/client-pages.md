@@ -170,6 +170,19 @@ update client_pages set active = false where slug = 'acme-co';
 delete from client_page_sessions where slug = 'acme-co';
 ```
 
+**See what they asked, and what they were told** — every exchange is also
+emailed to `CONTACT_TO_EMAIL` as it happens, and listed at `/admin/questions`:
+
+```sql
+select created_at, slug, coalesce(email,'(shared password)') as asked_by,
+       question, answer
+from client_page_questions order by created_at desc limit 50;
+```
+
+A null `answer` means the reply never finished — the stream broke or the model
+errored — which is worth seeing rather than hiding. A null `notified_at` means
+the email about it did not go out; `portal_mail_events` says why.
+
 **See who has read it:**
 
 ```sql

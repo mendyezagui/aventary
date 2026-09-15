@@ -379,14 +379,63 @@ export function documentText(html: string): string {
     .trim();
 }
 
-/** Records what a reader asked. Best effort — a logging failure must not break the answer. */
-export async function logQuestion(slug: string, email: string | null, question: string) {
+/**
+ * Records what a reader asked, and returns the row id so the answer can be
+ * attached to it once it has finished streaming.
+ *
+ * Best effort: a logging failure must not break the answer the reader is
+ * waiting for. Null means the question was not recorded, and the caller simply
+ * skips the rest of the bookkeeping rather than failing the request.
+ */
+export async function logQuestion(
+  slug: string,
+  email: string | null,
+  question: string
+): Promise<string | null> {
+  if (!configured()) return null;
+  try {
+    const { data } = await createSupabaseAdmin()
+      .from("client_page_questions")
+      .insert({ slug, email, question: question.slice(0, 2000) })
+      .select("id")
+      .maybeSingle();
+    return (data?.id as string | undefined) ?? null;
+  } catch (err) {
+    console.error("client-page question log failed", err);
+    return null;
+  }
+}
+
+/**
+ * Attaches the answer to a question already recorded.
+ *
+ * 0008 stored only the question, on the reasoning that the reply was
+ * reproducible. It is not: the document changes and the model changes, so what
+ * a client was actually told is a fact about a conversation rather than a cache.
+ * An empty answer is left null on purpose — "the answer never arrived" is
+ * something worth being able to see.
+ */
+export async function recordAnswer(id: string, answer: string) {
+  if (!configured() || !answer.trim()) return;
+  try {
+    await createSupabaseAdmin()
+      .from("client_page_questions")
+      .update({ answer: answer.slice(0, 20000), answered_at: new Date().toISOString() })
+      .eq("id", id);
+  } catch (err) {
+    console.error("client-page answer log failed", err);
+  }
+}
+
+/** Marks that the owner was emailed about one exchange. */
+export async function markQuestionNotified(id: string) {
   if (!configured()) return;
   try {
     await createSupabaseAdmin()
       .from("client_page_questions")
-      .insert({ slug, email, question: question.slice(0, 2000) });
+      .update({ notified_at: new Date().toISOString() })
+      .eq("id", id);
   } catch (err) {
-    console.error("client-page question log failed", err);
+    console.error("client-page notify mark failed", err);
   }
 }

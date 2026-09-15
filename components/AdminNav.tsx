@@ -17,6 +17,7 @@ export default function AdminNav() {
       <Link href="/admin/pages" className="link-underline">Pages</Link>
       <Link href="/admin/videos" className="link-underline">Videos</Link>
       <Link href="/admin/submissions" className="link-underline">Submissions</Link>
+      <Link href="/admin/questions" className="link-underline">Questions</Link>
       <Link href="/" className="link-underline">View site</Link>
       <form action="/admin/signout" method="post">
         <button className="link-underline">Sign out</button>

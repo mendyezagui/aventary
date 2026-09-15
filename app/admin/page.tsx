@@ -20,6 +20,10 @@ export default async function AdminHome() {
           <h2 className="text-xl font-bold">Submissions</h2>
           <p className="mt-2 text-sm opacity-80">Inbound leads from the contact form.</p>
         </Link>
+        <Link href="/admin/questions" className="block border border-black/20 p-6 hover:bg-black hover:text-white">
+          <h2 className="text-xl font-bold">Questions</h2>
+          <p className="mt-2 text-sm opacity-80">What clients asked on their proposal pages, and what they were told.</p>
+        </Link>
       </div>
     </div>
   );

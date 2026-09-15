@@ -177,6 +177,13 @@ limited — all four get "if that address is one we know, a link is on its way."
 Whether someone is a customer of ours is not a fact a form should confirm to a
 stranger who guesses.
 
+**Every question on a client page reaches you.** The Ask panel records the
+question AND the answer given, mails you both, and lists them at
+`/admin/questions` with who asked and which project. The panel says so on its
+face, in the line above the input — asking a client what is on their mind and
+quietly forwarding it is not a feature, and that sentence is load-bearing rather
+than decorative. If the notification is ever removed, remove the sentence too.
+
 **Five links per address per hour**, as on the per-page form.
 
 **A sign-in email that fails is invisible to the person waiting for it, on

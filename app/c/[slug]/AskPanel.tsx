@@ -2,9 +2,18 @@
 
 import { useRef, useState } from "react";
 
-// "Ask a question" panel at the top of a client page. Collapsed to a single
-// line until used, because most readers want to read the document, not chat
-// with it — it should be available, not in the way.
+// "Ask a question" panel at the top of a client page.
+//
+// It used to be a bare input, on the reasoning that most readers want to read
+// the document rather than chat with it. True, but it read as a search box, and
+// a feature nobody recognises is a feature nobody uses. It now says what it is
+// in one line and stays one line — available, still not in the way.
+//
+// The second sentence of that line is not decoration. Every question and the
+// answer given are emailed to Mendy and kept in the admin section, and a reader
+// is entitled to know that before they type. Asking a client what is on their
+// mind and quietly forwarding it is not a feature, it is a trick. If the
+// notification ever goes away, this sentence goes with it.
 
 type Turn = { role: "user" | "assistant"; content: string };
 
@@ -73,6 +82,13 @@ export function AskPanel({ slug, title }: { slug: string; title: string }) {
             ))}
           </div>
         )}
+        {turns.length === 0 && (
+          <p className="cp-ask-lede">
+            <strong>Ask anything about this document.</strong> You get an answer drawn
+            only from what is written here — never a number or a date that is not in it.
+            Questions and answers go to Mendy, so anything it cannot settle, he sees.
+          </p>
+        )}
         <form onSubmit={ask} className="cp-ask-form">
           <input
             value={draft}
@@ -87,7 +103,7 @@ export function AskPanel({ slug, title }: { slug: string; title: string }) {
           </button>
         </form>
         <p className="cp-ask-note">
-          Answers come only from this document. Anything it doesn&rsquo;t cover goes to Mendy.
+          Answers come only from this document, and Mendy sees every exchange.
         </p>
       </div>
     </section>
