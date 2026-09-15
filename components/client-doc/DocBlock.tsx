@@ -138,12 +138,15 @@ export function DocBlock({ block }: { block: Block }) {
           {heading}
           {/* The markup here was rebuilt from an allowlist by sanitizeSvg —
               it is never the block body as written. role and aria-label go on
-              the wrapper so the diagram still says what it shows even when the
-              source SVG carried no label of its own. */}
+              the wrapper only when the diagram carried no label of its own:
+              role="img" here replaces everything inside it for a screen
+              reader, so labelling both would trade the SVG's description for
+              the block title. parseBlock decides, and sends null to say the
+              diagram speaks for itself. */}
           <div
             className="avd-svg"
-            role="img"
-            aria-label={block.label}
+            role={block.label ? "img" : undefined}
+            aria-label={block.label ?? undefined}
             dangerouslySetInnerHTML={html(block.svg)}
           />
           {block.caption ? (

@@ -1,6 +1,6 @@
 import { DEFAULT_WIDTH, isWidth, type DocWidth } from "./tokens";
 import { md, mdInline, plain } from "./markdown";
-import { sanitizeSvg } from "./svg";
+import { sanitizeSvg, svgAccessibleName } from "./svg";
 
 // Turning one row of project_blocks into one typed component.
 //
@@ -150,7 +150,11 @@ export type DocBlock =
       kind: "svg";
       /** Rebuilt from an allowlist by lib/client-doc/svg.ts — never the input. */
       svg: string;
-      label: string;
+      /**
+       * A name for the WRAPPER, or null to leave the wrapper unnamed because
+       * the diagram already names itself. See svgAccessibleName.
+       */
+      label: string | null;
       caption: string | null;
     });
 
@@ -290,11 +294,16 @@ export function parseBlock(raw: RawBlock, index: number): DocBlock {
         // to prose shows whatever was written rather than an empty frame.
         if (!svg) break;
         const caption = rest.replace(/<svg[\s\S]*<\/svg>/i, "").trim();
+        // An explicit @label wins, because somebody asked for it. Otherwise a
+        // diagram carrying its own aria-label or <title> is left to speak for
+        // itself: naming the wrapper too would hide the longer description
+        // behind the block title. Only an unnamed diagram falls back.
+        const given = directives.label || directives.alt || "";
         return {
           kind,
           ...base,
           svg,
-          label: directives.label || directives.alt || title || "Diagram",
+          label: given || (svgAccessibleName(svg) ? null : title || "Diagram"),
           caption: caption ? mdInline(caption) : null
         };
       }

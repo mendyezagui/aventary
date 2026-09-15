@@ -68,7 +68,7 @@ check("format:html renders as text",
   parseBlock({ tab: "t", title: null, body: "<script>alert(1)</script>", format: "html", sort: 0 }).html);
 
 // --- inline SVG: the one place markup is allowed through -------------------
-const { sanitizeSvg } = await import(join(out, "lib/client-doc/svg.js"));
+const { sanitizeSvg, svgAccessibleName } = await import(join(out, "lib/client-doc/svg.js"));
 const SVG_BAD = /<script|<foreignobject|<iframe|\son[a-z]+\s*=|javascript:|data:text\/html|@import|url\(\s*['"]?https?:/i;
 
 for (const [label, src] of [
@@ -102,6 +102,33 @@ for (const want of ['viewBox="0 0 100 40"', 'aria-label="x"', "<marker", "<style
   check(`svg keeps ${want}`, diagram.includes(want), diagram.slice(0, 160));
 }
 check("svg refuses a non-svg body", sanitizeSvg("just some text") === null, "expected null");
+
+// --- who names the diagram --------------------------------------------------
+// role="img" on the wrapper replaces everything inside it for a screen reader,
+// so the wrapper is labelled only when the diagram is not.
+const named = (body) =>
+  parseBlock({ tab: "t", title: "The map", body: `@component: svg\n\n${body}`, format: "markdown", sort: 0 });
+
+check("svg names itself by aria-label",
+  svgAccessibleName('<svg aria-label="Site map: home branches into About"><rect/></svg>') ===
+    "Site map: home branches into About", "no name read");
+check("svg names itself by a root <title>",
+  svgAccessibleName("<svg><title>Migration sequence</title><rect/></svg>") === "Migration sequence", "no name read");
+check("a <title> inside a shape does not name the diagram",
+  svgAccessibleName("<svg><g><title>one node</title><rect/></g></svg>") === null, "named by a child's title");
+check("an unnamed svg has no name",
+  svgAccessibleName('<svg viewBox="0 0 10 10"><rect/></svg>') === null, "named from nothing");
+check("a name is unescaped, not raw entities",
+  svgAccessibleName('<svg aria-label="Events &amp; trips"><rect/></svg>') === "Events & trips", "left escaped");
+
+check("a self-naming diagram leaves the wrapper unnamed",
+  named('<svg aria-label="Site map: seven sections"><rect/></svg>').label === null, "wrapper was labelled anyway");
+check("an unnamed diagram falls back to the block title",
+  named("<svg><rect/></svg>").label === "The map", "no fallback label");
+check("@label wins over both",
+  parseBlock({ tab: "t", title: "The map",
+    body: '@component: svg\n@label: Proposed structure\n\n<svg aria-label="x"><rect/></svg>',
+    format: "markdown", sort: 0 }).label === "Proposed structure", "directive ignored");
 
 // --- brand values reach a style attribute, so they are hex or nothing -------
 const hostile = buildDocument({
