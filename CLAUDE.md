@@ -29,9 +29,16 @@ publishing path used to exist — the `client-page` edge function on Second Brai
 reading `projects.public_enabled`. Two documents (`bbdc`, `micah`) were served
 that way to anyone who guessed the slug. An earlier note here claimed `bbdc` had
 been closed on 2026-09-11; it had not, and the endpoint was still answering three
-days later. On 2026-09-14 both flags were cleared, the function was replaced with
-a 410, and the column was renamed `page_published` so nobody reads the old promise
-into it. **Verify a claim like that against the endpoint, never the row.**
+days later. On 2026-09-14 the function was replaced, and the column was renamed
+`page_published` so nobody reads the old promise into it.
+
+**`page_published = true` no longer means public.** It means "servable through
+`project-page-feed`", which refuses every request without `PAGE_FEED_SECRET`, and
+the website gates whatever it gets. `micah` is `true` today and is not exposed —
+an earlier note here said both flags were cleared, which is not what the rows
+say and no longer needs to be. Verified 2026-09-15 at the endpoints, not the
+rows: `client-page` answers 401, `project-page-feed` answers 503 without the
+secret. **Verify a claim like that against the endpoint, never the row.**
 
 ## Before you touch Second Brain data
 
