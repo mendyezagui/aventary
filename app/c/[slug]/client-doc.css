@@ -98,7 +98,10 @@
      --gap-section is the space AFTER a section's last block; --pad-section the
      space above the next section's heading. They stack, so 32 + 48 is 80px of
      air plus a hairline between sections. */
-  --gap-section: var(--s6);
+  /* Equal above and below the separator. A block that ends in a rule of its
+     own — a steps list, a table — otherwise sits close enough to the section
+     line that the two read as one doubled divider. */
+  --gap-section: var(--s7);
   --gap-block: var(--s6);
   --pad-section: var(--s7);
 
@@ -112,7 +115,7 @@
 }
 
 .avd-density-compact {
-  --gap-section: var(--s5);
+  --gap-section: var(--s6);
   --gap-block: var(--s5);
   --pad-section: var(--s6);
   line-height: 1.55;
@@ -247,8 +250,32 @@
 .avd-rail-toggle:hover { color: var(--accent-2); }
 
 /* ----------------------------------------------------------------- section */
-.avd-section { border-bottom: 1px solid var(--rule); scroll-margin-top: var(--s5); }
-.avd-section:last-of-type { border-bottom: 0; }
+.avd-section { scroll-margin-top: var(--s5); }
+
+/* The separator between sections.
+   A hairline that fades out at both ends, rather than a plain full-bleed
+   border. Two reasons it is drawn rather than bordered: a border on the
+   section also draws under a COLLAPSED one, stacking hairlines wherever
+   several are shut; and the section header already carries a solid rule from
+   the title across to the chevron, so a second solid full-width line read as
+   the same element repeated. Fading makes the two legible as different
+   things — one belongs to a heading, this one belongs between sections. */
+.avd-section + .avd-section > .avd-section-head::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--rule) 8%,
+    var(--rule) 92%,
+    transparent
+  );
+}
+.avd-section + .avd-section > .avd-section-head { position: relative; }
 
 /* The header is a real heading at a real size, with a mono chip beside it for
    the number. Rule 2: the number is a label, the title is the heading. */
@@ -267,7 +294,7 @@
   font-family: var(--serif); font-size: var(--t-section); font-weight: 600;
   line-height: 1.16; letter-spacing: -.014em; text-wrap: balance;
 }
-.avd-section-rule { flex: 1 1 auto; height: 1px; background: var(--rule); }
+.avd-section-rule { flex: 1 1 auto; height: 1px; background: var(--rule-strong); opacity: .55; }
 .avd-section-chev {
   flex: 0 0 auto; width: 9px; height: 9px; align-self: center;
   border-right: 1.5px solid var(--ink-3); border-bottom: 1.5px solid var(--ink-3);
@@ -522,6 +549,10 @@
   .avd-section-body { height: auto !important; overflow: visible !important; }
   .avd-section { break-inside: auto; page-break-inside: auto; }
   .avd-section-head { break-after: avoid; page-break-after: avoid; cursor: default; }
+  /* Background gradients are commonly dropped when printing; a plain rule
+     survives, and a document that prints without its section breaks reads as
+     one undifferentiated run of text. */
+  .avd-section + .avd-section > .avd-section-head::before { background: var(--rule); }
   .avd-block, .avd-card, .avd-metric, .avd-step { break-inside: avoid; page-break-inside: avoid; }
   .avd-body a { color: var(--ink); }
   .avd-main { padding-top: 0; }
