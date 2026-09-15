@@ -154,7 +154,8 @@ export default async function TeamMemberPage({
             The record
           </div>
           <h2 className="font-headline text-3xl md:text-4xl font-bold editorial-gap leading-[1.1] mb-12 max-w-2xl">
-            Fifteen years, in order<span className="text-primary italic">.</span>
+            {member.name.split(" ")[0]}&rsquo;s track record
+            <span className="text-primary italic">.</span>
           </h2>
 
           <div className="space-y-5">
@@ -165,9 +166,11 @@ export default async function TeamMemberPage({
                     <h3 className="font-headline text-2xl md:text-3xl font-bold leading-tight">
                       {c.org}
                     </h3>
-                    <div className="font-label text-xs tracking-[0.16em] uppercase text-on-surface-variant shrink-0">
-                      {c.period}
-                    </div>
+                    {c.period && (
+                      <div className="font-label text-xs tracking-[0.16em] uppercase text-on-surface-variant shrink-0">
+                        {c.period}
+                      </div>
+                    )}
                   </div>
 
                   <div className="text-accent font-label font-bold text-sm mb-4">{c.role}</div>
@@ -175,6 +178,7 @@ export default async function TeamMemberPage({
                     {c.summary}
                   </p>
 
+                  {c.points && c.points.length > 0 && (
                   <ul className="space-y-3">
                     {c.points.map((pt) => (
                       <li key={pt} className="flex gap-3 text-on-surface-variant leading-relaxed">
@@ -186,6 +190,7 @@ export default async function TeamMemberPage({
                       </li>
                     ))}
                   </ul>
+                  )}
                 </article>
               </Reveal>
             ))}
@@ -333,7 +338,7 @@ export default async function TeamMemberPage({
             How I work
           </div>
           <h2 className="font-headline text-3xl md:text-4xl font-bold editorial-gap leading-[1.1] mb-12 max-w-2xl">
-            Four things I will not negotiate<span className="text-primary italic">.</span>
+            Non-negotiables<span className="text-primary italic">.</span>
           </h2>
 
           <div className="grid md:grid-cols-2 gap-5">

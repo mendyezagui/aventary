@@ -21,12 +21,12 @@ export type Chapter = {
   /** Org name as it should read on the page. */
   org: string;
   role: string;
-  /** Human span, e.g. "2021 — 2026". */
-  period: string;
+  /** Human span, e.g. "2021 — 2026". Omit when nobody supplied dates. */
+  period?: string;
   /** One line on what the job actually was. */
   summary: string;
   /** The receipts. Each one should be traceable to something real. */
-  points: string[];
+  points?: string[];
 };
 
 /**
@@ -382,21 +382,62 @@ export const TEAM: TeamMember[] = [
     name: "Musy Ezagui",
     role: "Customer Success Lead",
     blurb:
-      "Customer success at Aventary, and the founder of Chai Cut — an AI video editing agent that turns raw footage into a finished Reel.",
+      "Customer success at Aventary. Years of being accountable to a room \u2014 a bunk of thirty, two Hebrew school classrooms \u2014 and two web applications she built herself.",
     // Mendy and Musy share initials, so the monograms use the first two
-    // letters of the first name instead — two identical "ME" circles on a
+    // letters of the first name instead \u2014 two identical "ME" circles on a
     // two-person roster reads as a bug. Moot once there are headshots.
     initials: "MU",
-    // Deliberately thin. Two things are known and both are stated; every other
-    // Profile field is optional and is left out rather than filled with a
-    // plausible-sounding history nobody supplied. Add chapters, education or
-    // principles later and those sections appear on their own.
+    // Written from Musy's own account of her background. No dates were given,
+    // so the chapters carry none rather than carrying invented ones \u2014 which
+    // is why Chapter.period is optional.
     profile: {
       lede:
-        "Customer success at Aventary, and the founder of Chai Cut — so the person answering for how a system feels to use also builds one of her own.",
+        "Two kinds of experience that are rarer together than apart: years of being accountable to a room full of people, and the hands to build the software herself.",
       story: [
-        "Musy leads customer success at Aventary. That is the side of the work that begins after the build ships: whether the people who have to live with a system can actually run it, and what has to change when they cannot.",
-        "She is also the creator and founder of Chai Cut, an AI video editing agent. You hand it raw footage; it watches the clips, finds the story and the strongest moments, keeps complete thoughts intact, and returns a finished vertical Reel — B-roll, captions, hook, pacing, colour and ducked music included. A real product with a real user problem under it, which is the same instinct customer success runs on.",
+        "Musy has spent years responsible for groups of people. As a summer camp counselor she ran a bunk of roughly thirty children \u2014 the schedules, the safety, the disputes, and the steady improvisation that comes with thirty people who all need something at once. She has volunteered with Friendship Circle and worked in Chabad House educational programming, including teaching at two Hebrew schools in Canada.",
+        "Teaching and customer success are closer than they look. Both are judged on the same thing: whether the person in front of you can actually do it afterward, not on how well it was explained. That is the standard the role carries at Aventary \u2014 a system is not delivered until the team who has to live with it can run it without us.",
+        "More recently she has been building. Working with AI coding agents and modern development tooling, she has shipped two functional web applications: one that streamlines kosher product scanning, and Chai Cut, which turns long-form footage into short, post-ready social reels. Both went from an idea to something that works, which means the unglamorous middle as well \u2014 deciding what it should do, building it, and troubleshooting it until it did.",
+        "That combination is the useful one. She has been the person accountable for a room, and the person accountable for a build. Clients get both.",
+      ],
+      pull:
+        "A system is not delivered until the team who has to live with it can run it without us.",
+      chapters: [
+        {
+          org: "Aventary",
+          role: "Customer Success Lead",
+          summary:
+            "The side of the work that begins after the build ships: whether the people who have to live with a system can actually run it, and what has to change when they cannot.",
+        },
+        {
+          org: "Chai Cut",
+          role: "Creator & Founder",
+          summary:
+            "An AI video editing agent, built with AI coding agents and modern development tooling \u2014 concept through to a working product.",
+        },
+        {
+          org: "Kosher product scanning app",
+          role: "Builder",
+          summary:
+            "A second web application, built the same way: a real everyday problem taken from idea to something that runs.",
+        },
+        {
+          org: "Chabad House educational programming",
+          role: "Teacher",
+          summary:
+            "Educational programming, including teaching at two Hebrew schools in Canada.",
+        },
+        {
+          org: "Friendship Circle",
+          role: "Volunteer",
+          summary:
+            "Volunteer work supporting children and families in the community.",
+        },
+        {
+          org: "Summer camp",
+          role: "Counselor",
+          summary:
+            "Responsible for a bunk of roughly thirty children \u2014 leadership, organization, communication and problem-solving, learned where the feedback is immediate.",
+        },
       ],
       links: [
         {
@@ -404,7 +445,7 @@ export const TEAM: TeamMember[] = [
           url: "https://chaicut.vercel.app/",
           role: "Creator & Founder",
           description:
-            "An AI video editing agent. Hand it raw footage; it finds the story and edits a finished vertical Reel — captions, pacing, colour and music included.",
+            "An AI video editing agent. Hand it raw footage; it finds the story and edits a finished vertical Reel \u2014 captions, pacing, colour and music included.",
         },
       ],
     },
