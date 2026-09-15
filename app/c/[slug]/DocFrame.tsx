@@ -18,13 +18,16 @@ import { registerDocFrame } from "./reveal";
 // in-app links, browser back and forward, and a prefetching index were all
 // tested and all correct.
 //
-// That is precisely why this does not rely on having found it. These are
-// confidential documents belonging to different clients, and an unreproduced
-// path that shows one client another's proposal is not something to leave
-// resting on React reusing an element correctly. The page keys this component
-// by slug so the element can never be reused across documents, and the document
-// is stamped with the slug it belongs to so this can check, once it has loaded,
-// that what is on screen is what the URL asked for.
+// KNOW WHAT THIS CHECK COVERS. The stamp is written from the CURRENT slug, so
+// it matches whatever HTML is handed to this component. It therefore catches
+// exactly one thing: a frame still holding a document stamped on an earlier
+// render — element reuse across two clients' pages. It cannot catch the server
+// resolving the wrong document; that is checked where it can be, against the
+// row's own slug in lib/client-pages.ts.
+//
+// The real remedy is upstream of both: the shelf links to a document with a
+// plain <a>, so opening one is a full page load with no client state carried
+// in from the last. This stays as the net under that.
 //
 // A mismatch reloads the frame once. If it survives that, the document is not
 // shown at all: a blank panel and a note to reload beats silently handing

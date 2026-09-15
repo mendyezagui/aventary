@@ -130,7 +130,18 @@ export function PageList({
     <ul className="pl-list">
       {pages.map((p) => (
         <li key={p.slug} className="pl-item">
-          <Link href={`/c/${p.slug}`}>
+          {/* A real navigation, deliberately — not next/link.
+
+              These are different clients' confidential documents, and a soft
+              navigation keeps one page's React tree alive while it fetches the
+              next. On 2026-09-15 that showed as /c/myef displaying Brown Bag
+              Direct's proposal, and once as /c/myef displaying this index — the
+              URL had moved on and the old tree had not. It was never reproduced
+              in a clean browser, which is the point: a full page load has no
+              shared client state to get wrong, so the failure cannot happen
+              rather than being unlikely. A document is a page you arrive at
+              once and read; the cost of loading it properly is nothing. */}
+          <a href={`/c/${p.slug}`}>
             {showClient && p.clientName && <p className="pl-client">{p.clientName}</p>}
             <h2 className="pl-title">{p.title}</h2>
             {showClient && p.summary && <p className="pl-summary">{p.summary}</p>}
@@ -144,7 +155,7 @@ export function PageList({
             <span className="pl-open" aria-hidden="true">
               Open →
             </span>
-          </Link>
+          </a>
         </li>
       ))}
     </ul>
