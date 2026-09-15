@@ -88,7 +88,11 @@ export default async function ClientPage({
         <p className="cp-whoami">
           {viewerMayRead && viewer ? (
             <>
-              Signed in as {viewer.email}. <Link href={backTo}>All your documents</Link>.
+              Signed in as {viewer.email}.{" "}
+              {/* A real navigation for the same reason as the shelf's links:
+                  leaving a document tears its tree down instead of carrying it
+                  into whatever is opened next. */}
+              <a href={backTo}>All your documents</a>.
             </>
           ) : pageSession?.email ? (
             `Signed in as ${pageSession.email}.`
