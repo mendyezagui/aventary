@@ -96,6 +96,66 @@ export default function WorkPage() {
       {/* FILTERS + CATALOG (interactive) */}
       <WorkExplorer projects={PROJECTS} capabilities={CAPABILITIES} />
 
+      {/* WHO BUILT THIS — a short background, with the long version a click away */}
+      <section className="px-8 py-20 md:py-24 bg-surface-container">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-10 md:gap-14 md:items-start">
+            <div
+              aria-hidden="true"
+              className="shrink-0 w-20 h-20 rounded-full bg-primary text-on-primary font-headline font-bold text-2xl flex items-center justify-center"
+            >
+              ME
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="text-accent font-label font-bold text-xs tracking-[0.18em] uppercase mb-3">
+                Who builds it
+              </div>
+              <h2 className="font-headline text-3xl md:text-4xl font-bold editorial-gap leading-[1.1] mb-6">
+                An operator, not a slide deck
+                <span className="text-primary italic">.</span>
+              </h2>
+
+              <p className="text-lg md:text-xl text-on-surface-variant leading-relaxed mb-5">
+                Aventary is <strong className="text-on-surface">Mendy Ezagui</strong> — fifteen
+                years of product and transformation work. Five of them at{" "}
+                <strong className="text-on-surface">PwC</strong> in Technology &amp; Transformation
+                Advisory, directing <strong className="text-on-surface">$1B+</strong> in enterprise
+                transformation value across 20+ programs and leading the design of the firm&rsquo;s
+                first client-facing GenAI sales agent. Before that, co-founder and CPO of a
+                logistics automation platform taken from a sketch to{" "}
+                <strong className="text-on-surface">$1M ARR</strong>, a product turnaround at
+                Sallie Mae, and five applications at Chabad.org adopted by{" "}
+                <strong className="text-on-surface">600+ organizations</strong>.
+              </p>
+              <p className="text-lg md:text-xl text-on-surface-variant leading-relaxed mb-8">
+                MBA in Finance from Baruch&rsquo;s Zicklin School of Business.{" "}
+                <strong className="text-on-surface">Salesforce Certified 14×</strong>, including all
+                three generative-AI credentials. Vetted in the top 3% of product talent by Toptal.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+                <Link
+                  href="/team/mendy"
+                  className="inline-flex items-center gap-2 bg-ink text-inverse-on-surface px-6 py-3 rounded-full font-bold"
+                >
+                  Read the full background
+                  <span className="material-symbols-outlined">arrow_forward</span>
+                </Link>
+                <a
+                  href="https://www.linkedin.com/in/mendyezagui/"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-accent font-label font-bold text-sm link-underline"
+                >
+                  Connect on LinkedIn
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="px-8 py-24 bg-ink text-inverse-on-surface">
         <div className="max-w-3xl mx-auto text-center">
