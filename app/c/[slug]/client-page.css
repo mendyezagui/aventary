@@ -187,19 +187,25 @@
    Plain CSS and literal colours, like everything else in this file: a client
    page carries the proposal's own visual world and none of the site's tokens. */
 .cp-ask-launcher{
-  position:fixed; z-index:40; right:22px; bottom:22px;
-  display:inline-flex; align-items:center; gap:8px;
-  font-family:"IBM Plex Sans",system-ui,sans-serif; font-size:.9rem; font-weight:600;
-  padding:11px 18px; border:1px solid #0E6B68; border-radius:999px;
+  position:fixed; z-index:40; right:0; top:50%;
+  transform:translateY(-50%);
+  display:inline-flex; flex-direction:column; align-items:center; gap:8px;
+  font-family:"IBM Plex Sans",system-ui,sans-serif; font-size:.78rem; font-weight:600;
+  letter-spacing:.14em; text-transform:uppercase;
+  padding:18px 9px;
+  border:1px solid #0E6B68; border-right:none; border-radius:5px 0 0 5px;
   background:#0E6B68; color:#FAF8F3; cursor:pointer;
-  box-shadow:0 2px 6px rgba(20,33,43,.14), 0 14px 34px -18px rgba(20,33,43,.6);
-  transition:background .15s ease, border-color .15s ease, transform .15s ease;
+  box-shadow:-2px 0 6px rgba(20,33,43,.13), -14px 0 32px -20px rgba(20,33,43,.6);
+  transition:background .15s ease, border-color .15s ease, transform .15s ease, opacity .15s ease;
 }
-.cp-ask-launcher:hover{background:#0A514F;border-color:#0A514F;transform:translateY(-1px);}
+/* The word runs down the tab. A 40px-wide strip has no room for it across, and
+   a tab labelled with an icon alone is a guessing game. */
+.cp-ask-launcher span{writing-mode:vertical-rl;}
+.cp-ask-launcher:hover{background:#0A514F;border-color:#0A514F;transform:translateY(-50%) translateX(-2px);}
 .cp-ask-launcher:focus-visible{outline:2px solid #14212B;outline-offset:3px;}
-/* The rail slides over this corner. Out of sight and out of the tab order
-   while it is open, rather than stranded underneath it. */
-.cp-ask-launcher.is-hidden{opacity:0;pointer-events:none;transform:translateY(10px);}
+/* The rail slides over this edge. Out of sight and out of the tab order while
+   it is open, rather than stranded underneath it. */
+.cp-ask-launcher.is-hidden{opacity:0;pointer-events:none;transform:translateY(-50%) translateX(14px);}
 
 /* Wide enough to spare the room, the document moves over instead of being
    covered — a citation that scrolls to a passage behind the rail has shown the
@@ -270,13 +276,15 @@
 .cp-ask-note{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.76rem;line-height:1.5;color:#7C8992;margin:0;padding:10px 20px calc(16px + env(safe-area-inset-bottom));}
 
 @media (max-width:620px){
-  .cp-ask-launcher{right:16px;bottom:16px;}
+  .cp-ask-launcher{padding:15px 8px;font-size:.74rem;}
   .cp-ask-rail{width:100vw;border-left:none;}
 }
 @media (prefers-reduced-motion: reduce){
   .cp-ask-rail{transition:none;}
   .cp-ask-launcher{transition:none;}
-  .cp-ask-launcher:hover{transform:none;}
+  /* Not `transform:none` — that would drop the centring translate with it and
+     send the tab to the bottom of the viewport. Only the nudge goes. */
+  .cp-ask-launcher:hover{transform:translateY(-50%);}
 }
 
 /* Full-document client pages (mode:"document") render in an isolated iframe.
