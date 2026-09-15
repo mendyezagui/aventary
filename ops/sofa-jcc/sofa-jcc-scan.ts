@@ -10,6 +10,15 @@
 // candle-lighting time in place. PINNED_SHA is echoed in every response and in
 // every agentlog line, so a stale pin is visible instead of silent.
 //
+// IT NOW PINS TO THIS REPO. It used to pin to mendyezagui/second-brain, which
+// stopped being the app when the product moved to mendyezagui/secondbrain-app,
+// and nobody moved the pin. By 2026-09-15 the two copies had drifted 26 lines in
+// agent.js and 38 in dev.js — with the APP holding the older ones, so the
+// console had bugs the cron did not. secondbrain-app is private and the edge
+// runtime cannot read it, so the modules are vendored into ops/sofa-jcc/lib
+// here, byte-identical, one direction only. ./ops/sofa-jcc/sync-lib.sh --check
+// answers whether what runs still matches the app.
+//
 // What changed in the port, and why:
 //
 //  1. WHO IT RUNS FOR. planDay builds its upserts from the Hebcal calendar, not
@@ -39,12 +48,12 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { planDay, renderFor } from "https://raw.githubusercontent.com/mendyezagui/second-brain/0abc8cbcb160afc3a633f58109eebfb3cd24bdd1/src/lib/sofa/agent.js";
-import { isoDate } from "https://raw.githubusercontent.com/mendyezagui/second-brain/0abc8cbcb160afc3a633f58109eebfb3cd24bdd1/src/lib/sofa/hebcal.js";
-import { ordersForFlyers, handoffPrompt } from "https://raw.githubusercontent.com/mendyezagui/second-brain/0abc8cbcb160afc3a633f58109eebfb3cd24bdd1/src/lib/sofa/dev.js";
+import { planDay, renderFor } from "https://raw.githubusercontent.com/mendyezagui/aventary/ebae209e579949b969c40bb89fee7478196b9a99/ops/sofa-jcc/lib/agent.js";
+import { isoDate } from "https://raw.githubusercontent.com/mendyezagui/aventary/ebae209e579949b969c40bb89fee7478196b9a99/ops/sofa-jcc/lib/hebcal.js";
+import { ordersForFlyers, handoffPrompt } from "https://raw.githubusercontent.com/mendyezagui/aventary/ebae209e579949b969c40bb89fee7478196b9a99/ops/sofa-jcc/lib/dev.js";
 
 // Keep in step with the three import URLs above.
-const PINNED_SHA = "0abc8cbcb160afc3a633f58109eebfb3cd24bdd1";
+const PINNED_SHA = "ebae209e579949b969c40bb89fee7478196b9a99";
 
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
 
@@ -195,6 +204,14 @@ async function runScan(T: string, { today = isoDate(), dryRun = false }) {
       `${applied.nudges} nudge(s), ${applied.workOrders} work order(s). [edge @ ${PINNED_SHA.slice(0, 8)}]`,
     plan.nudges.some((n: any) => n.severity === "high") ? "high" : "medium",
   );
+
+  // Stamp the associate row. The Associates tab shows when each one last ran,
+  // and nothing was writing this for the custom runtimes — so a job that has
+  // fired every morning since it was built read "never run" on screen. A UI
+  // that says a working thing is broken is its own bug.
+  await sb.from("associates")
+    .update({ last_run_at: new Date().toISOString() })
+    .eq("tenant_id", T).eq("slug", "sofa-jcc");
 
   return { tenant: T, ...plan, pinned_sha: PINNED_SHA, applied };
 }
