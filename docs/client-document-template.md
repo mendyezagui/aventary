@@ -95,7 +95,7 @@ wrote.
 
   "layout": {
     "collapse":  "open",                    // open | after-first | all | never
-    "nav":       true,                      // defaults on past three sections
+    "nav":       true,                      // defaults on from two sections
     "numbered":  true,
     "density":   "comfortable"              // or compact
   }

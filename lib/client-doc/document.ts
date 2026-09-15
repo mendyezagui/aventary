@@ -79,8 +79,9 @@ const COLLAPSE: CollapseMode[] = ["open", "after-first", "all", "never"];
  * client to go looking for the thing you sent them. The affordance is for the
  * second read, when they want the pricing again and not the preamble.
  *
- * `nav` defaults on only past three sections: a contents list for two is
- * decoration.
+ * `nav` defaults on from two sections. A contents list for one section is
+ * decoration, but two is already a document somebody scrolls — a page with two
+ * tabs can still have seven blocks under the first of them.
  */
 export function resolveLayout(raw: unknown, sectionCount: number): DocLayout {
   const l = (raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {}) as Record<string, unknown>;
@@ -89,7 +90,7 @@ export function resolveLayout(raw: unknown, sectionCount: number): DocLayout {
     : "open";
   return {
     collapse,
-    nav: typeof l.nav === "boolean" ? l.nav : sectionCount >= 3,
+    nav: typeof l.nav === "boolean" ? l.nav : sectionCount >= 2,
     numbered: typeof l.numbered === "boolean" ? l.numbered : true,
     density: l.density === "compact" ? "compact" : "comfortable"
   };
