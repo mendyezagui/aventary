@@ -5,8 +5,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { splitAnswer, type Anchor } from "@/lib/doc-anchors";
 import { revealAnchor } from "./reveal";
 
-// "Ask" on a client page: a button pinned to the right-hand edge, and a rail
-// that opens beside the document.
+// "Ask" on a client page: a tab pinned to the middle of the right-hand edge,
+// and a rail that opens beside the document.
+//
+// The edge rather than the bottom-right corner, which is where aventary.com's
+// own "Ask Aventary" bubble lives. The two never share a screen — that one is
+// on the marketing pages, this one is behind the sign-in — but two round
+// buttons in the same corner answering about different things read as one
+// button that follows you everywhere, which is exactly how it was read.
 //
 // It began as a bar across the top of the page, which was wrong in two ways.
 // Somebody reads a proposal by scrolling, and a question occurs to them at the
@@ -149,7 +155,7 @@ export function AskPanel({
 
   return (
     <>
-      {/* Opens only. The rail slides over this corner, so a button that also
+      {/* Opens only. The rail slides over this edge, so a button that also
           closed would spend that half of its life underneath what it closes —
           the rail carries its own ×, and Escape works from anywhere. */}
       <button

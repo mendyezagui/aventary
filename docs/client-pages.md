@@ -196,8 +196,8 @@ their sessions and see the new version.
 
 ## Ask
 
-Every client page carries an **Ask** button pinned to its bottom-right corner.
-It opens a rail beside the document where a reader can ask questions about it,
+Every client page carries an **Ask** tab pinned to the middle of its right-hand
+edge. It opens a rail beside the document where a reader can ask questions about it,
 and it answers **only from that document** — the same session gates the endpoint
 as the page, so it is never reading a proposal aloud to someone who guessed a
 URL.
@@ -206,6 +206,13 @@ It used to be a bar across the top of the page. That was available to a reader
 who had not started yet and gone by the time a question occurred to them, which
 is the wrong half of the visit. Pinned to the edge it travels with them, and the
 document gets the top of the page back.
+
+**The edge, not the bottom-right corner, and deliberately.** That corner belongs
+to `AskAventary`, the marketing site's own floating bubble in
+`app/(site)/layout.tsx`. The two never share a screen — that one is on the public
+pages, this one is behind the sign-in — but for a day they were both round
+buttons in the same corner answering about different things, and they read as one
+button following the reader everywhere. An edge tab cannot be mistaken for it.
 
 On a screen wider than 1100px the document makes room for the rail rather than
 being covered by it. Narrower than that the rail overlays, and closes itself
