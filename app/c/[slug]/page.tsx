@@ -3,9 +3,11 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { cookieName, getContent, getPageRow, readSession } from "@/lib/client-pages";
 import { PORTAL_COOKIE, canReadSlug, readPortalSession, seesEverything } from "@/lib/portal";
+import { ClientDoc } from "@/components/client-doc/ClientDoc";
 import { AskPanel } from "./AskPanel";
 import { DocFrame } from "./DocFrame";
 import "./client-page.css";
+import "./client-doc.css";
 
 export const dynamic = "force-dynamic";
 
@@ -68,7 +70,13 @@ export default async function ClientPage({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="stylesheet" href={FONTS} />
         <AskPanel slug={slug} title={content.title} />
-        {content.mode === "document" ? (
+        {/* Three sources, three ways of rendering. A project page is ours
+            end to end, so it renders as components on the page. An authored
+            page is hand-written standalone HTML with its own <style>, and the
+            iframe that sandboxes it is the whole reason that path exists. */}
+        {content.mode === "project" && content.doc ? (
+          <ClientDoc doc={content.doc} />
+        ) : content.mode === "document" ? (
           <DocFrame html={content.html} title={content.title} />
         ) : (
           <div className="lcla" dangerouslySetInnerHTML={{ __html: content.html }} />

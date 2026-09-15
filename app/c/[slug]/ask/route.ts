@@ -154,7 +154,9 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
   const encoder = new TextEncoder();
   // The document is large and identical on every request, so it is cached; only
   // the question after it varies.
-  const system = systemPrompt(content.title, documentText(content.html));
+  // A project page has no HTML string to strip — it carries the markdown its
+  // blocks were written in, which is better context than tag-stripped markup.
+  const system = systemPrompt(content.title, content.text ?? documentText(content.html));
 
   const stream = new ReadableStream({
     async start(controller) {

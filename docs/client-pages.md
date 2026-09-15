@@ -42,6 +42,12 @@ In Second Brain, open the project → **Client Hub**:
 That is the whole thing. The website builds the document from the blocks on
 each request, so an edit in Client Hub is live on reload.
 
+**What the page looks like, and what each block becomes, is a separate subject:
+see `docs/client-document-template.md`.** A block can be a paragraph, a row of
+numbers, a callout, a card grid, a timeline or a table, chosen with one line at
+the top of its body; the client's logo and accent colour are one object in
+`public_meta`. Neither needs a deploy.
+
 The status line under the URL says what is missing rather than letting you
 believe a page is up when it is not. A project with no public blocks is not
 served at all — an empty document reads as a mistake to whoever opened it.
@@ -67,6 +73,10 @@ breaking.
 
 **Markdown is markdown.** Block bodies render through `marked` with raw HTML
 escaped, so a `<script>` pasted into a body shows as text.
+
+**Sections collapse.** Native `<details>`, so it works without JavaScript and
+everything opens when the page is printed. Nothing starts closed unless you say
+so — see the template doc.
 
 ---
 

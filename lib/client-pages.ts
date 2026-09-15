@@ -65,7 +65,14 @@ export async function getContent(slug: string): Promise<ClientPageContent | null
 
   const project = await getProjectPage(slug);
   if (project) {
-    return { title: project.title, blurb: project.blurb, html: project.html, mode: "document" };
+    return {
+      title: project.title,
+      blurb: project.blurb,
+      html: "",
+      mode: "project",
+      doc: project.doc,
+      text: project.text
+    };
   }
 
   if (!configured()) return null;
