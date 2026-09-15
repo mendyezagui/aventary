@@ -119,8 +119,19 @@
 }
 
 .avdoc, .avdoc *, .avdoc *::before, .avdoc *::after { box-sizing: border-box; }
-.avdoc h1, .avdoc h2, .avdoc h3, .avdoc h4, .avdoc p, .avdoc dl, .avdoc dd,
-.avdoc ol, .avdoc ul, .avdoc figure, .avdoc blockquote { margin: 0; padding: 0; }
+
+/* :where() so the reset carries ZERO specificity beyond .avdoc.
+   Written as `.avdoc p { margin: 0 }` this is (0,1,1) and quietly beats every
+   single-class rule below it — --t-block's margin, the standfirst's, the
+   eyebrow's, the hero meta row's, the card titles', the paragraph flow inside
+   a body. All of them were being dropped, which made the whole document read
+   cramped for a reason no individual rule could explain. Inside :where() the
+   selector is (0,1,0), so a component rule further down the file wins on
+   source order, as it should. */
+.avdoc :where(h1, h2, h3, h4, p, dl, dd, ol, ul, figure, blockquote) {
+  margin: 0;
+  padding: 0;
+}
 .avdoc :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .avd-sr {
   position: absolute; width: 1px; height: 1px; overflow: hidden;

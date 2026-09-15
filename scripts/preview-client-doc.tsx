@@ -2,14 +2,24 @@
  * Render the client-document template to a standalone HTML file, with sample
  * content that exercises every component in the registry.
  *
- *   node scripts/build-preview.mjs      (compiles this, then runs it)
+ *   npm run preview:doc
  *
- * This is a design harness, not a route. It uses no database, names no real
- * client, and is never deployed — which is the point: the whole system can be
- * looked at, and changed, without publishing a project or signing in to one.
- * If you add a component to lib/client-doc/parse.ts, add it here too.
+ * This is a design harness, not a route. It uses no database and is never
+ * deployed — which is the point: the whole system can be looked at, and
+ * changed, without publishing a project or signing in to one. If you add a
+ * component to lib/client-doc/parse.ts, add it to the sample here too.
+ *
+ * To preview REAL content without putting it in the repository, point it at a
+ * fixture file holding the same { name, client, meta, blocks } shape the feed
+ * returns, and send the output somewhere outside the tree:
+ *
+ *   AVDOC_FIXTURE=~/scratch/acme.json AVDOC_OUT=~/scratch/acme.html npm run preview:doc
+ *
+ * Client documents are confidential. Keep the fixture and the output out of
+ * this repository — that is what the two variables are for.
  */
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { buildDocument } from "@/lib/client-doc";
 import { ClientDoc } from "@/components/client-doc/ClientDoc";
@@ -151,20 +161,31 @@ two enterprise deals that would otherwise distort every ratio on this page.
   )
 ];
 
-const doc = buildDocument({
-  name: "Prime Rock Realty — Broker Operator System",
-  client: "Prime Rock Realty",
+const SAMPLE = {
+  name: "Northwind Partners — Revenue Operations Review",
+  client: "Northwind Partners",
   meta: {
     heading: "Where your deals are leaking",
     subheading:
       "What we discussed, and what the data says once you line the last ninety days up next to it.",
-    prepared_for: "Micah Hiller · Prime Rock Realty",
+    prepared_for: "Northwind Partners",
     prepared_by: "Mendy Ezagui · Aventary",
-    brand: { name: "Prime Rock Realty", accent: "#1F4E79" },
+    brand: { name: "Northwind Partners", accent: "#1F4E79" },
     layout: { nav: true, numbered: true }
   },
-  blocks: BLOCKS,
-  now: new Date("2026-09-15T12:00:00Z")
+  blocks: BLOCKS
+};
+
+const fixture = process.env.AVDOC_FIXTURE;
+const input = fixture ? JSON.parse(readFileSync(fixture, "utf8")) : SAMPLE;
+
+const doc = buildDocument({
+  name: input.name,
+  client: input.client ?? null,
+  meta: input.meta ?? {},
+  blocks: input.blocks,
+  // Fixed, so re-running the harness does not show up as a diff every day.
+  now: fixture ? new Date() : new Date("2026-09-15T12:00:00Z")
 });
 
 const css = readFileSync("app/c/[slug]/client-doc.css", "utf8");
@@ -187,10 +208,11 @@ const page = `<!DOCTYPE html>
 <body>${renderToStaticMarkup(<ClientDoc doc={doc} />)}</body>
 </html>`;
 
-mkdirSync("preview", { recursive: true });
-writeFileSync("preview/client-document-template.html", page);
+const out = process.env.AVDOC_OUT || "preview/client-document-template.html";
+mkdirSync(dirname(out), { recursive: true });
+writeFileSync(out, page);
 console.log(
-  `preview/client-document-template.html — ${doc.sections.length} sections, ` +
+  `${out} — ${doc.sections.length} sections, ` +
     `${doc.sections.reduce((n, s) => n + s.blocks.length, 0)} blocks: ` +
     doc.sections.flatMap((s) => s.blocks.map((b) => b.kind)).join(", ")
 );
