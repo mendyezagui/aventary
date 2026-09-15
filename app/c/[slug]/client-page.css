@@ -275,9 +275,34 @@
 .cp-ask-form button:disabled{opacity:.45;cursor:default;}
 .cp-ask-note{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.76rem;line-height:1.5;color:#7C8992;margin:0;padding:10px 20px calc(16px + env(safe-area-inset-bottom));}
 
+/* On a phone the document is the full width of the screen, so a tab pinned to
+   the middle of the right edge sits on top of whatever you are reading — and,
+   since the template's section headers are full-width buttons, on top of the
+   control you were reaching for. Mid-height is the worst place for that: it is
+   exactly where a reader's eye and thumb are.
+
+   So on phones it moves to the bottom-right corner and lays out across. It
+   still floats over the document — anything fixed does on a narrow screen —
+   but the corner is not where section headers are read and tapped, and it is
+   where a thumb already rests. It stays a pill rather than becoming a circle:
+   aventary.com's own bubble is a circle, and that distinction is the reason
+   this moved off the corner on desktop in the first place. */
 @media (max-width:620px){
-  .cp-ask-launcher{padding:15px 8px;font-size:.74rem;}
+  .cp-ask-launcher{
+    top:auto; bottom:calc(16px + env(safe-area-inset-bottom)); right:16px;
+    transform:none;
+    flex-direction:row; gap:7px;
+    padding:11px 17px; font-size:.76rem; letter-spacing:.12em;
+    border-right:1px solid #0E6B68; border-radius:999px;
+    box-shadow:0 2px 6px rgba(20,33,43,.16), 0 14px 34px -18px rgba(20,33,43,.6);
+  }
+  .cp-ask-launcher span{writing-mode:horizontal-tb;}
+  .cp-ask-launcher:hover{transform:none;}
+  .cp-ask-launcher.is-hidden{transform:translateY(12px);}
   .cp-ask-rail{width:100vw;border-left:none;}
+}
+@media (max-width:620px) and (prefers-reduced-motion: reduce){
+  .cp-ask-launcher:hover{transform:none;}
 }
 @media (prefers-reduced-motion: reduce){
   .cp-ask-rail{transition:none;}
