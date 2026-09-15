@@ -167,7 +167,7 @@
 .avd-hero {
   background: var(--surface);
   border-bottom: 1px solid var(--rule-strong);
-  padding: var(--s7) 0 var(--s6);
+  padding: var(--s6) 0 var(--s5);
 }
 .avd-hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s6); }
 .avd-eyebrow { color: var(--accent); margin-bottom: var(--s4); }
@@ -204,8 +204,10 @@
 
 .avd-hero-meta {
   display: flex; flex-wrap: wrap; gap: var(--s4) var(--s7);
-  margin-top: var(--s6);
-  padding-top: var(--s4);
+  /* Kept under the hero's own 32px padding: a gap inside the block larger than
+     the block's frame makes the meta row read as floating rather than attached. */
+  margin-top: var(--s5);
+  padding-top: var(--s3);
   border-top: 1px solid var(--rule);
 }
 .avd-hero-meta dt { color: var(--ink-3); margin-bottom: var(--s1); }
