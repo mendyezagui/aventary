@@ -33,7 +33,15 @@
     // Which Supabase project serves project-page content. A public hostname,
     // already named in CLAUDE.md and the docs — the credential that goes with
     // it is PAGE_FEED_SECRET, which is a Secret and is not in this file.
-    "SECOND_BRAIN_URL": "https://fukehjqikxqsntwhmgsk.supabase.co"
+    "SECOND_BRAIN_URL": "https://fukehjqikxqsntwhmgsk.supabase.co",
+    // Who may reach /admin. An allowlist of addresses, not a credential — it
+    // grants nothing on its own, since the holder still has to sign in through
+    // Supabase auth. It belongs here for the same reason as the rest: it was a
+    // plain-text dashboard variable, requireAdmin() fails CLOSED without it,
+    // and a deploy that quietly removed it would lock everybody out of the CMS
+    // with no error anywhere. Comma-separated, lowercase. Add an address here
+    // and push; there is nothing to set in Cloudflare.
+    "ADMIN_EMAILS": "mendy@aventary.com"
   },
   "observability": {
     "enabled": true
