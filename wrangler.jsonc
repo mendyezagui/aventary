@@ -28,6 +28,25 @@
   // the dashboard as type Secret: RESEND_API_KEY, SUPABASE_SERVICE_ROLE_KEY,
   // PAGE_FEED_SECRET, and anything else that would matter if it leaked.
   "vars": {
+    // The anon-key Supabase connection. Both halves belong here, together.
+    //
+    // They were split across the two kinds of Worker config — the URL stored as
+    // an encrypted Secret, the key as a plain-text Variable — and a deploy on
+    // 2026-09-15 replaced the variables with what this file declared (nothing)
+    // while leaving the secret alone. The result was a URL with no key, which
+    // is worse than having neither: every guard checked only the URL, so the
+    // code walked past it into createServerClient(url, undefined) and threw.
+    // /, /insights, /videos, /contact and /diagnostics all returned 500.
+    //
+    // Neither value is a credential. NEXT_PUBLIC_ means it is compiled into the
+    // browser bundle and served to every visitor; the anon key grants only what
+    // row-level security allows, which is why Supabase publishes it. The
+    // service-role key is the one that matters and it stays a Secret.
+    //
+    // Declared here, a deploy restores them. That is the whole point of this
+    // block — see the note below on how these vars died the first time.
+    "NEXT_PUBLIC_SUPABASE_URL": "https://uclyawqdeabjsrejfdlw.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjbHlhd3FkZWFianNyZWpmZGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNzU3OTAsImV4cCI6MjA5Mzc1MTc5MH0.tLyaOMCqiORGN5N6p4PcLvm86_1ziYRevznmEUljbb0",
     "CONTACT_FROM_EMAIL": "noreply@aventary.com",
     "CONTACT_TO_EMAIL": "mendy@aventary.com",
     // Which Supabase project serves project-page content. A public hostname,

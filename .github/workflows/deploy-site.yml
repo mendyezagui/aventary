@@ -64,6 +64,32 @@ jobs:
 
       - run: npm ci
 
+      # NEXT_PUBLIC_* values are compiled into the bundle at BUILD time, and a CI
+      # runner has no .env — so without this step the browser bundle ships with
+      # them undefined. Every deploy before this one came off a laptop where .env
+      # supplied them, which is why nobody noticed.
+      #
+      # Read from wrangler.jsonc so there is exactly one source of truth: change
+      # a value there and both the build and the Worker runtime follow. The
+      # comment stripper is line-anchored on purpose — a naive s|//.*|| would eat
+      # the https:// inside the URL itself.
+      - name: Export the public build-time env from wrangler.jsonc
+        run: |
+          node -e '
+            const fs = require("fs");
+            const raw = fs.readFileSync("wrangler.jsonc", "utf8");
+            const vars = JSON.parse(raw.replace(/^\s*\/\/.*$/gm, "")).vars ?? {};
+            const need = ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"];
+            const missing = need.filter((k) => !vars[k]);
+            if (missing.length) {
+              console.error(`::error::wrangler.jsonc vars is missing: ${missing.join(", ")}`);
+              process.exit(1);
+            }
+            for (const [k, v] of Object.entries(vars)) {
+              if (k.startsWith("NEXT_PUBLIC_")) fs.appendFileSync(process.env.GITHUB_ENV, `${k}=${v}\n`);
+            }
+          '
+
       # Build before deploying so a broken build fails here, loudly, instead of
       # silently leaving the last good version live with no sign anything went wrong.
       - name: Build the Worker bundle

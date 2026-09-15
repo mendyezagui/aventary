@@ -1,4 +1,4 @@
-import { createSupabaseServer } from "./supabase/server";
+import { createSupabaseServer, supabaseAnonConfigured } from "./supabase/server";
 
 export type Block = {
   id: string;
@@ -17,7 +17,7 @@ export type Page = {
 };
 
 export async function getPage(slug: string): Promise<Page | null> {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
+  if (!supabaseAnonConfigured()) return null;
   try {
     const supabase = await createSupabaseServer();
     const { data: page } = await supabase
@@ -39,7 +39,7 @@ export async function getPage(slug: string): Promise<Page | null> {
 }
 
 export async function listPosts() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
+  if (!supabaseAnonConfigured()) return [];
   try {
     const supabase = await createSupabaseServer();
     const { data } = await supabase
@@ -54,7 +54,7 @@ export async function listPosts() {
 }
 
 export async function getPost(slug: string) {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
+  if (!supabaseAnonConfigured()) return null;
   try {
     const supabase = await createSupabaseServer();
     const { data } = await supabase
