@@ -16,13 +16,19 @@ import { DocControls } from "./DocControls";
 // whole reason that path exists. This one is ours, styled by one stylesheet
 // scoped under .avdoc, so there is nothing to isolate it from.
 
-export function ClientDoc({ doc }: { doc: ClientDocument }) {
+export function ClientDoc({ doc, slug }: { doc: ClientDocument; slug?: string }) {
   const { brand, layout } = doc;
   const items = doc.sections.map((s) => ({ id: s.id, index: s.index, title: s.title }));
 
   return (
     <article
       className={`avdoc avd-density-${layout.density}`}
+      // The slug this document belongs to, so a document appearing under the
+      // wrong URL is visible in the DOM rather than silent. There is no frame
+      // check to do here, unlike DocFrame: nothing is loaded asynchronously
+      // that could hold a previous document. The key on this element is what
+      // stops one being reused across two clients' pages.
+      data-slug={slug}
       style={brandStyle(brand) as React.CSSProperties}
     >
       {/* Masthead. The lockup is fixed: Aventary at the left, the client at the
