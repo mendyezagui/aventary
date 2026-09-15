@@ -90,10 +90,23 @@ async function resolveContent(slug: string): Promise<ClientPageContent | null> {
   try {
     const { data } = await createSupabaseAdmin()
       .from("client_page_documents")
-      .select("title,blurb,html,mode,blocks,meta")
+      .select("slug,title,blurb,html,mode,blocks,meta")
       .eq("slug", slug)
       .maybeSingle();
     if (!data) return null;
+
+    // The row says which document it is, so check it is the one asked for,
+    // before anything is built from it. This is the only place the check can be
+    // made honestly: the stamp DocFrame writes into the frame is taken from the
+    // current slug, so it matches whatever content reaches it and can only ever
+    // catch a stale frame, never a wrong row. Fail closed — "not open yet"
+    // beats one client's proposal under another's name.
+    if (data.slug !== slug) {
+      console.error(
+        `client_page_documents returned "${data.slug}" for a request for "${slug}" — refusing it`
+      );
+      return null;
+    }
 
     // Structured wins. A row carrying blocks renders through the shared
     // template, so it gains the design system, the collapsing and the branding
