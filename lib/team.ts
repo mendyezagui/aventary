@@ -356,11 +356,14 @@ export const TEAM: TeamMember[] = [
     },
   },
   {
-    slug: "musi",
-    name: "Musi Zagui",
+    slug: "musy",
+    name: "Musy Ezagui",
     role: "Customer Success Lead",
     blurb: "Customer Success Lead at Aventary.",
-    initials: "MZ",
+    // Mendy and Musy share initials, so the monograms use the first two
+    // letters of the first name instead — two identical "ME" circles on a
+    // two-person roster reads as a bug. Moot once there are headshots.
+    initials: "MU",
     // No `profile` yet — the card renders without a link until there is a real
     // write-up to link to. Add background, experience and story here and the
     // /team/musi page comes to life with no other change.
