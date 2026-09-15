@@ -11,6 +11,11 @@ type scale, the measures, the section collapsing, the contents rail, the
 client's colour and logo — lives in `aventary/lib/client-doc` and is applied
 on every request.
 
+**Diagrams are the exception, and only as `svg`.** A block body may be an inline
+`<svg>`, which is rebuilt from an allowlist before it reaches the page. Use it
+when a picture is doing work a list cannot do — a site map, a migration
+sequence. Give it an `aria-label`. Everything else is markdown.
+
 **Do not write HTML.** Two live documents were built that way, each with its
 own class names and its own idea of what a section is, and neither can gain a
 single improvement made to the design system. A block body is markdown.
@@ -56,6 +61,7 @@ for narrative and should stay the majority of any document.
 | `quote` | a client's own words | the quote; last line `— Attribution` |
 | `table` | a real comparison | markdown table |
 | `figure` | an image | `![alt](https://…)` + caption |
+| `svg` | a diagram that carries an argument | inline `<svg>…</svg>` + caption after it |
 
 Everything splits on `|`. Add `@width: text\|wide\|full` only to override the
 default; the defaults are usually right.

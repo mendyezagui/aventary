@@ -487,6 +487,41 @@
   margin-top: var(--s3); max-width: var(--measure-text);
 }
 
+/* --------------------------------------------------------------- diagrams */
+/* An inline diagram, not a picture of one: it inherits the document's ink and
+   the client's accent, so it themes per client and stays sharp at any zoom.
+   A hosted PNG would freeze all three. */
+.avd-k-svg { margin: var(--s5) 0; }
+.avd-svg {
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: var(--s5) var(--s4);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+}
+.avd-svg svg { display: block; width: 100%; height: auto; }
+/* A diagram with an intrinsic width narrower than the box would otherwise be
+   stretched; one wider than the phone scrolls rather than shrinking to
+   illegibility. */
+.avd-svg svg[viewBox] { min-width: 520px; }
+.avd-k-svg figcaption {
+  font-size: var(--t-small); color: var(--ink-3);
+  margin-top: var(--s3); max-width: var(--measure-text);
+}
+/* Diagrams commonly style themselves by class and assume a dark-on-light page.
+   These give an unstyled one something sane to inherit rather than defaulting
+   to black fill on every shape. */
+.avd-svg text { fill: var(--ink); font-family: var(--sans); }
+.avd-svg .accent, .avd-svg [data-accent] { fill: var(--accent); }
+.avd-svg .rule, .avd-svg .link, .avd-svg .col-rule { stroke: var(--rule-strong); }
+
+@media print {
+  .avd-svg { break-inside: avoid; page-break-inside: avoid; overflow: visible; }
+  .avd-svg svg[viewBox] { min-width: 0; }
+}
+
 /* ----------------------------------------------------------------- signoff */
 .avd-signoff {
   margin-top: var(--s8); padding-top: var(--s5);
