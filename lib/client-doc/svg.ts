@@ -65,6 +65,12 @@ const ATTRIBUTES = new Set([
 const esc = (s: string) =>
   s.replace(/&(?!#?[a-zA-Z0-9]+;)/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+// The inverse of esc, for reading a label back out of sanitized markup rather
+// than writing one into it.
+const unesc = (s: string) =>
+  s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'").replace(/&amp;/g, "&");
+
 const escAttr = (s: string) =>
   esc(s).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
@@ -153,6 +159,51 @@ const TAG = /<(\/?)([a-zA-Z][\w:-]*)((?:[^>"']|"[^"]*"|'[^']*')*?)(\/?)>/g;
  * how the caller tells a mistyped block from a diagram and falls back to prose
  * rather than rendering an empty box.
  */
+/**
+ * The name the diagram gives itself, or null when it gives itself none.
+ *
+ * This runs on sanitizeSvg's OUTPUT, not on the input — a `<title>` or an
+ * aria-label that did not survive the rebuild must not count as a name.
+ *
+ * It exists because of how the two labels interact. The renderer wraps the
+ * diagram in a div, and `role="img"` plus `aria-label` on that div replaces
+ * everything inside it for a screen reader. Put the block's title there and a
+ * label reading "Site map: Home branches into About, Locations, Services, Get
+ * Involved, Give, Media and Contact, with new pages marked" collapses to "The
+ * map". So the wrapper only names a diagram that has not named itself.
+ */
+export function svgAccessibleName(svg: string): string | null {
+  const root = /<svg\b[^>]*>/i.exec(svg);
+  if (!root) return null;
+
+  const aria = root[0].match(/\saria-label\s*=\s*"([^"]*)"/i);
+  if (aria && aria[1].trim()) return unesc(aria[1].trim());
+
+  // A <title> names the element it sits inside, so only a direct child of the
+  // root names the diagram. One inside a <marker> or a <g> names that shape and
+  // leaves the diagram itself unnamed.
+  const TITLE = /<(\/?)([a-zA-Z][\w:-]*)[^>]*?(\/?)>/g;
+  TITLE.lastIndex = root.index + root[0].length;
+  let depth = 0;
+  for (let m = TITLE.exec(svg); m; m = TITLE.exec(svg)) {
+    const [whole, closing, rawName, selfClose] = m;
+    const name = rawName.toLowerCase();
+    if (closing) {
+      if (depth === 0) break; // </svg>
+      depth--;
+      continue;
+    }
+    if (name === "title" && depth === 0) {
+      const end = svg.toLowerCase().indexOf("</title>", m.index + whole.length);
+      if (end < 0) return null;
+      const text = svg.slice(m.index + whole.length, end).replace(/<[^>]*>/g, "").trim();
+      return text ? unesc(text) : null;
+    }
+    if (!selfClose) depth++;
+  }
+  return null;
+}
+
 export function sanitizeSvg(source: string): string | null {
   const open = source.search(/<svg[\s>]/i);
   const close = source.toLowerCase().lastIndexOf("</svg>");
