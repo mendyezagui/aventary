@@ -75,6 +75,36 @@ does not parse as the component it names falls back to prose with the original
 text in it. A client opening a proposal always sees the paragraph somebody
 wrote.
 
+### Order: leave gaps in `sort`
+
+A block's `tab` is its section; its `sort` orders it. Both halves of that matter,
+and the second one is not what it looks like.
+
+**Inside a section**, blocks run in `sort` order. Straightforward.
+
+**Between sections**, the order is each section's *lowest* `sort` — not an
+authored sequence of tabs, because nothing stores one. `project-page-feed`
+returns blocks ordered by `tab` and then `sort`, which is to say **alphabetically
+by tab name**, and `buildSections` re-ranks them by min-sort to undo that.
+
+Which means the ranking only works where the sorts are actually distinct. Give
+every block `sort: 0` and every section ties, the sort is stable, and the
+document comes out in the alphabetical order the feed happened to hand over. The
+Brown Bag proposal sat like that until 2026-09-16: three tabs, every block at 0,
+1 or 2, so it opened on "Phase 01 — Discovery Sprint" before "The engagement".
+
+So **leave gaps, one band per section**:
+
+```
+100, 101, 102    The engagement
+200              Selected experience
+300, 301         Engagement phases
+400, 401         Deliverables
+```
+
+The bands are what put the sections in order. The gaps inside them are what let
+you insert a block later without renumbering its neighbours.
+
 ---
 
 ## The page
@@ -118,8 +148,27 @@ proposal is for.
 - **`logo`** must be an absolute `https://` URL. No logo is fine: the hero shows
   a monogram in the client's accent instead. Never an empty slot — that reads as
   a page that failed to load.
+- **`name`** is what the monogram is built from, and it earns its place even when
+  you have no colour and no logo. Set it to the client's short name.
 - The hover/pressed shade is **derived** from the accent, not asked for. One
   colour and a rule cannot drift; two colours per client eventually will.
+
+**Omitting `brand` entirely is not the safe default it looks like.** With no
+`brand`, `resolveBrand` falls back to `prepared_for`, and the monogram is that
+string's first and last initials — which is a phrase, not a name. "The leadership
+of Cheder Menachem & Bais Chaya Mushka" gives **TM**; "Brown Bag Direct
+Marketing" gives **BM**. Both documents were set up with no `brand` at all and
+would have rendered exactly that; the preview harness is where it was caught,
+which is the argument for rendering one before you publish.
+
+So when you have no accent, still set the name and leave the colour out:
+
+```jsonc
+"brand": { "name": "Cheder Menachem" }   // monogram CM, Aventary teal
+```
+
+A bad accent falls back to teal on its own, so there is never a reason to invent
+a hex. There is also never a reason to omit the name.
 
 ### Collapsing
 
