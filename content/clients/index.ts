@@ -1,5 +1,4 @@
 import type { ClientDocument } from "@/lib/client-doc";
-import { html as lcla } from "./lcla";
 import { html as bbdc } from "./bbdc";
 
 // The registry of client pages. Adding one is: drop a `<slug>.ts` file next to
@@ -19,8 +18,10 @@ export type ClientPageContent = {
   /**
    * How this content is rendered once the reader is signed in.
    *
-   * "inline" (default): `html` injected into a `.<slug>` div; its CSS lives,
-   *   scoped, in client-page.css (the lcla model).
+   * "inline" (default): `html` injected into a `.<slug>` div, with its CSS
+   *   scoped to that class in client-page.css. No page uses this any more —
+   *   lcla was the last, and its styles went with it. A new one would have to
+   *   bring its own; prefer "project".
    * "document": `html` is a full standalone HTML document, rendered in an
    *   isolated iframe so its own <style> can't touch — and isn't touched by —
    *   the site. Hand-written pages only; sandboxing them is why this exists.
@@ -39,12 +40,6 @@ export type ClientPageContent = {
 };
 
 export const CLIENT_PAGES: Record<string, ClientPageContent> = {
-  lcla: {
-    title: "Replacing Graphite",
-    blurb:
-      "A proposal prepared for the leadership of Cheder Menachem and Bais Chaya Mushka.",
-    html: lcla
-  },
   bbdc: {
     title: "Aventary × Brown Bag Direct — Discovery Engagement",
     blurb: "A discovery-engagement proposal prepared for Brown Bag Direct Marketing.",
