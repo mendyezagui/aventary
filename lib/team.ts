@@ -128,6 +128,7 @@ export const TEAM: TeamMember[] = [
     blurb:
       "Product and transformation leader. Fifteen years building software that ships — from a nonprofit's first mobile app to $1B+ of enterprise transformation at PwC.",
     initials: "ME",
+    photo: "/team/mendy.jpg",
     location: "Los Angeles, CA",
     linkedin: "https://www.linkedin.com/in/mendyezagui/",
     profile: {
@@ -397,6 +398,7 @@ export const TEAM: TeamMember[] = [
     // letters of the first name instead \u2014 two identical "ME" circles on a
     // two-person roster reads as a bug. Moot once there are headshots.
     initials: "MU",
+    photo: "/team/musy.jpg",
     // Written from Musy's own account of her background. No dates were given,
     // so the chapters carry none rather than carrying invented ones \u2014 which
     // is why Chapter.period is optional.
