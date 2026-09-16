@@ -24,6 +24,14 @@ import { PALETTE } from "./tokens";
 //
 // Anything missing falls back to Aventary's own, so a project with no brand
 // block renders exactly as it did before.
+//
+// `logo` is the exception to "set it on the project". It is stored once on the
+// COMPANY in the CRM (`companies.logo_url`) and project-page-feed fills it in
+// from the project's companyId at request time, so every project for a client
+// carries the same mark and a rebrand is a single edit. A logo written into
+// public_meta.brand still wins — the feed only fills a field that is empty.
+// Nothing changes on this side either way: a logo arrives in the brand object
+// and is validated here exactly as before, whichever end supplied it.
 
 export const AVENTARY_ACCENT = "#0E6B68";
 

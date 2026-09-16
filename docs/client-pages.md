@@ -45,8 +45,18 @@ each request, so an edit in Client Hub is live on reload.
 **What the page looks like, and what each block becomes, is a separate subject:
 see `docs/client-document-template.md`.** A block can be a paragraph, a row of
 numbers, a callout, a card grid, a timeline or a table, chosen with one line at
-the top of its body; the client's logo and accent colour are one object in
-`public_meta`. Neither needs a deploy.
+the top of its body; the client's accent colour is one object in `public_meta`.
+Neither needs a deploy.
+
+**The logo comes from the CRM, not from here.** Set it once on the **company**
+record in Second Brain — the Logo field uploads the file to the `client-logos`
+bucket and stores its URL in `companies.logo_url`. `project-page-feed` resolves
+it through the project's `companyId` on every request, so every project for that
+company shows the same mark and a rebrand is one edit. It is never copied onto
+the project, which is why the two can never disagree. A project that genuinely
+needs its own mark still wins by setting `public_meta.brand.logo`; anything set
+there is left alone. No logo anywhere renders a monogram in the client's accent,
+never a blank space.
 
 The status line under the URL says what is missing rather than letting you
 believe a page is up when it is not. A project with no public blocks is not
