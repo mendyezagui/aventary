@@ -391,64 +391,51 @@ export const TEAM: TeamMember[] = [
   {
     slug: "musy",
     name: "Musy Ezagui",
-    role: "Customer Success Lead",
+    role: "Executive Assistant",
+    photo: "/team/musy.jpg",
     blurb:
-      "Customer success at Aventary. Years of being accountable to a room \u2014 a bunk of thirty, two Hebrew school classrooms \u2014 and two web applications she built herself.",
+      "Executive assistant at Aventary, an educator, and the founder of Chai Cut \u2014 an AI video editing agent that turns raw footage into a finished Reel.",
     // Mendy and Musy share initials, so the monograms use the first two
     // letters of the first name instead \u2014 two identical "ME" circles on a
-    // two-person roster reads as a bug. Moot once there are headshots.
+    // two-person roster reads as a bug. Only a fallback now that both have
+    // photos, but it has to stay right for the moment one is missing.
     initials: "MU",
-    photo: "/team/musy.jpg",
-    // Written from Musy's own account of her background. No dates were given,
-    // so the chapters carry none rather than carrying invented ones \u2014 which
-    // is why Chapter.period is optional.
     profile: {
       lede:
-        "Two kinds of experience that are rarer together than apart: years of being accountable to a room full of people, and the hands to build the software herself.",
+        "An educator who builds software, and who treats both jobs as the same test: can the person in front of you actually do it afterward.",
       story: [
-        "Musy has spent years responsible for groups of people. As a summer camp counselor she ran a bunk of roughly thirty children \u2014 the schedules, the safety, the disputes, and the steady improvisation that comes with thirty people who all need something at once. She has volunteered with Friendship Circle and worked in Chabad House educational programming, including teaching at two Hebrew schools in Canada.",
-        "Teaching and customer success are closer than they look. Both are judged on the same thing: whether the person in front of you can actually do it afterward, not on how well it was explained. That is the standard the role carries at Aventary \u2014 a system is not delivered until the team who has to live with it can run it without us.",
-        "More recently she has been building. Working with AI coding agents and modern development tooling, she has shipped two functional web applications: one that streamlines kosher product scanning, and Chai Cut, which turns long-form footage into short, post-ready social reels. Both went from an idea to something that works, which means the unglamorous middle as well \u2014 deciding what it should do, building it, and troubleshooting it until it did.",
-        "That combination is the useful one. She has been the person accountable for a room, and the person accountable for a build. Clients get both.",
+        "Musy is Aventary\u2019s executive assistant. Outside the firm she volunteers with Friendship Circle and supports educational programming, including teaching at two Hebrew schools in Canada.",
+        "As an educator, she finds customer success sits close to teaching. Both are judged on the same thing \u2014 not how well it was explained, but whether the person actually understood it.",
+        "She also builds. Working with AI coding agents, she has shipped two web applications: one that streamlines kosher product scanning, and Chai Cut, which turns long-form footage into a finished vertical Reel. Both went from an idea to something that runs.",
       ],
       pull:
-        "A system is not delivered until the team who has to live with it can run it without us.",
+        "Not how well it was explained, but whether the person actually understood it.",
       chapters: [
         {
           org: "Aventary",
-          role: "Customer Success Lead",
-          summary:
-            "The side of the work that begins after the build ships: whether the people who have to live with a system can actually run it, and what has to change when they cannot.",
+          role: "Executive Assistant",
+          summary: "Keeps the firm\u2019s commitments, scheduling and client follow-through moving.",
         },
         {
           org: "Chai Cut",
           role: "Creator & Founder",
           summary:
-            "An AI video editing agent, built with AI coding agents and modern development tooling \u2014 concept through to a working product.",
+            "An AI video editing agent, built with AI coding agents \u2014 concept through to a working product.",
         },
         {
           org: "Kosher product scanning app",
           role: "Builder",
-          summary:
-            "A second web application, built the same way: a real everyday problem taken from idea to something that runs.",
-        },
-        {
-          org: "Chabad House educational programming",
-          role: "Teacher",
-          summary:
-            "Educational programming, including teaching at two Hebrew schools in Canada.",
+          summary: "A second web application, built the same way: an everyday problem taken from idea to something that runs.",
         },
         {
           org: "Friendship Circle",
           role: "Volunteer",
-          summary:
-            "Volunteer work supporting children and families in the community.",
+          summary: "Volunteer work supporting children and families in the community.",
         },
         {
-          org: "Summer camp",
-          role: "Counselor",
-          summary:
-            "Responsible for a bunk of roughly thirty children \u2014 leadership, organization, communication and problem-solving, learned where the feedback is immediate.",
+          org: "Chabad House educational programming",
+          role: "Teacher",
+          summary: "Educational programming, including teaching at two Hebrew schools in Canada.",
         },
       ],
       links: [
