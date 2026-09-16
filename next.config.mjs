@@ -21,6 +21,15 @@ const nextConfig = {
                             source: "/",
                             has: [{ type: "host", value: "tehillimcircle.com" }],
                             destination: "/tehillim"
+                        },
+                        {
+                            // Android's app-verification file. It lives under a
+                            // dotfolder, which Next won't serve from /public, so
+                            // route it to a tiny env-driven API handler instead.
+                            // Empty (valid) until ANDROID_PACKAGE_NAME /
+                            // ANDROID_CERT_SHA256 are set from the PWABuilder key.
+                            source: "/.well-known/assetlinks.json",
+                            destination: "/api/assetlinks"
                         }
                     ]
                 };
