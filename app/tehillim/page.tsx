@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { fontVars } from "./fonts";
 import HomeTehillim from "./HomeTehillim";
+import PwaRegister from "./PwaRegister";
 import "./tehillim.css";
 
 export const metadata: Metadata = {
@@ -33,6 +34,7 @@ export const viewport: Viewport = {
 export default function TehillimHome() {
   return (
     <div className={`tehillim-page ${fontVars}`}>
+      <PwaRegister />
       <HomeTehillim />
     </div>
   );

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { fontVars } from "../fonts";
 import TehillimReader from "../TehillimReader";
+import PwaRegister from "../PwaRegister";
 import "../tehillim.css";
 
 export const metadata: Metadata = {
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default function TehillimReadPage() {
   return (
     <div className={`tehillim-page ${fontVars}`}>
+      <PwaRegister />
       <Suspense fallback={<div className="scroll-area" />}>
         <TehillimReader />
       </Suspense>
