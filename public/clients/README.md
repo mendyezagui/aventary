@@ -20,11 +20,30 @@ the `myef` document. Rendered from the Claude Design artifact
 `LGqsUgtNuf2ZZzZWtCrvV8` at 1440 CSS px, 2× device scale, full page, then
 resized to 1920 wide.
 
-The artifact's own "Made with Claude Design" badge is removed before capture.
-It is chrome the runtime adds around the design, not part of the design, and it
-has no business in a client proposal.
+Two things are changed between the artifact and this file, both at render time,
+because the artifact itself is 11MB of inlined base64 and cannot practically be
+read back in order to republish it:
 
-The comp's counters read 6 / 20+ / 400+. The document's audit says the live
-homepage reads 6 / 18 / 703. They disagree, and the comp is the one that is
-wrong — it was built before the recount. Re-render this file if the artifact is
-corrected.
+1. The runtime's `#__claude_design_branding` node is removed. It is chrome the
+   artifact runtime adds around the design, not part of the design, and it has
+   no business in a client proposal. Remove it by id — matching on its text
+   leaves the dismiss button behind as a stray glyph in the corner.
+2. The counters are set to the audited figures. The artifact was built before
+   the recount and reads 6 / 20+ / 400+; §03 of the document reports the live
+   homepage as 6 / 18 / 703. Handing a client a comp that undercounts the
+   children served, in a document whose whole argument is verified counts,
+   gives away the advantage the audit bought. Each counter is matched by its own
+   label before it is rewritten, so nothing is edited by position.
+
+**The artifact still holds the old numbers.** Fix them in Claude Design when
+convenient, or this divergence will bite whoever renders it next.
+
+Not changed, because there is no verified source to change them to — flagged for
+a human rather than guessed at: the hero reads `Brooklyn · Since 2011`, the
+footer carries `(347) 815-MYEF` and `Brooklyn, NY 11234`, and there is an
+"Avi Yesomim" card that is not among the eight service lines in §03. All the
+photography is placeholder gradient, not MYEF's own.
+
+Re-render with `scripts/` — the render script lives in the session scratchpad,
+not the repo; it is ~60 lines of Playwright and is cheaper to rewrite than to
+maintain. What matters is recorded above.
