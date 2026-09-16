@@ -99,30 +99,44 @@ fingerprint. After you add Google's key, that array lists both fingerprints.
 
 ## App Store (iOS) — an Xcode project
 
-Apple has no TWA equivalent; PWABuilder emits an **Xcode project** (a WKWebView
+Apple has no TWA equivalent; the iOS package is an **Xcode project** (a WKWebView
 shell around the PWA). You need a **Mac with Xcode** and the paid Apple Developer
-account to build and upload it.
+account to build and upload it — those steps are macOS-only.
 
-### 1. Generate the project
+> **Already generated.** A ready-to-open project was built from the PWABuilder
+> iOS template (same output PWABuilder produces) and handed over as
+> `tehillim-ios-xcode.zip`: bundle id `com.tehillimcircle.app`, name `Tehillim`,
+> wrapping `https://tehillimcircle.com/tehillim`, with the Tehillim icon and
+> launch screen baked in. Skip step 1 if you have it and go to **step 2**.
+> Regenerate on pwabuilder.com only if you need a fresh one.
+
+### 1. Generate the project (only if you don't have the handed-over zip)
 
 1. pwabuilder.com → same URL → **Package for stores → iOS**.
-2. Set:
-   - **Bundle ID** — e.g. `com.tehillimcircle.app` (must match an App ID you'll
-     register in the Apple Developer portal).
-   - **App name** — `Tehillim`.
-   - **URL** — `https://tehillimcircle.com/tehillim` (already filled).
+2. Set **Bundle ID** `com.tehillimcircle.app`, **App name** `Tehillim`, **URL**
+   `https://tehillimcircle.com/tehillim`.
 3. Download the `.zip` and unzip on the Mac.
 
-### 2. Build and upload
+### 2. Build and upload (on the Mac)
 
-1. Open the `.xcodeproj` in **Xcode**.
-2. Signing & Capabilities → pick your **Team**; let Xcode manage signing. Confirm
-   the **Bundle Identifier** matches the App ID.
-3. Set a real **version** (1.0.0) and **build** number.
-4. **Product → Archive**, then **Distribute App → App Store Connect → Upload**.
-5. In **App Store Connect**, create the app record (same Bundle ID), attach the
+1. Unzip. In Terminal, `cd` into `src` and run **`pod install`** (the project uses
+   CocoaPods, so you open the `.xcworkspace`, not the `.xcodeproj`). No CocoaPods?
+   `sudo gem install cocoapods` first.
+2. Open **`Tehillim.xcworkspace`**.
+3. Select the **Tehillim** target → **Signing & Capabilities** → pick your
+   **Team**, with **Automatically manage signing** on (Xcode registers the App ID
+   and the Push Notifications + Associated Domains capabilities the template
+   declares).
+4. Set a **version** (1.0.0) and **build** number under **General**.
+5. Destination **Any iOS Device** → **Product → Archive**, then in the Organizer
+   **Distribute App → App Store Connect → Upload**.
+6. In **App Store Connect**, create the app record (same Bundle ID), attach the
    build, add the listing copy and screenshots, answer the **Privacy** questions
    (same as Play: email for sign-in, no tracking), and submit.
+
+> The template ships **Firebase Messaging** with a placeholder
+> `GoogleService-Info.plist` for push. This app doesn't use push — leave it inert;
+> no Firebase setup needed. Deployment target is **iOS 15**.
 
 ### 3. The Apple 4.2 risk — read before submitting
 
