@@ -26,7 +26,14 @@ PWABuilder wraps the PWA in a **Trusted Web Activity**: a full-screen Chrome wit
 no address bar, as long as Digital Asset Links verifies. Output is an Android App
 Bundle (`.aab`) you upload to the Play Console.
 
-### 1. Generate the package
+> **Already built once.** A signed `.aab` + `.apk` and the signing keystore were
+> generated with Bubblewrap (the CLI PWABuilder wraps) and handed over in
+> `tehillim-android-package.zip`. Its upload key is already baked into
+> `assetlinks` (step 2). If you still have that zip you can skip step 1 and go to
+> **step 3 (Upload)**; regenerate below only if you need a fresh build. Either
+> tool produces an equivalent package.
+
+### 1. Generate the package (only if you don't have the handed-over zip)
 
 1. Go to pwabuilder.com, enter `https://tehillimcircle.com/tehillim`, **Start**.
 2. On the report card, **Package for stores → Android → Google Play**.
@@ -44,29 +51,34 @@ Bundle (`.aab`) you upload to the Play Console.
 ### 2. Wire up Digital Asset Links (the no-address-bar part)
 
 The TWA only drops the browser chrome if `tehillimcircle.com/.well-known/assetlinks.json`
-names the app. That file is generated from two Cloudflare env vars — set them on
-the **`aventary`** Worker (Cloudflare dashboard → Workers & Pages → `aventary` →
-Settings → Variables), then redeploy or let the next CI deploy pick them up:
+names the app's signing key. `app/api/assetlinks/route.ts` **already bakes in the
+package id (`app.tehillimcircle.twa`) and the upload key's SHA-256** — public info,
+so the signed test build verifies out of the box with nothing to configure.
+
+The one thing left is Play's own key. Google **re-signs** your upload with its own
+key (Play App Signing), so the store build is signed differently from the test
+`.apk`. Once the listing exists, add Google's fingerprint via the **`aventary`**
+Worker's env (Cloudflare dashboard → Workers & Pages → `aventary` → Settings →
+Variables); the route **merges** it into the baked defaults, so you only add the
+new one:
 
 ```
-ANDROID_PACKAGE_NAME = app.tehillimcircle.twa        # the Package ID from step 1
-ANDROID_CERT_SHA256  = AB:CD:EF:...                    # SHA-256 from signing-key-info.txt
+ANDROID_CERT_SHA256 = <SHA-256 from Play Console → Setup → App signing → App signing key certificate>
 ```
 
-`ANDROID_CERT_SHA256` accepts a comma-separated list, which you will need later:
-Play's **App Signing** re-signs your upload with Google's own key, so once the app
-is live, add **Google's** signing-key SHA-256 (Play Console → Setup → App signing)
-alongside the upload key's. Both fingerprints, comma-separated. Until you do,
-users installed from Play may see the address bar.
+(`ANDROID_CERT_SHA256` is a comma-separated list if you ever need more than one.
+`ANDROID_PACKAGE_NAME` can override the package id but normally isn't needed.)
+Until Google's key is added, Play-installed users may see the address bar; the
+sideloaded test `.apk` is unaffected.
 
-Verify the file after setting the vars:
+Verify the file:
 
 ```
 curl -s https://tehillimcircle.com/.well-known/assetlinks.json
 ```
 
-Empty `[]` means the vars aren't set yet. A one-element array with your package
-name means it's wired.
+It already returns a one-element array with the package id and the upload
+fingerprint. After you add Google's key, that array lists both fingerprints.
 
 ### 3. Upload to the Play Console
 
