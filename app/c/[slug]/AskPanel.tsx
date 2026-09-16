@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { splitAnswer, type Anchor } from "@/lib/doc-anchors";
+import { AnswerText } from "./answer";
 import { revealAnchor } from "./reveal";
 
 // "Ask" on a client page: a tab pinned to the middle of the right-hand edge,
@@ -229,7 +230,7 @@ export function AskPanel({
               const label = cited ? labels.get(cited) : undefined;
               return (
                 <div key={i} className="cp-ask-turn">
-                  <p className="cp-ask-a">{text || (busy ? "…" : "")}</p>
+                  {text ? <AnswerText text={text} /> : <p className="cp-ask-a">{busy ? "…" : ""}</p>}
                   {/* Only when the model named a section the document actually
                       has. An id it invented resolves to nothing here and the
                       reader is simply not offered a link. */}
