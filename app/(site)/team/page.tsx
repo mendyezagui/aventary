@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Reveal } from "@/components/Reveal";
+import { TeamAvatar } from "@/components/TeamAvatar";
 import { TEAM } from "@/lib/team";
 
 export const revalidate = 3600;
@@ -44,12 +45,7 @@ export default function TeamPage() {
             {TEAM.map((m, i) => {
               const card = (
                 <article className="h-full flex flex-col bg-surface-container-lowest rounded-3xl p-8 md:p-10 soft-lift">
-                  <div
-                    aria-hidden="true"
-                    className="shrink-0 w-16 h-16 rounded-full bg-primary text-on-primary font-headline font-bold text-xl flex items-center justify-center mb-6"
-                  >
-                    {m.initials}
-                  </div>
+                  <TeamAvatar member={m} size="w-16 h-16" className="text-xl mb-6" />
                   <div className="text-accent font-label font-bold text-xs tracking-[0.16em] uppercase mb-2">
                     {m.role}
                   </div>

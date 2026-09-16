@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Reveal } from "@/components/Reveal";
+import { TeamAvatar } from "@/components/TeamAvatar";
 import { TEAM, memberBySlug } from "@/lib/team";
 
 export const revalidate = 3600;
@@ -68,12 +69,7 @@ export default async function TeamMemberPage({
           </Link>
 
           <div className="flex flex-col md:flex-row md:items-start gap-8 md:gap-12">
-            <div
-              aria-hidden="true"
-              className="shrink-0 w-24 h-24 rounded-full bg-primary text-on-primary font-headline font-bold text-3xl flex items-center justify-center"
-            >
-              {member.initials}
-            </div>
+            <TeamAvatar member={member} size="w-24 h-24" className="text-3xl" />
 
             <div className="flex-1 min-w-0">
               <div className="text-primary font-label font-bold text-xs tracking-[0.18em] uppercase mb-4">

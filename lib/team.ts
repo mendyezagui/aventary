@@ -102,8 +102,18 @@ export type TeamMember = {
   role: string;
   /** Shown on the /team card and under the name in the profile hero. */
   blurb: string;
-  /** Monogram used in place of a photo. */
+  /** Monogram, used whenever there is no photo. */
   initials: string;
+  /**
+   * Path to a headshot under public/, e.g. "/team/mendy.jpg".
+   *
+   * Optional on purpose: absent, the monogram renders exactly as before, so a
+   * person can go up without a photo and gain one later with no other change.
+   * The frame is a circle, so the file should be square and cropped on the
+   * face — a portrait-shaped source will be centre-cropped by object-cover,
+   * which is rarely where the face is.
+   */
+  photo?: string;
   location?: string;
   linkedin?: string;
   /** Absent until the write-up exists. No profile, no link. */
