@@ -1,9 +1,15 @@
 import type { ClientDocument } from "@/lib/client-doc";
-import { html as bbdc } from "./bbdc";
 
-// The registry of client pages. Adding one is: drop a `<slug>.ts` file next to
-// this one that exports its HTML, add a line here, and insert a row in
-// `client_pages` with the addresses allowed to read it. See docs/client-pages.md.
+// The registry of hand-authored client pages, and it is deliberately empty.
+//
+// Both documents that lived here, lcla and bbdc, are Second Brain projects now,
+// rendered from blocks through components/client-doc. An authored page had to be
+// deployed to change a sentence; a project page is edited in Client Hub and is
+// live on reload. Prefer one.
+//
+// Adding an authored page back is still: drop a `<slug>.ts` file next to this
+// one that exports its HTML, add a line here, and insert a row in `client_pages`
+// with the addresses allowed to read it. See docs/client-pages.md.
 //
 // Content is versioned in the repo; who may read it is not. That split is
 // deliberate — documents change on a release, allowlists change on a phone call.
@@ -24,7 +30,9 @@ export type ClientPageContent = {
    *   bring its own; prefer "project".
    * "document": `html` is a full standalone HTML document, rendered in an
    *   isolated iframe so its own <style> can't touch — and isn't touched by —
-   *   the site. Hand-written pages only; sandboxing them is why this exists.
+   *   the site. Sandboxing them is why this exists. No page here uses it now
+   *   either, but a `client_page_documents` row still can, which is why
+   *   DocFrame is not dead code.
    * "project": built from a Second Brain project. `doc` carries the document
    *   as structure and it renders through components/client-doc, on the page
    *   rather than in a frame. See docs/client-document-template.md.
@@ -39,13 +47,6 @@ export type ClientPageContent = {
   text?: string;
 };
 
-export const CLIENT_PAGES: Record<string, ClientPageContent> = {
-  bbdc: {
-    title: "Aventary × Brown Bag Direct — Discovery Engagement",
-    blurb: "A discovery-engagement proposal prepared for Brown Bag Direct Marketing.",
-    html: bbdc,
-    mode: "document"
-  }
-};
+export const CLIENT_PAGES: Record<string, ClientPageContent> = {};
 
 export const CLIENT_SLUGS = Object.keys(CLIENT_PAGES);
