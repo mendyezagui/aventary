@@ -1,0 +1,594 @@
+/* ==========================================================================
+   The Aventary client document.
+   Everything at /c/<slug> that is built from a Second Brain project.
+
+   Scoped entirely under .avdoc, so nothing here reaches the site and the
+   site's globals cannot reach in. That scoping is what made it possible to
+   drop the iframe these documents used to render in — and dropping the iframe
+   is what made collapsible sections, a sticky contents rail and a document
+   that prints correctly possible at all.
+
+   Light-only, deliberately: aventary.com has no dark theme, and a proposal
+   that flipped dark on one reader's phone would not match the page framing it.
+
+   THREE RULES. They are the whole system; the rest is application.
+
+   1. WIDTH IS A PROPERTY OF CONTENT TYPE.
+      Three measures, named, and every block declares one. Prose is `text`
+      because a 100-character line cannot be read. Data is `wide` because a
+      table crushed into a prose column is worse than a wide one. Bands are
+      `full`. No element sets a max-width of its own — if you find yourself
+      typing one, the block wanted a different measure.
+
+   2. THE TYPE SCALE FOLLOWS THE OUTLINE.
+      Section heading > block heading > sub-heading > body. Mono uppercase is
+      a LABEL and never carries hierarchy. The template this replaces had
+      section headings at 10.5px mono above 25px serif block headings, which
+      inverted the outline and is the single reason the structure could not
+      be read.
+
+   3. ONE ACCENT SLOT.
+      --accent, --accent-2, --accent-soft and --accent-line are set per client
+      from public_meta.brand and are the only dynamic values on the page.
+      Every other colour is fixed Aventary.
+   ========================================================================== */
+
+.avdoc {
+  /* --- palette: identical to the portal shell (.pl) and the authored lcla
+         document. Before this, project pages used a different serif, a
+         different sans and a slightly different teal from the page that framed
+         them, so the document and its surroundings read as two companies. --- */
+  --ground: #FAF8F3;
+  --surface: #FFFFFF;
+  --surface-2: #F2EEE4;
+  --ink: #14212B;
+  --ink-2: #4A5860;
+  --ink-3: #7C8992;
+  --rule: #DFD7C6;
+  --rule-strong: #C8BEA8;
+  --brass: #9C6E22;
+  --flag: #9E3A2C;
+  --flag-soft: #F6E3DE;
+
+  /* Overridden per client by brandStyle(); these are the house defaults, and
+     the fallbacks if color-mix is ever unavailable. */
+  --accent: #0E6B68;
+  --accent-2: #0A514F;
+  --accent-soft: #DCEAE7;
+  --accent-line: #C8BEA8;
+
+  --shadow: 0 1px 2px rgba(20, 33, 43, .05), 0 10px 30px -20px rgba(20, 33, 43, .35);
+
+  /* --- faces --- */
+  --serif: Newsreader, Georgia, "Times New Roman", serif;
+  --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* --- type scale. Monotonic with the document outline. See rule 2. --- */
+  --t-display: clamp(2.1rem, 5vw, 3.15rem);
+  --t-section: clamp(1.45rem, 3.2vw, 1.85rem);
+  --t-block: 1.3rem;
+  --t-lede: 1.12rem;
+  --t-sub: 1.01rem;
+  --t-body: 1rem;
+  --t-small: .88rem;
+  --t-label: .72rem;
+
+  /* --- measures. Three, and only three. See rule 1. --- */
+  /* The shell is sized so that prose and data are a deliberate step apart
+     rather than two unrelated page widths. At 1280px the content column is
+     ~720px and prose sits at ~550px: a visible, intentional difference. A
+     wider shell pushes data blocks out to nearly 900px next to the same 550px
+     of prose, which is what made the old template read as "some things take
+     half the page and some take all of it". */
+  --shell: 62rem;
+  --measure-text: 70ch;
+  --measure-wide: 100%;
+  --measure-full: 100%;
+  /* The display measure is proportional to the shell rather than a character
+     count. The old template capped its headline at 15ch, which on a 920px
+     column stopped it halfway across the page for no reason a reader could see. */
+  --measure-display: 22ch;
+
+  /* --- space. 4px base, nothing off-scale. --- */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+  --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px;
+
+  /* Vertical rhythm, switched by --density.
+     --gap-section is the space AFTER a section's last block; --pad-section the
+     space above the next section's heading. They stack, so 32 + 48 is 80px of
+     air plus a hairline between sections. */
+  /* Equal above and below the separator. A block that ends in a rule of its
+     own — a steps list, a table — otherwise sits close enough to the section
+     line that the two read as one doubled divider. */
+  --gap-section: var(--s7);
+  --gap-block: var(--s6);
+  --pad-section: var(--s7);
+
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: var(--t-body);
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+  display: block;
+}
+
+.avd-density-compact {
+  --gap-section: var(--s6);
+  --gap-block: var(--s5);
+  --pad-section: var(--s6);
+  line-height: 1.55;
+}
+
+.avdoc, .avdoc *, .avdoc *::before, .avdoc *::after { box-sizing: border-box; }
+
+/* :where() so the reset carries ZERO specificity beyond .avdoc.
+   Written as `.avdoc p { margin: 0 }` this is (0,1,1) and quietly beats every
+   single-class rule below it — --t-block's margin, the standfirst's, the
+   eyebrow's, the hero meta row's, the card titles', the paragraph flow inside
+   a body. All of them were being dropped, which made the whole document read
+   cramped for a reason no individual rule could explain. Inside :where() the
+   selector is (0,1,0), so a component rule further down the file wins on
+   source order, as it should. */
+.avdoc :where(h1, h2, h3, h4, p, dl, dd, ol, ul, figure, blockquote) {
+  margin: 0;
+  padding: 0;
+}
+.avdoc :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.avd-sr {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+.avd-shell { max-width: var(--shell); margin: 0 auto; padding: 0 26px; }
+
+/* --- the three measures. The only place a max-width is set on content. ---- */
+.avd-w-text { max-width: var(--measure-text); }
+.avd-w-wide { max-width: var(--measure-wide); }
+.avd-w-full { max-width: var(--measure-full); }
+
+/* --- the mono label. A label, never a heading. -------------------------- */
+.avd-eyebrow, .avd-masthead-meta, .avd-mark, .avd-hero-meta dt, .avd-section-n,
+.avd-rail-head, .avd-rail-n, .avd-badge, .avd-step-n, .avd-step-when,
+.avd-kv dt, .avd-metric-note, .avd-signoff-r, .avd-rail-toggle {
+  font-family: var(--mono);
+  font-size: var(--t-label);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------- masthead */
+.avd-masthead { background: var(--ink); color: #fff; padding: 13px 0; }
+.avd-masthead-in { display: flex; justify-content: space-between; align-items: center; gap: var(--s4); }
+.avd-mark { color: #7C8A92; letter-spacing: .13em; }
+.avd-mark b { color: #fff; font-weight: 600; }
+.avd-masthead-meta { color: #5A666D; letter-spacing: .08em; text-transform: none; }
+
+/* -------------------------------------------------------------------- hero */
+.avd-hero {
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule-strong);
+  padding: var(--s6) 0 var(--s5);
+}
+.avd-hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s6); }
+.avd-eyebrow { color: var(--accent); margin-bottom: var(--s4); }
+.avd-title {
+  font-family: var(--serif);
+  font-size: var(--t-display);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -.016em;
+  max-width: var(--measure-display);
+  text-wrap: balance;
+}
+.avd-lede {
+  font-size: var(--t-lede);
+  line-height: 1.58;
+  color: var(--ink-2);
+  max-width: var(--measure-text);
+  margin-top: var(--s5);
+}
+
+/* The client lockup. A logo when there is one, a monogram in the client's own
+   accent when there is not — never an empty slot, which reads as a page that
+   failed to load. */
+.avd-lockup { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; }
+.avd-logo { display: block; max-width: 168px; max-height: 64px; width: auto; height: auto; }
+.avd-monogram {
+  display: grid; place-items: center;
+  width: 60px; height: 60px; border-radius: 3px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  color: var(--accent);
+  font-family: var(--serif); font-size: 1.32rem; font-weight: 600; letter-spacing: .02em;
+}
+
+.avd-hero-meta {
+  display: flex; flex-wrap: wrap; gap: var(--s4) var(--s7);
+  /* Kept under the hero's own 32px padding: a gap inside the block larger than
+     the block's frame makes the meta row read as floating rather than attached. */
+  margin-top: var(--s5);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--rule);
+}
+.avd-hero-meta dt { color: var(--ink-3); margin-bottom: var(--s1); }
+.avd-hero-meta dd {
+  font-family: var(--sans); font-size: var(--t-small); font-weight: 500;
+  color: var(--ink); letter-spacing: 0; text-transform: none;
+}
+
+/* ------------------------------------------------------------------ layout */
+.avd-main { padding: var(--s6) 26px var(--s9); }
+.avd-has-rail { display: grid; grid-template-columns: 172px minmax(0, 1fr); gap: 0 var(--s7); }
+.avd-flow { min-width: 0; }
+
+/* -------------------------------------------------------------------- rail */
+.avd-rail { position: sticky; top: var(--s5); align-self: start; padding-top: var(--s2); }
+.avd-rail-head { color: var(--ink-3); padding-bottom: var(--s3); border-bottom: 1px solid var(--rule); }
+.avd-rail-list { list-style: none; margin-top: var(--s3); }
+.avd-rail-list a {
+  display: grid; grid-template-columns: 1.9em 1fr; gap: var(--s2);
+  padding: var(--s2) 0; text-decoration: none; color: var(--ink-2);
+  border-left: 2px solid transparent; padding-left: var(--s3); margin-left: calc(var(--s3) * -1);
+  transition: color .14s ease, border-color .14s ease;
+}
+.avd-rail-n { color: var(--ink-3); font-size: .66rem; padding-top: .15em; }
+.avd-rail-t {
+  font-family: var(--sans); font-size: var(--t-small); line-height: 1.35;
+  letter-spacing: 0; text-transform: none;
+}
+.avd-rail-list a:hover { color: var(--ink); }
+.avd-rail-list a[aria-current] { color: var(--accent); border-left-color: var(--accent); }
+.avd-rail-list a[aria-current] .avd-rail-n { color: var(--accent); }
+.avd-rail-toggle {
+  margin-top: var(--s4); padding: var(--s2) 0;
+  background: none; border: 0; border-top: 1px solid var(--rule);
+  width: 100%; text-align: left; color: var(--accent); cursor: pointer;
+}
+.avd-rail-toggle:hover { color: var(--accent-2); }
+
+/* ----------------------------------------------------------------- section */
+.avd-section { scroll-margin-top: var(--s5); }
+
+/* The separator between sections.
+   A hairline that fades out at both ends, rather than a plain full-bleed
+   border. Two reasons it is drawn rather than bordered: a border on the
+   section also draws under a COLLAPSED one, stacking hairlines wherever
+   several are shut; and the section header already carries a solid rule from
+   the title across to the chevron, so a second solid full-width line read as
+   the same element repeated. Fading makes the two legible as different
+   things — one belongs to a heading, this one belongs between sections. */
+.avd-section + .avd-section > .avd-section-head::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--rule) 8%,
+    var(--rule) 92%,
+    transparent
+  );
+}
+.avd-section + .avd-section > .avd-section-head { position: relative; }
+
+/* The header is a real heading at a real size, with a mono chip beside it for
+   the number. Rule 2: the number is a label, the title is the heading. */
+.avd-section-head {
+  display: flex; align-items: baseline; gap: var(--s4);
+  padding: var(--pad-section) 0 var(--s5);
+  cursor: pointer; list-style: none;
+}
+.avd-section-head::-webkit-details-marker { display: none; }
+.avd-section-n {
+  flex: 0 0 auto; color: var(--brass);
+  border: 1px solid var(--rule-strong); border-radius: 2px; padding: 2px 7px;
+  letter-spacing: .1em;
+}
+.avd-section-title {
+  font-family: var(--serif); font-size: var(--t-section); font-weight: 600;
+  line-height: 1.16; letter-spacing: -.014em; text-wrap: balance;
+}
+.avd-section-rule { flex: 1 1 auto; height: 1px; background: var(--rule-strong); opacity: .55; }
+.avd-section-chev {
+  flex: 0 0 auto; width: 9px; height: 9px; align-self: center;
+  border-right: 1.5px solid var(--ink-3); border-bottom: 1.5px solid var(--ink-3);
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform .18s ease, border-color .18s ease;
+}
+.avd-section[open] > .avd-section-head .avd-section-chev {
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+.avd-section-head:hover .avd-section-chev { border-color: var(--accent); }
+.avd-section-head:hover .avd-section-title { color: var(--accent-2); }
+.avd-section:first-of-type > .avd-section-head { padding-top: var(--s2); }
+.avd-section-body { padding-bottom: var(--gap-section); }
+.avd-block + .avd-block { margin-top: var(--gap-block); }
+
+.avd-block-title {
+  font-family: var(--serif); font-size: var(--t-block); font-weight: 600;
+  line-height: 1.24; letter-spacing: -.012em; margin-bottom: var(--s4);
+  color: var(--ink); text-wrap: balance;
+}
+
+/* -------------------------------------------------------- prose (the body) */
+.avd-body { font-size: var(--t-body); line-height: 1.66; color: var(--ink-2); }
+.avd-body > * + * { margin-top: var(--s4); }
+.avd-body h1, .avd-body h2, .avd-body h3, .avd-body h4 {
+  font-family: var(--sans); font-size: var(--t-sub); font-weight: 600;
+  color: var(--ink); line-height: 1.4; margin-top: var(--s5);
+}
+.avd-body strong { font-weight: 600; color: var(--ink); }
+.avd-body em { font-style: italic; }
+.avd-body a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.avd-body a:hover { color: var(--accent-2); }
+.avd-body ul, .avd-body ol { padding-left: 1.15rem; }
+.avd-body ul { list-style: none; padding-left: 0; }
+.avd-body ul > li { position: relative; padding-left: var(--s5); }
+.avd-body ul > li::before {
+  content: ""; position: absolute; left: 0; top: .78em;
+  width: 11px; height: 1px; background: var(--accent);
+}
+.avd-body li + li { margin-top: var(--s2); }
+.avd-body ol > li::marker { font-family: var(--mono); font-size: .82em; color: var(--accent); }
+.avd-body li > ul, .avd-body li > ol { margin-top: var(--s2); }
+.avd-body code {
+  font-family: var(--mono); font-size: .86em;
+  background: var(--surface-2); padding: .1em .4em; border-radius: 3px;
+}
+.avd-body pre {
+  background: var(--surface-2); border-left: 3px solid var(--rule-strong);
+  padding: var(--s4) var(--s5); overflow-x: auto; border-radius: 0 3px 3px 0;
+}
+.avd-body pre code { background: none; padding: 0; }
+.avd-body hr { border: 0; border-top: 1px solid var(--rule); margin: var(--s5) 0; }
+.avd-body img { max-width: 100%; height: auto; border-radius: 3px; }
+.avd-body blockquote {
+  border-left: 3px solid var(--accent); padding-left: var(--s5);
+  color: var(--ink); font-style: italic;
+}
+.avd-raw {
+  font-family: var(--mono); font-size: var(--t-small); white-space: pre-wrap;
+  background: var(--surface-2); padding: var(--s4); border-radius: 3px; color: var(--ink-2);
+}
+
+/* Tables. A block using them should be `wide`; the scroll box is the phone
+   fallback so a table never pushes the whole page sideways. */
+.avd-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 3px; background: var(--surface); }
+.avd-body table { border-collapse: collapse; width: 100%; font-size: var(--t-small); }
+.avd-body th, .avd-body td {
+  text-align: left; padding: 11px 14px;
+  border-bottom: 1px solid var(--rule); vertical-align: top;
+}
+.avd-body thead th {
+  font-family: var(--mono); font-size: .67rem; font-weight: 500;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3);
+  border-bottom: 1px solid var(--rule-strong);
+}
+.avd-body tbody tr:last-child td { border-bottom: 0; }
+.avd-body tbody tr:hover td { background: var(--surface-2); }
+
+/* ----------------------------------------------------------------- callout */
+.avd-k-callout {
+  background: var(--surface); border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent); border-radius: 0 3px 3px 0;
+  padding: var(--s5); box-shadow: var(--shadow);
+}
+.avd-callout-title {
+  font-family: var(--sans); font-size: var(--t-sub); font-weight: 600;
+  color: var(--accent); margin-bottom: var(--s2);
+}
+.avd-tone-warn { border-left-color: var(--flag); background: var(--flag-soft); }
+.avd-tone-warn .avd-callout-title { color: var(--flag); }
+.avd-tone-good { border-left-color: var(--accent); background: var(--accent-soft); }
+.avd-tone-quiet { border-left-color: var(--rule-strong); background: var(--surface-2); box-shadow: none; }
+.avd-tone-quiet .avd-callout-title { color: var(--ink-2); }
+
+/* ------------------------------------------------------------------- quote */
+.avd-k-quote { margin: var(--s5) 0; }
+.avd-quote-text {
+  font-family: var(--serif); font-size: 1.42rem; line-height: 1.38; color: var(--ink);
+  border-left: 3px solid var(--accent); padding: var(--s1) 0 var(--s1) var(--s5);
+}
+.avd-quote-text p + p { margin-top: var(--s3); }
+.avd-quote-by {
+  font-family: var(--mono); font-size: var(--t-label); color: var(--ink-3);
+  margin-top: var(--s3); padding-left: calc(var(--s5) + 3px);
+}
+.avd-quote-by::before { content: "— "; }
+
+/* ----------------------------------------------------------------- metrics */
+/* Hairlines between cells, for every grid here.
+   Each cell carries its own 1px ring and the gap is 1px, so adjacent rings meet
+   in the gap and read as a single line. The obvious alternative — a rule-
+   coloured container showing through a 1px gap — paints EMPTY tracks in the
+   rule colour, so three metrics in a two-column phone layout left a beige
+   block where the fourth would go. A ring draws nothing where there is no
+   cell. */
+.avd-metrics, .avd-cards, .avd-kv {
+  display: grid; gap: 1px; padding: 1px;
+  background: var(--surface); border-radius: 3px;
+}
+.avd-metric, .avd-card, .avd-kv > div {
+  background: var(--surface); box-shadow: 0 0 0 1px var(--rule);
+}
+
+.avd-metrics { grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr)); }
+/* Value first on screen, label first in the DOM. See DocBlock.tsx. */
+.avd-metric { display: flex; flex-direction: column; padding: var(--s4) var(--s5); }
+.avd-metric-value {
+  order: 1; font-family: var(--serif); font-size: 1.72rem; font-weight: 600;
+  color: var(--ink); line-height: 1.08; font-variant-numeric: tabular-nums;
+}
+/* Sentence case, not mono uppercase. A whole sentence set in tracked-out mono
+   caps wrapped to three lines on a phone and could not be read at all. */
+.avd-metric-label {
+  order: 2; margin-top: var(--s2);
+  font-family: var(--sans); font-size: var(--t-small); line-height: 1.42;
+  color: var(--ink-2); letter-spacing: 0; text-transform: none;
+}
+.avd-metric-note {
+  order: 3; margin-top: var(--s2); color: var(--ink-3);
+  font-size: .66rem; letter-spacing: .08em; line-height: 1.5;
+}
+
+/* ------------------------------------------------------------------- cards */
+/* min(240px, 100%) rather than a bare 240px: a fixed minimum inside a forced
+   column count overflows the page on a phone instead of shrinking. */
+.avd-cards { grid-template-columns: repeat(var(--card-columns, auto-fit), minmax(min(240px, 100%), 1fr)); }
+.avd-card { padding: var(--s5); }
+.avd-card h4 {
+  font-family: var(--serif); font-size: var(--t-sub); font-weight: 600; color: var(--ink);
+  display: flex; align-items: baseline; gap: var(--s2); flex-wrap: wrap; margin-bottom: var(--s2);
+}
+.avd-badge {
+  font-style: normal; color: var(--accent);
+  background: var(--accent-soft); padding: 1px 6px; border-radius: 2px;
+}
+.avd-card .avd-body { font-size: .94rem; }
+
+/* ------------------------------------------------------------------- steps */
+.avd-steps { list-style: none; }
+.avd-step {
+  display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: var(--s2) var(--s6);
+  padding: var(--s5) 0; border-top: 1px solid var(--rule);
+}
+.avd-step:last-child { border-bottom: 1px solid var(--rule); }
+.avd-step-rail { display: flex; flex-direction: column; gap: var(--s1); }
+.avd-step-n { color: var(--accent); }
+.avd-step-when { color: var(--ink-3); letter-spacing: .06em; text-transform: none; }
+.avd-step-main h4 {
+  font-family: var(--serif); font-size: var(--t-block); font-weight: 600;
+  color: var(--ink); line-height: 1.25; margin-bottom: var(--s2);
+}
+
+/* --------------------------------------------------------------- key/value */
+.avd-kv { grid-template-columns: minmax(0, 1fr); }
+.avd-kv > div {
+  padding: var(--s3) var(--s5);
+  display: grid; grid-template-columns: minmax(140px, 220px) minmax(0, 1fr); gap: var(--s2) var(--s5);
+}
+.avd-kv dt { color: var(--ink-3); padding-top: .2em; }
+.avd-kv dd { font-size: var(--t-small); color: var(--ink); }
+
+/* ------------------------------------------------------------------ figure */
+.avd-k-figure { margin: var(--s5) 0; }
+.avd-k-figure img {
+  display: block; width: 100%; height: auto;
+  border: 1px solid var(--rule); border-radius: 3px; background: var(--surface);
+}
+.avd-k-figure figcaption {
+  font-size: var(--t-small); color: var(--ink-3);
+  margin-top: var(--s3); max-width: var(--measure-text);
+}
+
+/* --------------------------------------------------------------- diagrams */
+/* An inline diagram, not a picture of one: it inherits the document's ink and
+   the client's accent, so it themes per client and stays sharp at any zoom.
+   A hosted PNG would freeze all three. */
+.avd-k-svg { margin: var(--s5) 0; }
+.avd-svg {
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: var(--s5) var(--s4);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+}
+.avd-svg svg { display: block; width: 100%; height: auto; }
+/* A diagram with an intrinsic width narrower than the box would otherwise be
+   stretched; one wider than the phone scrolls rather than shrinking to
+   illegibility. */
+.avd-svg svg[viewBox] { min-width: 520px; }
+.avd-k-svg figcaption {
+  font-size: var(--t-small); color: var(--ink-3);
+  margin-top: var(--s3); max-width: var(--measure-text);
+}
+/* Diagrams commonly style themselves by class and assume a dark-on-light page.
+   These give an unstyled one something sane to inherit rather than defaulting
+   to black fill on every shape. */
+.avd-svg text { fill: var(--ink); font-family: var(--sans); }
+.avd-svg .accent, .avd-svg [data-accent] { fill: var(--accent); }
+.avd-svg .rule, .avd-svg .link, .avd-svg .col-rule { stroke: var(--rule-strong); }
+
+@media print {
+  .avd-svg { break-inside: avoid; page-break-inside: avoid; overflow: visible; }
+  .avd-svg svg[viewBox] { min-width: 0; }
+}
+
+/* ----------------------------------------------------------------- signoff */
+.avd-signoff {
+  margin-top: var(--s8); padding-top: var(--s5);
+  border-top: 2px solid var(--ink);
+  display: flex; justify-content: space-between; align-items: flex-end;
+  gap: var(--s5); flex-wrap: wrap;
+  font-size: var(--t-small); line-height: 1.75; color: var(--ink-2);
+}
+.avd-signoff b {
+  display: block; font-family: var(--serif); font-size: var(--t-sub);
+  font-weight: 600; color: var(--ink); letter-spacing: -.008em;
+}
+.avd-signoff-r { color: var(--ink-3); text-align: right; letter-spacing: .05em; text-transform: none; }
+
+/* ------------------------------------------------------------------ mobile */
+@media (max-width: 900px) {
+  /* The rail becomes a strip above the document. Sticky navigation in a
+     single column costs more of a phone screen than it returns. */
+  .avd-has-rail { grid-template-columns: minmax(0, 1fr); gap: var(--s5); }
+  .avd-rail { position: static; }
+  .avd-rail-list { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); }
+  .avd-rail-list a { border-left: 0; border-bottom: 2px solid transparent; padding-left: 0; margin-left: 0; }
+  .avd-rail-list a[aria-current] { border-left-color: transparent; border-bottom-color: var(--accent); }
+  .avd-rail-toggle { width: auto; }
+}
+@media (max-width: 680px) {
+  .avdoc { --shell: 100%; }
+  /* A per-block @columns is a desktop instruction. One column is the only
+     honest answer on a phone, so it overrides the custom property outright. */
+  .avd-cards { grid-template-columns: minmax(0, 1fr); }
+  .avd-metrics { grid-template-columns: minmax(0, 1fr); }
+  .avd-masthead-in { flex-wrap: wrap; gap: var(--s1) var(--s3); }
+  .avd-masthead-meta { font-size: .62rem; }
+  .avd-shell, .avd-main { padding-left: 20px; padding-right: 20px; }
+  .avd-hero { padding: var(--s5) 0 var(--s5); }
+  .avd-hero-top { flex-direction: column-reverse; align-items: flex-start; gap: var(--s4); }
+  .avd-title { max-width: none; }
+  .avd-hero-meta { gap: var(--s3) var(--s5); }
+  .avd-step { grid-template-columns: minmax(0, 1fr); }
+  .avd-step-rail { flex-direction: row; gap: var(--s3); align-items: baseline; }
+  .avd-kv > div { grid-template-columns: minmax(0, 1fr); }
+  .avd-signoff { flex-direction: column; align-items: flex-start; }
+  .avd-signoff-r { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avdoc *, .avdoc *::before, .avdoc *::after { transition: none !important; animation: none !important; }
+}
+
+/* ------------------------------------------------------------------- print */
+/* These get printed and turned into PDFs. Everything opens, the navigation and
+   the interactive chrome go, and sections do not break across pages. */
+@media print {
+  .avdoc { --ground: #fff; background: #fff; font-size: 11pt; }
+  .avd-rail, .avd-section-chev, .avd-masthead { display: none; }
+  .avd-has-rail { grid-template-columns: minmax(0, 1fr); }
+  /* A closed <details> hides its body in the UA stylesheet, so force every
+     section's body visible rather than only the open ones. */
+  .avd-section > .avd-section-body { display: block !important; content-visibility: visible !important; }
+  .avd-section-body { height: auto !important; overflow: visible !important; }
+  .avd-section { break-inside: auto; page-break-inside: auto; }
+  .avd-section-head { break-after: avoid; page-break-after: avoid; cursor: default; }
+  /* Background gradients are commonly dropped when printing; a plain rule
+     survives, and a document that prints without its section breaks reads as
+     one undifferentiated run of text. */
+  .avd-section + .avd-section > .avd-section-head::before { background: var(--rule); }
+  .avd-block, .avd-card, .avd-metric, .avd-step { break-inside: avoid; page-break-inside: avoid; }
+  .avd-body a { color: var(--ink); }
+  .avd-main { padding-top: 0; }
+}

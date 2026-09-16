@@ -3,9 +3,11 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { cookieName, getContent, getPageRow, readSession } from "@/lib/client-pages";
 import { PORTAL_COOKIE, canReadSlug, readPortalSession, seesEverything } from "@/lib/portal";
+import { ClientDoc } from "@/components/client-doc/ClientDoc";
 import { AskPanel } from "./AskPanel";
 import { DocFrame } from "./DocFrame";
 import "./client-page.css";
+import "./client-doc.css";
 
 export const dynamic = "force-dynamic";
 
@@ -67,16 +69,45 @@ export default async function ClientPage({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="stylesheet" href={FONTS} />
-        <AskPanel slug={slug} title={content.title} />
-        {content.mode === "document" ? (
-          <DocFrame html={content.html} title={content.title} />
+        {/* Keyed by slug, every branch. These are different clients'
+            confidential documents, and a React element reused from the
+            previously-viewed one would show the wrong proposal under the right
+            title — which is what /c/myef did on 2026-09-15. A key makes reuse
+            across documents impossible rather than merely unlikely.
+
+            The three branches are three ways of rendering. A structured
+            document is ours end to end, so it renders as components on the
+            page. An authored page is hand-written standalone HTML with its own
+            <style>, and the iframe that sandboxes it is the whole reason that
+            path exists — DocFrame additionally checks, once loaded, that it is
+            showing the document this URL asked for. That check is specific to
+            the frame: it exists because the wrong document reached the iframe
+            and nothing else on the page did. A structured document has no
+            srcDoc to go stale, so the key is the defence that applies, and the
+            data-slug stamp is there to make a recurrence visible rather than
+            silent. */}
+        {content.mode === "project" && content.doc ? (
+          <ClientDoc key={`doc:${slug}`} slug={slug} doc={content.doc} />
+        ) : content.mode === "document" ? (
+          <DocFrame key={`doc:${slug}`} slug={slug} html={content.html} title={content.title} />
         ) : (
-          <div className="lcla" dangerouslySetInnerHTML={{ __html: content.html }} />
+          <div key={`doc:${slug}`} className="lcla" dangerouslySetInnerHTML={{ __html: content.html }} />
         )}
+        {/* After the document, not before it. The panel floats, so where it
+            sits in the markup decides nothing visually — but it decides the
+            reading and tab order, and a reader arrives here for the proposal.
+            The anchors are the ids this page actually rendered — scraped from
+            the HTML above, or, for a structured document, the ones it assigned
+            itself — so every section the widget can cite is one this page has. */}
+        <AskPanel key={`ask:${slug}`} slug={slug} title={content.title} anchors={content.anchors} />
         <p className="cp-whoami">
           {viewerMayRead && viewer ? (
             <>
-              Signed in as {viewer.email}. <Link href={backTo}>All your documents</Link>.
+              Signed in as {viewer.email}.{" "}
+              {/* A real navigation for the same reason as the shelf's links:
+                  leaving a document tears its tree down instead of carrying it
+                  into whatever is opened next. */}
+              <a href={backTo}>All your documents</a>.
             </>
           ) : pageSession?.email ? (
             `Signed in as ${pageSession.email}.`
