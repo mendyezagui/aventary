@@ -249,7 +249,22 @@
 .cp-ask-turn{margin:0 0 18px;}
 .cp-ask-q{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.8rem;line-height:1.5;color:#7C8992;margin:0 0 6px;}
 .cp-ask-q::before{content:"you asked — ";}
-.cp-ask-a{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.95rem;line-height:1.62;color:#14212B;margin:0;white-space:pre-wrap;}
+/* The answer keeps its shape. Lists are indented by their marker rather than
+   by padding, so a wrapped line lines up under the first word and not under
+   the number — the rail is narrow and that difference is most of the
+   legibility. */
+.cp-ask-a{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.95rem;line-height:1.62;color:#14212B;margin:0;}
+.cp-ask-a p{margin:0;white-space:pre-wrap;}
+.cp-ask-a p + p,.cp-ask-a p + ol,.cp-ask-a p + ul,.cp-ask-a ol + p,.cp-ask-a ul + p{margin-top:10px;}
+.cp-ask-a ol,.cp-ask-a ul{margin:0;padding-left:1.45em;}
+.cp-ask-a ol{list-style:decimal;}
+.cp-ask-a ul{list-style:none;}
+.cp-ask-a li{margin:0;padding-left:.15em;}
+.cp-ask-a li + li{margin-top:7px;}
+.cp-ask-a ol li::marker{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.82em;color:#0E6B68;}
+.cp-ask-a ul li{position:relative;}
+.cp-ask-a ul li::before{content:"";position:absolute;left:-1em;top:.72em;width:9px;height:1px;background:#0E6B68;}
+.cp-ask-a strong{font-weight:600;color:#14212B;}
 
 /* The citation. A whole-width control rather than an inline link, because it
    does not navigate — it moves the document behind the rail, and a reader who
