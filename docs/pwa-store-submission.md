@@ -97,70 +97,89 @@ fingerprint. After you add Google's key, that array lists both fingerprints.
 
 ---
 
-## App Store (iOS) — an Xcode project
+## App Store (iOS) — a Capacitor app that ships the text
 
-Apple has no TWA equivalent; the iOS package is an **Xcode project** (a WKWebView
-shell around the PWA). You need a **Mac with Xcode** and the paid Apple Developer
-account to build and upload it — those steps are macOS-only.
+Apple has no TWA equivalent, and a WKWebView shell around the live URL is
+precisely the shape Guideline 4.2 rejects. So iOS is **not** a wrapper: it is a
+Capacitor app in `native/tehillim` whose `webDir` is the built assets, not a
+server.
 
-> **Already generated.** A ready-to-open project was built from the PWABuilder
-> iOS template (same output PWABuilder produces) and handed over as
-> `tehillim-ios-xcode.zip`: bundle id `com.tehillimcircle.app`, name `Tehillim`,
-> wrapping `https://tehillimcircle.com/tehillim`, with the Tehillim icon and
-> launch screen baked in. Skip step 1 if you have it and go to **step 2**.
-> Regenerate on pwabuilder.com only if you need a fresh one.
+> **Superseded.** An earlier PWABuilder Xcode project was generated for bundle
+> id `com.tehillimcircle.app` and handed over as `tehillim-ios-xcode.zip`. It is
+> not on the build Mac and it is no longer the path — the section below replaces
+> it. Both used the same bundle id, so nothing about the App Store Connect
+> record changes.
 
-### 1. Generate the project (only if you don't have the handed-over zip)
+### Why this way
 
-1. pwabuilder.com → same URL → **Package for stores → iOS**.
-2. Set **Bundle ID** `com.tehillimcircle.app`, **App name** `Tehillim`, **URL**
-   `https://tehillimcircle.com/tehillim`.
-3. Download the `.zip` and unzip on the Mac.
+The whole of Tehillim is in the bundle: all 150 chapters, the daily portion
+computed on device from the Hebrew date, both Hebrew faces and the site's body
+font. It opens with **no signal on a first launch** — on a plane, in shul —
+which the service worker cannot do, because `sw.js` is network-first and has
+nothing cached until the app has been online once. That difference is the
+Guideline 4.2 argument, and it is worth more than a page of appeal text.
 
-### 2. Build and upload (on the Mac)
+Nothing about the reader is reimplemented. `native/tehillim/src/App.tsx`
+imports `HomeTehillim`, `TehillimReader` and `fonts` **directly from
+`app/tehillim`**, so a fix to the website is a fix to the app at the next
+build. Three shims cover the only Next-specific pieces:
 
-1. Unzip. In Terminal, `cd` into `src` and run **`pod install`** (the project uses
-   CocoaPods, so you open the `.xcworkspace`, not the `.xcodeproj`). No CocoaPods?
-   `sudo gem install cocoapods` first.
-2. Open **`Tehillim.xcworkspace`**.
-3. Select the **Tehillim** target → **Signing & Capabilities** → pick your
-   **Team**, with **Automatically manage signing** on (Xcode registers the App ID
-   and the Push Notifications + Associated Domains capabilities the template
-   declares).
-4. Set a **version** (1.0.0) and **build** number under **General**.
-5. Destination **Any iOS Device** → **Product → Archive**, then in the Organizer
-   **Distribute App → App Store Connect → Upload**.
-6. In **App Store Connect**, create the app record (same Bundle ID), attach the
-   build, add the listing copy and screenshots, answer the **Privacy** questions
-   (same as Play: email for sign-in, no tracking), and submit.
+| import | stands in as |
+|---|---|
+| `next/navigation` | a hash router — two screens, and it works from `file://` |
+| `next/font/google` | the class names, with the woff2 files bundled |
+| `@/lib/supabase/client` | a stub that throws |
 
-> The template ships **Firebase Messaging** with a placeholder
-> `GoogleService-Info.plist` for push. This app doesn't use push — leave it inert;
-> no Firebase setup needed. Deployment target is **iOS 15**.
+### What v1 leaves out
 
-### 3. The Apple 4.2 risk — read before submitting
+**Sign-in and the Tehillim circle.** The build defines the two
+`NEXT_PUBLIC_SUPABASE_*` vars empty, which is what `hasSupabase()` in
+`app/tehillim/account.ts` already gates every network call on, so those
+features hide themselves rather than half-work. Magic-link auth in a native app
+needs deep-link handling that is not built yet. Reading, the daily portion,
+saved Psalms and Tehillim for a name are all unaffected: none of them ever
+touched the network.
 
-Apple rejects apps that are "just a website in a shell" under **Guideline 4.2
-(Minimum Functionality)**. This is the most common reason a PWABuilder iOS app
-bounces. It's beatable — lean on what the app genuinely does that a Safari tab
-doesn't:
+### What v1 adds
 
-- **Works offline** — the service worker caches the reader; the daily portion and
-  saved Psalms open with no signal. Demonstrate this in the review notes.
-- **Native-feeling, single-purpose** — full-screen Hebrew reader, hands-free
-  auto-scroll, read-aloud with the device voice, night mode, the daily portion by
-  the Hebrew date. Not a repackaged marketing site.
-- **Signed-in state** — saved Psalms and the "your circle" count persist to an
-  account.
+A **daily reminder**, scheduled by iOS itself through
+`@capacitor/local-notifications`. No server, no account, and nothing about who
+reads what leaves the phone. The permission is asked for when someone turns it
+on, never at launch — an app that asks at launch gets refused once and then has
+no way back except the Settings app.
 
-In **App Review notes**, spell out: what the app is (a Tehillim/Psalms reader),
-that it works offline, how to reach the read-aloud and auto-scroll, and — if they
-ask for a login — that sign-in is a **magic link sent to any email**, so give
-them a review email address to use. If it's rejected anyway, reply in Resolution
-Center pointing at the offline behavior and single-purpose design; a short back-
-and-forth is normal and usually clears it.
+### Build and upload
 
----
+```
+cd native/tehillim
+npm install
+npx vite build          # the web bundle the app ships
+npx cap sync ios        # copies it in, refreshes the pods
+open ios/App/App.xcworkspace
+```
+
+CocoaPods needs a UTF-8 locale or `pod install` dies on an encoding error:
+`LANG=en_US.UTF-8 npx cap sync ios`.
+
+In Xcode: the **App** target → **Signing & Capabilities** → your Team, set the
+version and build number, destination **Any iOS Device** → **Product → Archive**
+→ **Distribute App → App Store Connect**.
+
+### Still to do before it can ship
+
+- App icon and splash are still Capacitor's defaults; the artwork is in
+  `public/tehillim/`.
+- A notification has not been seen to fire on a device.
+- No App Store Connect record, no App Store screenshots, no privacy manifest.
+
+### The Apple 4.2 risk — still read before submitting
+
+Lower than a shell, not zero. In App Review notes, say what the app is (a
+Tehillim/Psalms reader), and that **it works with no network at all** — invite
+them to turn on airplane mode before opening it, because that is the whole
+argument and it is trivially checkable. Mention auto-scroll, night mode and the
+daily portion by the Hebrew date. There is no login to give them: v1 has none.
+
 
 ## Store listing copy
 

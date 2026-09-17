@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "How the Tehillim app handles your information: email sign-in, your saved Psalms and circle, no ads, no tracking, no selling of data.",
 };
 
-const UPDATED = "September 16, 2026";
+const UPDATED = "September 17, 2026";
 const CONTACT = "mendy@aventary.com";
 
 export default function TehillimPrivacyPage() {
@@ -72,12 +72,32 @@ export default function TehillimPrivacyPage() {
           <ul style={ulStyle}>
             <li>We do not sell or rent your information to anyone.</li>
             <li>We do not share it with advertisers, and the app shows no ads.</li>
-            <li>We do not use third-party analytics or advertising trackers.</li>
+            <li>
+              We do not use advertising trackers, and nothing here follows you to other
+              sites.
+            </li>
             <li>
               Read-aloud uses your device&apos;s own built-in voice. No audio and no verse
               text is sent anywhere to produce the speech.
             </li>
           </ul>
+        </Section>
+
+        <Section title="Usage statistics">
+          <p>
+            We measure how the app is used, so we can tell which parts people actually
+            reach. Two tools do this: <strong>Plausible</strong>, which counts visits
+            without cookies and without building a profile of anyone, and{" "}
+            <strong>Google Analytics</strong>, which records pages opened along with the
+            usual technical details a browser sends — device type, rough location from
+            your IP address, and an identifier for the browser.
+          </p>
+          <p>
+            This is counting, not reading over your shoulder. Which Psalms you open is a
+            page view like any other; what you save, the name you type for Psalm 119, and
+            anything you read aloud are never sent to either tool. Neither is used for
+            advertising.
+          </p>
         </Section>
 
         <Section title="Who processes your data">
@@ -86,6 +106,10 @@ export default function TehillimPrivacyPage() {
             behalf: <strong>Supabase</strong> (database and email sign-in) and{" "}
             <strong>Cloudflare</strong> (hosting). They process it only to run the app and
             do not use it for their own purposes.
+          </p>
+          <p>
+            The usage statistics above are processed by <strong>Plausible</strong> and{" "}
+            <strong>Google</strong> on our behalf.
           </p>
         </Section>
 
