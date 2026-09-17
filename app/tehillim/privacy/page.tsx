@@ -6,7 +6,7 @@ import "../tehillim.css";
 export const metadata: Metadata = {
   title: "Tehillim — Privacy Policy",
   description:
-    "How the Tehillim app handles your information: email sign-in, your saved Psalms and circle, no ads, no tracking, no selling of data.",
+    "How the Tehillim app handles your information: email sign-in, your saved Psalms and circle, usage statistics, no ads, and nothing sold.",
 };
 
 const UPDATED = "September 17, 2026";
@@ -116,7 +116,11 @@ export default function TehillimPrivacyPage() {
         <Section title="Keeping and deleting your data">
           <p>
             We keep your account data for as long as your account exists. You can ask us to
-            delete your account and everything associated with it at any time — email{" "}
+            delete your account and everything associated with it at any time — see{" "}
+            <a href="/tehillim/delete-account" style={{ color: "var(--accent)" }}>
+              Delete your account
+            </a>
+            , or email{" "}
             <a href={`mailto:${CONTACT}`} style={linkStyle}>{CONTACT}</a> and we will remove
             it.
           </p>
