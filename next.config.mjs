@@ -54,25 +54,18 @@ const nextConfig = {
                         destination: "https://tehillimcircle.com/",
                         permanent: false
                     },
-                    {
-                        // The Tehillim app has moved to its own domain. Send the
-                        // old aventary.com/tehillim URLs (and everything under
-                        // them, query strings preserved) to tehillimcircle.com.
-                        // Scoped to the aventary.com host so it never fires on
-                        // tehillimcircle.com itself (which serves the real
-                        // /tehillim/* app) — that would loop. Temporary for now
-                        // (not cached hard), so it stays easy to undo.
-                        source: "/tehillim",
-                        has: [{ type: "host", value: "aventary.com" }],
-                        destination: "https://tehillimcircle.com/tehillim",
-                        permanent: false
-                    },
-                    {
-                        source: "/tehillim/:path*",
-                        has: [{ type: "host", value: "aventary.com" }],
-                        destination: "https://tehillimcircle.com/tehillim/:path*",
-                        permanent: false
-                    },
+                    // NOTE: aventary.com/tehillim used to 302 to
+                    // tehillimcircle.com/tehillim. That redirect is gone, because
+                    // it made aventary.com/tehillim only as reachable as
+                    // tehillimcircle.com — and on 17 Sep 2026 that domain started
+                    // answering NXDOMAIN from its own Cloudflare nameservers while
+                    // the zone still read "active", taking the app, its privacy
+                    // policy and its account-deletion page down with it.
+                    //
+                    // aventary.com/tehillim now serves the app directly, as the
+                    // fallback it was supposed to be. It stays until the Play and
+                    // App Store builds are public, then this route goes for good —
+                    // Tehillim is not meant to live under this domain.
                     {
                         // /about, /contact and /appointments merged into one page.
                         // Permanent so the old URLs' search equity moves across;
