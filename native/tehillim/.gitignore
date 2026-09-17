@@ -1,0 +1,13 @@
+node_modules/
+dist/
+
+# Capacitor regenerates these from dist and the plugin list on `cap sync`, and
+# CocoaPods restores Pods from the Podfile.lock. Checking them in means every
+# build shows up as a diff of generated files.
+ios/App/Pods/
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/App/config.xml
+ios/capacitor-cordova-ios-plugins/
+ios/App/Podfile.lock
+DerivedData/

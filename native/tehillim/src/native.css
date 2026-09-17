@@ -1,0 +1,47 @@
+/*
+ * The few things that differ from the website, and only those.
+ *
+ * The page is laid out under the status bar and the home indicator so the
+ * reading column runs the full height of the phone; these give the app its
+ * safe-area padding back. Text selection and the callout menu are off because
+ * a long press while reading should not put a magnifier over the Psalm, and
+ * overscroll is off so the whole page does not rubber-band under a thumb that
+ * is only trying to scroll the text.
+ */
+:root {
+  --native-top: env(safe-area-inset-top, 0px);
+  --native-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html,
+body {
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  padding-top: var(--native-top);
+  padding-bottom: var(--native-bottom);
+}
+
+* {
+  -webkit-touch-callout: none;
+}
+
+/* The Psalm text itself stays selectable — people copy verses to send on. */
+.scroll-area,
+.scroll-area * {
+  -webkit-touch-callout: default;
+}
+
+/*
+ * The reminder card sits below the page's own cards and has to line up with
+ * them: the home screen's sections are inside its own padded column, and this
+ * one is a sibling of that column, so it repeats the gutter and the bottom
+ * breathing room rather than inheriting them.
+ */
+.native-extras {
+  padding: 0 16px calc(24px + var(--native-bottom));
+  max-width: 560px;
+  margin: 0 auto;
+}

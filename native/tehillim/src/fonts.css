@@ -1,0 +1,62 @@
+/*
+ * The two Hebrew reading faces, bundled.
+ *
+ * On the website Next downloads these at build time. The app has to open with
+ * no network at all — on a plane, in shul — so the woff2 files ship inside the
+ * bundle and are declared here. `src/shims/font.ts` returns the class names
+ * below, which is what `app/tehillim/fonts.ts` composes into `fontVars`.
+ *
+ * These are the variable builds: one file covers 500–700. Only the Hebrew
+ * subset is bundled, matching `subsets: ["hebrew"]` in the web app's
+ * fonts.ts — bundle the Latin subset too and the English headings come out
+ * in the Hebrew serif instead of the system font, which the website never does.
+ *
+ * Frank Ruhl Libre and Assistant are both SIL Open Font License 1.1.
+ */
+
+/*
+ * The site's body face. On aventary.com the root layout puts Hanken Grotesk on
+ * <body>, and the Tehillim page inherits it for everything that is not Hebrew.
+ * A standalone build has no root layout, so without this the English headings
+ * fall back to the WebView default, which is Times — the app looked like a
+ * different product from the website until this was bundled.
+ */
+body {
+  font-family: var(--font-body);
+}
+
+:root {
+  --font-body: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+}
+
+.font-hebrew { --font-hebrew: 'Frank Ruhl Libre', Georgia, serif; }
+.font-sans-hebrew { --font-sans-hebrew: 'Assistant', system-ui, sans-serif; }
+
+@font-face {
+  font-family: 'Assistant';
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url('../fonts/Assistant-hebrew.woff2') format('woff2');
+  unicode-range: U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+
+
+@font-face {
+  font-family: 'Frank Ruhl Libre';
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url('../fonts/FrankRuhlLibre-hebrew.woff2') format('woff2');
+  unicode-range: U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+
+
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('../fonts/HankenGrotesk-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
