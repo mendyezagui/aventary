@@ -56,7 +56,13 @@ const AI_CRAWLERS = [
   "Omgilibot",
 ];
 
-const PRIVATE_PATHS = ["/tehillim", "/team", "/c/", "/see", "/portal/", "/admin", "/api/"];
+// What the training crawlers may not have. Two different kinds of thing, which
+// is why this is not called PRIVATE_PATHS: `/c/`, `/see`, `/portal/`, `/admin`
+// and `/api/` are genuinely closed and are disallowed for everyone below, while
+// `/tehillim` and `/team` are public pages that simply are not training data —
+// a Psalms reader and two people's biographies. Naming this list "private"
+// would tell the next reader that /team is closed, which it is not.
+const NOT_FOR_TRAINING = ["/tehillim", "/team", "/c/", "/see", "/portal/", "/admin", "/api/"];
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -67,7 +73,7 @@ export default function robots(): MetadataRoute.Robots {
       ...AI_CRAWLERS.map((userAgent) => ({
         userAgent,
         allow: "/",
-        disallow: PRIVATE_PATHS,
+        disallow: NOT_FOR_TRAINING,
       })),
     ],
     sitemap: ["https://aventary.com/sitemap.xml", "https://aventary.com/video-sitemap.xml"],
