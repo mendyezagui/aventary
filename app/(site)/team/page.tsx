@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { Reveal } from "@/components/Reveal";
-import { TeamAvatar } from "@/components/TeamAvatar";
-import { TEAM } from "@/lib/team";
+import { TeamRoster } from "@/components/TeamRoster";
 
 export const revalidate = 3600;
 
@@ -41,45 +39,7 @@ export default function TeamPage() {
 
       <section className="px-8 py-20 md:py-24">
         <div className="max-w-5xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-5">
-            {TEAM.map((m, i) => {
-              const card = (
-                <article className="h-full flex flex-col bg-surface-container-lowest rounded-3xl p-8 md:p-10 soft-lift">
-                  <TeamAvatar member={m} size="w-16 h-16" className="text-xl mb-6" />
-                  <div className="text-accent font-label font-bold text-xs tracking-[0.16em] uppercase mb-2">
-                    {m.role}
-                  </div>
-                  <h2 className="font-headline text-2xl md:text-3xl font-bold leading-tight mb-4">
-                    {m.name}
-                  </h2>
-                  <p className="text-on-surface-variant leading-relaxed flex-1">{m.blurb}</p>
-
-                  {m.profile ? (
-                    <span className="inline-flex items-center gap-2 mt-7 text-accent font-label font-bold text-sm">
-                      Read the full background
-                      <span className="material-symbols-outlined text-base">arrow_forward</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-2 mt-7 font-label text-xs tracking-[0.14em] uppercase text-on-surface-variant">
-                      Profile coming soon
-                    </span>
-                  )}
-                </article>
-              );
-
-              return (
-                <Reveal key={m.slug} delay={i * 60}>
-                  {m.profile ? (
-                    <Link href={`/team/${m.slug}`} className="block h-full group">
-                      {card}
-                    </Link>
-                  ) : (
-                    card
-                  )}
-                </Reveal>
-              );
-            })}
-          </div>
+          <TeamRoster />
         </div>
       </section>
 

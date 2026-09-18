@@ -2,6 +2,7 @@ import Link from "next/link";
 import { marked } from "marked";
 import CalendlyEmbed from "@/components/Calendly";
 import ContactForm from "@/components/ContactForm";
+import { TeamRoster } from "@/components/TeamRoster";
 import { getPage } from "@/lib/cms";
 import { SEED } from "@/lib/seed";
 
@@ -95,6 +96,12 @@ export default async function ContactPage() {
             >
               Send a message
             </a>
+            <a
+              href="#team"
+              className="rounded-[2px] border border-white/25 px-9 py-4 font-label text-xs font-semibold uppercase tracking-[0.16em] text-inverse-on-surface transition-all hover:bg-white/5"
+            >
+              Our team
+            </a>
           </div>
         </div>
       </section>
@@ -173,6 +180,36 @@ export default async function ContactPage() {
           </div>
         </section>
       ) : null}
+
+      {/* ---------- Our team ---------- */}
+      <section id="team" className="scroll-mt-24 bg-surface-container-low px-8 py-24">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-3 font-label text-xs font-semibold uppercase tracking-[0.22em] text-accent">
+            Our team
+          </div>
+          <h2 className="editorial-gap mb-4 font-headline text-3xl font-medium md:text-4xl">
+            Who you&rsquo;ll actually work with<span className="text-primary italic">.</span>
+          </h2>
+          <p className="mb-10 max-w-2xl text-lg leading-relaxed text-on-surface-variant">
+            Aventary is deliberately small. You work with the people who build the thing, not
+            with an account manager who relays your questions to someone you never meet.
+          </p>
+
+          <TeamRoster headingLevel="h3" />
+
+          <div className="mt-10">
+            <Link
+              href="/team"
+              className="inline-flex items-center gap-2 font-label text-sm font-bold text-accent"
+            >
+              See the whole team
+              <span className="material-symbols-outlined text-base" aria-hidden="true">
+                arrow_forward
+              </span>
+            </Link>
+          </div>
+        </div>
+      </section>
 
       <section className="px-8 pb-24">
         <div className="mx-auto max-w-5xl border-t border-outline-variant/40 pt-8">
