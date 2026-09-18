@@ -1,15 +1,17 @@
 /**
  * The Aventary roster.
  *
- * This feeds /team (the index) and /team/<slug> (a full profile). Both are
- * deliberately unlisted: `noindex`, absent from the header nav and absent from
- * the sitemap. They are reachable by anyone who has the URL — that is the point,
- * they exist to be sent to a specific person — but nothing on the open web
- * advertises them except the one link on /work.
+ * This feeds /team (the index) and /team/<slug> (a full profile). Both began
+ * unlisted and are public now: indexed, canonical, in the sitemap, linked from
+ * /work and /contact. Still absent from the header nav, because being findable
+ * and being in the primary navigation are separate decisions.
  *
- * A member without a `profile` renders as a card on /team with no link. That is
- * how a new person joins the page before their write-up exists, rather than
- * shipping a paragraph nobody wrote.
+ * Two fields hold back a person who is not ready, and they are independent:
+ *
+ *   no `profile`  — the card renders on /team with no link, which is how a new
+ *                   person joins the roster before their write-up exists rather
+ *                   than shipping a paragraph nobody wrote.
+ *   `noindex`     — the page exists and is linked, but stays out of search.
  */
 
 export type Credential = {
@@ -116,6 +118,19 @@ export type TeamMember = {
   photo?: string;
   location?: string;
   linkedin?: string;
+  /**
+   * Keep this person's own page out of search.
+   *
+   * Separate from whether the page exists: the profile still renders, the
+   * roster still links it, and anyone sent the URL still reads it. It is
+   * only withheld from Google and from the sitemap.
+   *
+   * The reason is consent, not secrecy. A bio written for the company website
+   * and a bio that is the first result for your name forever are different
+   * things to agree to, and the second is not the site owner's to decide for
+   * somebody else. Clear the flag once the person has said yes.
+   */
+  noindex?: boolean;
   /** Absent until the write-up exists. No profile, no link. */
   profile?: Profile;
 };
@@ -400,6 +415,10 @@ export const TEAM: TeamMember[] = [
     // two-person roster reads as a bug. Only a fallback now that both have
     // photos, but it has to stay right for the moment one is missing.
     initials: "MU",
+    // Her page is live and linked, but withheld from search until she has
+    // been asked whether she wants to be findable by name. Mendy's is indexed:
+    // it is his firm and his own call to make.
+    noindex: true,
     profile: {
       lede:
         "An educator who builds software, and who treats both jobs as the same test: can the person in front of you actually do it afterward.",

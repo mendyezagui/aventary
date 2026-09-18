@@ -6,16 +6,38 @@ export const revalidate = 3600;
 /**
  * /team — the roster.
  *
- * Unlisted, same as the profiles it links to: `noindex`, not in the header nav,
- * not in the sitemap. Reachable by URL, which is the point.
+ * A public page: indexable, canonical, in the sitemap. It began life unlisted
+ * and stayed that way until /contact started linking it, at which point
+ * telling Google not to index a page advertised on the contact page was a
+ * contradiction rather than a privacy measure.
+ *
+ * Still absent from the header nav — being findable and being in the primary
+ * navigation are different decisions.
  *
  * A member without a `profile` in lib/team.ts renders as a card with no link,
  * rather than as a link to an empty page.
  */
+const PAGE_URL = "https://aventary.com/team";
+const DESCRIPTION =
+  "The people behind Aventary. A deliberately small team \u2014 you work with the people who build the thing.";
+
 export const metadata = {
   title: "Our Team",
-  description: "The people behind Aventary.",
-  robots: { index: false, follow: false, nocache: true }
+  description: DESCRIPTION,
+  alternates: { canonical: PAGE_URL },
+  openGraph: {
+    type: "website" as const,
+    url: PAGE_URL,
+    siteName: "Aventary",
+    title: "Our Team | Aventary",
+    description: DESCRIPTION,
+    locale: "en_US"
+  },
+  twitter: {
+    card: "summary_large_image" as const,
+    title: "Our Team | Aventary",
+    description: DESCRIPTION
+  }
 };
 
 export default function TeamPage() {

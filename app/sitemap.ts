@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { listPosts } from "@/lib/cms";
+import { TEAM } from "@/lib/team";
 import { listVideos } from "@/lib/videos";
 
 // Regenerate at most once a day rather than per crawler hit, so the Supabase
@@ -11,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // here means crawlers hit the real page directly instead of eating an extra
   // redirect invocation on every indexed URL.
   const base = "https://aventary.com";
-  const statics = ["", "/contact", "/insights", "/videos", "/camp-letter"].map((p) => ({
+  const statics = ["", "/contact", "/insights", "/videos", "/camp-letter", "/team"].map((p) => ({
     url: base + p,
     changeFrequency: "weekly" as const,
     priority: p === "" ? 1 : 0.7
@@ -31,5 +32,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "monthly" as const,
     priority: 0.6
   }));
-  return [...statics, ...postUrls, ...videoUrls];
+  // Only members with a write-up, and only those who are indexable: a slug
+  // without a profile 404s, and a sitemap that promises a page which does not
+  // exist is how a site earns crawl errors. Listing a page that carries
+  // `noindex` is the same contradiction pointed the other way.
+  const teamUrls = TEAM.filter((m) => m.profile && !m.noindex).map((m) => ({
+    url: `${base}/team/${m.slug}`,
+    changeFrequency: "monthly" as const,
+    priority: 0.5
+  }));
+  return [...statics, ...postUrls, ...videoUrls, ...teamUrls];
 }
