@@ -9,9 +9,12 @@ export const revalidate = 3600;
 /**
  * /team/<slug> — an individual profile.
  *
- * Unlisted on purpose: `noindex, nofollow`, not in the header nav, not in the
- * sitemap. Anyone holding the URL can read it, which is what makes it useful to
- * send; nothing on the open web points at it except the one link on /work.
+ * Public: indexable, canonical, in the sitemap. These began unlisted and were
+ * opened up once /contact started linking the roster — a `noindex` on a page
+ * the contact page advertises is a contradiction, not a privacy measure.
+ *
+ * A slug with no `profile` still returns noindex with the 404, so a member who
+ * has a card but no write-up cannot be indexed as a missing page.
  *
  * Slugs are matched case-insensitively so /team/Mendy and /team/mendy both land
  * here rather than one of them 404ing on a capital letter.
@@ -30,12 +33,15 @@ export async function generateMetadata({
   const member = memberBySlug(slug);
   if (!member?.profile) return { title: "Not found", robots: { index: false, follow: false } };
 
+  const url = `https://aventary.com/team/${member.slug}`;
+
   return {
     title: `${member.name} — ${member.role}`,
     description: member.blurb,
-    robots: { index: false, follow: false, nocache: true },
+    alternates: { canonical: url },
     openGraph: {
       type: "profile" as const,
+      url,
       siteName: "Aventary",
       title: `${member.name} — ${member.role} | Aventary`,
       description: member.blurb,

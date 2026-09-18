@@ -26,15 +26,14 @@ import type { MetadataRoute } from "next";
  * can still surface as a bare result. Letting Google read the page is what
  * actually keeps it out.
  *
- * `/team` gets the `/tehillim` treatment for the same two reasons. The roster
- * and the profiles under it are unlisted, not secret: they carry `noindex`, they
- * are absent from the nav and the sitemap, and they exist to be sent to a
- * specific person. Google is left free to fetch them precisely so it reads that
- * `noindex`; the training crawlers are disallowed, because a `noindex` tag is an
- * instruction about indexing and says nothing about scraping a personal
- * biography into a corpus. Note that `/work` links to `/team/mendy`, so the page
- * is reachable by anyone who goes looking — if it needs to be genuinely private
- * rather than merely unlisted, it belongs behind the customer login at `/c`.
+ * `/team` is a public page now — indexable, canonical, in the sitemap — since
+ * /contact links the roster and a `noindex` on a page the contact page
+ * advertises is a contradiction rather than a privacy measure.
+ *
+ * It stays on the AI-crawler list all the same. Being findable in search and
+ * being raw material for a training corpus are different things, and these are
+ * two people's biographies rather than marketing copy. Googlebot is not
+ * disallowed, so the pages rank normally.
  */
 
 // Crawlers that gather text for model training or AI answers. Several ignore a
