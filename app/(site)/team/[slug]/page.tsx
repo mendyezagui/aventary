@@ -39,6 +39,9 @@ export async function generateMetadata({
     title: `${member.name} — ${member.role}`,
     description: member.blurb,
     alternates: { canonical: url },
+    // Per-member, not per-route: some people are happy to be findable by name
+    // and some have not been asked yet. See TeamMember.noindex.
+    ...(member.noindex ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       type: "profile" as const,
       url,

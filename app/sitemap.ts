@@ -32,9 +32,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "monthly" as const,
     priority: 0.6
   }));
-  // Only members with a write-up: a slug without one 404s, and a sitemap that
-  // promises a page which does not exist is how a site earns crawl errors.
-  const teamUrls = TEAM.filter((m) => m.profile).map((m) => ({
+  // Only members with a write-up, and only those who are indexable: a slug
+  // without a profile 404s, and a sitemap that promises a page which does not
+  // exist is how a site earns crawl errors. Listing a page that carries
+  // `noindex` is the same contradiction pointed the other way.
+  const teamUrls = TEAM.filter((m) => m.profile && !m.noindex).map((m) => ({
     url: `${base}/team/${m.slug}`,
     changeFrequency: "monthly" as const,
     priority: 0.5
