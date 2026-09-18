@@ -60,7 +60,7 @@
     // and a deploy that quietly removed it would lock everybody out of the CMS
     // with no error anywhere. Comma-separated, lowercase. Add an address here
     // and push; there is nothing to set in Cloudflare.
-    "ADMIN_EMAILS": "mendy@aventary.com"
+    "ADMIN_EMAILS": "mendy@aventary.com,musy@aventary.com"
   },
   "observability": {
     "enabled": true
