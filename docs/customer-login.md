@@ -51,6 +51,14 @@ A shared-password session has no identity — the access log records it as
 list for. It opens the document it was used on. That is what a password is good
 for, and it is the reason a password can never be the way into the index.
 
+That last row is also what decides the **Home** link. Every client document
+carries one above it — site chrome, outside all three render modes, so an
+authored page has it as surely as a project one — pointing at `/see` for staff
+and `/c` for a customer. It appears **only for a portal session**, for the
+reason the table gives: to a page-session reader `/c` is a sign-in form, and a
+password reader has no address to sign in with. A "Home" that led somewhere they
+cannot get into would be worse than no link at all.
+
 ---
 
 ## Day-to-day

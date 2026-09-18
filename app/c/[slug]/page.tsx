@@ -69,6 +69,28 @@ export default async function ClientPage({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="stylesheet" href={FONTS} />
+        {/* Site chrome, above the document and outside all three render modes,
+            so every client page has the way back in the same place — including
+            the two authored ones, which have no masthead of ours to put it in.
+
+            Only for a PORTAL session. A page session has nowhere to go: /c is a
+            sign-in form to somebody who has not used the customer login, and a
+            shared-password reader has no address to sign in WITH — that session
+            is deliberately identity-less. Offering "Home" there would be a link
+            to a door they cannot open, so the same test the sign-off line uses
+            decides it here.
+
+            A plain <a>, not <Link>. Leaving a document must tear its tree down
+            rather than carry it into whatever opens next; that is the upstream
+            remedy for the wrong-document bug DocFrame describes, and a client
+            navigation here would quietly undo it. */}
+        {viewerMayRead && viewer ? (
+          <nav className="cp-topbar" aria-label="Document">
+            <a className="cp-home" href={backTo}>
+              <span aria-hidden="true">←</span> Home
+            </a>
+          </nav>
+        ) : null}
         {/* Keyed by slug, every branch. These are different clients'
             confidential documents, and a React element reused from the
             previously-viewed one would show the wrong proposal under the right

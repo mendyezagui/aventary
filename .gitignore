@@ -28,3 +28,8 @@ preview/
 
 # Supabase CLI scratch — version cache it writes on any invocation.
 supabase/.temp/
+
+# Claude Code personal overrides. settings.json is the shared, committed one;
+# this is the per-machine file, and it holds one-off permission grants that are
+# nobody else's business and would be wrong to inherit.
+.claude/settings.local.json
