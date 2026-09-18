@@ -168,6 +168,35 @@
 .cp-gate-note{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.82rem;color:#7C8992;margin:10px 0 0;line-height:1.5;}
 .cp-whoami{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.72rem;color:#7C8992;text-align:center;padding:0 26px 44px;margin:-70px 0 0;}
 
+/* The way back, above every client document whatever rendered it.
+
+   Deliberately light against the document's own dark masthead, and deliberately
+   thin: this is site chrome, not part of the proposal, and the reader arrived
+   here for the proposal. Reading it as a browser toolbar above a page is the
+   intended effect — a second dark band would look like the masthead broke.
+
+   It is also why the shell width is not matched to the document's: each of the
+   three render modes has its own measure, and a bar that lined up with one
+   would look misaligned on the other two. A fixed inset reads as chrome under
+   all three. */
+.cp-topbar{
+  background:#FAF8F3;border-bottom:1px solid #DFD7C6;
+  padding:9px 26px;display:flex;align-items:center;gap:16px;
+}
+.cp-home{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.72rem;
+  letter-spacing:.12em;text-transform:uppercase;color:#0E6B68;
+  text-decoration:none;display:inline-flex;align-items:center;gap:7px;
+  padding:3px 2px;border-radius:2px;
+}
+.cp-home:hover{color:#0A514F;text-decoration:underline;text-underline-offset:3px;}
+.cp-home:focus-visible{outline:2px solid #0E6B68;outline-offset:3px;}
+/* The arrow carries no meaning the word does not; it should not also jump. */
+.cp-home span{font-size:.82rem;line-height:1;}
+
+/* Chrome is not part of the printed document, same as the masthead. */
+@media print{.cp-topbar{display:none;}}
+
 /* Two ways in on one card: the password (when a page has one) above, the
    emailed link below, separated by a rule so neither looks like the fallback. */
 .cp-form{display:flex;flex-direction:column;gap:8px;}
