@@ -29,18 +29,18 @@ export const metadata = {
 
 const USE_CASES = [
   ["Gather everything still outstanding from yesterday", "Get suggested next steps without sorting through it all yourself."],
-  ["Before your next call, get a concise brief", "Bring together the client, the people, and your history with them."],
-  ["Find what is buried across your documents", "Get the relevant information without manually searching through everything."],
+  ["Before your next call, get the key facts", "Get the client, the people, and your history with them in one place."],
+  ["Find what is buried across your documents", "Get the information you need without searching through everything."],
   ["Turn rough thoughts into a clear response", "Draft an email, memo, or reply while you keep the final say."],
-  ["Bring scattered information together before a decision", "See the relevant facts, gaps, and questions in one place."],
+  ["Bring scattered information together before a decision", "See the facts, gaps, and questions in one place."],
   ["Stop repeating the same manual work", "Teach AI to help with the tasks you do again and again."]
 ];
 
 const TRUST = [
   ["What you share", "Decide what you can share and what you should keep private."],
-  ["Who can use it", "Let only the people and AI tools that need it use it."],
-  ["How long your information is kept", "Understand how long the AI tools you choose keep your information."],
-  ["A person checks important work", "Check important answers before using them, especially when they affect people or the business."],
+  ["Who can use it", "Only let people and AI tools that need the information use it."],
+  ["How long your information is kept", "Know how long the AI tool keeps your information."],
+  ["A person checks important work", "Check important answers before you use them, especially when they affect people or the business."],
   ["Share only what is needed", "Only share sensitive information when it is needed."],
   ["Choose the right AI tool", "Choose the right AI tool for what you’re working on."]
 ];
@@ -58,12 +58,12 @@ export default function TrainingPage() {
               Practical AI for <span className="text-primary italic">real work.</span>
             </h2>
             <p className="text-lg md:text-xl text-on-surface-variant max-w-2xl mb-5 leading-relaxed">
-              Bring a problem you have not solved. We will help you use AI to solve it yourself—by yourself or with your team.
+              Bring a problem you have not solved. Learn how to use AI on it—by yourself or with your team.
             </p>
             <div className="border-y border-outline-variant/40 py-3 mb-5 max-w-3xl">
               <div className="font-label font-bold text-sm tracking-widest mb-1">TRUST. PRIVACY. SECURITY.</div>
               <p className="text-sm md:text-base text-on-surface-variant">
-                Say what you share, who can use it, how long it stays there, and when a person should check the answer.
+                Decide what to share, who can use it, how long it stays there, and when a person should check the answer.
               </p>
             </div>
             <Link href="/contact#book" className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3.5 rounded-full font-bold">
@@ -77,12 +77,12 @@ export default function TrainingPage() {
       <section className="px-6 md:px-8 py-14 md:py-16 bg-surface-container-lowest">
         <div className="max-w-7xl mx-auto">
           <Reveal>
-            <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">Start with a real problem</div>
+            <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">Real problems</div>
             <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.02] mb-4 max-w-4xl">
               Work on what still needs solving<span className="text-primary italic">.</span>
             </h2>
             <p className="text-lg text-on-surface-variant max-w-2xl mb-8">
-              Start with the real situation, not a general lesson. We help you use AI to work on that problem—and know when to check the answer.
+              Bring a problem from your day. Learn how to use AI on it—and when to check the answer.
             </p>
           </Reveal>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -105,9 +105,9 @@ export default function TrainingPage() {
             <div>
               <Reveal>
                 <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">Trust, privacy &amp; security</div>
-                <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.02] mb-4 max-w-4xl">Keep control when you use AI<span className="text-primary italic">.</span></h2>
+                <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.02] mb-4 max-w-4xl">Stay in control when you use AI<span className="text-primary italic">.</span></h2>
                 <p className="text-base text-inverse-on-surface/70 max-w-2xl mb-8">
-                  We look at what your work contains and how you plan to use it. We help you decide what to share, who can use it, and when a person should check the answer.
+                  Before you use AI, decide what to share, who can use it, and when a person should check the answer.
                 </p>
               </Reveal>
               <div className="grid md:grid-cols-2 gap-4">
