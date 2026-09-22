@@ -101,6 +101,7 @@ export default function TrainingPage() {
               <div>
                 <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-2">A real example</div>
                 <h3 className="font-headline text-xl font-bold">Rebuilding a Shopify store by talking to ChatGPT</h3>
+                <p className="text-sm text-on-surface-variant mt-1">Featuring Simcha S.</p>
               </div>
               <a
                 href="https://aventary.com/videos/rebuilding-a-shopify-store-by-talking-to-chatgpt"
