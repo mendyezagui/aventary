@@ -44,7 +44,7 @@ const TRUST = [
 export default function TrainingPage() {
   return (
     <>
-      <section className="px-6 md:px-8 pt-9 md:pt-12 pb-10 md:pb-12">
+      <section className="px-6 md:px-8 pt-7 md:pt-9 pb-8 md:pb-10">
         <div className="max-w-7xl mx-auto">
           <div className="max-w-4xl">
             <h1 className="font-headline text-4xl md:text-6xl lg:text-[5rem] font-bold leading-[.96] text-accent mb-4">
@@ -56,7 +56,7 @@ export default function TrainingPage() {
             <p className="text-lg md:text-xl text-on-surface-variant max-w-2xl mb-5 leading-relaxed">
               Bring us something you&apos;re stuck on. We&apos;ll show you how to use AI to work through it yourself.
             </p>
-            <p className="text-base text-on-surface-variant mb-6">One-on-one or with your team.</p>
+            <p className="text-base text-on-surface-variant mb-5">One-on-one or with your team.</p>
             <Link href="/contact#book" className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3.5 rounded-full font-bold">
               Book a free consultation
               <span className="material-symbols-outlined">arrow_forward</span>
@@ -65,18 +65,18 @@ export default function TrainingPage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-8 py-10 md:py-12 bg-surface-container-lowest">
+      <section className="px-6 md:px-8 py-8 md:py-10 bg-surface-container-lowest">
         <div className="max-w-7xl mx-auto">
           <Reveal>
             <h2 className="font-headline text-3xl md:text-5xl font-bold leading-[1.02] mb-3 max-w-3xl">
               Start with a problem you actually have<span className="text-primary italic">.</span>
             </h2>
           </Reveal>
-          <div className="grid md:grid-cols-2 gap-4 mt-7">
+          <div className="grid md:grid-cols-2 gap-4 mt-6">
             {EXAMPLES.map(([title, body], i) => (
-              <Reveal key={title} delay={Math.min(i, 3) * 60} className="h-full">
-                <div className="bg-surface p-5 rounded-3xl soft-lift h-full">
-                  <div className="text-primary font-label font-bold text-sm mb-3">0{i + 1}</div>
+              <Reveal key={title} delay={Math.min(i, 3) * 60}>
+                <div className="bg-surface p-4 md:p-5 rounded-3xl soft-lift">
+                  <div className="text-primary font-label font-bold text-sm mb-2">0{i + 1}</div>
                   <h3 className="font-headline text-xl md:text-2xl font-bold mb-2">{title}</h3>
                   <p className="text-sm text-on-surface-variant leading-relaxed">{body}</p>
                 </div>
@@ -86,23 +86,23 @@ export default function TrainingPage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-8 py-10 md:py-12">
+      <section className="px-6 md:px-8 py-8 md:py-10">
         <div className="max-w-7xl mx-auto">
           <Reveal>
             <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">Real examples</div>
           </Reveal>
           <div className="grid lg:grid-cols-4 gap-4">
-            <Reveal className="h-full">
-              <div className="border border-outline-variant/50 p-5 md:p-6 rounded-3xl h-full">
+            <Reveal>
+              <div className="border border-outline-variant/50 p-4 md:p-5 rounded-3xl">
                 <h2 className="font-headline text-2xl font-bold mb-1">Abraham C.</h2>
                 <p className="text-sm text-on-surface-variant mb-3">Chief Operating Officer, LCLA</p>
                 <p className="text-base leading-relaxed">
-                  A short AI training session helped move work that had been stuck for a long time.
+                  A problem had been stuck for a long time. A short AI training session helped them work through it.
                 </p>
               </div>
             </Reveal>
-            <Reveal delay={60} className="h-full">
-              <div className="border border-outline-variant/50 p-5 md:p-6 rounded-3xl h-full">
+            <Reveal delay={60}>
+              <div className="border border-outline-variant/50 p-4 md:p-5 rounded-3xl">
                 <h2 className="font-headline text-2xl font-bold mb-1">Simcha S.</h2>
                 <p className="text-base font-bold mt-2 mb-4">Rebuilding a Shopify Store by Talking to ChatGPT</p>
                 <a
@@ -115,21 +115,21 @@ export default function TrainingPage() {
                 </a>
               </div>
             </Reveal>
-            <Reveal delay={120} className="h-full">
-              <div className="border border-outline-variant/50 p-5 md:p-6 rounded-3xl h-full">
+            <Reveal delay={120}>
+              <div className="border border-outline-variant/50 p-4 md:p-5 rounded-3xl">
                 <h2 className="font-headline text-2xl font-bold mb-1">A family office</h2>
-                <p className="text-sm text-on-surface-variant mb-3">Hundreds of documents that needed organizing</p>
+                <p className="text-sm text-on-surface-variant mb-3">Hundreds of documents to organize</p>
                 <p className="text-base leading-relaxed">
-                  They had hundreds of PDFs and scanned documents. We showed them how to use AI to read the files, identify them, name them, and organize them.
+                  We showed them how AI could read, identify, name, and organize hundreds of PDFs and scans.
                 </p>
               </div>
             </Reveal>
-            <Reveal delay={180} className="h-full">
-              <div className="border border-outline-variant/50 p-5 md:p-6 rounded-3xl h-full">
+            <Reveal delay={180}>
+              <div className="border border-outline-variant/50 p-4 md:p-5 rounded-3xl">
                 <h2 className="font-headline text-2xl font-bold mb-1">A family office</h2>
                 <p className="text-sm text-on-surface-variant mb-3">Finding information for requests</p>
                 <p className="text-base leading-relaxed">
-                  Information requests meant searching across places like Google Drive and Gmail, then putting everything into the requested format. We showed them how AI could help find the information and prepare it for the request.
+                  We showed them how AI could find information across places like Drive and Gmail and help prepare the requested material.
                 </p>
               </div>
             </Reveal>
@@ -137,7 +137,7 @@ export default function TrainingPage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-8 py-10 md:py-12 bg-ink text-inverse-on-surface">
+      <section className="px-6 md:px-8 py-8 md:py-10 bg-ink text-inverse-on-surface">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,24rem)] gap-6 lg:gap-8 items-center">
             <div>
@@ -146,14 +146,14 @@ export default function TrainingPage() {
                 <h2 className="font-headline text-3xl md:text-5xl font-bold leading-[1.02] mb-4">
                   Use AI without being careless with your information<span className="text-primary italic">.</span>
                 </h2>
-                <p className="text-base text-inverse-on-surface/70 max-w-2xl mb-7 leading-relaxed">
-                  Not every AI tool is right for sensitive work. We help you decide what can be shared, which AI setup makes sense, who can access the information, how long it is kept, and when a person should check the answer.
+                <p className="text-base text-inverse-on-surface/70 max-w-2xl mb-6 leading-relaxed">
+                  Not every AI tool is right for sensitive work. We help you decide what can be shared, which AI setup makes sense, who can access the information, how long it is kept, and when a person needs to check the result.
                 </p>
               </Reveal>
               <div className="grid md:grid-cols-2 gap-4">
                 {TRUST.map(([title, body], i) => (
-                  <Reveal key={title} delay={i * 60} className="h-full">
-                    <div className="border border-inverse-on-surface/15 p-5 rounded-3xl h-full">
+                  <Reveal key={title} delay={i * 60}>
+                    <div className="border border-inverse-on-surface/15 p-4 rounded-3xl">
                       <h3 className="font-headline text-xl font-bold mb-2">{title}</h3>
                       <p className="text-sm text-inverse-on-surface/70 leading-relaxed">{body}</p>
                     </div>
@@ -179,7 +179,7 @@ export default function TrainingPage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-8 py-10 md:py-12">
+      <section className="px-6 md:px-8 py-8 md:py-10">
         <Reveal className="max-w-3xl mx-auto text-center">
           <h2 className="font-headline text-3xl md:text-5xl font-bold leading-[1.02] mb-5">
             Want to see what AI could help you with<span className="text-primary italic">?</span>
