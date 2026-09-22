@@ -62,20 +62,20 @@ const FORMATS = [
 export default function TrainingPage() {
   return (
     <>
-      <section className="px-6 md:px-8 pt-20 md:pt-28 pb-14 md:pb-20">
+      <section className="px-6 md:px-8 pt-12 md:pt-16 pb-10 md:pb-14">
         <div className="max-w-7xl mx-auto">
           <div className="max-w-5xl">
-            <h1 className="font-headline text-5xl md:text-7xl lg:text-[6rem] font-bold leading-[.96] text-accent mb-5">
+            <h1 className="font-headline text-4xl md:text-6xl lg:text-[5rem] font-bold leading-[.96] text-accent mb-4">
               Executive &amp; Leadership AI Training
             </h1>
-            <h2 className="font-headline text-3xl md:text-5xl lg:text-[4rem] font-bold leading-[1] mb-5">
+            <h2 className="font-headline text-2xl md:text-4xl lg:text-[3.5rem] font-bold leading-[1] mb-4">
               Practical AI for <span className="text-primary italic">real work.</span>
             </h2>
-            <p className="text-lg md:text-xl text-on-surface-variant max-w-2xl mb-7 leading-relaxed">
+            <p className="text-lg md:text-xl text-on-surface-variant max-w-2xl mb-5 leading-relaxed">
               Learn AI by solving the work that is stuck—not by sitting through generic demos.
             </p>
-            <div className="border-y border-outline-variant/40 py-4 mb-7 max-w-3xl">
-              <div className="font-label font-bold text-sm tracking-widest mb-2">TRUST. PRIVACY. SECURITY.</div>
+            <div className="border-y border-outline-variant/40 py-3 mb-5 max-w-3xl">
+              <div className="font-label font-bold text-sm tracking-widest mb-1">TRUST. PRIVACY. SECURITY.</div>
               <p className="text-sm md:text-base text-on-surface-variant">
                 Set information boundaries, choose an appropriate environment, control access, understand retention, minimize exposure, and keep human review for consequential work.
               </p>
