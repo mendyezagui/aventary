@@ -96,6 +96,22 @@ export default function TrainingPage() {
               </Reveal>
             ))}
           </div>
+          <Reveal delay={120}>
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-3xl bg-surface p-5 soft-lift">
+              <div>
+                <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-2">A real example</div>
+                <h3 className="font-headline text-xl font-bold">Rebuilding a Shopify store by talking to ChatGPT</h3>
+              </div>
+              <a
+                href="https://aventary.com/videos/rebuilding-a-shopify-store-by-talking-to-chatgpt"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 text-accent font-bold whitespace-nowrap"
+              >
+                Watch the video <span className="material-symbols-outlined">arrow_outward</span>
+              </a>
+            </div>
+          </Reveal>
         </div>
       </section>
 
