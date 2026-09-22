@@ -65,7 +65,7 @@ export default function TrainingPage() {
       <section className="px-6 md:px-8 pt-20 md:pt-28 pb-14 md:pb-20">
         <div className="max-w-7xl mx-auto">
           <div className="max-w-5xl">
-            <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-4">
+            <div className="font-headline text-3xl md:text-5xl lg:text-6xl font-bold leading-[1.02] text-accent mb-5">
               Executive &amp; Leadership AI Training
             </div>
             <h1 className="font-headline text-5xl md:text-7xl lg:text-[6rem] font-bold leading-[.96] mb-6">
