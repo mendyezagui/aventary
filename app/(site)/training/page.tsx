@@ -27,45 +27,35 @@ export const metadata = {
   }
 };
 
-const USE_CASES = [
-  ["Gather everything still outstanding from yesterday", "Get suggested next steps without sorting through it all yourself."],
-  ["Before your next call, get the key facts", "Get the client, the people, and your history with them in one place."],
-  ["Find what is buried across your documents", "Get the information you need without searching through everything."],
-  ["Turn rough thoughts into a clear response", "Draft an email, memo, or reply while you keep the final say."],
-  ["Bring scattered information together before a decision", "See the facts, gaps, and questions in one place."],
-  ["Stop repeating the same manual work", "Teach AI to help with the tasks you do again and again."]
+const EXAMPLES = [
+  ["What did I miss yesterday?", "Pull together what’s still open and what needs your attention next."],
+  ["Who am I about to speak to?", "Before a call, get the important history without digging through old emails and notes."],
+  ["Where is that document?", "Find information buried across your files without searching through everything yourself."],
+  ["Can AI take this repetitive work off my plate?", "Use it to help with work you keep doing again and again."]
 ];
 
 const TRUST = [
-  ["What you share", "Decide what you can share and what you should keep private."],
-  ["Who can use it", "Only let people and AI tools that need the information use it."],
-  ["How long your information is kept", "Know how long the AI tool keeps your information."],
-  ["A person checks important work", "Check important answers before you use them, especially when they affect people or the business."],
-  ["Share only what is needed", "Only share sensitive information when it is needed."],
-  ["Choose the right AI tool", "Choose the right AI tool for what you’re working on."]
+  ["What can I share?", "Not everything belongs in an AI tool."],
+  ["What should stay private?", "We help you tell the difference."],
+  ["When should a person check?", "Important answers still need a person’s judgment."]
 ];
 
 export default function TrainingPage() {
   return (
     <>
-      <section className="px-6 md:px-8 pt-12 md:pt-16 pb-10 md:pb-14">
+      <section className="px-6 md:px-8 pt-9 md:pt-12 pb-10 md:pb-12">
         <div className="max-w-7xl mx-auto">
-          <div className="max-w-5xl">
+          <div className="max-w-4xl">
             <h1 className="font-headline text-4xl md:text-6xl lg:text-[5rem] font-bold leading-[.96] text-accent mb-4">
               Executive &amp; Leadership AI Training
             </h1>
             <h2 className="font-headline text-2xl md:text-4xl lg:text-[3.5rem] font-bold leading-[1] mb-4">
-              Practical AI for <span className="text-primary italic">real work.</span>
+              Use AI to get actual work done<span className="text-primary italic">.</span>
             </h2>
             <p className="text-lg md:text-xl text-on-surface-variant max-w-2xl mb-5 leading-relaxed">
-              Bring a problem you have not solved. Learn how to use AI on it—by yourself or with your team.
+              Bring us something you&apos;re stuck on. We&apos;ll show you how to use AI to work through it yourself.
             </p>
-            <div className="border-y border-outline-variant/40 py-3 mb-5 max-w-3xl">
-              <div className="font-label font-bold text-sm tracking-widest mb-1">TRUST. PRIVACY. SECURITY.</div>
-              <p className="text-sm md:text-base text-on-surface-variant">
-                Decide what to share, who can use it, how long it stays there, and when a person should check the answer.
-              </p>
-            </div>
+            <p className="text-base text-on-surface-variant mb-6">One-on-one or with your team.</p>
             <Link href="/contact#book" className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3.5 rounded-full font-bold">
               Book a free consultation
               <span className="material-symbols-outlined">arrow_forward</span>
@@ -74,94 +64,92 @@ export default function TrainingPage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-8 py-14 md:py-16 bg-surface-container-lowest">
+      <section className="px-6 md:px-8 py-10 md:py-12 bg-surface-container-lowest">
         <div className="max-w-7xl mx-auto">
           <Reveal>
-            <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">Real problems</div>
-            <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.02] mb-4 max-w-4xl">
-              Work on what still needs solving<span className="text-primary italic">.</span>
+            <h2 className="font-headline text-3xl md:text-5xl font-bold leading-[1.02] mb-3 max-w-3xl">
+              Start with a problem you actually have<span className="text-primary italic">.</span>
             </h2>
-            <p className="text-lg text-on-surface-variant max-w-2xl mb-8">
-              Bring a problem from your day. Learn how to use AI on it—and when to check the answer.
-            </p>
           </Reveal>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {USE_CASES.map(([title, body], i) => (
+          <div className="grid md:grid-cols-2 gap-4 mt-7">
+            {EXAMPLES.map(([title, body], i) => (
               <Reveal key={title} delay={Math.min(i, 3) * 60} className="h-full">
                 <div className="bg-surface p-5 rounded-3xl soft-lift h-full">
                   <div className="text-primary font-label font-bold text-sm mb-3">0{i + 1}</div>
-                  <h3 className="font-headline text-xl font-bold mb-2">{title}</h3>
+                  <h3 className="font-headline text-xl md:text-2xl font-bold mb-2">{title}</h3>
                   <p className="text-sm text-on-surface-variant leading-relaxed">{body}</p>
                 </div>
               </Reveal>
             ))}
           </div>
-          <Reveal delay={120}>
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-3xl bg-surface p-5 soft-lift">
-              <div>
-                <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-2">A real example</div>
-                <h3 className="font-headline text-xl font-bold">Rebuilding a Shopify store by talking to ChatGPT</h3>
-                <p className="text-sm text-on-surface-variant mt-1">Featuring Simcha S.</p>
-              </div>
-              <a
-                href="https://aventary.com/videos/rebuilding-a-shopify-store-by-talking-to-chatgpt"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 text-accent font-bold whitespace-nowrap"
-              >
-                Watch the video <span className="material-symbols-outlined">arrow_outward</span>
-              </a>
-            </div>
-          </Reveal>
         </div>
       </section>
 
-      <section className="px-6 md:px-8 py-14 md:py-16 bg-ink text-inverse-on-surface">
+      <section className="px-6 md:px-8 py-10 md:py-12">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,24rem)] gap-8 lg:gap-12 items-center">
-            <div>
-              <Reveal>
-                <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">Trust, privacy &amp; security</div>
-                <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.02] mb-4 max-w-4xl">Stay in control when you use AI<span className="text-primary italic">.</span></h2>
-                <p className="text-base text-inverse-on-surface/70 max-w-2xl mb-8">
-                  Before you use AI, decide what to share, who can use it, and when a person should check the answer.
-                </p>
-              </Reveal>
-              <div className="grid md:grid-cols-2 gap-4">
-                {TRUST.map(([title, body], i) => (
-                  <Reveal key={title} delay={Math.min(i, 3) * 60} className="h-full">
-                    <div className="border border-inverse-on-surface/15 p-5 rounded-3xl h-full">
-                      <div className="text-primary font-label font-bold text-sm mb-3">0{i + 1}</div>
-                      <h3 className="font-headline text-xl font-bold mb-2">{title}</h3>
-                      <p className="text-sm text-inverse-on-surface/70 leading-relaxed">{body}</p>
-                    </div>
-                  </Reveal>
-                ))}
+          <Reveal>
+            <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">Real examples</div>
+          </Reveal>
+          <div className="grid lg:grid-cols-2 gap-4">
+            <Reveal className="h-full">
+              <div className="border border-outline-variant/50 p-5 md:p-6 rounded-3xl h-full">
+                <h2 className="font-headline text-2xl font-bold mb-2">Simcha S.</h2>
+                <p className="text-lg font-bold mb-5">Rebuilding a Shopify Store by Talking to ChatGPT</p>
+                <a
+                  href="https://aventary.com/videos/rebuilding-a-shopify-store-by-talking-to-chatgpt"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 text-accent font-bold"
+                >
+                  Watch the video <span className="material-symbols-outlined">arrow_outward</span>
+                </a>
               </div>
-            </div>
-            <Reveal delay={120}>
-              <div className="rounded-3xl border border-inverse-on-surface/10 bg-inverse-on-surface/[0.04] p-5" aria-hidden="true">
-                <svg viewBox="0 0 360 230" className="w-full h-auto text-primary" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M42 181.5h276" stroke="currentColor" strokeOpacity=".35" strokeWidth="2" />
-                  <path d="M86 177c8-36 29-54 55-54s47 18 55 54M173 177c7-28 23-42 45-42s38 14 45 42" stroke="currentColor" strokeOpacity=".8" strokeWidth="3" strokeLinecap="round" />
-                  <circle cx="141" cy="92" r="20" fill="currentColor" fillOpacity=".18" stroke="currentColor" strokeWidth="2" />
-                  <circle cx="218" cy="105" r="18" fill="currentColor" fillOpacity=".18" stroke="currentColor" strokeWidth="2" />
-                  <circle cx="92" cy="113" r="17" fill="currentColor" fillOpacity=".18" stroke="currentColor" strokeWidth="2" />
-                  <path d="M126 151c10-10 22-15 35-15M202 157c9-8 19-12 30-12M77 161c8-7 17-10 27-10" stroke="currentColor" strokeOpacity=".55" strokeWidth="2" strokeLinecap="round" />
-                  <rect x="126" y="170" width="108" height="8" rx="4" fill="currentColor" fillOpacity=".2" />
-                  <rect x="154" y="166" width="52" height="4" rx="2" fill="currentColor" fillOpacity=".5" />
-                </svg>
+            </Reveal>
+            <Reveal delay={60} className="h-full">
+              <div className="border border-outline-variant/50 p-5 md:p-6 rounded-3xl h-full">
+                <h2 className="font-headline text-2xl font-bold mb-2">A family office</h2>
+                <p className="text-base text-on-surface-variant leading-relaxed">
+                  Hundreds of PDFs and scanned documents were hard to sort through. AI helped read them, identify them, name them, and organize them.
+                </p>
               </div>
             </Reveal>
           </div>
         </div>
       </section>
 
-      <section className="px-6 md:px-8 py-14 md:py-16">
+      <section className="px-6 md:px-8 py-10 md:py-12 bg-ink text-inverse-on-surface">
+        <div className="max-w-7xl mx-auto">
+          <div className="max-w-4xl">
+            <Reveal>
+              <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">Trust, privacy &amp; security</div>
+              <h2 className="font-headline text-3xl md:text-5xl font-bold leading-[1.02] mb-4">
+                Use AI without being careless with your information<span className="text-primary italic">.</span>
+              </h2>
+              <p className="text-base text-inverse-on-surface/70 max-w-2xl mb-7 leading-relaxed">
+                We show you what you can share, what should stay private, and when an answer needs to be checked by a person.
+              </p>
+            </Reveal>
+            <div className="grid md:grid-cols-3 gap-4">
+              {TRUST.map(([title, body], i) => (
+                <Reveal key={title} delay={i * 60} className="h-full">
+                  <div className="border border-inverse-on-surface/15 p-5 rounded-3xl h-full">
+                    <h3 className="font-headline text-xl font-bold mb-2">{title}</h3>
+                    <p className="text-sm text-inverse-on-surface/70 leading-relaxed">{body}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-6 md:px-8 py-10 md:py-12">
         <Reveal className="max-w-3xl mx-auto text-center">
-          <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.02] mb-6">Book a free consultation<span className="text-primary italic">.</span></h2>
+          <h2 className="font-headline text-3xl md:text-5xl font-bold leading-[1.02] mb-5">
+            Want to see what AI could help you with<span className="text-primary italic">?</span>
+          </h2>
           <Link href="/contact#book" className="inline-flex items-center gap-2 bg-primary text-on-primary px-7 py-4 rounded-full font-bold">
-            Book a free consultation <span className="material-symbols-outlined">arrow_forward</span>
+            Book a free consultation
           </Link>
         </Reveal>
       </section>
