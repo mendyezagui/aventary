@@ -90,7 +90,7 @@ export default function TrainingPage() {
           <Reveal>
             <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">Real examples</div>
           </Reveal>
-          <div className="grid lg:grid-cols-3 gap-4">
+          <div className="grid lg:grid-cols-4 gap-4">
             <Reveal className="h-full">
               <div className="border border-outline-variant/50 p-5 md:p-6 rounded-3xl h-full">
                 <h2 className="font-headline text-2xl font-bold mb-1">Abraham C.</h2>
@@ -117,8 +117,18 @@ export default function TrainingPage() {
             <Reveal delay={120} className="h-full">
               <div className="border border-outline-variant/50 p-5 md:p-6 rounded-3xl h-full">
                 <h2 className="font-headline text-2xl font-bold mb-1">A family office</h2>
+                <p className="text-sm text-on-surface-variant mb-3">Hundreds of documents that needed organizing</p>
                 <p className="text-base leading-relaxed">
-                  Hundreds of PDFs and scanned documents were hard to sort through. AI helped read them, identify them, name them, and organize them.
+                  They had hundreds of PDFs and scanned documents. We showed them how to use AI to read the files, identify them, name them, and organize them.
+                </p>
+              </div>
+            </Reveal>
+            <Reveal delay={180} className="h-full">
+              <div className="border border-outline-variant/50 p-5 md:p-6 rounded-3xl h-full">
+                <h2 className="font-headline text-2xl font-bold mb-1">A family office</h2>
+                <p className="text-sm text-on-surface-variant mb-3">Finding information for requests</p>
+                <p className="text-base leading-relaxed">
+                  Information requests meant searching across places like Google Drive and Gmail, then putting everything into the requested format. We showed them how AI could help find the information and prepare it for the request.
                 </p>
               </div>
             </Reveal>
