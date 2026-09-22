@@ -82,7 +82,7 @@ export default function TrainingPage() {
               Work on what still needs solving<span className="text-primary italic">.</span>
             </h2>
             <p className="text-lg text-on-surface-variant max-w-2xl mb-8">
-              Start with the real situation, not a general lesson. The training helps you use AI to work on that problem—and know when to check the answer.
+              Start with the real situation, not a general lesson. We help you use AI to work on that problem—and know when to check the answer.
             </p>
           </Reveal>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -101,23 +101,41 @@ export default function TrainingPage() {
 
       <section className="px-6 md:px-8 py-14 md:py-16 bg-ink text-inverse-on-surface">
         <div className="max-w-7xl mx-auto">
-          <Reveal>
-            <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">Trust, privacy &amp; security</div>
-            <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.02] mb-4 max-w-4xl">Use AI without losing control<span className="text-primary italic">.</span></h2>
-            <p className="text-base text-inverse-on-surface/70 max-w-2xl mb-8">
-              We look at the information in your work and how you plan to use it. We help you decide what to share, who can use it, and when a person should check the answer.
-            </p>
-          </Reveal>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {TRUST.map(([title, body], i) => (
-              <Reveal key={title} delay={Math.min(i, 3) * 60} className="h-full">
-                <div className="border border-inverse-on-surface/15 p-5 rounded-3xl h-full">
-                  <div className="text-primary font-label font-bold text-sm mb-3">0{i + 1}</div>
-                  <h3 className="font-headline text-xl font-bold mb-2">{title}</h3>
-                  <p className="text-sm text-inverse-on-surface/70 leading-relaxed">{body}</p>
-                </div>
+          <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,24rem)] gap-8 lg:gap-12 items-center">
+            <div>
+              <Reveal>
+                <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">Trust, privacy &amp; security</div>
+                <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.02] mb-4 max-w-4xl">Keep control when you use AI<span className="text-primary italic">.</span></h2>
+                <p className="text-base text-inverse-on-surface/70 max-w-2xl mb-8">
+                  We look at what your work contains and how you plan to use it. We help you decide what to share, who can use it, and when a person should check the answer.
+                </p>
               </Reveal>
-            ))}
+              <div className="grid md:grid-cols-2 gap-4">
+                {TRUST.map(([title, body], i) => (
+                  <Reveal key={title} delay={Math.min(i, 3) * 60} className="h-full">
+                    <div className="border border-inverse-on-surface/15 p-5 rounded-3xl h-full">
+                      <div className="text-primary font-label font-bold text-sm mb-3">0{i + 1}</div>
+                      <h3 className="font-headline text-xl font-bold mb-2">{title}</h3>
+                      <p className="text-sm text-inverse-on-surface/70 leading-relaxed">{body}</p>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+            <Reveal delay={120}>
+              <div className="rounded-3xl border border-inverse-on-surface/10 bg-inverse-on-surface/[0.04] p-5" aria-hidden="true">
+                <svg viewBox="0 0 360 230" className="w-full h-auto text-primary" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M42 181.5h276" stroke="currentColor" strokeOpacity=".35" strokeWidth="2" />
+                  <path d="M86 177c8-36 29-54 55-54s47 18 55 54M173 177c7-28 23-42 45-42s38 14 45 42" stroke="currentColor" strokeOpacity=".8" strokeWidth="3" strokeLinecap="round" />
+                  <circle cx="141" cy="92" r="20" fill="currentColor" fillOpacity=".18" stroke="currentColor" strokeWidth="2" />
+                  <circle cx="218" cy="105" r="18" fill="currentColor" fillOpacity=".18" stroke="currentColor" strokeWidth="2" />
+                  <circle cx="92" cy="113" r="17" fill="currentColor" fillOpacity=".18" stroke="currentColor" strokeWidth="2" />
+                  <path d="M126 151c10-10 22-15 35-15M202 157c9-8 19-12 30-12M77 161c8-7 17-10 27-10" stroke="currentColor" strokeOpacity=".55" strokeWidth="2" strokeLinecap="round" />
+                  <rect x="126" y="170" width="108" height="8" rx="4" fill="currentColor" fillOpacity=".2" />
+                  <rect x="154" y="166" width="52" height="4" rx="2" fill="currentColor" fillOpacity=".5" />
+                </svg>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
