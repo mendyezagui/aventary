@@ -37,12 +37,12 @@ const USE_CASES = [
 ];
 
 const TRUST = [
-  ["What you share", "Decide what information can be used, what is sensitive, and what should stay out."],
-  ["Who can access it", "Give access to the people and tools that need it, and no one else."],
-  ["How long your information is kept", "Understand how long the tools you choose keep your information."],
-  ["A person checks important work", "Check important results before using them, especially when a decision affects people or the business."],
-  ["Share only what is needed", "Do not put sensitive information into tools or prompts unless it is necessary."],
-  ["Make clear choices", "Choose tools and ways of working that fit the information and the task."]
+  ["What you share", "Decide what you can share and what you should keep private."],
+  ["Who can use it", "Let only the people and AI tools that need it use it."],
+  ["How long your information is kept", "Understand how long the AI tools you choose keep your information."],
+  ["A person checks important work", "Check important answers before using them, especially when they affect people or the business."],
+  ["Share only what is needed", "Only share sensitive information when it is needed."],
+  ["Choose the right AI tool", "Choose the right AI tool for what you’re working on."]
 ];
 
 export default function TrainingPage() {
@@ -58,12 +58,12 @@ export default function TrainingPage() {
               Practical AI for <span className="text-primary italic">real work.</span>
             </h2>
             <p className="text-lg md:text-xl text-on-surface-variant max-w-2xl mb-5 leading-relaxed">
-              Bring a problem you have not solved. We will help you use AI to solve it yourself—one-to-one or with your team.
+              Bring a problem you have not solved. We will help you use AI to solve it yourself—by yourself or with your team.
             </p>
             <div className="border-y border-outline-variant/40 py-3 mb-5 max-w-3xl">
               <div className="font-label font-bold text-sm tracking-widest mb-1">TRUST. PRIVACY. SECURITY.</div>
               <p className="text-sm md:text-base text-on-surface-variant">
-                Be clear about what you share, who can access it, how long it is kept, and when a person needs to check the result.
+                Say what you share, who can use it, how long it stays there, and when a person should check the answer.
               </p>
             </div>
             <Link href="/contact#book" className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3.5 rounded-full font-bold">
@@ -77,12 +77,12 @@ export default function TrainingPage() {
       <section className="px-6 md:px-8 py-14 md:py-16 bg-surface-container-lowest">
         <div className="max-w-7xl mx-auto">
           <Reveal>
-            <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">Bring the problem</div>
+            <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">Start with a real problem</div>
             <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.02] mb-4 max-w-4xl">
-              Work on what has been sitting unresolved<span className="text-primary italic">.</span>
+              Work on what still needs solving<span className="text-primary italic">.</span>
             </h2>
             <p className="text-lg text-on-surface-variant max-w-2xl mb-8">
-              Start with the real situation, not a generic lesson. The training helps you use AI to tackle that problem—and know when to check its work.
+              Start with the real situation, not a general lesson. The training helps you use AI to work on that problem—and know when to check the answer.
             </p>
           </Reveal>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -105,7 +105,7 @@ export default function TrainingPage() {
             <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">Trust, privacy &amp; security</div>
             <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.02] mb-4 max-w-4xl">Use AI without losing control<span className="text-primary italic">.</span></h2>
             <p className="text-base text-inverse-on-surface/70 max-w-2xl mb-8">
-              We look at the information in your work and how it will be used. We help you decide what to share, who can access it, and when a person needs to check the result.
+              We look at the information in your work and how you plan to use it. We help you decide what to share, who can use it, and when a person should check the answer.
             </p>
           </Reveal>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
