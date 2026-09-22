@@ -90,11 +90,20 @@ export default function TrainingPage() {
           <Reveal>
             <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">Real examples</div>
           </Reveal>
-          <div className="grid lg:grid-cols-2 gap-4">
+          <div className="grid lg:grid-cols-3 gap-4">
             <Reveal className="h-full">
               <div className="border border-outline-variant/50 p-5 md:p-6 rounded-3xl h-full">
-                <h2 className="font-headline text-2xl font-bold mb-2">Simcha S.</h2>
-                <p className="text-lg font-bold mb-5">Rebuilding a Shopify Store by Talking to ChatGPT</p>
+                <h2 className="font-headline text-2xl font-bold mb-1">Abraham C.</h2>
+                <p className="text-sm text-on-surface-variant mb-3">Chief Operating Officer, LCLA</p>
+                <p className="text-base leading-relaxed">
+                  A short AI training session helped move work that had been stuck for a long time.
+                </p>
+              </div>
+            </Reveal>
+            <Reveal delay={60} className="h-full">
+              <div className="border border-outline-variant/50 p-5 md:p-6 rounded-3xl h-full">
+                <h2 className="font-headline text-2xl font-bold mb-1">Simcha S.</h2>
+                <p className="text-base font-bold mt-2 mb-4">Rebuilding a Shopify Store by Talking to ChatGPT</p>
                 <a
                   href="https://aventary.com/videos/rebuilding-a-shopify-store-by-talking-to-chatgpt"
                   target="_blank"
@@ -105,10 +114,10 @@ export default function TrainingPage() {
                 </a>
               </div>
             </Reveal>
-            <Reveal delay={60} className="h-full">
+            <Reveal delay={120} className="h-full">
               <div className="border border-outline-variant/50 p-5 md:p-6 rounded-3xl h-full">
-                <h2 className="font-headline text-2xl font-bold mb-2">A family office</h2>
-                <p className="text-base text-on-surface-variant leading-relaxed">
+                <h2 className="font-headline text-2xl font-bold mb-1">A family office</h2>
+                <p className="text-base leading-relaxed">
                   Hundreds of PDFs and scanned documents were hard to sort through. AI helped read them, identify them, name them, and organize them.
                 </p>
               </div>
