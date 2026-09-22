@@ -128,26 +128,42 @@ export default function TrainingPage() {
 
       <section className="px-6 md:px-8 py-10 md:py-12 bg-ink text-inverse-on-surface">
         <div className="max-w-7xl mx-auto">
-          <div className="max-w-4xl">
-            <Reveal>
-              <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">Trust, privacy &amp; security</div>
-              <h2 className="font-headline text-3xl md:text-5xl font-bold leading-[1.02] mb-4">
-                Use AI without being careless with your information<span className="text-primary italic">.</span>
-              </h2>
-              <p className="text-base text-inverse-on-surface/70 max-w-2xl mb-7 leading-relaxed">
-                We show you what you can share, what should stay private, and when an answer needs to be checked by a person.
-              </p>
-            </Reveal>
-            <div className="grid md:grid-cols-3 gap-4">
-              {TRUST.map(([title, body], i) => (
-                <Reveal key={title} delay={i * 60} className="h-full">
-                  <div className="border border-inverse-on-surface/15 p-5 rounded-3xl h-full">
-                    <h3 className="font-headline text-xl font-bold mb-2">{title}</h3>
-                    <p className="text-sm text-inverse-on-surface/70 leading-relaxed">{body}</p>
-                  </div>
-                </Reveal>
-              ))}
+          <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,24rem)] gap-6 lg:gap-8 items-center">
+            <div>
+              <Reveal>
+                <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">Trust, privacy &amp; security</div>
+                <h2 className="font-headline text-3xl md:text-5xl font-bold leading-[1.02] mb-4">
+                  Use AI without being careless with your information<span className="text-primary italic">.</span>
+                </h2>
+                <p className="text-base text-inverse-on-surface/70 max-w-2xl mb-7 leading-relaxed">
+                  We show you what you can share, what should stay private, and when an answer needs to be checked by a person.
+                </p>
+              </Reveal>
+              <div className="grid md:grid-cols-3 gap-4">
+                {TRUST.map(([title, body], i) => (
+                  <Reveal key={title} delay={i * 60} className="h-full">
+                    <div className="border border-inverse-on-surface/15 p-5 rounded-3xl h-full">
+                      <h3 className="font-headline text-xl font-bold mb-2">{title}</h3>
+                      <p className="text-sm text-inverse-on-surface/70 leading-relaxed">{body}</p>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
             </div>
+            <Reveal delay={120}>
+              <div className="rounded-3xl border border-inverse-on-surface/10 bg-inverse-on-surface/[0.04] p-5" aria-hidden="true">
+                <svg viewBox="0 0 360 230" className="w-full h-auto text-primary" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M42 181.5h276" stroke="currentColor" strokeOpacity=".35" strokeWidth="2" />
+                  <path d="M86 177c8-36 29-54 55-54s47 18 55 54M173 177c7-28 23-42 45-42s38 14 45 42" stroke="currentColor" strokeOpacity=".8" strokeWidth="3" strokeLinecap="round" />
+                  <circle cx="141" cy="92" r="20" fill="currentColor" fillOpacity=".18" stroke="currentColor" strokeWidth="2" />
+                  <circle cx="218" cy="105" r="18" fill="currentColor" fillOpacity=".18" stroke="currentColor" strokeWidth="2" />
+                  <circle cx="92" cy="113" r="17" fill="currentColor" fillOpacity=".18" stroke="currentColor" strokeWidth="2" />
+                  <path d="M126 151c10-10 22-15 35-15M202 157c9-8 19-12 30-12M77 161c8-7 17-10 27-10" stroke="currentColor" strokeOpacity=".55" strokeWidth="2" strokeLinecap="round" />
+                  <rect x="126" y="170" width="108" height="8" rx="4" fill="currentColor" fillOpacity=".2" />
+                  <rect x="154" y="166" width="52" height="4" rx="2" fill="currentColor" fillOpacity=".5" />
+                </svg>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
