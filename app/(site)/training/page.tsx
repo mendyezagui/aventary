@@ -35,9 +35,10 @@ const EXAMPLES = [
 ];
 
 const TRUST = [
-  ["What can I share?", "Not everything belongs in an AI tool."],
-  ["What should stay private?", "We help you tell the difference."],
-  ["When should a person check?", "Important answers still need a person’s judgment."]
+  ["What can be shared", "Know what is safe to put into AI and what should stay private."],
+  ["Which AI setup to use", "Different AI tools and business accounts handle information differently."],
+  ["Who can access it", "Make sure sensitive information is only available to the right people."],
+  ["When a person needs to check", "Important work should not be trusted blindly just because AI produced the answer."]
 ];
 
 export default function TrainingPage() {
@@ -141,15 +142,15 @@ export default function TrainingPage() {
           <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,24rem)] gap-6 lg:gap-8 items-center">
             <div>
               <Reveal>
-                <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">Trust, privacy &amp; security</div>
+                <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">TRUST, PRIVACY &amp; SECURITY</div>
                 <h2 className="font-headline text-3xl md:text-5xl font-bold leading-[1.02] mb-4">
                   Use AI without being careless with your information<span className="text-primary italic">.</span>
                 </h2>
                 <p className="text-base text-inverse-on-surface/70 max-w-2xl mb-7 leading-relaxed">
-                  We show you what you can share, what should stay private, and when an answer needs to be checked by a person.
+                  Not every AI tool is right for sensitive work. We help you decide what can be shared, which AI setup makes sense, who can access the information, how long it is kept, and when a person should check the answer.
                 </p>
               </Reveal>
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid md:grid-cols-2 gap-4">
                 {TRUST.map(([title, body], i) => (
                   <Reveal key={title} delay={i * 60} className="h-full">
                     <div className="border border-inverse-on-surface/15 p-5 rounded-3xl h-full">
