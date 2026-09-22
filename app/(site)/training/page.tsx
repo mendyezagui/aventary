@@ -6,7 +6,7 @@ export const revalidate = 3600;
 const PAGE_URL = "https://aventary.com/training";
 const TITLE = "Executive & Leadership AI Training | Aventary";
 const DESCRIPTION =
-  "Practical AI training for executives and leadership teams, built around real work, clear boundaries, and human review.";
+  "Practical AI training for executives and leadership teams, built around real work, clear limits, and a person checking important work.";
 
 export const metadata = {
   title: "Executive & Leadership AI Training",
@@ -37,12 +37,12 @@ const USE_CASES = [
 ];
 
 const TRUST = [
-  ["Boundaries", "Decide what information can be used, what is sensitive, and what stays out."],
-  ["Access", "Use the right access for the task and no more than is needed."],
-  ["Retention", "Understand the retention settings of the tools you choose."],
-  ["Human review", "Check important outputs and keep people responsible for consequential decisions."],
-  ["Less exposure", "Avoid putting sensitive information into tools or prompts unnecessarily."],
-  ["Clear choices", "Choose tools and working practices based on the work and its requirements."]
+  ["What you share", "Decide what information can be used, what is sensitive, and what should stay out."],
+  ["Who can access it", "Give access to the people and tools that need it, and no one else."],
+  ["How long your information is kept", "Understand how long the tools you choose keep your information."],
+  ["A person checks important work", "Check important results before using them, especially when a decision affects people or the business."],
+  ["Share only what is needed", "Do not put sensitive information into tools or prompts unless it is necessary."],
+  ["Make clear choices", "Choose tools and ways of working that fit the information and the task."]
 ];
 
 export default function TrainingPage() {
@@ -58,12 +58,12 @@ export default function TrainingPage() {
               Practical AI for <span className="text-primary italic">real work.</span>
             </h2>
             <p className="text-lg md:text-xl text-on-surface-variant max-w-2xl mb-5 leading-relaxed">
-              Bring an unresolved problem. We will help you use AI to solve it yourself—one-to-one or with your team.
+              Bring a problem you have not solved. We will help you use AI to solve it yourself—one-to-one or with your team.
             </p>
             <div className="border-y border-outline-variant/40 py-3 mb-5 max-w-3xl">
               <div className="font-label font-bold text-sm tracking-widest mb-1">TRUST. PRIVACY. SECURITY.</div>
               <p className="text-sm md:text-base text-on-surface-variant">
-                Clear boundaries, appropriate tools, limited access, careful handling of sensitive information, and human review.
+                Be clear about what you share, who can access it, how long it is kept, and when a person needs to check the result.
               </p>
             </div>
             <Link href="/contact#book" className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3.5 rounded-full font-bold">
@@ -82,7 +82,7 @@ export default function TrainingPage() {
               Work on what has been sitting unresolved<span className="text-primary italic">.</span>
             </h2>
             <p className="text-lg text-on-surface-variant max-w-2xl mb-8">
-              Start with the real situation, not a generic lesson. The training is built around helping you use AI to move that problem forward—and know where to check its work.
+              Start with the real situation, not a generic lesson. The training helps you use AI to tackle that problem—and know when to check its work.
             </p>
           </Reveal>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -105,7 +105,7 @@ export default function TrainingPage() {
             <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">Trust, privacy &amp; security</div>
             <h2 className="font-headline text-4xl md:text-6xl font-bold leading-[1.02] mb-4 max-w-4xl">Use AI without losing control<span className="text-primary italic">.</span></h2>
             <p className="text-base text-inverse-on-surface/70 max-w-2xl mb-8">
-              We focus on practical safeguards for the tools and information involved in your work. No blanket promises—just clear decisions about what to use, who can access it, and what needs a person’s review.
+              We look at the information in your work and how it will be used. We help you decide what to share, who can access it, and when a person needs to check the result.
             </p>
           </Reveal>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
