@@ -28,19 +28,18 @@ export const metadata = {
 };
 
 const EXAMPLES = [
- ["What am I not delegating?", "Find the work that keeps piling up because it still depends on you — then turn it into clear tasks, owners, and next steps."],
-["What's sitting unfinished?", "Surface the decisions, follow-ups, and projects that keep getting pushed aside before they become bigger problems."],
-["Can we respond to this information request?", "Pull together communications and information from a specific period without losing hours searching through emails, files, and conversations."],
-["Can AI take this repetitive work off my plate?", "Identify work your team keeps doing manually and use AI to dramatically reduce the time it takes."]];
-];
-const TRUST = [
-  ["What can be shared", "Decide what information is appropriate for AI and what should remain private before sensitive work ever reaches a model."],
-["Which AI setup to use", "Choose the right enterprise AI environment based on the sensitivity of the work, data handling, retention, and security controls."],
-["Who can access it", "Control who can access sensitive information and use the right permissions for the people and systems involved."],
-  
-["When a person needs to check", "Keep human review in the loop for important decisions and work where accuracy, privacy, or judgment matters."];
+  ["What am I not delegating?", "Find the work that keeps piling up because it still depends on you — then turn it into clear tasks, owners, and next steps."],
+  ["What's sitting unfinished?", "Surface the decisions, follow-ups, and projects that keep getting pushed aside before they become bigger problems."],
+  ["Can we respond to this information request?", "Pull together communications and information from a specific period without losing hours searching through emails, files, and conversations."],
+  ["Can AI take this repetitive work off my plate?", "Identify work your team keeps doing manually and use AI to dramatically reduce the time it takes."]
 ];
 
+const TRUST = [
+  ["What can be shared", "Decide what information is appropriate for AI and what should remain private before sensitive work ever reaches a model."],
+  ["Which AI setup to use", "Choose the right enterprise AI environment based on the sensitivity of the work, data handling, retention, and security controls."],
+  ["Who can access it", "Control who can access sensitive information and use the right permissions for the people and systems involved."],
+  ["When a person needs to check", "Keep human review in the loop for important decisions and work where accuracy, privacy, or judgment matters."]
+];
 
 export default function TrainingPage() {
   return (
