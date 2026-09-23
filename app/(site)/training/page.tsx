@@ -105,7 +105,26 @@ export default function TrainingPage() {
           </div>
         </div>
       </section>
-
+<section className="px-6 md:px-8 py-8 md:py-10 bg-surface-container-lowest">
+  <div className="max-w-7xl mx-auto">
+    <Reveal>
+      <div className="border border-outline-variant/50 rounded-3xl p-5 md:p-7">
+        <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
+          Example: Amazon Connect
+        </div>
+        <h2 className="font-headline text-2xl md:text-3xl font-bold mb-3">
+          Privacy controls matter as much as the AI itself.
+        </h2>
+        <p className="text-base text-on-surface-variant leading-relaxed max-w-3xl">
+          Amazon Connect shows how sensitive customer communications can be handled with stronger controls around access, encryption, recording, and retention. Recordings and transcripts can be stored securely, access can be limited by role, and organizations can define how long information is kept.
+        </p>
+        <p className="text-sm text-on-surface-variant mt-4 max-w-3xl">
+          For organizations handling confidential information, we help evaluate the AI environment, permissions, data handling, and human review requirements before sensitive workflows are automated.
+        </p>
+      </div>
+    </Reveal>
+  </div>
+</section>
       <section className="px-6 md:px-8 py-8 md:py-10 bg-surface-container-lowest">
         <div className="max-w-7xl mx-auto">
           <Reveal>
