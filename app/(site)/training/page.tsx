@@ -28,10 +28,10 @@ export const metadata = {
 };
 
 const EXAMPLES = [
-  ["What am I not delegating?", "Find the work that keeps piling up because it still depends on you — then turn it into clear tasks, owners, and next steps."],
-  ["What's sitting unfinished?", "Surface the decisions, follow-ups, and projects that keep getting pushed aside before they become bigger problems."],
-  ["Can we respond to this information request?", "Pull together communications and information from a specific period without losing hours searching through emails, files, and conversations."],
-  ["Can AI take this repetitive work off my plate?", "Identify work your team keeps doing manually and use AI to dramatically reduce the time it takes."]
+  ["What is stuck because it still depends on me?", "Find the work, decisions, and follow-ups waiting on you — then turn them into clear owners and next steps before they become bottlenecks."],
+["What are we about to drop?", "Surface overdue decisions, unanswered follow-ups, and unfinished work before something important gets missed."],
+["We need to respond. Where is the information?", "Pull together the emails, files, and conversations you need from a specific period without losing hours searching for them."],
+["Why are we still doing this manually?", "Find repetitive work consuming your team's time and use AI to dramatically reduce the manual effort."]
 ];
 
 const TRUST = [
