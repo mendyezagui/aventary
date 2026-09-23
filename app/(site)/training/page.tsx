@@ -28,17 +28,16 @@ export const metadata = {
 };
 
 const EXAMPLES = [
-  ["What am I not delegating?", "Turn the running list in your head into clear tasks, owners, and next steps so important work stops sitting."],
-["What did I miss?", "Catch up on what changed, what needs your attention, and what is still open without digging through every conversation."],
-["Can we respond to this information request?", "Pull together the communications and information you need from a specific period without hours of manual searching."],
-["Can AI take this repetitive work off my plate?", "Use AI to handle painfully time-consuming work your team keeps doing again and again."]];
-
+ ["What am I not delegating?", "Find the work that keeps piling up because it still depends on you — then turn it into clear tasks, owners, and next steps."],
+["What's sitting unfinished?", "Surface the decisions, follow-ups, and projects that keep getting pushed aside before they become bigger problems."],
+["Can we respond to this information request?", "Pull together communications and information from a specific period without losing hours searching through emails, files, and conversations."],
+["Can AI take this repetitive work off my plate?", "Identify work your team keeps doing manually and use AI to dramatically reduce the time it takes."]
 const TRUST = [
-  ["What can be shared", "Know what is safe to put into AI and what should stay private."],
-  ["Which AI setup to use", "Different AI tools and business accounts handle information differently."],
-  ["Who can access it", "Make sure sensitive information is only available to the right people."],
-  ["When a person needs to check", "Important work should not be trusted blindly just because AI produced the answer."]
-];
+  ["What can be shared", "Decide what information is appropriate for AI and what should remain private before sensitive work ever reaches a model."],
+["Which AI setup to use", "Choose the right enterprise AI environment based on the sensitivity of the work, data handling, retention, and security controls."],
+["Who can access it", "Control who can access sensitive information and use the right permissions for the people and systems involved."],
+["When a person needs to check", "Keep human review in the loop for important decisions and work where accuracy, privacy, or judgment matters."]
+
 
 export default function TrainingPage() {
   return (
@@ -129,7 +128,7 @@ export default function TrainingPage() {
       <section className="px-6 md:px-8 py-8 md:py-10">
         <div className="max-w-7xl mx-auto">
           <Reveal>
-            <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">Real examples</div>
+            <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">Testimonials</div>
           </Reveal>
           <div className="grid lg:grid-cols-4 gap-4">
             <Reveal>
@@ -157,7 +156,7 @@ export default function TrainingPage() {
             </Reveal>
             <Reveal delay={120}>
               <div className="border border-outline-variant/50 p-4 md:p-5 rounded-3xl">
-                <h2 className="font-headline text-2xl font-bold mb-1">A family office</h2>
+                <h2 className="font-headline text-2xl font-bold mb-1">Scott Management</h2>
                 <p className="text-sm text-on-surface-variant mb-3">Hundreds of documents to organize</p>
                 <p className="text-base leading-relaxed">
                   We showed them how AI could read, identify, name, and organize hundreds of PDFs and scans.
