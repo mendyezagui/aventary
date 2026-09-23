@@ -28,11 +28,10 @@ export const metadata = {
 };
 
 const EXAMPLES = [
-  ["What did I miss yesterday?", "Pull together what’s still open and what needs your attention next."],
-  ["Who am I about to speak to?", "Before a call, get the important history without digging through old emails and notes."],
-  ["Where is that document?", "Find information buried across your files without searching through everything yourself."],
-  ["Can AI take this repetitive work off my plate?", "Use it to help with work you keep doing again and again."]
-];
+  ["What am I not delegating?", "Turn the running list in your head into clear tasks, owners, and next steps so important work stops sitting."],
+["What did I miss?", "Catch up on what changed, what needs your attention, and what is still open without digging through every conversation."],
+["Can we respond to this information request?", "Pull together the communications and information you need from a specific period without hours of manual searching."],
+["Can AI take this repetitive work off my plate?", "Use AI to handle painfully time-consuming work your team keeps doing again and again."]];
 
 const TRUST = [
   ["What can be shared", "Know what is safe to put into AI and what should stay private."],
