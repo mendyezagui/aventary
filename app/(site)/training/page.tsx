@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Reveal } from "@/components/Reveal";
 
-export const revalidate = 3600;
+export const revalidate = 3601;
 
 const PAGE_URL = "https://aventary.com/training";
 const TITLE = "Executive & Leadership AI Training | Aventary";
