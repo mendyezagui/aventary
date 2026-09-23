@@ -110,16 +110,16 @@ export default function TrainingPage() {
     <Reveal>
       <div className="border border-outline-variant/50 rounded-3xl p-5 md:p-7">
        <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
-  Example: Amazon Connect
+Amazon Connect
 </div>
 <h2 className="font-headline text-2xl md:text-3xl font-bold mb-3">
   Sensitive work needs the right AI environment.
 </h2>
 <p className="text-base text-on-surface-variant leading-relaxed max-w-3xl">
-  Amazon Connect is one example of how organizations can use AI while keeping tighter control over sensitive information. Access can be limited, recordings and transcripts can be protected, and retention can be managed based on the needs of the organization.
+  Amazon Connect uses AI capabilities through Amazon Bedrock, giving organizations an enterprise environment for AI-powered customer service while maintaining control over security, access, and sensitive information.  
 </p>
 <p className="text-sm text-on-surface-variant mt-4 max-w-3xl">
-  The point is not to use one AI tool for everything. We help teams choose the right setup for the work, the information involved, and the level of privacy and human oversight required.
+ The right setup depends on the work and the data involved. We help teams evaluate the AI environment, permissions, data handling, and human review needed before sensitive information is used with AI.
 </p>
       </div>
     </Reveal>
