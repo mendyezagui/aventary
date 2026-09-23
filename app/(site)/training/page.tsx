@@ -109,18 +109,18 @@ export default function TrainingPage() {
   <div className="max-w-7xl mx-auto">
     <Reveal>
       <div className="border border-outline-variant/50 rounded-3xl p-5 md:p-7">
-        <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
-          Example: Amazon Connect
-        </div>
-        <h2 className="font-headline text-2xl md:text-3xl font-bold mb-3">
-          Privacy controls matter as much as the AI itself.
-        </h2>
-        <p className="text-base text-on-surface-variant leading-relaxed max-w-3xl">
-          Amazon Connect shows how sensitive customer communications can be handled with stronger controls around access, encryption, recording, and retention. Recordings and transcripts can be stored securely, access can be limited by role, and organizations can define how long information is kept.
-        </p>
-        <p className="text-sm text-on-surface-variant mt-4 max-w-3xl">
-          For organizations handling confidential information, we help evaluate the AI environment, permissions, data handling, and human review requirements before sensitive workflows are automated.
-        </p>
+       <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
+  Example: Amazon Connect
+</div>
+<h2 className="font-headline text-2xl md:text-3xl font-bold mb-3">
+  Sensitive work needs the right AI environment.
+</h2>
+<p className="text-base text-on-surface-variant leading-relaxed max-w-3xl">
+  Amazon Connect is one example of how organizations can use AI while keeping tighter control over sensitive information. Access can be limited, recordings and transcripts can be protected, and retention can be managed based on the needs of the organization.
+</p>
+<p className="text-sm text-on-surface-variant mt-4 max-w-3xl">
+  The point is not to use one AI tool for everything. We help teams choose the right setup for the work, the information involved, and the level of privacy and human oversight required.
+</p>
       </div>
     </Reveal>
   </div>
