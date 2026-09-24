@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
   //    reached an inbox, because RESEND_API_KEY was never set on the Worker and
   //    this branch quietly did nothing. sendMail now records that as a failure
   //    and /see shows it.
-  await sendMail("contact-notify", {
+  const mailResult = await sendMail("contact-notify", {
       to: process.env.CONTACT_TO_EMAIL,
       replyTo: input.email,
       subject: `New inquiry — ${input.name}${input.company ? " (" + input.company + ")" : ""}`,
@@ -74,6 +74,10 @@ Source:  ${input.source ?? "contact"}
 Message:
 ${input.message}`
   });
+
+  if (input.source === "training" && !mailResult.ok) {
+    return NextResponse.json({ error: "Could not send your message. Please try again." }, { status: 503 });
+  }
 
   // 3. Auto-responder for the Revenue Leak Detection Kit (diagnostics leads only).
   //    sendMail never throws, so a failure here cannot affect the lead capture

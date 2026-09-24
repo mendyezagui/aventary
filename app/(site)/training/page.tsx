@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { Reveal } from "@/components/Reveal";
+import TrainingInquiryForm from "@/components/TrainingInquiryForm";
 
 export const revalidate = 3601;
 
 const PAGE_URL = "https://aventary.com/training";
-const TITLE = "Executive & Leadership AI Training | Aventary";
+const TITLE = "Executive AI Training | Aventary";
 const DESCRIPTION =
-  "Practical AI training for executives and leadership teams, built around real work, clear limits, and a person checking important work.";
+  "Bring the thing you're stuck on. Work it through with AI on your files, then leave with a setup you can run again.";
 
 export const metadata = {
-  title: "Executive & Leadership AI Training",
+  title: { absolute: TITLE },
   description: DESCRIPTION,
   alternates: { canonical: PAGE_URL },
   openGraph: {
@@ -29,9 +30,9 @@ export const metadata = {
 
 const EXAMPLES = [
   ["What is stuck because it still depends on me?", "Find the work, decisions, and follow-ups waiting on you — then turn them into clear owners and next steps before they become bottlenecks."],
-["What are we about to drop?", "Surface overdue decisions, unanswered follow-ups, and unfinished work before something important gets missed."],
-["We need to respond. Where is the information?", "Pull together the emails, files, and conversations you need from a specific period without losing hours searching for them."],
-["Why are we still doing this manually?", "Find repetitive work consuming your team's time and use AI to dramatically reduce the manual effort."]
+  ["It's 7:40. My 8:00 is someone I last spoke to in March.", "Get the full history from email and notes before you dial."],
+  ["We need to respond. Where is the information?", "Pull together the emails, files, and conversations you need from a specific period without losing hours searching for them."],
+  ["Why are we still doing this manually?", "Find repetitive work consuming your team's time and use AI to dramatically reduce the manual effort."]
 ];
 
 const TRUST = [
@@ -47,20 +48,42 @@ export default function TrainingPage() {
       <section className="px-6 md:px-8 pt-7 md:pt-9 pb-8 md:pb-10">
         <div className="max-w-7xl mx-auto">
           <div className="max-w-4xl">
-            <h1 className="font-headline text-4xl md:text-6xl lg:text-[5rem] font-bold leading-[.96] text-accent mb-4">
-              Executive &amp; Leadership AI Training
+            <h1 className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-4">
+              Executive AI Training
             </h1>
-            <h2 className="font-headline text-2xl md:text-4xl lg:text-[3.5rem] font-bold leading-[1] mb-4">
-              Use AI to get actual work done<span className="text-primary italic">.</span>
+            <h2 className="font-headline text-4xl md:text-6xl lg:text-[5rem] font-bold leading-[.96] mb-5">
+              Bring the thing you&apos;re stuck on<span className="text-primary italic">.</span>
             </h2>
             <p className="text-lg md:text-xl text-on-surface-variant max-w-2xl mb-5 leading-relaxed">
-              Bring us something you&apos;re stuck on. We&apos;ll show you how to use AI to work through it yourself.
+              We work it with AI, on your files, with you in the chair. You leave with it moving and a setup you can run again without us.
             </p>
-            <p className="text-base text-on-surface-variant mb-5">One-on-one or with your team.</p>
-            <Link href="/contact#book" className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3.5 rounded-full font-bold">
-              Book a free consultation
+            <p className="text-base text-on-surface-variant mb-6">
+              No course. No homework. 60 minutes, in person or online, one-on-one or with your team.
+            </p>
+            <Link href="#training-inquiry" className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3.5 rounded-full font-bold">
+              Tell me what you&apos;re stuck on
               <span className="material-symbols-outlined">arrow_forward</span>
             </Link>
+          </div>
+        </div>
+      </section>
+      <section className="px-6 md:px-8 py-8 md:py-10 bg-surface-container-lowest">
+        <div className="max-w-7xl mx-auto">
+          <Reveal>
+            <h2 className="font-headline text-3xl md:text-5xl font-bold leading-[1.02] mb-3 max-w-3xl">
+              Start with a problem you actually have<span className="text-primary italic">.</span>
+            </h2>
+          </Reveal>
+          <div className="grid md:grid-cols-2 gap-4 mt-6">
+            {EXAMPLES.map(([title, body], i) => (
+              <Reveal key={title} delay={Math.min(i, 3) * 60}>
+                <div className="bg-surface p-4 md:p-5 rounded-3xl soft-lift">
+                  <div className="text-primary font-label font-bold text-sm mb-2">0{i + 1}</div>
+                  <h3 className="font-headline text-xl md:text-2xl font-bold mb-2">{title}</h3>
+                  <p className="text-sm text-on-surface-variant leading-relaxed">{body}</p>
+                </div>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
@@ -105,109 +128,62 @@ export default function TrainingPage() {
           </div>
         </div>
       </section>
-<section className="px-6 md:px-8 py-8 md:py-10 bg-surface-container-lowest">
-  <div className="max-w-7xl mx-auto">
-    <Reveal>
-      <div className="border border-outline-variant/50 rounded-3xl p-5 md:p-7">
-       <div className="text-primary font-label font-bold text-xs tracking-widest uppercase mb-3">
-Amazon Connect
-</div>
-<h2 className="font-headline text-2xl md:text-3xl font-bold mb-3">
-  Sensitive work needs the right AI environment.
-</h2>
-<p className="text-base text-on-surface-variant leading-relaxed max-w-3xl">
-  Amazon Connect uses AI capabilities through Amazon Bedrock, giving organizations an enterprise environment for AI-powered customer service while maintaining control over security, access, and sensitive information.  
-</p>
-<p className="text-sm text-on-surface-variant mt-4 max-w-3xl">
- The right setup depends on the work and the data involved. We help teams evaluate the AI environment, permissions, data handling, and human review needed before sensitive information is used with AI.
-</p>
-      </div>
-    </Reveal>
-  </div>
-</section>
-      <section className="px-6 md:px-8 py-8 md:py-10 bg-surface-container-lowest">
-        <div className="max-w-7xl mx-auto">
-          <Reveal>
-            <h2 className="font-headline text-3xl md:text-5xl font-bold leading-[1.02] mb-3 max-w-3xl">
-              Start with a problem you actually have<span className="text-primary italic">.</span>
-            </h2>
-          </Reveal>
-          <div className="grid md:grid-cols-2 gap-4 mt-6">
-            {EXAMPLES.map(([title, body], i) => (
-              <Reveal key={title} delay={Math.min(i, 3) * 60}>
-                <div className="bg-surface p-4 md:p-5 rounded-3xl soft-lift">
-                  <div className="text-primary font-label font-bold text-sm mb-2">0{i + 1}</div>
-                  <h3 className="font-headline text-xl md:text-2xl font-bold mb-2">{title}</h3>
-                  <p className="text-sm text-on-surface-variant leading-relaxed">{body}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <section className="px-6 md:px-8 py-8 md:py-10">
         <div className="max-w-7xl mx-auto">
           <Reveal>
-            <div className="text-accent font-label font-bold text-xs tracking-widest uppercase mb-3">Testimonials</div>
+            <h2 className="font-headline text-3xl md:text-5xl font-bold leading-[1.02] mb-6">What this looks like.</h2>
+          </Reveal>
+          <Reveal>
+            <p className="text-on-surface-variant mb-8 max-w-3xl leading-relaxed">
+              <strong className="text-on-surface">Mendy Ezagui.</strong> I built PwC&apos;s first AI SDR agent on Agentforce. Now I sit next to executives and make AI do the work.
+            </p>
           </Reveal>
           <div className="grid lg:grid-cols-4 gap-4">
             <Reveal>
               <div className="border border-outline-variant/50 p-4 md:p-5 rounded-3xl">
-                <h2 className="font-headline text-2xl font-bold mb-1">Abraham C.</h2>
-                <p className="text-sm text-on-surface-variant mb-3">Chief Operating Officer, LCLA</p>
+                <h3 className="font-headline text-2xl font-bold mb-3">Scott Management</h3>
                 <p className="text-base leading-relaxed">
-                  A problem had been stuck for a long time. A short AI training session helped them work through it.
+                  Scott Management got a request for information. The answers were scattered across every tool they use. We pulled it together across all of them in minutes, then showed them how to do it next time without us.
                 </p>
               </div>
             </Reveal>
             <Reveal delay={60}>
               <div className="border border-outline-variant/50 p-4 md:p-5 rounded-3xl">
-                <h2 className="font-headline text-2xl font-bold mb-1">Simcha S.</h2>
-                <p className="text-base font-bold mt-2 mb-4">Rebuilding a Shopify Store by Talking to ChatGPT</p>
-                <a
-                  href="https://aventary.com/videos/rebuilding-a-shopify-store-by-talking-to-chatgpt"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 text-accent font-bold"
-                >
-                  Watch the video <span className="material-symbols-outlined">arrow_outward</span>
-                </a>
+                <h3 className="font-headline text-2xl font-bold mb-3">A family office</h3>
+                <p className="text-base leading-relaxed">
+                  A family office had thousands of documents. Nobody had time to catalogue them, let alone categorize them. AI read every one, named it, and filed it by category. We can&apos;t tell you which office.
+                </p>
               </div>
             </Reveal>
             <Reveal delay={120}>
               <div className="border border-outline-variant/50 p-4 md:p-5 rounded-3xl">
-                <h2 className="font-headline text-2xl font-bold mb-1">Scott Management</h2>
-                <p className="text-sm text-on-surface-variant mb-3">Hundreds of documents to organize</p>
+                <h3 className="font-headline text-2xl font-bold mb-3">Abraham C., COO, LCLA</h3>
                 <p className="text-base leading-relaxed">
-                  We showed them how AI could read, identify, name, and organize hundreds of PDFs and scans.
+                  A stale website and software nobody wanted to touch. The website is updated. Once the team knew how to use the tools, a long list of other tasks got streamlined too.
                 </p>
               </div>
             </Reveal>
             <Reveal delay={180}>
               <div className="border border-outline-variant/50 p-4 md:p-5 rounded-3xl">
-                <h2 className="font-headline text-2xl font-bold mb-1">A family office</h2>
-                <p className="text-sm text-on-surface-variant mb-3">Finding information for requests</p>
-                <p className="text-base leading-relaxed">
-                  We showed them how AI could find information across places like Drive and Gmail and help prepare the requested material.
-                </p>
+                <h3 className="font-headline text-2xl font-bold mb-3">Simcha S.</h3>
+                <p className="text-base leading-relaxed mb-4">Rebuilt a Shopify store by talking to ChatGPT.</p>
+                <a href="https://aventary.com/videos/rebuilding-a-shopify-store-by-talking-to-chatgpt" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-accent font-bold">
+                  Watch the video <span className="material-symbols-outlined">arrow_outward</span>
+                </a>
               </div>
             </Reveal>
           </div>
         </div>
       </section>
 
-      
-
-      <section className="px-6 md:px-8 py-8 md:py-10">
-        <Reveal className="max-w-3xl mx-auto text-center">
-          <h2 className="font-headline text-3xl md:text-5xl font-bold leading-[1.02] mb-5">
-            Want to see what AI could help you with<span className="text-primary italic">?</span>
+      <section id="training-inquiry" className="scroll-mt-24 px-6 md:px-8 py-12 md:py-16 bg-surface-container-low">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="font-headline text-3xl md:text-5xl font-bold leading-[1.02] mb-8">
+            What&apos;s the one thing you&apos;d hand off tomorrow?
           </h2>
-          <Link href="/contact#book" className="inline-flex items-center gap-2 bg-primary text-on-primary px-7 py-4 rounded-full font-bold">
-            Book a free consultation
-          </Link>
-        </Reveal>
+          <TrainingInquiryForm />
+        </div>
       </section>
     </>
   );
